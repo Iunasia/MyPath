@@ -1,23 +1,24 @@
-const mongoose = require('mongoose');
+const pool = require('../config/db');
 
-const scholarshipSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  provider: { type: String, required: true },
-  description: { type: String, required: true },
-  amount: String,
-  coverage: String,
-  eligibility: [String],
-  deadline: Date,
-  applicationLink: String,
-  country: String,
+const University = {
+  getAll: async () => {
+    const res = await pool.query('SELECT * FROM universities ORDER BY name ASC');
+    return res.rows;
+  },
 
-  // DMIL Information Check Fields
-  source: { type: String, required: true },
-  sourceUrl: { type: String, required: true },
-  sourceType: { type: String, enum: ['official', 'verified', 'social_media', 'unverified'], default: 'official' },
-  lastVerified: { type: Date, default: Date.now },
-  verifiedStatus: { type: String, enum: ['verified', 'pending', 'flagged'], default: 'verified' },
-  safetyWarnings: [String]
-});
+  getById: async (id) => {
+    const res = await pool.query('SELECT * FROM universities WHERE id = $1', [id]);
+    return res.rows[0];
+  },
 
-module.exports = mongoose.model('Scholarship', scholarshipSchema);
+  create: async (data) => {
+    const res = await pool.query(
+      `INSERT INTO universities (name, country, city, ranking, description, website, tuition_range, acceptance_rate, programs, source, source_url)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+      [data.name, data.country, data.city, data.ranking, data.description, data.website, data.tuition_range, data.acceptance_rate, data.programs, data.source, data.source_url]
+    );
+    return res.rows[0];
+  }
+};
+
+module.exports = University;
