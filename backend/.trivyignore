@@ -1,0 +1,5 @@
+# npm-internal build tooling — not reachable at runtime, no upstream fix yet
+CVE-2026-14257
+CVE-2026-69152
+CVE-2026-69192
+CVE-2026-73566
