@@ -1,0 +1,27 @@
+name: Security Checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  dependency-scan:
+    name: Dependency Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Audit backend dependencies
+        working-directory: backend
+        run: npm audit
+
+      - name: Audit frontend dependencies
+        working-directory: frontend
+        run: npm audit
