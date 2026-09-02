@@ -1,8 +1,25 @@
 import Link from "next/link";
 import ScrollReveal from "./components/ScrollReveal";
+import {
+  Compass,
+  Search,
+  Scale,
+  ShieldCheck,
+  ArrowLeftRight,
+  FolderTree,
+  CheckCircle2,
+  Briefcase,
+  BookOpen,
+  GraduationCap,
+  CircleDollarSign,
+  RotateCw,
+  Link2,
+  Zap,
+  Sparkles,
+} from "lucide-react";
 
 /* ── Wave Divider (inline SVG) ─────────────────────────── */
-function WaveTop({ fill = "#F0F9FF" }: { fill?: string }) {
+function WaveTop({ fill = "#E2F1F1" }: { fill?: string }) {
   return (
     <div className="w-full leading-none" aria-hidden="true">
       <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto block">
@@ -12,7 +29,7 @@ function WaveTop({ fill = "#F0F9FF" }: { fill?: string }) {
   );
 }
 
-function WaveBottom({ fill = "#F0F9FF" }: { fill?: string }) {
+function WaveBottom({ fill = "#E2F1F1" }: { fill?: string }) {
   return (
     <div className="w-full leading-none" aria-hidden="true">
       <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto block">
@@ -26,19 +43,19 @@ function WaveBottom({ fill = "#F0F9FF" }: { fill?: string }) {
 
 const NAV_LINKS = [
   { label: "Careers", href: "#careers" },
-  { label: "Majors", href: "#majors" },
+  { label: "Majors", href: "/majors" },
   { label: "Universities", href: "#universities" },
   { label: "Scholarships", href: "#scholarships" },
 ];
 
 const DMIL_STEPS = [
-  { icon: "🧭", title: "Discover", bg: "bg-sky/20" },
-  { icon: "🔍", title: "Search", bg: "bg-lilac/40" },
-  { icon: "⚖️", title: "Evaluate", bg: "bg-peach/40" },
-  { icon: "🛡️", title: "Verify", bg: "bg-mint/40" },
-  { icon: "🔀", title: "Compare", bg: "bg-sky/15" },
-  { icon: "🗂️", title: "Organize", bg: "bg-lilac/25" },
-  { icon: "✅", title: "Decide", bg: "bg-sunshine/40" },
+  { icon: Compass, title: "Discover", bg: "bg-sitomo", color: "text-sky-deep" },
+  { icon: Search, title: "Search", bg: "bg-momo", color: "text-blue-ink" },
+  { icon: Scale, title: "Evaluate", bg: "bg-sitomo", color: "text-blue-ink" },
+  { icon: ShieldCheck, title: "Verify", bg: "bg-sky/25", color: "text-blue-ink" },
+  { icon: ArrowLeftRight, title: "Compare", bg: "bg-sitomo", color: "text-sky-deep" },
+  { icon: FolderTree, title: "Organize", bg: "bg-momo", color: "text-blue-ink" },
+  { icon: CheckCircle2, title: "Decide", bg: "bg-sitomo", color: "text-blue-ink" },
 ];
 
 const DMIL_DESCRIPTIONS = [
@@ -52,17 +69,17 @@ const DMIL_DESCRIPTIONS = [
 ];
 
 const EXPLORERS = [
-  { icon: "🧭", title: "Career Explorer", description: "Explore careers based on your interests, skills, and values. See real pathways people take.", chip: "bg-sky/20 text-sky-deep", border: "border-sky/20" },
-  { icon: "📚", title: "Major Explorer", description: "Discover majors and see how they connect to careers, industries, and further study.", chip: "bg-lilac/30 text-blue-ink", border: "border-lilac/40" },
-  { icon: "🎓", title: "University Explorer", description: "Search and compare universities by program, location, cost, and student outcomes.", chip: "bg-mint/30 text-blue-ink", border: "border-mint/50" },
-  { icon: "💰", title: "Scholarship Explorer", description: "Find scholarships and funding opportunities you're actually eligible for.", chip: "bg-peach/30 text-blue-ink", border: "border-peach/50" },
+  { icon: Briefcase, title: "Career Explorer", description: "Explore careers based on your interests, skills, and values. See real pathways people take.", chip: "bg-sitomo text-sky-deep", border: "border-sky/20", href: "#careers" },
+  { icon: BookOpen, title: "Major Explorer", description: "Discover majors and see how they connect to careers, industries, and further study.", chip: "bg-momo text-blue-ink", border: "border-momo", href: "/majors" },
+  { icon: GraduationCap, title: "University Explorer", description: "Search and compare universities by program, location, cost, and student outcomes.", chip: "bg-sitomo text-blue-ink", border: "border-sitomo", href: "#universities" },
+  { icon: CircleDollarSign, title: "Scholarship Explorer", description: "Find scholarships and funding opportunities you're actually eligible for.", chip: "bg-momo text-blue-ink", border: "border-momo", href: "#scholarships" },
 ];
 
 const TRUST_ITEMS = [
-  { icon: "🔄", title: "7-Step Process", description: "A structured journey from discovery to informed decision.", bg: "bg-sky/10" },
-  { icon: "🔗", title: "Source Verified", description: "Every claim links back to its original, official source.", bg: "bg-lilac/20" },
-  { icon: "⚡", title: "Real-Time Checking", description: "Information freshness is always visible and up to date.", bg: "bg-mint/20" },
-  { icon: "🆓", title: "Always Free", description: "Full access for every student. No paywalls, no hidden costs.", bg: "bg-peach/20" },
+  { icon: RotateCw, title: "7-Step Process", description: "A structured journey from discovery to informed decision.", bg: "bg-sitomo" },
+  { icon: Link2, title: "Source Verified", description: "Every claim links back to its original, official source.", bg: "bg-momo" },
+  { icon: Zap, title: "Real-Time Checking", description: "Information freshness is always visible and up to date.", bg: "bg-sitomo" },
+  { icon: Sparkles, title: "Always Free", description: "Full access for every student. No paywalls, no hidden costs.", bg: "bg-momo" },
 ];
 
 /* ── Page ──────────────────────────────────────────────── */
@@ -139,9 +156,9 @@ export default function Home() {
               {/* Quick stats as pastel chips */}
               <div className="mt-10 flex flex-wrap items-center justify-center gap-2.5">
                 {[
-                  { label: "7-Step Process", chip: "bg-sky/15 text-sky-deep" },
-                  { label: "Source Verified", chip: "bg-mint/25 text-blue-ink" },
-                  { label: "Always Free", chip: "bg-peach/25 text-blue-ink" },
+                  { label: "7-Step Process", chip: "bg-sitomo text-sky-deep" },
+                  { label: "Source Verified", chip: "bg-momo text-blue-ink" },
+                  { label: "Always Free", chip: "bg-sitomo text-blue-ink" },
                 ].map((s) => (
                   <span key={s.label} className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold ${s.chip}`}>
                     <span className="w-1.5 h-1.5 rounded-full bg-current opacity-40" aria-hidden="true" />
@@ -162,7 +179,7 @@ export default function Home() {
           <ScrollReveal>
             <div className="text-center mb-14">
               <span className="sticker mb-4">
-                <span className="w-2 h-2 rounded-full bg-lilac" aria-hidden="true" />
+                <span className="w-2 h-2 rounded-full bg-sky" aria-hidden="true" />
                 The DMIL difference
               </span>
               <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-blue-ink tracking-tight mt-4">
@@ -183,10 +200,10 @@ export default function Home() {
                 <ScrollReveal key={step.title} delay={Math.min(i + 1, 6) as 1 | 2 | 3 | 4 | 5 | 6}>
                   <div className={`bubble-sway flex flex-col items-center text-center lg:flex-1 ${i === 3 ? "relative z-10" : ""}`}>
                     {/* Bubble */}
-                    <div className={`relative flex items-center justify-center w-16 h-16 lg:w-[4.5rem] lg:h-[4.5rem] rounded-full ${step.bg} ${i === 3 ? "ring-4 ring-mint/50 bubble-shadow" : ""} transition-all hover:scale-110`}>
-                      <span className="text-2xl lg:text-3xl" aria-hidden="true">{step.icon}</span>
+                    <div className={`relative flex items-center justify-center w-16 h-16 lg:w-[4.5rem] lg:h-[4.5rem] rounded-full ${step.bg} ${i === 3 ? "ring-4 ring-sky/35 bubble-shadow" : ""} transition-all hover:scale-110`}>
+                      <step.icon className={`w-7 h-7 lg:w-8 lg:h-8 ${step.color}`} strokeWidth={2.2} aria-hidden="true" />
                       {i === 3 && (
-                        <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-mint flex items-center justify-center text-[10px] font-bold text-blue-ink border-2 border-white">
+                        <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-sky flex items-center justify-center text-[10px] font-bold text-white border-2 border-white">
                           ★
                         </span>
                       )}
@@ -207,7 +224,7 @@ export default function Home() {
         </div>
       </section>
 
-      <WaveTop fill="#F0F9FF" />
+      <WaveTop fill="#E2F1F1" />
 
       {/* ── Four Explorers ───────────────────────────────── */}
       <section className="py-20 lg:py-28 bg-powder">
@@ -227,9 +244,9 @@ export default function Home() {
           <div className="grid sm:grid-cols-2 gap-5">
             {EXPLORERS.map((e, i) => (
               <ScrollReveal key={e.title} delay={Math.min(i + 1, 4) as 1 | 2 | 3 | 4}>
-                <a href="#" className={`group block rounded-3xl border ${e.border} bg-white p-6 bubble-shadow-sm bubble-shadow-hover`}>
-                  <span className={`inline-flex items-center justify-center w-12 h-12 rounded-full text-2xl ${e.chip} mb-4`}>
-                    {e.icon}
+                <Link href={e.href} className={`group block rounded-3xl border ${e.border} bg-white p-6 bubble-shadow-sm bubble-shadow-hover`}>
+                  <span className={`inline-flex items-center justify-center w-12 h-12 rounded-full ${e.chip} mb-4`}>
+                    <e.icon className="w-6 h-6" strokeWidth={2} aria-hidden="true" />
                   </span>
                   <h3 className="font-display text-lg font-bold text-blue-ink mb-1.5 group-hover:text-sky-deep transition-colors">
                     {e.title}
@@ -237,7 +254,7 @@ export default function Home() {
                   <p className="text-sm text-gray-body leading-relaxed">
                     {e.description}
                   </p>
-                </a>
+                </Link>
               </ScrollReveal>
             ))}
           </div>
@@ -253,7 +270,7 @@ export default function Home() {
             <ScrollReveal direction="left">
               <div>
                 <span className="sticker mb-4">
-                  <span className="w-2 h-2 rounded-full bg-mint" aria-hidden="true" />
+                  <span className="w-2 h-2 rounded-full bg-sky" aria-hidden="true" />
                   The feature that makes DMIL visible
                 </span>
                 <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-blue-ink tracking-tight mt-4 mb-5">
@@ -278,7 +295,7 @@ export default function Home() {
                     One-click link to the original source
                   </li>
                   <li className="flex items-start gap-3">
-                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-peach/30 text-blue-ink text-xs font-bold mt-0.5 shrink-0" aria-hidden="true">!</span>
+                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-momo text-blue-ink text-xs font-bold mt-0.5 shrink-0" aria-hidden="true">!</span>
                     Report outdated or incorrect information
                   </li>
                 </ul>
@@ -289,8 +306,8 @@ export default function Home() {
               <div className="rounded-3xl bg-white border border-sky/15 p-6 bubble-shadow relative">
                 {/* Sticker badge */}
                 <div className="absolute -top-3 -right-2 z-10">
-                  <span className="sticker bg-mint/30 border-mint text-blue-ink">
-                    <span className="w-1.5 h-1.5 rounded-full bg-mint" aria-hidden="true" />
+                  <span className="sticker bg-sitomo border-sky text-blue-ink">
+                    <span className="w-1.5 h-1.5 rounded-full bg-sky" aria-hidden="true" />
                     Verified
                   </span>
                 </div>
@@ -326,7 +343,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl bg-sky/10 border border-sky/15 p-4 mb-5">
+                <div className="rounded-2xl bg-momo border border-momo p-4 mb-5">
                   <p className="text-sm font-bold text-blue-ink mb-1">
                     Why should I trust this information?
                   </p>
@@ -351,7 +368,7 @@ export default function Home() {
         </div>
       </section>
 
-      <WaveTop fill="#F0F9FF" />
+      <WaveTop fill="#E2F1F1" />
 
       {/* ── Trust Tiles ───────────────────────────────────── */}
       <section className="py-20 lg:py-28 bg-powder">
@@ -372,7 +389,7 @@ export default function Home() {
             {TRUST_ITEMS.map((item, i) => (
               <ScrollReveal key={item.title} delay={Math.min(i + 1, 4) as 1 | 2 | 3 | 4}>
                 <div className={`rounded-2xl ${item.bg} p-5 border border-white/60`}>
-                  <span className="text-2xl block mb-3" aria-hidden="true">{item.icon}</span>
+                  <item.icon className="w-7 h-7 text-blue-ink mb-3" strokeWidth={2} aria-hidden="true" />
                   <h3 className="font-display text-sm font-bold text-blue-ink mb-1">{item.title}</h3>
                   <p className="text-xs text-gray-body leading-relaxed font-medium">{item.description}</p>
                 </div>
@@ -385,11 +402,11 @@ export default function Home() {
       <WaveBottom fill="#FFFFFF" />
 
       {/* ── CTA ───────────────────────────────────────────── */}
-      <section id="start" className="relative overflow-hidden py-20 lg:py-28 bg-gradient-to-b from-sky/15 via-sky/10 to-white">
+      <section id="start" className="relative overflow-hidden py-20 lg:py-28 bg-gradient-to-b from-sky/15 via-sitomo/40 to-white">
         {/* Decorative floating bubbles */}
         <div className="absolute top-10 left-[10%] w-20 h-20 rounded-full bg-sky/15 bubble-sway" aria-hidden="true" />
-        <div className="absolute bottom-12 right-[12%] w-14 h-14 rounded-full bg-lilac/20 bubble-sway" style={{ animationDelay: "2s" }} aria-hidden="true" />
-        <div className="absolute top-1/2 right-[30%] w-10 h-10 rounded-full bg-mint/20 bubble-sway" style={{ animationDelay: "4s" }} aria-hidden="true" />
+        <div className="absolute bottom-12 right-[12%] w-14 h-14 rounded-full bg-sitomo bubble-sway" style={{ animationDelay: "2s" }} aria-hidden="true" />
+        <div className="absolute top-1/2 right-[30%] w-10 h-10 rounded-full bg-momo bubble-sway" style={{ animationDelay: "4s" }} aria-hidden="true" />
 
         <div className="relative max-w-5xl mx-auto px-6 lg:px-8 text-center">
           <ScrollReveal>
