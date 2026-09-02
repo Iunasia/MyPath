@@ -3,7 +3,7 @@ RUN apk update && apk upgrade --no-cache libssl3 libcrypto3
 RUN npm install -g npm@latest
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --omit=optional
 COPY . .
 USER node
 EXPOSE 5000
