@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
-    "seed": "node seeds/seed.js"
+    "start": "tsx src/server.ts",
+    "dev": "tsx watch src/server.ts",
+    "seed": "tsx src/seeds/seed.ts"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +21,10 @@
     "pg": "^8.23.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^26.4.0",
+    "nodemon": "^3.1.14",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2"
   }
 }
