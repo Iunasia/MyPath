@@ -49,12 +49,12 @@ export default function Header({
           </Link>
 
           <div className="hidden md:flex items-center gap-6">
-            <a
-              href="#careers"
+            <Link
+              href="/careers"
               className="text-sm font-semibold text-gray-soft hover:text-blue-ink transition-colors"
             >
               Careers
-            </a>
+            </Link>
             <Link
               href="/majors"
               className="text-sm font-semibold text-gray-soft hover:text-blue-ink transition-colors"
@@ -136,7 +136,7 @@ export default function Header({
               Majors
             </Link>
             <Link
-              href="/#careers"
+              href="/careers"
               className={`transition-colors ${
                 activeNav === "careers"
                   ? "font-bold text-sky-deep border-b-2 border-sky pb-0.5"
@@ -213,7 +213,7 @@ export default function Header({
               <span>Major Explorer</span>
             </Link>
             <Link
-              href="/#careers"
+              href="/careers"
               className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors ${
                 activeNav === "careers"
                   ? "bg-sky/15 text-sky-deep font-bold"

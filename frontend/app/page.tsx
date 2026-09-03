@@ -44,7 +44,7 @@ function WaveBottom({ fill = "#E2F1F1" }: { fill?: string }) {
 /* ── Data ──────────────────────────────────────────────── */
 
 const NAV_LINKS = [
-  { label: "Careers", href: "#careers" },
+  { label: "Careers", href: "/careers" },
   { label: "Majors", href: "/majors" },
   { label: "Universities", href: "#universities" },
   { label: "Scholarships", href: "#scholarships" },
@@ -71,7 +71,7 @@ const DMIL_DESCRIPTIONS = [
 ];
 
 const EXPLORERS = [
-  { icon: Briefcase, title: "Career Explorer", description: "Explore careers based on your interests, skills, and values. See real pathways people take.", chip: "bg-sitomo text-sky-deep", border: "border-sky/20", href: "#careers" },
+  { icon: Briefcase, title: "Career Explorer", description: "Explore careers based on your interests, skills, and values. See real pathways people take.", chip: "bg-sitomo text-sky-deep", border: "border-sky/20", href: "/careers" },
   { icon: BookOpen, title: "Major Explorer", description: "Discover majors and see how they connect to careers, industries, and further study.", chip: "bg-momo text-blue-ink", border: "border-momo", href: "/majors" },
   { icon: GraduationCap, title: "University Explorer", description: "Search and compare universities by program, location, cost, and student outcomes.", chip: "bg-sitomo text-blue-ink", border: "border-sitomo", href: "#universities" },
   { icon: CircleDollarSign, title: "Scholarship Explorer", description: "Find scholarships and funding opportunities you're actually eligible for.", chip: "bg-momo text-blue-ink", border: "border-momo", href: "#scholarships" },
