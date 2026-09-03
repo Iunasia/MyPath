@@ -43,7 +43,7 @@ export default function AllMajorsPage() {
       <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
         
         {/* ── Top Header Component ────────────────────────── */}
-        <Header backHref="/majors" backLabel="Back to Major Explorer" activeNav="majors" />
+        <Header backHref="/majors" backLabel="Back to Major Explorer" showBackArrow={true} activeNav="majors" />
 
         {/* ── Page Header & Search ─────────────────────────── */}
         <section className="mb-8 lg:mb-10">
@@ -61,8 +61,8 @@ export default function AllMajorsPage() {
             {/* Search Input */}
             <div className="w-full lg:max-w-md">
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Search className="h-4 w-4 text-gray-soft" />
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                  <Search className="h-4.5 w-4.5 text-blue-ink/60" strokeWidth={2.2} />
                 </div>
                 <input
                   type="text"

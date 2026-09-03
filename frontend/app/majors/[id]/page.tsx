@@ -42,22 +42,23 @@ export default async function MajorDetailPage({ params }: PageProps) {
         <Header
           backHref="/majors"
           backLabel="Back to Majors"
+          showBackArrow={true}
           activeNav="majors"
           actions={
             <>
               <button
-                className="p-2.5 rounded-2xl text-blue-ink bg-white border border-sky/15 hover:bg-sitomo/80 transition-colors focus:outline-none cursor-pointer bubble-shadow-sm"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-sitomo text-sky-deep border border-sky/15 hover:bg-sky hover:text-white transition-all flex items-center justify-center focus:outline-none cursor-pointer shadow-2xs"
                 aria-label="Save major"
                 title="Save to favorites"
               >
-                <Bookmark className="w-5 h-5 text-sky-deep" />
+                <Bookmark className="w-4 h-4" />
               </button>
               <button
-                className="p-2.5 rounded-2xl text-blue-ink bg-white border border-sky/15 hover:bg-sitomo/80 transition-colors focus:outline-none cursor-pointer bubble-shadow-sm"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-sitomo text-sky-deep border border-sky/15 hover:bg-sky hover:text-white transition-all flex items-center justify-center focus:outline-none cursor-pointer shadow-2xs"
                 aria-label="Share major"
                 title="Share"
               >
-                <Share2 className="w-5 h-5 text-sky-deep" />
+                <Share2 className="w-4 h-4" />
               </button>
             </>
           }
