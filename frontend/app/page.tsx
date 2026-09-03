@@ -1,5 +1,7 @@
 import Link from "next/link";
 import ScrollReveal from "./components/ScrollReveal";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 import {
   Compass,
   Search,
@@ -87,37 +89,8 @@ const TRUST_ITEMS = [
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      {/* ── Navbar ────────────────────────────────────────── */}
-      <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-5xl">
-        <div className="bg-white/90 backdrop-blur-md rounded-full bubble-shadow-sm border border-sky/10 px-5 py-2.5 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-sky text-white text-sm font-bold font-display">
-              D
-            </span>
-            <span className="font-display text-lg font-bold text-blue-ink tracking-tight hidden sm:block">
-              DOMNER
-            </span>
-          </Link>
-
-          <div className="hidden md:flex items-center gap-6">
-            {NAV_LINKS.map((link) => (
-              <a key={link.label} href={link.href} className="text-sm font-semibold text-gray-soft hover:text-blue-ink transition-colors">
-                {link.label}
-              </a>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <a href="#" className="hidden sm:inline-flex text-sm font-semibold text-gray-soft hover:text-blue-ink transition-colors px-3 py-1.5">
-              Sign in
-            </a>
-            <a href="#start" className="inline-flex items-center gap-1.5 rounded-full bg-sky px-5 py-2 text-sm font-bold text-white hover:bg-sky-bright transition-colors bubble-shadow-sm">
-              Get started
-              <span aria-hidden="true" className="text-xs">→</span>
-            </a>
-          </div>
-        </div>
-      </nav>
+      {/* ── Reusable Floating Navbar Component ────────── */}
+      <Header variant="home" />
 
       {/* ── Hero ──────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-powder pt-28 pb-8">
@@ -435,45 +408,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Footer ────────────────────────────────────────── */}
-      <footer className="py-12 bg-white border-t border-sky/10">
-        <div className="max-w-5xl mx-auto px-6 lg:px-8">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
-            <div>
-              <Link href="/" className="flex items-center gap-2 mb-4">
-                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-sky text-white text-xs font-bold font-display">D</span>
-                <span className="font-display text-base font-bold text-blue-ink">Domner</span>
-              </Link>
-              <p className="text-sm text-gray-body leading-relaxed font-medium">
-                A Digital Information Literacy platform helping students make informed
-                decisions about their future.
-              </p>
-            </div>
-            {[
-              { heading: "Explore", links: ["Careers", "Majors", "Universities", "Scholarships"] },
-              { heading: "Tools", links: ["Compare", "Information Check", "Deadline Tracker", "Saved Opportunities"] },
-              { heading: "About", links: ["About Domner", "Privacy Policy", "Terms of Use", "Contact"] },
-            ].map((col) => (
-              <div key={col.heading}>
-                <p className="text-xs font-bold uppercase tracking-wider text-blue-ink mb-3">{col.heading}</p>
-                <ul className="space-y-2 text-sm text-gray-body font-medium">
-                  {col.links.map((l) => (
-                    <li key={l}><a href="#" className="hover:text-sky-deep transition-colors">{l}</a></li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-          <div className="pt-8 border-t border-sky/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-gray-faint font-medium">
-              &copy; 2026 Domner. Built to help students navigate digital information responsibly.
-            </p>
-            <p className="text-xs text-gray-faint font-medium">
-              A Digital Information Literacy project.
-            </p>
-          </div>
-        </div>
-      </footer>
+      {/* ── Reusable Footer Component ────────────────────── */}
+      <Footer />
     </div>
   );
 }

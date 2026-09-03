@@ -7,6 +7,10 @@ import {
   Menu,
   X,
   ArrowLeft,
+  Home,
+  BookOpen,
+  Compass,
+  Coins,
   Laptop,
   FlaskConical,
   Briefcase,
@@ -24,206 +28,9 @@ import {
   Check,
 } from "lucide-react";
 
-/* ── Types ─────────────────────────────────────────────── */
-
-interface MajorItem {
-  id: string;
-  name: string;
-  category: string;
-  badge?: {
-    text: string;
-    bg: string;
-    textColor: string;
-  };
-  icon: typeof Binary;
-  iconBg: string;
-  iconColor: string;
-  description: string;
-  tags: string[];
-  duration: string;
-  degreeType: string;
-  relatedCareers: string[];
-  source: string;
-  sourceUrl: string;
-  lastVerified: string;
-}
-
-/* ── Categories & Majors Data ──────────────────────────── */
-
-const CATEGORIES = [
-  {
-    id: "Computer Science",
-    name: "Computer Science",
-    icon: Laptop,
-    bg: "bg-sitomo",
-    iconColor: "text-sky-deep",
-  },
-  {
-    id: "Science",
-    name: "Science",
-    icon: FlaskConical,
-    bg: "bg-momo",
-    iconColor: "text-[#D97736]",
-  },
-  {
-    id: "Business",
-    name: "Business",
-    icon: Briefcase,
-    bg: "bg-sitomo",
-    iconColor: "text-blue-ink",
-  },
-  {
-    id: "Art & Design",
-    name: "Art & Design",
-    icon: Palette,
-    bg: "bg-momo",
-    iconColor: "text-[#8B5CF6]",
-  },
-  {
-    id: "Education",
-    name: "Education",
-    icon: GraduationCap,
-    bg: "bg-sitomo",
-    iconColor: "text-[#10B981]",
-  },
-  {
-    id: "Healthcare",
-    name: "Healthcare",
-    icon: HeartPulse,
-    bg: "bg-momo",
-    iconColor: "text-[#EF4444]",
-  },
-];
-
-const MAJORS_DATA: MajorItem[] = [
-  {
-    id: "data-science",
-    name: "Data Science",
-    category: "Computer Science",
-    badge: {
-      text: "High Demand",
-      bg: "bg-[#FCEAE6]",
-      textColor: "text-[#D96B54]",
-    },
-    icon: Binary,
-    iconBg: "bg-sitomo",
-    iconColor: "text-sky-deep",
-    description:
-      "Extract insights from complex data sets to inform strategic business decisions. Blends statistics, computer science, and domain expertise.",
-    tags: ["Python", "Machine Learning", "Statistics"],
-    duration: "4 Years",
-    degreeType: "Bachelor of Science",
-    relatedCareers: ["Data Scientist", "Machine Learning Engineer", "BI Analyst"],
-    source: "ACM / IEEE Computing Curricula & BLS",
-    sourceUrl: "https://www.acm.org",
-    lastVerified: "28 August 2026",
-  },
-  {
-    id: "environmental-engineering",
-    name: "Environmental Engineering",
-    category: "Science",
-    icon: Leaf,
-    iconBg: "bg-[#FDF0E9]",
-    iconColor: "text-[#E07A5F]",
-    description:
-      "Develop solutions to environmental problems, including water and air pollution control, recycling, and waste disposal.",
-    tags: ["Sustainability", "Fluid Mechanics", "Ecology"],
-    duration: "4 Years",
-    degreeType: "Bachelor of Engineering",
-    relatedCareers: ["Environmental Engineer", "Sustainability Consultant", "Water Resources Manager"],
-    source: "ABET Engineering Accreditation & EPA",
-    sourceUrl: "https://www.abet.org",
-    lastVerified: "20 August 2026",
-  },
-  {
-    id: "cognitive-science",
-    name: "Cognitive Science",
-    category: "Science",
-    badge: {
-      text: "Growing",
-      bg: "bg-[#FDF0E6]",
-      textColor: "text-[#CF7A42]",
-    },
-    icon: Brain,
-    iconBg: "bg-sitomo",
-    iconColor: "text-[#4F868A]",
-    description:
-      "Interdisciplinary study of the mind and its processes, drawing from psychology, linguistics, philosophy, and neuroscience.",
-    tags: ["Research", "Analytical Thinking", "Neuroscience"],
-    duration: "4 Years",
-    degreeType: "Bachelor of Science",
-    relatedCareers: ["Cognitive Researcher", "UX Researcher", "AI Ethics Analyst"],
-    source: "Cognitive Science Society",
-    sourceUrl: "https://cognitivesciencesociety.org",
-    lastVerified: "15 August 2026",
-  },
-  {
-    id: "business-analytics",
-    name: "Business Analytics",
-    category: "Business",
-    badge: {
-      text: "High Demand",
-      bg: "bg-[#FCEAE6]",
-      textColor: "text-[#D96B54]",
-    },
-    icon: BarChart3,
-    iconBg: "bg-sitomo",
-    iconColor: "text-blue-ink",
-    description:
-      "Bridge business strategy and technology using data-driven forecasting, operations modeling, and commercial decision frameworks.",
-    tags: ["Financial Modeling", "SQL", "Strategy"],
-    duration: "3-4 Years",
-    degreeType: "Bachelor of Business Administration",
-    relatedCareers: ["Management Consultant", "Financial Analyst", "Operations Analyst"],
-    source: "AACSB Business Accreditation Standards",
-    sourceUrl: "https://www.aacsb.edu",
-    lastVerified: "18 August 2026",
-  },
-  {
-    id: "digital-design",
-    name: "UI/UX & Interactive Design",
-    category: "Art & Design",
-    badge: {
-      text: "Popular",
-      bg: "bg-[#F3EEFE]",
-      textColor: "text-[#7C3AED]",
-    },
-    icon: Sparkles,
-    iconBg: "bg-momo",
-    iconColor: "text-[#8B5CF6]",
-    description:
-      "Design intuitive digital interfaces, accessible user flows, and interactive experiences across web, mobile, and emerging hardware platforms.",
-    tags: ["Design Systems", "Prototyping", "User Research"],
-    duration: "4 Years",
-    degreeType: "Bachelor of Fine Arts",
-    relatedCareers: ["Product Designer", "UI/UX Designer", "Design Systems Lead"],
-    source: "AIGA Design Standards & Nielsen Norman Group",
-    sourceUrl: "https://www.nngroup.com",
-    lastVerified: "24 August 2026",
-  },
-  {
-    id: "biomedical-sciences",
-    name: "Biomedical Sciences",
-    category: "Healthcare",
-    badge: {
-      text: "High Growth",
-      bg: "bg-[#EBF7F2]",
-      textColor: "text-[#059669]",
-    },
-    icon: Stethoscope,
-    iconBg: "bg-momo",
-    iconColor: "text-[#EF4444]",
-    description:
-      "Investigate cellular and biochemical pathways to develop therapies, advanced diagnostics, and groundbreaking medical technologies.",
-    tags: ["Clinical Trials", "Genetics", "Biochemistry"],
-    duration: "4 Years",
-    degreeType: "Bachelor of Science",
-    relatedCareers: ["Biomedical Researcher", "Clinical Trial Manager", "Genetic Counselor"],
-    source: "NIH & Biomedical Science Institute Standards",
-    sourceUrl: "https://www.nih.gov",
-    lastVerified: "22 August 2026",
-  },
-];
+import { MAJORS_DATA, CATEGORIES, MajorItem } from "@/app/data/majors";
+import Header from "@/app/components/Header";
+import Footer from "@/app/components/Footer";
 
 /* ── Page Component ────────────────────────────────────── */
 
@@ -231,7 +38,6 @@ export default function MajorsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedMajor, setSelectedMajor] = useState<MajorItem | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
 
   // Filter logic
   const filteredMajors = useMemo(() => {
@@ -255,96 +61,11 @@ export default function MajorsPage() {
 
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
-      {/* Responsive Viewport Container: Mobile by default, exact 80px margins on desktop */}
-      <div className="w-full flex-1 px-5 py-6 sm:px-10 lg:px-[80px] flex flex-col">
+      {/* Responsive Viewport Container: 25px on mobile, 80px on desktop */}
+      <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
         
-        {/* ── Top App Bar ──────────────────────────────────── */}
-        <header className="flex items-center justify-between py-2 mb-8 border-b border-sky/15 pb-4">
-          <div className="flex items-center gap-3">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 font-display text-xl sm:text-2xl font-extrabold text-sky tracking-tight hover:opacity-85 transition-opacity"
-            >
-              <ArrowLeft className="w-5 h-5 text-sky-deep" />
-              <span>DOMNER</span>
-            </Link>
-
-          </div>
-
-          {/* Desktop Nav Links */}
-          <nav className="hidden md:flex items-center gap-6 text-sm font-semibold text-gray-soft">
-            <Link href="/" className="hover:text-blue-ink transition-colors">
-              Home
-            </Link>
-            <Link href="/majors" className="text-sky-deep font-bold">
-              Majors
-            </Link>
-            <Link href="/#careers" className="hover:text-blue-ink transition-colors">
-              Careers
-            </Link>
-            <Link href="/#universities" className="hover:text-blue-ink transition-colors">
-              Universities
-            </Link>
-            <Link href="/#scholarships" className="hover:text-blue-ink transition-colors">
-              Scholarships
-            </Link>
-          </nav>
-
-          {/* Mobile Hamburger Button */}
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden p-2 rounded-xl text-blue-ink hover:bg-sitomo/80 transition-colors focus:outline-none cursor-pointer"
-            aria-label="Toggle navigation menu"
-          >
-            {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </header>
-
-        {/* ── Mobile Dropdown Menu ───────────────────────────── */}
-        {menuOpen && (
-          <nav className="md:hidden bg-white rounded-2xl p-4 mb-6 bubble-shadow-sm border border-sky/15 animate-fadeIn">
-            <p className="text-xs font-bold uppercase tracking-wider text-gray-soft mb-2 px-2">
-              Navigation
-            </p>
-            <div className="flex flex-col gap-1 text-sm font-semibold">
-              <Link
-                href="/"
-                className="px-3 py-2 rounded-xl text-blue-ink hover:bg-powder transition-colors"
-                onClick={() => setMenuOpen(false)}
-              >
-                🏠 Home
-              </Link>
-              <Link
-                href="/majors"
-                className="px-3 py-2 rounded-xl bg-sky/15 text-sky-deep font-bold"
-                onClick={() => setMenuOpen(false)}
-              >
-                📚 Major Explorer
-              </Link>
-              <Link
-                href="/#careers"
-                className="px-3 py-2 rounded-xl text-blue-ink hover:bg-powder transition-colors"
-                onClick={() => setMenuOpen(false)}
-              >
-                🧭 Career Explorer
-              </Link>
-              <Link
-                href="/#universities"
-                className="px-3 py-2 rounded-xl text-blue-ink hover:bg-powder transition-colors"
-                onClick={() => setMenuOpen(false)}
-              >
-                🎓 Universities
-              </Link>
-              <Link
-                href="/#scholarships"
-                className="px-3 py-2 rounded-xl text-blue-ink hover:bg-powder transition-colors"
-                onClick={() => setMenuOpen(false)}
-              >
-                💰 Scholarships
-              </Link>
-            </div>
-          </nav>
-        )}
+        {/* ── Top App Header Component ─────────────────────── */}
+        <Header backHref="/" backLabel="DOMNER" activeNav="majors" />
 
         {/* ── Hero Heading & Search ────────────────────────── */}
         <section className="mb-8 lg:mb-10">
@@ -388,15 +109,15 @@ export default function MajorsPage() {
         </section>
 
         {/* ── Browse by Interest (1 Row on Desktop, 3 Cols on Mobile) ── */}
-        <section className="mb-10">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display text-base sm:text-lg font-bold text-blue-ink tracking-tight">
+        <section className="mb-10  ">
+          <div className="flex items-center justify-between mb-4 ">
+            <h2 className="font-display text-base sm:text-lg font-bold text-blue-ink tracking-tight ">
               Browse by interest
             </h2>
             {selectedCategory && (
               <button
                 onClick={() => setSelectedCategory(null)}
-                className="text-xs font-bold text-sky-deep hover:underline cursor-pointer"
+                className="text-xs font-bold text-sky-deep hover:underline cursor-pointer "
               >
                 Reset filter
               </button>
@@ -415,18 +136,18 @@ export default function MajorsPage() {
                   onClick={() =>
                     setSelectedCategory(isSelected ? null : cat.id)
                   }
-                  className={`flex flex-col items-center justify-center p-3.5 sm:p-4 lg:p-5 rounded-2xl bg-white border transition-all text-center group cursor-pointer ${
+                  className={`flex flex-col items-center justify-center p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-3xl rounded-br-[36px] sm:rounded-br-[48px] border-2 transition-all text-center group cursor-pointer min-h-[120px] sm:min-h-[135px] ${
                     isSelected
                       ? "border-sky ring-2 ring-sky/30 bg-sky/5 bubble-shadow"
-                      : "border-sky/15 hover:border-sky/30 bubble-shadow-sm hover:scale-[1.02]"
+                      : "border-sky/40 bg-white hover:border-sky bubble-shadow-sm hover:scale-[1.03] hover:shadow-md"
                   }`}
                 >
                   <div
-                    className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full ${cat.bg} flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform`}
+                    className={`w-12 h-12 sm:w-13 sm:h-13 rounded-full ${cat.bg} flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform shadow-2xs`}
                   >
                     <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${cat.iconColor}`} strokeWidth={2.2} />
                   </div>
-                  <span className="text-[11px] sm:text-xs font-bold text-blue-ink leading-tight">
+                  <span className="font-display text-xs sm:text-sm font-bold text-blue-ink leading-tight">
                     {cat.name}
                   </span>
                 </button>
@@ -441,15 +162,12 @@ export default function MajorsPage() {
             <h2 className="font-display text-lg sm:text-xl font-bold text-blue-ink tracking-tight">
               {selectedCategory ? `${selectedCategory} Majors` : "Trending Majors"}
             </h2>
-            <button
-              onClick={() => {
-                setSelectedCategory(null);
-                setSearchQuery("");
-              }}
+            <Link
+              href="/majors/all"
               className="text-xs sm:text-sm font-bold text-sky-deep hover:text-sky transition-colors flex items-center gap-1 cursor-pointer"
             >
               View All <span>→</span>
-            </button>
+            </Link>
           </div>
 
           {filteredMajors.length === 0 ? (
@@ -469,68 +187,82 @@ export default function MajorsPage() {
               </button>
             </div>
           ) : (
-            /* Responsive Grid: 1 col on mobile, 2 cols on tablet, 3 cols on desktop */
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
-              {filteredMajors.map((major) => {
-                const Icon = major.icon;
+            /* Responsive Grid: 1 col on mobile, 2 cols on tablet, 3 cols on desktop (Top 5 Majors) */
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
+                {filteredMajors.slice(0, 5).map((major) => {
+                  const Icon = major.icon;
 
-                return (
-                  <article
-                    key={major.id}
-                    className="bg-white rounded-3xl p-6 lg:p-7 border border-sky/15 bubble-shadow-sm hover:border-sky/35 bubble-shadow-hover transition-all flex flex-col justify-between"
-                  >
-                    <div>
-                      {/* Top Row: Icon + Optional Badge */}
-                      <div className="flex items-center justify-between mb-4">
-                        <div
-                          className={`w-12 h-12 rounded-2xl ${major.iconBg} flex items-center justify-center`}
-                        >
-                          <Icon className={`w-6 h-6 ${major.iconColor}`} strokeWidth={2.2} />
+                  return (
+                    <article
+                      key={major.id}
+                      className="bg-white rounded-3xl p-6 lg:p-7 border border-sky/15 bubble-shadow-sm hover:border-sky/35 bubble-shadow-hover transition-all flex flex-col justify-between"
+                    >
+                      <div>
+                        {/* Top Row: Icon + Optional Badge */}
+                        <div className="flex items-center justify-between mb-4">
+                          <div
+                            className={`w-12 h-12 rounded-2xl ${major.iconBg} flex items-center justify-center`}
+                          >
+                            <Icon className={`w-6 h-6 ${major.iconColor}`} strokeWidth={2.2} />
+                          </div>
+
+                          {major.badge && (
+                            <span
+                              className={`text-xs font-bold px-3 py-1 rounded-full ${major.badge.bg} ${major.badge.textColor}`}
+                            >
+                              {major.badge.text}
+                            </span>
+                          )}
                         </div>
 
-                        {major.badge && (
-                          <span
-                            className={`text-xs font-bold px-3 py-1 rounded-full ${major.badge.bg} ${major.badge.textColor}`}
-                          >
-                            {major.badge.text}
-                          </span>
-                        )}
+                        {/* Title & Description */}
+                        <h3 className="font-display text-lg lg:text-xl font-bold text-blue-ink mb-2">
+                          {major.name}
+                        </h3>
+                        <p className="text-xs sm:text-sm text-gray-body leading-relaxed mb-4 font-medium">
+                          {major.description}
+                        </p>
                       </div>
 
-                      {/* Title & Description */}
-                      <h3 className="font-display text-lg lg:text-xl font-bold text-blue-ink mb-2">
-                        {major.name}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-gray-body leading-relaxed mb-4 font-medium">
-                        {major.description}
-                      </p>
-                    </div>
+                      <div>
+                        {/* Tags */}
+                        <div className="flex flex-wrap gap-1.5 mb-5">
+                          {major.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="bg-sitomo/70 text-blue-ink text-xs font-semibold px-3 py-1 rounded-full border border-sky/10"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
 
-                    <div>
-                      {/* Tags */}
-                      <div className="flex flex-wrap gap-1.5 mb-5">
-                        {major.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="bg-sitomo/70 text-blue-ink text-xs font-semibold px-3 py-1 rounded-full border border-sky/10"
-                          >
-                            {tag}
-                          </span>
-                        ))}
+                        {/* Action Button */}
+                        <Link
+                          href={`/majors/${major.id}`}
+                          className="w-full rounded-full border-2 border-sky/50 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-sky-deep hover:bg-sky/10 hover:border-sky transition-colors text-center cursor-pointer block"
+                        >
+                          Explore Major
+                        </Link>
                       </div>
+                    </article>
+                  );
+                })}
+              </div>
 
-                      {/* Action Button */}
-                      <button
-                        onClick={() => setSelectedMajor(major)}
-                        className="w-full rounded-full border-2 border-sky/50 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-sky-deep hover:bg-sky/10 hover:border-sky transition-colors text-center cursor-pointer"
-                      >
-                        Explore Major
-                      </button>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
+              {filteredMajors.length > 5 && (
+                <div className="mt-10 text-center">
+                  <Link
+                    href="/majors/all"
+                    className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-white border-2 border-sky/40 text-sky-deep font-bold text-sm hover:bg-sky/10 hover:border-sky transition-all bubble-shadow-sm cursor-pointer"
+                  >
+                    <span>View All Majors</span>
+                    <span aria-hidden="true">→</span>
+                  </Link>
+                </div>
+              )}
+            </>
           )}
         </section>
 
@@ -581,13 +313,13 @@ export default function MajorsPage() {
                   Related Career Pathways
                 </p>
                 <div className="flex flex-wrap gap-1.5">
-                  {selectedMajor.relatedCareers.map((c) => (
+                  {selectedMajor.careerPathways.map((c) => (
                     <span
-                      key={c}
+                      key={c.title}
                       className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-bold text-blue-ink border border-sky/15"
                     >
                       <Check className="w-3 h-3 text-sky-deep" />
-                      {c}
+                      {c.title}
                     </span>
                   ))}
                 </div>
@@ -620,16 +352,14 @@ export default function MajorsPage() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-2.5">
-                <a
-                  href={selectedMajor.sourceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full bg-sky py-3 text-xs sm:text-sm font-bold text-white hover:bg-sky-bright transition-colors bubble-shadow-sm"
+              <div className="flex flex-col sm:flex-row gap-2.5">
+                <Link
+                  href={`/majors/${selectedMajor.id}`}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full bg-sky py-3 text-xs sm:text-sm font-bold text-white hover:bg-sky-bright transition-colors bubble-shadow-sm text-center"
                 >
-                  Official Curricula
+                  View Full Major Details
                   <ExternalLink className="w-3.5 h-3.5" />
-                </a>
+                </Link>
                 <button
                   onClick={() => setSelectedMajor(null)}
                   className="px-5 py-3 rounded-full border-2 border-sky/20 text-xs sm:text-sm font-bold text-gray-soft hover:bg-powder transition-colors cursor-pointer"
@@ -643,84 +373,8 @@ export default function MajorsPage() {
 
       </div>
 
-      {/* ── Footer ────────────────────────────────────────── */}
-      <footer className="py-12 bg-white border-t border-sky/10 mt-auto">
-        <div className="w-full px-5 sm:px-10 lg:px-[80px]">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
-            <div>
-              <Link href="/" className="flex items-center gap-2 mb-4">
-                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-sky text-white text-xs font-bold font-display">
-                  D
-                </span>
-                <span className="font-display text-base font-bold text-blue-ink">
-                  Domner
-                </span>
-              </Link>
-              <p className="text-sm text-gray-body leading-relaxed font-medium">
-                A Digital Information Literacy platform helping students make informed
-                decisions about their future.
-              </p>
-            </div>
-
-            {[
-              {
-                heading: "Explore",
-                links: [
-                  { label: "Careers", href: "/#careers" },
-                  { label: "Majors", href: "/majors" },
-                  { label: "Universities", href: "/#universities" },
-                  { label: "Scholarships", href: "/#scholarships" },
-                ],
-              },
-              {
-                heading: "Tools",
-                links: [
-                  { label: "Compare", href: "#" },
-                  { label: "Information Check", href: "#" },
-                  { label: "Deadline Tracker", href: "#" },
-                  { label: "Saved Opportunities", href: "#" },
-                ],
-              },
-              {
-                heading: "About",
-                links: [
-                  { label: "About Domner", href: "#" },
-                  { label: "Privacy Policy", href: "#" },
-                  { label: "Terms of Use", href: "#" },
-                  { label: "Contact", href: "#" },
-                ],
-              },
-            ].map((col) => (
-              <div key={col.heading}>
-                <p className="text-xs font-bold uppercase tracking-wider text-blue-ink mb-3">
-                  {col.heading}
-                </p>
-                <ul className="space-y-2 text-sm text-gray-body font-medium">
-                  {col.links.map((l) => (
-                    <li key={l.label}>
-                      <Link
-                        href={l.href}
-                        className="hover:text-sky-deep transition-colors"
-                      >
-                        {l.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-
-          <div className="pt-8 border-t border-sky/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-gray-faint font-medium">
-              &copy; 2026 Domner. Built to help students navigate digital information responsibly.
-            </p>
-            <p className="text-xs text-gray-faint font-medium">
-              A Digital Information Literacy project.
-            </p>
-          </div>
-        </div>
-      </footer>
+      {/* ── Reusable Footer Component ────────────────────── */}
+      <Footer />
     </div>
   );
 }
