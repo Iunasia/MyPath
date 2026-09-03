@@ -95,7 +95,7 @@ export default function Home() {
               D
             </span>
             <span className="font-display text-lg font-bold text-blue-ink tracking-tight hidden sm:block">
-              Domner
+              DOMNER
             </span>
           </Link>
 
@@ -130,7 +130,7 @@ export default function Home() {
           <ScrollReveal>
             <div className="text-center max-w-3xl mx-auto">
               <span className="sticker mb-6">
-                <span className="w-2 h-2 rounded-full bg-sky" aria-hidden="true" />
+                <span className="sticker-dot" aria-hidden="true" />
                 Digital Information Literacy
               </span>
               <h1 className="font-display text-4xl sm:text-5xl lg:text-[3.5rem] font-extrabold text-blue-ink leading-[1.15] tracking-tight mt-5">
@@ -179,7 +179,7 @@ export default function Home() {
           <ScrollReveal>
             <div className="text-center mb-14">
               <span className="sticker mb-4">
-                <span className="w-2 h-2 rounded-full bg-sky" aria-hidden="true" />
+                <span className="sticker-dot" aria-hidden="true" />
                 The DMIL difference
               </span>
               <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-blue-ink tracking-tight mt-4">
@@ -232,7 +232,7 @@ export default function Home() {
           <ScrollReveal>
             <div className="text-center mb-14">
               <span className="sticker mb-4">
-                <span className="w-2 h-2 rounded-full bg-sky" aria-hidden="true" />
+                <span className="sticker-dot" aria-hidden="true" />
                 Explore with purpose
               </span>
               <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-blue-ink tracking-tight mt-4">
@@ -241,19 +241,27 @@ export default function Home() {
             </div>
           </ScrollReveal>
 
-          <div className="grid sm:grid-cols-2 gap-5">
+          <div className="grid sm:grid-cols-2 gap-5 lg:gap-6">
             {EXPLORERS.map((e, i) => (
               <ScrollReveal key={e.title} delay={Math.min(i + 1, 4) as 1 | 2 | 3 | 4}>
-                <Link href={e.href} className={`group block rounded-3xl border ${e.border} bg-white p-6 bubble-shadow-sm bubble-shadow-hover`}>
-                  <span className={`inline-flex items-center justify-center w-12 h-12 rounded-full ${e.chip} mb-4`}>
-                    <e.icon className="w-6 h-6" strokeWidth={2} aria-hidden="true" />
+                <Link
+                  href={e.href}
+                  className="group flex items-center gap-5 sm:gap-6 rounded-4xl border-2 border-sky/40 bg-white py-5 px-6 sm:py-6 sm:px-8 bubble-shadow-sm transition-all duration-300 hover:border-[2px] hover:border-sky hover:scale-[1.02] hover:shadow-lg cursor-pointer"
+                >
+                  <span className={`inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full ${e.chip} shrink-0 border-2 border-sky/15 transition-all duration-300 group-hover:scale-110  `}>
+                    <e.icon className="w-7 h-7 sm:w-8 sm:h-8 transition-all duration-300 " strokeWidth={2} aria-hidden="true" />
                   </span>
-                  <h3 className="font-display text-lg font-bold text-blue-ink mb-1.5 group-hover:text-sky-deep transition-colors">
-                    {e.title}
-                  </h3>
-                  <p className="text-sm text-gray-body leading-relaxed">
-                    {e.description}
-                  </p>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-display text-lg sm:text-xl font-extrabold text-blue-ink group-hover:text-sky-deep transition-colors truncate">
+                      {e.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-gray-body leading-relaxed line-clamp-2 mt-1 font-medium">
+                      {e.description}
+                    </p>
+                  </div>
+                  <span className="text-sky/60 group-hover:text-sky-deep group-hover:translate-x-1.5 transition-all text-xl sm:text-2xl shrink-0 font-bold" aria-hidden="true">
+                    →
+                  </span>
                 </Link>
               </ScrollReveal>
             ))}
@@ -270,7 +278,7 @@ export default function Home() {
             <ScrollReveal direction="left">
               <div>
                 <span className="sticker mb-4">
-                  <span className="w-2 h-2 rounded-full bg-sky" aria-hidden="true" />
+                  <span className="sticker-dot" aria-hidden="true" />
                   The feature that makes DMIL visible
                 </span>
                 <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-blue-ink tracking-tight mt-4 mb-5">
@@ -307,7 +315,7 @@ export default function Home() {
                 {/* Sticker badge */}
                 <div className="absolute -top-3 -right-2 z-10">
                   <span className="sticker bg-sitomo border-sky text-blue-ink">
-                    <span className="w-1.5 h-1.5 rounded-full bg-sky" aria-hidden="true" />
+                    <span className="sticker-dot" aria-hidden="true" />
                     Verified
                   </span>
                 </div>

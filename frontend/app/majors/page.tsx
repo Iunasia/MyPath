@@ -255,33 +255,54 @@ export default function MajorsPage() {
 
   return (
     <div className="min-h-screen bg-powder text-blue-ink">
-      {/* Mobile/Responsive Viewport Container */}
-      <div className="max-w-md mx-auto min-h-screen px-5 py-6 flex flex-col sm:max-w-lg lg:max-w-xl">
+      {/* Responsive Viewport Container: Mobile by default, exact 80px margins on desktop */}
+      <div className="w-full min-h-screen px-5 py-6 sm:px-10 lg:px-[80px] flex flex-col">
         
         {/* ── Top App Bar ──────────────────────────────────── */}
-        <header className="flex items-center justify-between py-2 mb-6">
-          <div className="flex items-center gap-2">
+        <header className="flex items-center justify-between py-2 mb-8 border-b border-sky/15 pb-4">
+          <div className="flex items-center gap-3">
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 font-display text-xl font-extrabold text-sky tracking-tight hover:opacity-85 transition-opacity"
+              className="inline-flex items-center gap-2 font-display text-xl sm:text-2xl font-extrabold text-sky tracking-tight hover:opacity-85 transition-opacity"
             >
               <ArrowLeft className="w-5 h-5 text-sky-deep" />
-              <span>Domner</span>
+              <span>DOMNER</span>
             </Link>
+
           </div>
 
+          {/* Desktop Nav Links */}
+          <nav className="hidden md:flex items-center gap-6 text-sm font-semibold text-gray-soft">
+            <Link href="/" className="hover:text-blue-ink transition-colors">
+              Home
+            </Link>
+            <Link href="/majors" className="text-sky-deep font-bold">
+              Majors
+            </Link>
+            <Link href="/#careers" className="hover:text-blue-ink transition-colors">
+              Careers
+            </Link>
+            <Link href="/#universities" className="hover:text-blue-ink transition-colors">
+              Universities
+            </Link>
+            <Link href="/#scholarships" className="hover:text-blue-ink transition-colors">
+              Scholarships
+            </Link>
+          </nav>
+
+          {/* Mobile Hamburger Button */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="p-2 rounded-xl text-blue-ink hover:bg-sitomo/80 transition-colors focus:outline-none cursor-pointer"
+            className="md:hidden p-2 rounded-xl text-blue-ink hover:bg-sitomo/80 transition-colors focus:outline-none cursor-pointer"
             aria-label="Toggle navigation menu"
           >
             {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </header>
 
-        {/* ── Dropdown Navigation Menu ───────────────────────── */}
+        {/* ── Mobile Dropdown Menu ───────────────────────────── */}
         {menuOpen && (
-          <nav className="bg-white rounded-2xl p-4 mb-6 bubble-shadow-sm border border-sky/15 animate-fadeIn">
+          <nav className="md:hidden bg-white rounded-2xl p-4 mb-6 bubble-shadow-sm border border-sky/15 animate-fadeIn">
             <p className="text-xs font-bold uppercase tracking-wider text-gray-soft mb-2 px-2">
               Navigation
             </p>
@@ -325,45 +346,51 @@ export default function MajorsPage() {
           </nav>
         )}
 
-        {/* ── Hero Heading ─────────────────────────────────── */}
-        <section className="mb-6">
-          <h1 className="font-display text-3xl sm:text-4xl font-extrabold text-blue-ink tracking-tight leading-[1.2]">
-            Discover Your
-            <br />
-            Major &amp; Career
-          </h1>
-          <p className="text-xs sm:text-sm text-gray-soft mt-2.5 leading-relaxed font-medium">
-            Explore thousands of majors and careers pathways, find the perfect fit
-            for your passions, skills, and future goals.
-          </p>
-
-          {/* ── Search Bar ─────────────────────────────────── */}
-          <div className="relative mt-5">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-              <Search className="h-4 w-4 text-gray-soft" />
+        {/* ── Hero Heading & Search ────────────────────────── */}
+        <section className="mb-8 lg:mb-10">
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+            <div className="max-w-xl">
+              <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight leading-[1.15]">
+                Discover Your
+                <br />
+                Major &amp; Career
+              </h1>
+              <p className="text-xs sm:text-sm lg:text-base text-gray-soft mt-3 leading-relaxed font-medium">
+                Explore thousands of majors and careers pathways, find the perfect fit
+                for your passions, skills, and future goals.
+              </p>
             </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search for major, career, or skill..."
-              className="w-full pl-10 pr-10 py-3 bg-white rounded-2xl border border-sky/20 text-sm text-blue-ink placeholder:text-gray-faint focus:outline-none focus:ring-2 focus:ring-sky/40 focus:border-sky transition-all bubble-shadow-sm font-medium"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-soft hover:text-blue-ink cursor-pointer"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
+
+            {/* Search Bar: Compact on desktop, full width on mobile */}
+            <div className="w-full lg:max-w-md">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Search className="h-4 w-4 text-gray-soft" />
+                </div>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search for major, career, or skill..."
+                  className="w-full pl-11 pr-10 py-3.5 bg-white rounded-2xl border border-sky/20 text-sm text-blue-ink placeholder:text-gray-faint focus:outline-none focus:ring-2 focus:ring-sky/40 focus:border-sky transition-all bubble-shadow-sm font-medium"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-soft hover:text-blue-ink cursor-pointer"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* ── Browse by Interest ───────────────────────────── */}
-        <section className="mb-8">
-          <div className="flex items-center justify-between mb-3.5">
-            <h2 className="font-display text-base font-bold text-blue-ink tracking-tight">
+        {/* ── Browse by Interest (1 Row on Desktop, 3 Cols on Mobile) ── */}
+        <section className="mb-10">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display text-base sm:text-lg font-bold text-blue-ink tracking-tight">
               Browse by interest
             </h2>
             {selectedCategory && (
@@ -376,7 +403,8 @@ export default function MajorsPage() {
             )}
           </div>
 
-          <div className="grid grid-cols-3 gap-2.5">
+          {/* Stays in one row on desktop (md:grid-cols-6) and 3 columns on mobile */}
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-3 lg:gap-4">
             {CATEGORIES.map((cat) => {
               const Icon = cat.icon;
               const isSelected = selectedCategory === cat.id;
@@ -387,18 +415,18 @@ export default function MajorsPage() {
                   onClick={() =>
                     setSelectedCategory(isSelected ? null : cat.id)
                   }
-                  className={`flex flex-col items-center justify-center p-3 rounded-2xl bg-white border transition-all text-center group cursor-pointer ${
+                  className={`flex flex-col items-center justify-center p-3.5 sm:p-4 lg:p-5 rounded-2xl bg-white border transition-all text-center group cursor-pointer ${
                     isSelected
                       ? "border-sky ring-2 ring-sky/30 bg-sky/5 bubble-shadow"
-                      : "border-sky/15 hover:border-sky/30 bubble-shadow-sm"
+                      : "border-sky/15 hover:border-sky/30 bubble-shadow-sm hover:scale-[1.02]"
                   }`}
                 >
                   <div
-                    className={`w-11 h-11 rounded-full ${cat.bg} flex items-center justify-center mb-2 group-hover:scale-105 transition-transform`}
+                    className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full ${cat.bg} flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform`}
                   >
-                    <Icon className={`w-5 h-5 ${cat.iconColor}`} strokeWidth={2.2} />
+                    <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${cat.iconColor}`} strokeWidth={2.2} />
                   </div>
-                  <span className="text-[11px] font-bold text-blue-ink leading-tight">
+                  <span className="text-[11px] sm:text-xs font-bold text-blue-ink leading-tight">
                     {cat.name}
                   </span>
                 </button>
@@ -407,10 +435,10 @@ export default function MajorsPage() {
           </div>
         </section>
 
-        {/* ── Trending Majors ──────────────────────────────── */}
-        <section className="flex-1 pb-12">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display text-base sm:text-lg font-bold text-blue-ink tracking-tight">
+        {/* ── Trending Majors (Bigger Multi-Column Cards on Desktop) ── */}
+        <section className="flex-1 pb-16">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="font-display text-lg sm:text-xl font-bold text-blue-ink tracking-tight">
               {selectedCategory ? `${selectedCategory} Majors` : "Trending Majors"}
             </h2>
             <button
@@ -418,82 +446,87 @@ export default function MajorsPage() {
                 setSelectedCategory(null);
                 setSearchQuery("");
               }}
-              className="text-xs font-bold text-sky-deep hover:text-sky transition-colors flex items-center gap-1 cursor-pointer"
+              className="text-xs sm:text-sm font-bold text-sky-deep hover:text-sky transition-colors flex items-center gap-1 cursor-pointer"
             >
               View All <span>→</span>
             </button>
           </div>
 
           {filteredMajors.length === 0 ? (
-            <div className="bg-white rounded-3xl p-8 text-center border border-sky/15 bubble-shadow-sm mt-4">
-              <p className="font-bold text-blue-ink text-sm">No majors found</p>
-              <p className="text-xs text-gray-soft mt-1">
-                Try searching for a different skill or reset your filters.
+            <div className="bg-white rounded-3xl p-10 text-center border border-sky/15 bubble-shadow-sm mt-4 max-w-lg mx-auto">
+              <p className="font-bold text-blue-ink text-base">No majors found</p>
+              <p className="text-xs sm:text-sm text-gray-soft mt-1.5">
+                Try searching for a different skill or reset your category filter.
               </p>
               <button
                 onClick={() => {
                   setSelectedCategory(null);
                   setSearchQuery("");
                 }}
-                className="mt-4 inline-flex items-center px-4 py-2 rounded-full bg-sky text-white text-xs font-bold hover:bg-sky-bright transition-colors cursor-pointer"
+                className="mt-5 inline-flex items-center px-5 py-2.5 rounded-full bg-sky text-white text-xs sm:text-sm font-bold hover:bg-sky-bright transition-colors cursor-pointer"
               >
                 Clear all filters
               </button>
             </div>
           ) : (
-            <div className="space-y-4">
+            /* Responsive Grid: 1 col on mobile, 2 cols on tablet, 3 cols on desktop */
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
               {filteredMajors.map((major) => {
                 const Icon = major.icon;
 
                 return (
                   <article
                     key={major.id}
-                    className="bg-white rounded-3xl p-5 border border-sky/15 bubble-shadow-sm hover:border-sky/30 transition-all"
+                    className="bg-white rounded-3xl p-6 lg:p-7 border border-sky/15 bubble-shadow-sm hover:border-sky/35 bubble-shadow-hover transition-all flex flex-col justify-between"
                   >
-                    {/* Top Row: Icon + Optional Badge */}
-                    <div className="flex items-center justify-between mb-3">
-                      <div
-                        className={`w-10 h-10 rounded-full ${major.iconBg} flex items-center justify-center`}
-                      >
-                        <Icon className={`w-5 h-5 ${major.iconColor}`} strokeWidth={2.2} />
+                    <div>
+                      {/* Top Row: Icon + Optional Badge */}
+                      <div className="flex items-center justify-between mb-4">
+                        <div
+                          className={`w-12 h-12 rounded-2xl ${major.iconBg} flex items-center justify-center`}
+                        >
+                          <Icon className={`w-6 h-6 ${major.iconColor}`} strokeWidth={2.2} />
+                        </div>
+
+                        {major.badge && (
+                          <span
+                            className={`text-xs font-bold px-3 py-1 rounded-full ${major.badge.bg} ${major.badge.textColor}`}
+                          >
+                            {major.badge.text}
+                          </span>
+                        )}
                       </div>
 
-                      {major.badge && (
-                        <span
-                          className={`text-[11px] font-bold px-3 py-1 rounded-full ${major.badge.bg} ${major.badge.textColor}`}
-                        >
-                          {major.badge.text}
-                        </span>
-                      )}
+                      {/* Title & Description */}
+                      <h3 className="font-display text-lg lg:text-xl font-bold text-blue-ink mb-2">
+                        {major.name}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-gray-body leading-relaxed mb-4 font-medium">
+                        {major.description}
+                      </p>
                     </div>
 
-                    {/* Title & Description */}
-                    <h3 className="font-display text-base sm:text-lg font-bold text-blue-ink mb-1">
-                      {major.name}
-                    </h3>
-                    <p className="text-xs text-gray-body leading-relaxed mb-4 font-medium">
-                      {major.description}
-                    </p>
+                    <div>
+                      {/* Tags */}
+                      <div className="flex flex-wrap gap-1.5 mb-5">
+                        {major.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="bg-sitomo/70 text-blue-ink text-xs font-semibold px-3 py-1 rounded-full border border-sky/10"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
 
-                    {/* Tags */}
-                    <div className="flex flex-wrap gap-1.5 mb-5">
-                      {major.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="bg-sitomo/70 text-blue-ink text-[11px] font-semibold px-3 py-1 rounded-full border border-sky/10"
-                        >
-                          {tag}
-                        </span>
-                      ))}
+                      {/* Action Button */}
+                      <button
+                        onClick={() => setSelectedMajor(major)}
+                        className="w-full rounded-full border-2 border-sky/50 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-sky-deep hover:bg-sky/10 hover:border-sky transition-colors text-center cursor-pointer"
+                      >
+                        Explore Major
+                      </button>
                     </div>
-
-                    {/* Action Button */}
-                    <button
-                      onClick={() => setSelectedMajor(major)}
-                      className="w-full rounded-full border-2 border-sky/40 py-2.5 text-xs sm:text-sm font-bold text-sky-deep hover:bg-sky/10 hover:border-sky transition-colors text-center cursor-pointer"
-                    >
-                      Explore Major
-                    </button>
                   </article>
                 );
               })}
