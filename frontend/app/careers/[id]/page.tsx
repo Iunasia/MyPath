@@ -36,7 +36,7 @@ export default async function CareerDetailPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
-      <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
+      <div className="w-full px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
         {/* ── Header ────────────────────────────────────────── */}
         <Header
           backHref="/careers"

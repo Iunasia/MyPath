@@ -40,7 +40,7 @@ export default function AllMajorsPage() {
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       {/* Responsive Viewport Container: 25px on mobile, 80px on desktop */}
-      <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
+      <div className="w-full px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
         
         {/* ── Top Header Component ────────────────────────── */}
         <Header backHref="/majors" backLabel="Back to Major Explorer" activeNav="majors" />

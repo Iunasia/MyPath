@@ -1,20 +1,24 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import Lenis from "lenis";
+import { LenisProvider } from "../context/LenisContext";
 
 interface SmoothScrollProps {
   children: ReactNode;
 }
 
 export default function SmoothScroll({ children }: SmoothScrollProps) {
+  const [lenis, setLenis] = useState<Lenis | null>(null);
+  const pathname = usePathname();
+
   useEffect(() => {
-    // Respect user prefers-reduced-motion settings
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       return;
     }
 
-    const lenis = new Lenis({
+    const lenisInstance = new Lenis({
       duration: 1.2,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: "vertical",
@@ -24,16 +28,17 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
       touchMultiplier: 2,
     });
 
+    setLenis(lenisInstance);
+
     let animationFrameId: number;
 
     function raf(time: number) {
-      lenis.raf(time);
+      lenisInstance.raf(time);
       animationFrameId = requestAnimationFrame(raf);
     }
 
     animationFrameId = requestAnimationFrame(raf);
 
-    // Handle internal anchor link scrolling seamlessly
     const handleAnchorClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement | null;
       const anchor = target?.closest("a");
@@ -44,8 +49,8 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
         const targetElement = document.querySelector(href);
         if (targetElement) {
           e.preventDefault();
-          lenis.scrollTo(targetElement as HTMLElement, {
-            offset: -70, // Account for sticky navbar header height
+          lenisInstance.scrollTo(targetElement as HTMLElement, {
+            offset: -70,
             duration: 1.2,
           });
         }
@@ -54,12 +59,33 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
 
     document.addEventListener("click", handleAnchorClick);
 
+    // Watch for content mutations and DOM size changes
+    const resizeObserver = new ResizeObserver(() => {
+      lenisInstance.resize();
+    });
+
+    if (document.body) {
+      resizeObserver.observe(document.body);
+    }
+
     return () => {
       cancelAnimationFrame(animationFrameId);
       document.removeEventListener("click", handleAnchorClick);
-      lenis.destroy();
+      resizeObserver.disconnect();
+      lenisInstance.destroy();
+      setLenis(null);
     };
   }, []);
 
-  return <>{children}</>;
+  // Reset scroll position and recalculate limit on route change
+  useEffect(() => {
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: true });
+      requestAnimationFrame(() => {
+        lenis.resize();
+      });
+    }
+  }, [pathname, lenis]);
+
+  return <LenisProvider lenis={lenis}>{children}</LenisProvider>;
 }
