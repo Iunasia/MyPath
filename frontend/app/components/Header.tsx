@@ -52,12 +52,12 @@ export default function Header({
           </Link>
 
           <div className="hidden md:flex items-center gap-6">
-            <a
-              href="#careers"
+            <Link
+              href="/careers"
               className="text-sm font-semibold text-gray-soft hover:text-blue-ink transition-colors"
             >
               Careers
-            </a>
+            </Link>
             <Link
               href="/majors"
               className="text-sm font-semibold text-gray-soft hover:text-blue-ink transition-colors"
@@ -79,21 +79,21 @@ export default function Header({
           </div>
 
           <div className="flex items-center gap-2">
-            <a
-              href="#"
+            <Link
+              href="/auth/signin"
               className="hidden sm:inline-flex text-sm font-semibold text-gray-soft hover:text-blue-ink transition-colors px-3 py-1.5"
             >
               Sign in
-            </a>
-            <a
-              href="#start"
+            </Link>
+            <Link
+              href="/auth/signup"
               className="inline-flex items-center gap-1.5 rounded-full bg-sky px-5 py-2 text-sm font-bold text-white hover:bg-sky-bright transition-colors bubble-shadow-sm"
             >
               Get started
               <span aria-hidden="true" className="text-xs">
                 →
               </span>
-            </a>
+            </Link>
           </div>
         </div>
       </nav>
@@ -149,7 +149,7 @@ export default function Header({
               Majors
             </Link>
             <Link
-              href="/#careers"
+              href="/careers"
               className={`transition-colors ${
                 activeNav === "careers"
                   ? "font-bold text-sky-deep"
@@ -237,7 +237,7 @@ export default function Header({
               <span>Major Explorer</span>
             </Link>
             <Link
-              href="/#careers"
+              href="/careers"
               className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors ${
                 activeNav === "careers"
                   ? "bg-sky/15 text-sky-deep font-bold"

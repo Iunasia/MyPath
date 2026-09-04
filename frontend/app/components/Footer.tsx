@@ -9,7 +9,7 @@ export default function Footer({ className = "" }: FooterProps) {
     {
       heading: "Explore",
       links: [
-        { label: "Careers", href: "/#careers" },
+        { label: "Careers", href: "/careers" },
         { label: "Majors", href: "/majors" },
         { label: "Universities", href: "/universities" },
         { label: "Scholarships", href: "/#scholarships" },
