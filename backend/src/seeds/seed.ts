@@ -15,8 +15,11 @@ const seed = async () => {
       id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
       email TEXT NOT NULL UNIQUE,
-      password TEXT NOT NULL,
+      password TEXT,
       role TEXT NOT NULL DEFAULT 'student',
+      auth_provider TEXT NOT NULL DEFAULT 'local',
+      google_id TEXT UNIQUE,
+      avatar_url TEXT,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `);
