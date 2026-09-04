@@ -20,11 +20,27 @@ jobs:
 
       - name: Audit backend dependencies
         working-directory: backend
-        run: npm audit
+        run: |
+          for attempt in 1 2 3; do
+            npm audit && exit 0
+            if [ "$attempt" -eq 3 ]; then
+              exit 1
+            fi
+            echo "npm audit failed (attempt $attempt). Retrying in 20 seconds..."
+            sleep 20
+          done
 
       - name: Audit frontend dependencies
         working-directory: frontend
-        run: npm audit
+        run: |
+          for attempt in 1 2 3; do
+            npm audit && exit 0
+            if [ "$attempt" -eq 3 ]; then
+              exit 1
+            fi
+            echo "npm audit failed (attempt $attempt). Retrying in 20 seconds..."
+            sleep 20
+          done
 
   secret-scan:
     name: Secret Scanning
