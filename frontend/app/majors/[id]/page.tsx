@@ -45,22 +45,13 @@ export default async function MajorDetailPage({ params }: PageProps) {
           showBackArrow={true}
           activeNav="majors"
           actions={
-            <>
-              <button
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-sitomo text-sky-deep border border-sky/15 hover:bg-sky hover:text-white transition-all flex items-center justify-center focus:outline-none cursor-pointer shadow-2xs"
-                aria-label="Save major"
-                title="Save to favorites"
-              >
-                <Bookmark className="w-4 h-4" />
-              </button>
-              <button
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-sitomo text-sky-deep border border-sky/15 hover:bg-sky hover:text-white transition-all flex items-center justify-center focus:outline-none cursor-pointer shadow-2xs"
-                aria-label="Share major"
-                title="Share"
-              >
-                <Share2 className="w-4 h-4" />
-              </button>
-            </>
+            <button
+              className="p-1.5 text-blue-ink/75 hover:text-sky-deep transition-colors focus:outline-none cursor-pointer"
+              aria-label="Share major"
+              title="Share"
+            >
+              <Share2 className="w-5 h-5" strokeWidth={2} />
+            </button>
           }
         />
 
@@ -96,12 +87,19 @@ export default async function MajorDetailPage({ params }: PageProps) {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
               <div className="absolute bottom-4 left-6 right-6 flex items-center justify-between text-white text-xs sm:text-sm font-bold">
-                <span className="bg-black/40 backdrop-blur-xs px-3.5 py-1.5 rounded-full border border-white/20">
-                  {major.degreeType}
-                </span>
-                <span className="bg-black/40 backdrop-blur-xs px-3.5 py-1.5 rounded-full border border-white/20">
-                  {major.duration}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="bg-black/50 backdrop-blur-xs px-3.5 py-1.5 rounded-full border border-white/20">
+                    {major.degreeType}
+                  </span>
+                  <span className="bg-black/50 backdrop-blur-xs px-3.5 py-1.5 rounded-full border border-white/20">
+                    {major.duration}
+                  </span>
+                </div>
+                {major.jobMarketDemand && (
+                  <span className="bg-sky/90 backdrop-blur-xs px-3.5 py-1.5 rounded-full border border-white/25 text-white font-extrabold shadow-sm">
+                    {major.jobMarketDemand} Demand
+                  </span>
+                )}
               </div>
             </div>
 
@@ -189,6 +187,25 @@ export default async function MajorDetailPage({ params }: PageProps) {
                 );
               })}
             </div>
+
+            {/* Career Opportunities Sector Card */}
+            {major.careerOpportunities && (
+              <div className="mt-8 p-6 sm:p-7 rounded-3xl bg-white border border-sky/15 bubble-shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 max-w-5xl mx-auto">
+                <div>
+                  <span className="text-xs font-bold text-gray-soft uppercase tracking-wider block mb-1">
+                    Industry Hiring Sectors & Employers
+                  </span>
+                  <p className="font-display text-base sm:text-lg font-bold text-blue-ink">
+                    {major.careerOpportunities}
+                  </p>
+                </div>
+                <div className="shrink-0">
+                  <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-sitomo text-xs font-bold text-sky-deep border border-sky/20 shadow-2xs">
+                    Demand: {major.jobMarketDemand}
+                  </span>
+                </div>
+              </div>
+            )}
           </section>
 
           {/* 5. Related Majors (Full Width 3-Column Grid) */}

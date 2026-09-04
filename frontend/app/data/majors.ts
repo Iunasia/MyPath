@@ -1,30 +1,25 @@
 import {
   Laptop,
-  FlaskConical,
   Briefcase,
-  Palette,
-  GraduationCap,
-  HeartPulse,
-  Binary,
-  Leaf,
-  Brain,
-  BarChart3,
-  Sparkles,
-  Stethoscope,
-  Shield,
-  ShieldCheck,
-  Code2,
   Cpu,
+  GraduationCap,
+  Compass,
+  Palette,
+  ShieldCheck,
+  Database,
+  Brain,
+  Layers,
   Coins,
   Megaphone,
-  Database,
-  Layers,
-  FileCode,
   LineChart,
-  UserCheck,
-  Search,
+  Building,
+  Building2,
+  Wrench,
+  Globe,
+  Scale,
+  UtensilsCrossed,
   Network,
-  Activity,
+  Code2,
   LucideIcon,
 } from "lucide-react";
 
@@ -52,11 +47,6 @@ export interface UniversityItem {
   name: string;
   shortName: string;
   location: string;
-  /**
-   * 💡 EASY IMAGE CONFIGURATION:
-   * Replace this URL with your own local image path (e.g., "/images/universities/itc.jpg")
-   * or any web URL.
-   */
   image: string;
   websiteUrl?: string;
 }
@@ -66,11 +56,6 @@ export interface OpportunityItem {
   type: string;
   badgeText: string;
   deadline?: string;
-  /**
-   * 💡 EASY IMAGE CONFIGURATION:
-   * Replace this URL with your own poster/banner image path (e.g., "/images/opportunities/scholarship.png")
-   * or any web URL.
-   */
   image: string;
   link?: string;
 }
@@ -98,1262 +83,1145 @@ export interface MajorItem {
   whatYouLearn: LearnItem[];
   skillsDeveloped: string[];
   careerPathways: CareerPathway[];
+  careerOpportunities: string;
+  jobMarketDemand: string;
   relatedMajors: RelatedMajorLink[];
   offerUniversities: UniversityItem[];
   relatedOpportunities: OpportunityItem[];
 }
 
-/* ── Categories ────────────────────────────────────────── */
+/* ── Categories (6 Exact Categories from Official Resource) ── */
 
 export const CATEGORIES = [
   {
-    id: "Computer Science",
-    name: "Computer Science",
+    id: "Technology & Computing",
+    name: "Technology & Computing",
     icon: Laptop,
     bg: "bg-sitomo",
     iconColor: "text-sky-deep",
   },
   {
-    id: "Science",
-    name: "Science",
-    icon: FlaskConical,
+    id: "Business & Management",
+    name: "Business & Management",
+    icon: Briefcase,
     bg: "bg-momo",
     iconColor: "text-[#D97736]",
   },
   {
-    id: "Business",
-    name: "Business",
-    icon: Briefcase,
+    id: "Engineering & Architecture",
+    name: "Engineering & Architecture",
+    icon: Cpu,
     bg: "bg-sitomo",
     iconColor: "text-blue-ink",
   },
   {
-    id: "Art & Design",
-    name: "Art & Design",
-    icon: Palette,
+    id: "Social Sciences & Humanities",
+    name: "Social Sciences & Humanities",
+    icon: GraduationCap,
     bg: "bg-momo",
     iconColor: "text-[#8B5CF6]",
   },
   {
-    id: "Education",
-    name: "Education",
-    icon: GraduationCap,
+    id: "Tourism & Hospitality",
+    name: "Tourism & Hospitality",
+    icon: Compass,
     bg: "bg-sitomo",
     iconColor: "text-[#10B981]",
   },
   {
-    id: "Healthcare",
-    name: "Healthcare",
-    icon: HeartPulse,
+    id: "Arts, Design & Media",
+    name: "Arts, Design & Media",
+    icon: Palette,
     bg: "bg-momo",
     iconColor: "text-[#EF4444]",
   },
 ];
 
-/* ── 12 Curated Majors ─────────────────────────────────── */
+/* ── University Directory Helper for Majors ─────────────── */
+
+const UNI_MAP: Record<string, UniversityItem> = {
+  PUC: {
+    name: "Paññāsāstra University of Cambodia",
+    shortName: "PUC",
+    location: "Phnom Penh",
+    image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=600&auto=format&fit=crop&q=80",
+    websiteUrl: "https://puc.edu.kh",
+  },
+  "Paragon.U": {
+    name: "Paragon International University",
+    shortName: "Paragon.U",
+    location: "Phnom Penh",
+    image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&auto=format&fit=crop&q=80",
+    websiteUrl: "https://paragoniu.edu.kh",
+  },
+  AUPP: {
+    name: "American University of Phnom Penh",
+    shortName: "AUPP",
+    location: "Phnom Penh",
+    image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80",
+    websiteUrl: "https://aupp.edu.kh",
+  },
+  CADT: {
+    name: "Cambodia Academy of Digital Technology",
+    shortName: "CADT",
+    location: "Phnom Penh",
+    image: "https://images.unsplash.com/photo-1562774053-701939374585?w=600&auto=format&fit=crop&q=80",
+    websiteUrl: "https://cadt.edu.kh",
+  },
+  UME: {
+    name: "University of Management and Economics",
+    shortName: "UME",
+    location: "Battambang & Phnom Penh",
+    image: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=600&auto=format&fit=crop&q=80",
+    websiteUrl: "https://ume.edu.kh",
+  },
+  CamTech: {
+    name: "Cambodia University of Technology and Science",
+    shortName: "CamTech",
+    location: "Phnom Penh",
+    image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&auto=format&fit=crop&q=80",
+    websiteUrl: "https://camtech.edu.kh",
+  },
+  RUPP: {
+    name: "Royal University of Phnom Penh",
+    shortName: "RUPP",
+    location: "Phnom Penh",
+    image: "https://images.unsplash.com/photo-1519452635265-7b1fbfd1e4e0?w=600&auto=format&fit=crop&q=80",
+    websiteUrl: "https://rupp.edu.kh",
+  },
+  ITC: {
+    name: "Institute of Technology of Cambodia",
+    shortName: "ITC",
+    location: "Phnom Penh",
+    image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&auto=format&fit=crop&q=80",
+    websiteUrl: "https://itc.edu.kh",
+  },
+};
+
+function parseUniversities(uniListStr: string): UniversityItem[] {
+  const items: UniversityItem[] = [];
+  const rawParts = uniListStr.split(",").map((s) => s.trim());
+  for (const part of rawParts) {
+    if (UNI_MAP[part]) {
+      items.push(UNI_MAP[part]);
+    } else if (part.toLowerCase().includes("other") || part.toLowerCase().includes("selected")) {
+      items.push({
+        name: part,
+        shortName: "HEI",
+        location: "Cambodia",
+        image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=600&auto=format&fit=crop&q=80",
+      });
+    }
+  }
+  return items.length > 0
+    ? items
+    : [
+        {
+          name: "Accredited Cambodian Universities",
+          shortName: "Cambodia",
+          location: "Phnom Penh",
+          image: "https://images.unsplash.com/photo-1562774053-701939374585?w=600&auto=format&fit=crop&q=80",
+        },
+      ];
+}
+
+/* ── Badge Helper ───────────────────────────────────────── */
+
+function getDemandBadge(demand: string) {
+  if (demand.includes("High / Growing") || demand.includes("Growing / High Potential")) {
+    return {
+      text: demand,
+      bg: "bg-purple-100",
+      textColor: "text-purple-800",
+    };
+  }
+  if (demand.startsWith("High")) {
+    return {
+      text: demand,
+      bg: "bg-emerald-100",
+      textColor: "text-emerald-800",
+    };
+  }
+  if (demand.includes("Growing")) {
+    return {
+      text: demand,
+      bg: "bg-blue-100",
+      textColor: "text-blue-800",
+    };
+  }
+  return {
+    text: demand,
+    bg: "bg-amber-100",
+    textColor: "text-amber-800",
+  };
+}
+
+/* ── 20 Majors from Official Reference Table ─────────────── */
 
 export const MAJORS_DATA: MajorItem[] = [
+  // 1. Computer Science
   {
     id: "computer-science",
     name: "Computer Science",
-    category: "Computer Science",
-    badge: {
-      text: "Featured",
-      bg: "bg-[#E2F1F1]",
-      textColor: "text-sky-deep",
-    },
+    category: "Technology & Computing",
+    badge: getDemandBadge("High"),
     icon: Laptop,
     iconBg: "bg-sitomo",
     iconColor: "text-sky-deep",
-    description:
-      "Dive into the world of algorithms, data structures, and software engineering. Computer Science is the foundation of the digital age, empowering you to build the systems and applications that drive innovation across every industry.",
-    tags: ["Algorithms", "Python", "Systems", "AI"],
+    description: "Study of computers, software, algorithms, and computing systems.",
+    tags: ["Programming", "Algorithms", "Databases", "AI"],
     duration: "4 Years",
-    degreeType: "Bachelor of Science",
-    source: "ACM / IEEE Computing Curricula Standards",
-    sourceUrl: "https://www.acm.org",
-    lastVerified: "28 August 2026",
-    heroImage:
-      "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1000&auto=format&fit=crop&q=80",
+    degreeType: "Bachelor's Degree",
+    source: "MLVT, CDRI, University Websites",
+    sourceUrl: "https://www.mlvt.gov.kh",
+    lastVerified: "2026",
+    heroImage: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1600&auto=format&fit=crop&q=80",
     whatYouLearn: [
-      {
-        title: "Data Structures & Algorithms",
-        description:
-          "Learn to optimize code efficiency, solve complex computational problems, and evaluate time complexities.",
-        icon: Binary,
-      },
-      {
-        title: "Programming Languages",
-        description:
-          "Master foundational and modern languages like Python, Java, C++, TypeScript, and modern frameworks.",
-        icon: FileCode,
-      },
-      {
-        title: "Software Engineering",
-        description:
-          "Understand the full software development lifecycle from concept and architecture to CI/CD deployment.",
-        icon: Layers,
-      },
-      {
-        title: "Database Management",
-        description:
-          "Design, implement, and secure large-scale relational and distributed data storage systems.",
-        icon: Database,
-      },
+      { title: "Programming", description: "Mastery of multiple programming paradigms and modern software languages.", icon: Code2 },
+      { title: "Algorithms", description: "Design, analysis, and optimization of efficient algorithmic computations.", icon: Cpu },
+      { title: "Databases", description: "Relational modeling, SQL, distributed databases, and high-volume data storage.", icon: Database },
+      { title: "Software Development & AI", description: "Full-stack lifecycle development combined with practical artificial intelligence.", icon: Brain },
     ],
-    skillsDeveloped: [
-      "Problem Solving",
-      "Logical Thinking",
-      "System Architecture",
-      "Debugging",
-      "Team Collaboration",
-      "Analytical Skills",
-    ],
+    skillsDeveloped: ["Programming", "Logical Thinking", "Problem-Solving", "Teamwork"],
     careerPathways: [
-      {
-        title: "Software Engineer",
-        description:
-          "Design and build complex applications, operating systems, cloud backends, and network control systems.",
-        icon: Code2,
-      },
-      {
-        title: "Data Scientist",
-        description:
-          "Analyze and interpret complex digital data to help organizations forecast trends and make data-driven decisions.",
-        icon: LineChart,
-      },
-      {
-        title: "Cybersecurity Analyst",
-        description:
-          "Protect computer networks, servers, and cloud environments by identifying vulnerabilities and preventing security breaches.",
-        icon: Shield,
-      },
+      { title: "Software Engineer", description: "Architect and build enterprise-grade software systems and applications.", icon: Laptop },
+      { title: "Software Developer", description: "Write, test, and maintain robust client and server software features.", icon: Code2 },
+      { title: "Programmer & Systems Analyst", description: "Translate client requirements into high-performance computing solutions.", icon: Database },
     ],
+    careerOpportunities: "Software companies, banks, fintech, telecom, startups",
+    jobMarketDemand: "High",
     relatedMajors: [
-      { id: "software-engineering", name: "Software Engineering", icon: Laptop },
-      { id: "data-science", name: "Data Science", icon: Database },
+      { id: "information-technology", name: "Information Technology", icon: Network },
       { id: "cybersecurity", name: "Cybersecurity", icon: ShieldCheck },
+      { id: "data-science", name: "Data Science", icon: LineChart },
     ],
-    offerUniversities: [
-      {
-        name: "Institute of Technology of Cambodia",
-        shortName: "ITC",
-        location: "Phnom Penh",
-        image:
-          "https://images.unsplash.com/photo-1562774053-701939374585?w=600&auto=format&fit=crop&q=80",
-        websiteUrl: "https://www.itc.edu.kh",
-      },
-      {
-        name: "Cambodia Academy of Digital Technology",
-        shortName: "CADT",
-        location: "Phnom Penh",
-        image:
-          "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&auto=format&fit=crop&q=80",
-        websiteUrl: "https://www.cadt.edu.kh",
-      },
-      {
-        name: "American University of Phnom Penh",
-        shortName: "AUPP",
-        location: "Phnom Penh",
-        image:
-          "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=600&auto=format&fit=crop&q=80",
-        websiteUrl: "https://www.aupp.edu.kh",
-      },
-      {
-        name: "Royal University of Phnom Penh",
-        shortName: "RUPP",
-        location: "Phnom Penh",
-        image:
-          "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=600&auto=format&fit=crop&q=80",
-        websiteUrl: "https://www.rupp.edu.kh",
-      },
-    ],
+    offerUniversities: parseUniversities("PUC, Paragon.U, AUPP, CADT"),
     relatedOpportunities: [
       {
-        title: "Call for Volunteering: Be Part of Code-C 2026",
-        type: "Volunteer Program",
-        badgeText: "Youth Program",
-        deadline: "15 Oct 2026",
-        image:
-          "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=600&auto=format&fit=crop&q=80",
-        link: "#",
-      },
-      {
-        title: "Global Tech Leaders Scholarship (100% Tuition)",
-        type: "Full Scholarship",
-        badgeText: "Merit-Based",
-        deadline: "30 Nov 2026",
-        image:
-          "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80",
-        link: "#",
+        title: "Techo Digital Talent Fellowship",
+        type: "Full Tuition Scholarship",
+        badgeText: "Merit Based",
+        deadline: "Aug 2026",
+        image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80",
       },
     ],
   },
+
+  // 2. Information Technology
+  {
+    id: "information-technology",
+    name: "Information Technology",
+    category: "Technology & Computing",
+    badge: getDemandBadge("High"),
+    icon: Network,
+    iconBg: "bg-sitomo",
+    iconColor: "text-sky-deep",
+    description: "Focuses on using and managing technology to support organizations.",
+    tags: ["Networking", "Databases", "IT Systems", "Web Tech"],
+    duration: "4 Years",
+    degreeType: "Bachelor's Degree",
+    source: "MLVT, CDRI, University Websites",
+    sourceUrl: "https://www.mlvt.gov.kh",
+    lastVerified: "2026",
+    heroImage: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1600&auto=format&fit=crop&q=80",
+    whatYouLearn: [
+      { title: "Networking", description: "Local and wide area networks, routing, switching, and cloud topology.", icon: Network },
+      { title: "Databases & Storage", description: "Database administration, SQL query tuning, and reliable backup systems.", icon: Database },
+      { title: "IT Systems & Tech Support", description: "Hardware diagnostics, operating systems, and end-user enterprise support.", icon: Wrench },
+      { title: "Web Technologies", description: "Modern web standards, responsive design, and content management deployments.", icon: Globe },
+    ],
+    skillsDeveloped: ["Technical Skills", "Troubleshooting", "Communication", "Systems Support"],
+    careerPathways: [
+      { title: "IT Officer", description: "Coordinate technology infrastructure and operational digital systems.", icon: Network },
+      { title: "System Administrator", description: "Oversee server maintenance, user permissions, and reliable uptime.", icon: Cpu },
+      { title: "Network Administrator", description: "Implement, protect, and optimize enterprise data networks.", icon: Database },
+    ],
+    careerOpportunities: "Companies, banks, schools, hospitals, government",
+    jobMarketDemand: "High",
+    relatedMajors: [
+      { id: "computer-science", name: "Computer Science", icon: Laptop },
+      { id: "cybersecurity", name: "Cybersecurity", icon: ShieldCheck },
+      { id: "business-information-systems", name: "Business Information Systems", icon: Layers },
+    ],
+    offerUniversities: parseUniversities("CADT, PUC, UME, other Cambodian universities"),
+    relatedOpportunities: [
+      {
+        title: "National Digital Infrastructure Internship",
+        type: "Paid Traineeship",
+        badgeText: "Enterprise",
+        deadline: "Sep 2026",
+        image: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=600&auto=format&fit=crop&q=80",
+      },
+    ],
+  },
+
+  // 3. Cybersecurity
+  {
+    id: "cybersecurity",
+    name: "Cybersecurity",
+    category: "Technology & Computing",
+    badge: getDemandBadge("High / Growing"),
+    icon: ShieldCheck,
+    iconBg: "bg-sitomo",
+    iconColor: "text-sky-deep",
+    description: "Focuses on protecting systems, networks, and data from cyber threats.",
+    tags: ["Network Security", "Digital Forensics", "Risk Management"],
+    duration: "4 Years",
+    degreeType: "Bachelor's Degree",
+    source: "MLVT, CDRI, University Websites",
+    sourceUrl: "https://www.mlvt.gov.kh",
+    lastVerified: "2026",
+    heroImage: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1600&auto=format&fit=crop&q=80",
+    whatYouLearn: [
+      { title: "Network Security", description: "Firewalls, intrusion detection, defense-in-depth, and secure communication.", icon: ShieldCheck },
+      { title: "Security Systems", description: "Identity access management, cryptographic protocols, and security audits.", icon: Cpu },
+      { title: "Digital Forensics", description: "Evidence acquisition, incident response, and cyber threat investigation.", icon: Brain },
+      { title: "Risk Management", description: "Compliance frameworks, vulnerability assessments, and mitigation policies.", icon: Layers },
+    ],
+    skillsDeveloped: ["Networking", "Analytical Thinking", "Problem-Solving", "Forensic Analysis"],
+    careerPathways: [
+      { title: "Cybersecurity Analyst", description: "Monitor systems, detect anomalies, and prevent unauthorized breaches.", icon: ShieldCheck },
+      { title: "Security Engineer", description: "Implement defensive security architectures and secure encryption pipelines.", icon: Cpu },
+      { title: "SOC Analyst", description: "Respond to live incidents and investigate anomalous network events.", icon: Network },
+    ],
+    careerOpportunities: "Banks, fintech, telecom, government, technology companies",
+    jobMarketDemand: "High / Growing",
+    relatedMajors: [
+      { id: "computer-science", name: "Computer Science", icon: Laptop },
+      { id: "information-technology", name: "Information Technology", icon: Network },
+      { id: "data-science", name: "Data Science", icon: LineChart },
+    ],
+    offerUniversities: parseUniversities("CADT, PUC, AUPP, CamTech"),
+    relatedOpportunities: [
+      {
+        title: "ASEAN Cyber Shield Defense Grant",
+        type: "Fellowship & Bootcamp",
+        badgeText: "Security",
+        deadline: "Oct 2026",
+        image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&auto=format&fit=crop&q=80",
+      },
+    ],
+  },
+
+  // 4. Data Science
   {
     id: "data-science",
     name: "Data Science",
-    category: "Computer Science",
-    badge: {
-      text: "High Demand",
-      bg: "bg-[#FCEAE6]",
-      textColor: "text-[#D96B54]",
-    },
-    icon: Binary,
+    category: "Technology & Computing",
+    badge: getDemandBadge("Growing"),
+    icon: LineChart,
     iconBg: "bg-sitomo",
     iconColor: "text-sky-deep",
-    description:
-      "Extract insights from complex data sets to inform strategic business decisions. Blends statistics, computer science, predictive modeling, and machine learning to turn raw data into strategic intelligence.",
-    tags: ["Python", "Machine Learning", "Statistics", "SQL"],
+    description: "Combines programming, statistics, and data analysis to find useful insights.",
+    tags: ["Statistics", "Programming", "Databases", "Machine Learning"],
     duration: "4 Years",
-    degreeType: "Bachelor of Science",
-    source: "ACM / IEEE Computing Curricula & BLS",
-    sourceUrl: "https://www.acm.org",
-    lastVerified: "28 August 2026",
-    heroImage:
-      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1000&auto=format&fit=crop&q=80",
+    degreeType: "Bachelor's Degree",
+    source: "CDRI, University Websites",
+    sourceUrl: "https://cdri.org.kh",
+    lastVerified: "2026",
+    heroImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1600&auto=format&fit=crop&q=80",
     whatYouLearn: [
-      {
-        title: "Applied Probability & Statistics",
-        description:
-          "Master regression modeling, probability theory, hypothesis testing, and Bayesian statistical techniques.",
-        icon: LineChart,
-      },
-      {
-        title: "Machine Learning & Neural Nets",
-        description:
-          "Train supervised and unsupervised models, computer vision systems, and modern deep neural architectures.",
-        icon: Binary,
-      },
-      {
-        title: "Big Data Pipelines",
-        description:
-          "Process massive streams using Apache Spark, Kafka, cloud data warehouses, and distributed storage.",
-        icon: Database,
-      },
-      {
-        title: "Data Visualization & Storytelling",
-        description:
-          "Communicate technical insights effectively through interactive dashboards and executive reports.",
-        icon: BarChart3,
-      },
+      { title: "Statistics & Probability", description: "Mathematical modeling, predictive inference, and hypothesis testing.", icon: LineChart },
+      { title: "Programming for Data", description: "Python, R, scientific libraries, and data transformation pipelines.", icon: Code2 },
+      { title: "Databases & Warehousing", description: "SQL, data lakes, distributed storage, and ETL data flows.", icon: Database },
+      { title: "Machine Learning", description: "Supervised and unsupervised models, clustering, and predictive algorithms.", icon: Brain },
     ],
-    skillsDeveloped: [
-      "Statistical Inference",
-      "Model Evaluation",
-      "Python / R",
-      "Data Cleaning",
-      "Communication",
-      "Predictive Analytics",
-    ],
+    skillsDeveloped: ["Statistics", "Programming", "Analytical Thinking", "Data Visualization"],
     careerPathways: [
-      {
-        title: "Data Scientist",
-        description:
-          "Build predictive models and algorithms to solve high-impact commercial and research challenges.",
-        icon: Binary,
-      },
-      {
-        title: "Machine Learning Engineer",
-        description:
-          "Deploy machine learning pipelines into high-availability cloud environments.",
-        icon: Cpu,
-      },
-      {
-        title: "Business Intelligence Lead",
-        description:
-          "Translate analytical data into business strategy and operational KPIs.",
-        icon: LineChart,
-      },
+      { title: "Data Analyst", description: "Interpret metrics, generate visual reports, and support executive decisions.", icon: LineChart },
+      { title: "Data Scientist", description: "Build predictive algorithms and automated statistical forecasting models.", icon: Brain },
+      { title: "BI & Data Engineer", description: "Design scalable data pipelines, dashboards, and enterprise warehouses.", icon: Database },
     ],
+    careerOpportunities: "Banks, fintech, telecom, retail, technology, consulting",
+    jobMarketDemand: "Growing",
     relatedMajors: [
       { id: "computer-science", name: "Computer Science", icon: Laptop },
-      { id: "business-analytics", name: "Business Analytics", icon: BarChart3 },
-      { id: "ai-robotics", name: "AI & Robotics", icon: Cpu },
+      { id: "artificial-intelligence", name: "Artificial Intelligence", icon: Brain },
+      { id: "business-information-systems", name: "Business Information Systems", icon: Layers },
     ],
-    offerUniversities: [
-      {
-        name: "Cambodia Academy of Digital Technology",
-        shortName: "CADT",
-        location: "Phnom Penh",
-        image:
-          "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&auto=format&fit=crop&q=80",
-      },
-      {
-        name: "American University of Phnom Penh",
-        shortName: "AUPP",
-        location: "Phnom Penh",
-        image:
-          "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=600&auto=format&fit=crop&q=80",
-      },
-    ],
+    offerUniversities: parseUniversities("CADT, PUC and selected universities"),
     relatedOpportunities: [
       {
-        title: "Data Science Fellowship 2026",
-        type: "Fellowship",
-        badgeText: "Sponsored",
-        image:
-          "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80",
+        title: "National Data Analytics Innovation Challenge",
+        type: "Prize & Traineeship",
+        badgeText: "FinTech",
+        deadline: "Nov 2026",
+        image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=80",
       },
     ],
   },
+
+  // 5. Artificial Intelligence
   {
-    id: "software-engineering",
-    name: "Software Engineering",
-    category: "Computer Science",
-    badge: {
-      text: "High Demand",
-      bg: "bg-[#FCEAE6]",
-      textColor: "text-[#D96B54]",
-    },
-    icon: Code2,
-    iconBg: "bg-sitomo",
-    iconColor: "text-sky-deep",
-    description:
-      "Focus on the systematic design, development, testing, and maintenance of scalable software systems. Emphasizes enterprise architecture, cloud deployment, and collaborative development standards.",
-    tags: ["Full-Stack", "DevOps", "Cloud Architecture", "Agile"],
-    duration: "4 Years",
-    degreeType: "Bachelor of Engineering",
-    source: "IEEE Computer Society Standards",
-    sourceUrl: "https://www.computer.org",
-    lastVerified: "20 August 2026",
-    heroImage:
-      "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1000&auto=format&fit=crop&q=80",
-    whatYouLearn: [
-      {
-        title: "Enterprise Architecture",
-        description:
-          "Design microservices, serverless systems, and event-driven backends capable of scaling to millions of users.",
-        icon: Layers,
-      },
-      {
-        title: "Full-Stack Web & Mobile",
-        description:
-          "Build responsive interfaces, native apps, and resilient REST/GraphQL APIs.",
-        icon: Laptop,
-      },
-      {
-        title: "DevOps & Cloud Infrastructure",
-        description:
-          "Automate deployment pipelines using Docker, Kubernetes, Terraform, and AWS/GCP.",
-        icon: Network,
-      },
-      {
-        title: "Software Quality & Testing",
-        description:
-          "Implement unit tests, integration suites, performance benchmarking, and security audits.",
-        icon: Shield,
-      },
-    ],
-    skillsDeveloped: [
-      "Full-Stack Dev",
-      "CI/CD Automation",
-      "System Design",
-      "Code Refactoring",
-      "Git & Team Workflows",
-    ],
-    careerPathways: [
-      {
-        title: "Full-Stack Developer",
-        description: "Deliver end-to-end features across frontend and backend web technologies.",
-        icon: Code2,
-      },
-      {
-        title: "DevOps Engineer",
-        description: "Maintain cloud infrastructure, scalability, and automated deployments.",
-        icon: Network,
-      },
-      {
-        title: "Cloud Solutions Architect",
-        description: "Architect secure, fault-tolerant enterprise cloud platforms and microservices.",
-        icon: Layers,
-      },
-    ],
-    relatedMajors: [
-      { id: "computer-science", name: "Computer Science", icon: Laptop },
-      { id: "cybersecurity", name: "Cybersecurity", icon: Shield },
-      { id: "data-science", name: "Data Science", icon: Binary },
-    ],
-    offerUniversities: [
-      {
-        name: "Institute of Technology of Cambodia",
-        shortName: "ITC",
-        location: "Phnom Penh",
-        image:
-          "https://images.unsplash.com/photo-1562774053-701939374585?w=600&auto=format&fit=crop&q=80",
-      },
-      {
-        name: "Cambodia Academy of Digital Technology",
-        shortName: "CADT",
-        location: "Phnom Penh",
-        image:
-          "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&auto=format&fit=crop&q=80",
-      },
-    ],
-    relatedOpportunities: [
-      {
-        title: "Junior Developer Internship Scheme",
-        type: "Internship",
-        badgeText: "Paid",
-        image:
-          "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=600&auto=format&fit=crop&q=80",
-      },
-    ],
-  },
-  {
-    id: "cybersecurity",
-    name: "Cybersecurity & Information Defense",
-    category: "Computer Science",
-    badge: {
-      text: "Critical Need",
-      bg: "bg-[#FEE2E2]",
-      textColor: "text-[#DC2626]",
-    },
-    icon: Shield,
-    iconBg: "bg-sitomo",
-    iconColor: "text-sky-deep",
-    description:
-      "Protect critical national infrastructure, corporate digital assets, and user data. Master ethical hacking, threat intelligence, cryptography, and regulatory compliance.",
-    tags: ["Ethical Hacking", "Cryptography", "Network Defense", "Forensics"],
-    duration: "4 Years",
-    degreeType: "Bachelor of Science",
-    source: "NIST Cybersecurity Framework",
-    sourceUrl: "https://www.nist.gov",
-    lastVerified: "19 August 2026",
-    heroImage:
-      "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1000&auto=format&fit=crop&q=80",
-    whatYouLearn: [
-      {
-        title: "Penetration Testing & Red Teaming",
-        description: "Simulate real-world attacks to find zero-day weaknesses in apps and networks.",
-        icon: Shield,
-      },
-      {
-        title: "Digital Forensics & Incident Response",
-        description: "Investigate breaches, recover evidence, and neutralize persistent threats.",
-        icon: Search,
-      },
-      {
-        title: "Cryptography & Protocol Security",
-        description: "Implement public key infrastructure, zero-knowledge proofs, and secure protocols.",
-        icon: Binary,
-      },
-      {
-        title: "Cloud & Network Hardening",
-        description: "Configure firewalls, zero-trust architectures, and identity access controls.",
-        icon: Network,
-      },
-    ],
-    skillsDeveloped: [
-      "Vulnerability Assessment",
-      "Network Protocol Analysis",
-      "Security Auditing",
-      "Risk Governance",
-    ],
-    careerPathways: [
-      {
-        title: "Security Operations Analyst (SOC)",
-        description: "Monitor and defend networks against real-time cyber intrusions.",
-        icon: Shield,
-      },
-      {
-        title: "Penetration Tester",
-        description: "Ethically break into systems to discover vulnerabilities before adversaries do.",
-        icon: UserCheck,
-      },
-      {
-        title: "Security Systems Architect",
-        description: "Design zero-trust architectures and organizational defense policies.",
-        icon: Layers,
-      },
-    ],
-    relatedMajors: [
-      { id: "computer-science", name: "Computer Science", icon: Laptop },
-      { id: "software-engineering", name: "Software Engineering", icon: Code2 },
-      { id: "ai-robotics", name: "AI & Robotics", icon: Cpu },
-    ],
-    offerUniversities: [
-      {
-        name: "Cambodia Academy of Digital Technology",
-        shortName: "CADT",
-        location: "Phnom Penh",
-        image:
-          "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&auto=format&fit=crop&q=80",
-      },
-    ],
-    relatedOpportunities: [
-      {
-        title: "National Cyber Defense Competition",
-        type: "Competition",
-        badgeText: "Annual",
-        image:
-          "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&auto=format&fit=crop&q=80",
-      },
-    ],
-  },
-  {
-    id: "environmental-engineering",
-    name: "Environmental Engineering",
-    category: "Science",
-    badge: {
-      text: "Sustainability",
-      bg: "bg-[#E6F4EA]",
-      textColor: "text-[#137333]",
-    },
-    icon: Leaf,
-    iconBg: "bg-[#FDF0E9]",
-    iconColor: "text-[#E07A5F]",
-    description:
-      "Develop innovative technical solutions to ecological challenges, including water sanitation, renewable energy infrastructure, climate resilience, and industrial waste mitigation.",
-    tags: ["Sustainability", "Fluid Mechanics", "Ecology", "Renewables"],
-    duration: "4 Years",
-    degreeType: "Bachelor of Engineering",
-    source: "ABET Engineering Accreditation & EPA",
-    sourceUrl: "https://www.abet.org",
-    lastVerified: "20 August 2026",
-    heroImage:
-      "https://images.unsplash.com/photo-1509391365360-2e959784a276?w=1000&auto=format&fit=crop&q=80",
-    whatYouLearn: [
-      {
-        title: "Water Resources & Treatment",
-        description: "Design biological and physical purification systems for municipal water supplies.",
-        icon: Activity,
-      },
-      {
-        title: "Renewable Energy Systems",
-        description: "Engineer solar, hydro, and wind integration for sustainable power generation.",
-        icon: Leaf,
-      },
-      {
-        title: "Environmental Impact Assessment",
-        description: "Quantify carbon emissions, pollutant dispersion, and regulatory standards.",
-        icon: LineChart,
-      },
-      {
-        title: "Circular Economy & Waste Systems",
-        description: "Develop closed-loop manufacturing, recycling, and materials recovery processes.",
-        icon: Layers,
-      },
-    ],
-    skillsDeveloped: [
-      "Environmental Auditing",
-      "GIS Mapping",
-      "Fluid Dynamics",
-      "Climate Risk Analysis",
-    ],
-    careerPathways: [
-      {
-        title: "Sustainability Consultant",
-        description: "Advise governments and multinationals on zero-carbon transitions.",
-        icon: Leaf,
-      },
-      {
-        title: "Water Resource Engineer",
-        description: "Design flood prevention and clean water infrastructure.",
-        icon: Activity,
-      },
-      {
-        title: "Renewable Energy Specialist",
-        description: "Design, test, and implement solar, wind, and bioenergy technologies.",
-        icon: Sparkles,
-      },
-    ],
-    relatedMajors: [
-      { id: "biomedical-sciences", name: "Biomedical Sciences", icon: Stethoscope },
-      { id: "cognitive-science", name: "Cognitive Science", icon: Brain },
-      { id: "software-engineering", name: "Software Engineering", icon: Code2 },
-    ],
-    offerUniversities: [
-      {
-        name: "Institute of Technology of Cambodia",
-        shortName: "ITC",
-        location: "Phnom Penh",
-        image:
-          "https://images.unsplash.com/photo-1562774053-701939374585?w=600&auto=format&fit=crop&q=80",
-      },
-      {
-        name: "Royal University of Phnom Penh",
-        shortName: "RUPP",
-        location: "Phnom Penh",
-        image:
-          "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=600&auto=format&fit=crop&q=80",
-      },
-    ],
-    relatedOpportunities: [
-      {
-        title: "Mekong Basin Sustainability Research Grant",
-        type: "Research Grant",
-        badgeText: "Funded",
-        image:
-          "https://images.unsplash.com/photo-1509391365360-2e959784a276?w=600&auto=format&fit=crop&q=80",
-      },
-    ],
-  },
-  {
-    id: "cognitive-science",
-    name: "Cognitive Science",
-    category: "Science",
-    badge: {
-      text: "Growing",
-      bg: "bg-[#FDF0E6]",
-      textColor: "text-[#CF7A42]",
-    },
+    id: "artificial-intelligence",
+    name: "Artificial Intelligence",
+    category: "Technology & Computing",
+    badge: getDemandBadge("Growing / High Potential"),
     icon: Brain,
     iconBg: "bg-sitomo",
-    iconColor: "text-[#4F868A]",
-    description:
-      "Explore the interdisciplinary study of mind and intelligence. Integrates cognitive psychology, computational neuroscience, linguistics, philosophy, and human-computer interaction.",
-    tags: ["Neuroscience", "Psychology", "HCI", "Research"],
+    iconColor: "text-sky-deep",
+    description: "Studies technologies that allow computers to perform intelligent tasks.",
+    tags: ["Machine Learning", "AI", "Computer Vision", "Algorithms"],
     duration: "4 Years",
-    degreeType: "Bachelor of Science",
-    source: "Cognitive Science Society",
-    sourceUrl: "https://cognitivesciencesociety.org",
-    lastVerified: "15 August 2026",
-    heroImage:
-      "https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=1000&auto=format&fit=crop&q=80",
+    degreeType: "Bachelor's Degree",
+    source: "CDRI, University Websites",
+    sourceUrl: "https://cdri.org.kh",
+    lastVerified: "2026",
+    heroImage: "https://images.unsplash.com/photo-1677442136019-21780efad99a?w=1600&auto=format&fit=crop&q=80",
     whatYouLearn: [
-      {
-        title: "Neural Computation & Memory",
-        description: "Study biological neural circuits, synaptic plasticity, and perceptual processing.",
-        icon: Brain,
-      },
-      {
-        title: "Human-Centered Interaction",
-        description: "Evaluate user mental models, cognitive load, and decision architecture.",
-        icon: UserCheck,
-      },
-      {
-        title: "Linguistics & Natural Language",
-        description: "Analyze semantic representation, speech synthesis, and language acquisition.",
-        icon: FileCode,
-      },
-      {
-        title: "Experimental Research Design",
-        description: "Conduct eye-tracking, behavioral experiments, and neuroimaging studies.",
-        icon: Search,
-      },
+      { title: "Machine Learning", description: "Deep neural networks, backpropagation, and reinforcement learning.", icon: Brain },
+      { title: "Computer Vision", description: "Image recognition, object detection, and visual processing models.", icon: Laptop },
+      { title: "Natural Language & AI", description: "Transformer models, speech recognition, and conversational systems.", icon: Code2 },
+      { title: "AI Ethics & Deployment", description: "Responsible AI safety, cloud model hosting, and edge deployment.", icon: Cpu },
     ],
-    skillsDeveloped: [
-      "User Research",
-      "Experimental Design",
-      "Cognitive Modeling",
-      "Data Analysis",
-    ],
+    skillsDeveloped: ["Programming", "Mathematics", "Statistics", "Problem-Solving"],
     careerPathways: [
-      {
-        title: "UX Researcher",
-        description: "Investigate how users perceive and navigate digital products.",
-        icon: UserCheck,
-      },
-      {
-        title: "AI Interaction Specialist",
-        description: "Design intuitive interfaces between human users and autonomous AI agents.",
-        icon: Cpu,
-      },
-      {
-        title: "Cognitive Systems Researcher",
-        description: "Develop human-aligned cognitive models and decision frameworks.",
-        icon: Brain,
-      },
+      { title: "AI Engineer", description: "Deploy deep learning models into production software systems.", icon: Brain },
+      { title: "Machine Learning Engineer", description: "Train and optimize neural networks for predictive automation.", icon: Cpu },
+      { title: "AI Developer & Data Scientist", description: "Create customized intelligent solutions and AI agents.", icon: Laptop },
     ],
+    careerOpportunities: "Technology, fintech, automation, research, startups",
+    jobMarketDemand: "Growing / High Potential",
     relatedMajors: [
-      { id: "digital-design", name: "UI/UX & Interactive Design", icon: Sparkles },
       { id: "computer-science", name: "Computer Science", icon: Laptop },
-      { id: "data-science", name: "Data Science", icon: Binary },
+      { id: "data-science", name: "Data Science", icon: LineChart },
+      { id: "electrical-engineering", name: "Electrical Engineering", icon: Cpu },
     ],
-    offerUniversities: [
-      {
-        name: "American University of Phnom Penh",
-        shortName: "AUPP",
-        location: "Phnom Penh",
-        image:
-          "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=600&auto=format&fit=crop&q=80",
-      },
-    ],
+    offerUniversities: parseUniversities("AUPP, CamTech"),
     relatedOpportunities: [
       {
-        title: "Cognitive AI Lab Fellowship",
-        type: "Fellowship",
-        badgeText: "International",
-        image:
-          "https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=600&auto=format&fit=crop&q=80",
+        title: "Cambodia AI Pioneer Research Grant",
+        type: "Full Sponsorship",
+        badgeText: "Emerging Tech",
+        deadline: "Aug 2026",
+        image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80",
       },
     ],
   },
+
+  // 6. Business Information Systems
   {
-    id: "business-analytics",
-    name: "Business Analytics",
-    category: "Business",
-    badge: {
-      text: "High Demand",
-      bg: "bg-[#FCEAE6]",
-      textColor: "text-[#D96B54]",
-    },
-    icon: BarChart3,
-    iconBg: "bg-sitomo",
-    iconColor: "text-blue-ink",
-    description:
-      "Bridge commercial strategy and quantitative modeling. Use descriptive, predictive, and prescriptive analytics to optimize supply chains, financial assets, and market growth.",
-    tags: ["Financial Modeling", "SQL", "Strategy", "Tableau"],
-    duration: "3-4 Years",
-    degreeType: "Bachelor of Business Administration",
-    source: "AACSB Business Accreditation Standards",
-    sourceUrl: "https://www.aacsb.edu",
-    lastVerified: "18 August 2026",
-    heroImage:
-      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1000&auto=format&fit=crop&q=80",
-    whatYouLearn: [
-      {
-        title: "Commercial Forecasting & Econometrics",
-        description: "Model market volatility, consumer demand curves, and price elasticity.",
-        icon: LineChart,
-      },
-      {
-        title: "Supply Chain & Operations Optimization",
-        description: "Apply linear programming and queuing theory to eliminate operational bottlenecks.",
-        icon: Layers,
-      },
-      {
-        title: "Data Visualization & Dashboards",
-        description: "Build automated PowerBI and Tableau dashboards for executive decision-makers.",
-        icon: BarChart3,
-      },
-      {
-        title: "Strategic Decision Frameworks",
-        description: "Evaluate M&A opportunities, venture capital investments, and market entry strategies.",
-        icon: Briefcase,
-      },
-    ],
-    skillsDeveloped: [
-      "Financial Analysis",
-      "Executive Storytelling",
-      "Spreadsheet Modeling",
-      "SQL Querying",
-    ],
-    careerPathways: [
-      {
-        title: "Management Consultant",
-        description: "Solve complex operational challenges for top corporate clients.",
-        icon: Briefcase,
-      },
-      {
-        title: "Operations Analyst",
-        description: "Streamline logistics and production costs across global supply chains.",
-        icon: LineChart,
-      },
-      {
-        title: "Strategic Growth Strategist",
-        description: "Model market expansion and quantitative forecasting frameworks.",
-        icon: Layers,
-      },
-    ],
-    relatedMajors: [
-      { id: "data-science", name: "Data Science", icon: Binary },
-      { id: "financial-technology", name: "Financial Technology", icon: Coins },
-      { id: "software-engineering", name: "Software Engineering", icon: Code2 },
-    ],
-    offerUniversities: [
-      {
-        name: "American University of Phnom Penh",
-        shortName: "AUPP",
-        location: "Phnom Penh",
-        image:
-          "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=600&auto=format&fit=crop&q=80",
-      },
-      {
-        name: "National University of Management",
-        shortName: "NUM",
-        location: "Phnom Penh",
-        image:
-          "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&auto=format&fit=crop&q=80",
-      },
-    ],
-    relatedOpportunities: [
-      {
-        title: "Future Business Leaders Case Challenge",
-        type: "Case Competition",
-        badgeText: "$5,000 Prize",
-        image:
-          "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=80",
-      },
-    ],
-  },
-  {
-    id: "financial-technology",
-    name: "Financial Technology (FinTech)",
-    category: "Business",
-    badge: {
-      text: "Fast Growth",
-      bg: "bg-[#EBF7F2]",
-      textColor: "text-[#059669]",
-    },
-    icon: Coins,
+    id: "business-information-systems",
+    name: "Business Information Systems",
+    category: "Technology & Computing",
+    badge: getDemandBadge("High / Growing"),
+    icon: Layers,
     iconBg: "bg-sitomo",
     iconColor: "text-sky-deep",
-    description:
-      "At the intersection of finance, cryptography, and modern software. Learn digital payments, decentralized finance (DeFi), algorithmic trading, and modern regulatory compliance (RegTech).",
-    tags: ["Blockchain", "Digital Banking", "Algorithmic Trading", "Risk"],
+    description: "Combines business knowledge with information technology and systems.",
+    tags: ["Business Processes", "Databases", "Information Systems", "Analytics"],
     duration: "4 Years",
-    degreeType: "Bachelor of Science",
-    source: "Global FinTech Institute",
-    sourceUrl: "https://www.gfintech.org",
-    lastVerified: "21 August 2026",
-    heroImage:
-      "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1000&auto=format&fit=crop&q=80",
+    degreeType: "Bachelor's Degree",
+    source: "MLVT, University Websites",
+    sourceUrl: "https://www.mlvt.gov.kh",
+    lastVerified: "2026",
+    heroImage: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1600&auto=format&fit=crop&q=80",
     whatYouLearn: [
-      {
-        title: "Digital Payments & Neo-Banking",
-        description: "Architect instant payment settlement rails and mobile wallet infrastructure.",
-        icon: Coins,
-      },
-      {
-        title: "Algorithmic Trading Systems",
-        description: "Implement high-frequency order routing, market making, and automated execution.",
-        icon: LineChart,
-      },
-      {
-        title: "Smart Contracts & Distributed Ledgers",
-        description: "Develop audited smart contracts and tokenized asset platforms.",
-        icon: Binary,
-      },
-      {
-        title: "Anti-Money Laundering & RegTech",
-        description: "Implement automated compliance checks and fraud detection algorithms.",
-        icon: Shield,
-      },
+      { title: "Business Processes", description: "Organizational workflows, enterprise mapping, and supply chain management.", icon: Briefcase },
+      { title: "Information Systems", description: "ERP implementation, CRM systems, and cloud business software.", icon: Layers },
+      { title: "Databases & SQL", description: "Business data modeling, relational querying, and data consistency.", icon: Database },
+      { title: "Business Analytics", description: "KPI tracking, reporting dashboards, and technological cost-benefit analysis.", icon: LineChart },
     ],
-    skillsDeveloped: [
-      "Quantitative Finance",
-      "Smart Contract Auditing",
-      "Risk Mitigation",
-      "API Integration",
-    ],
+    skillsDeveloped: ["Business Analysis", "Databases", "Communication", "Problem-Solving"],
     careerPathways: [
-      {
-        title: "FinTech Product Manager",
-        description: "Lead consumer banking apps and merchant payment gateway solutions.",
-        icon: Coins,
-      },
-      {
-        title: "Quantitative Risk Analyst",
-        description: "Forecast capital exposure and automate credit scoring models.",
-        icon: LineChart,
-      },
-      {
-        title: "Blockchain Protocol Engineer",
-        description: "Develop decentralized settlement layers and audited digital contracts.",
-        icon: Binary,
-      },
+      { title: "Business Analyst", description: "Bridge corporate needs with technical development teams.", icon: Briefcase },
+      { title: "Systems Analyst", description: "Design and implement modernized technical workflows.", icon: Layers },
+      { title: "MIS Officer & IT Consultant", description: "Manage enterprise software systems and business databases.", icon: Database },
     ],
+    careerOpportunities: "Banks, corporations, consulting, technology companies",
+    jobMarketDemand: "High / Growing",
     relatedMajors: [
-      { id: "business-analytics", name: "Business Analytics", icon: BarChart3 },
-      { id: "software-engineering", name: "Software Engineering", icon: Code2 },
-      { id: "cybersecurity", name: "Cybersecurity", icon: Shield },
-    ],
-    offerUniversities: [
-      {
-        name: "Cambodia Academy of Digital Technology",
-        shortName: "CADT",
-        location: "Phnom Penh",
-        image:
-          "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&auto=format&fit=crop&q=80",
-      },
-    ],
-    relatedOpportunities: [
-      {
-        title: "National Digital Currency Innovation Award",
-        type: "Hackathon",
-        badgeText: "Sponsored by NBC",
-        image:
-          "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop&q=80",
-      },
-    ],
-  },
-  {
-    id: "digital-design",
-    name: "UI/UX & Interactive Design",
-    category: "Art & Design",
-    badge: {
-      text: "Popular",
-      bg: "bg-[#F3EEFE]",
-      textColor: "text-[#7C3AED]",
-    },
-    icon: Sparkles,
-    iconBg: "bg-momo",
-    iconColor: "text-[#8B5CF6]",
-    description:
-      "Design accessible user interfaces, interactive design systems, and engaging experiences across web, mobile, AR, and next-generation device ecosystems.",
-    tags: ["Design Systems", "Prototyping", "User Research", "Figma"],
-    duration: "4 Years",
-    degreeType: "Bachelor of Fine Arts",
-    source: "AIGA Design Standards & Nielsen Norman Group",
-    sourceUrl: "https://www.nngroup.com",
-    lastVerified: "24 August 2026",
-    heroImage:
-      "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=1000&auto=format&fit=crop&q=80",
-    whatYouLearn: [
-      {
-        title: "Interaction Design & Prototyping",
-        description: "Craft high-fidelity micro-interactions, responsive states, and accessible flows in Figma.",
-        icon: Sparkles,
-      },
-      {
-        title: "Design Systems & Token Architecture",
-        description: "Build comprehensive component libraries adhering to WCAG 2.2 accessibility standards.",
-        icon: Layers,
-      },
-      {
-        title: "Usability Testing & Analytics",
-        description: "Run moderated user testing sessions, heatmaps, and conversion optimization.",
-        icon: UserCheck,
-      },
-      {
-        title: "Motion & Spatial Design",
-        description: "Integrate kinetic UI principles, 3D interaction, and augmented reality assets.",
-        icon: Palette,
-      },
-    ],
-    skillsDeveloped: [
-      "Figma Mastery",
-      "Wireframing",
-      "Information Architecture",
-      "Accessibility (WCAG)",
-      "Design Systems",
-    ],
-    careerPathways: [
-      {
-        title: "Product Designer",
-        description: "Lead product usability and visual identity from discovery to launch.",
-        icon: Sparkles,
-      },
-      {
-        title: "Design Systems Lead",
-        description: "Standardize design tokens and component kits across large engineering organizations.",
-        icon: Layers,
-      },
-      {
-        title: "Creative Director & UX Strategist",
-        description: "Oversee interactive brand narrative and multi-platform consumer journeys.",
-        icon: Palette,
-      },
-    ],
-    relatedMajors: [
+      { id: "business-administration", name: "Business Administration", icon: Briefcase },
       { id: "computer-science", name: "Computer Science", icon: Laptop },
-      { id: "cognitive-science", name: "Cognitive Science", icon: Brain },
-      { id: "digital-marketing", name: "Digital Marketing", icon: Megaphone },
+      { id: "digital-business", name: "Digital Business / Digital Economy", icon: LineChart },
     ],
-    offerUniversities: [
-      {
-        name: "Royal University of Fine Arts",
-        shortName: "RUFA",
-        location: "Phnom Penh",
-        image:
-          "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=600&auto=format&fit=crop&q=80",
-      },
-      {
-        name: "Cambodia Academy of Digital Technology",
-        shortName: "CADT",
-        location: "Phnom Penh",
-        image:
-          "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&auto=format&fit=crop&q=80",
-      },
-    ],
+    offerUniversities: parseUniversities("CADT, PUC, Paragon.U"),
     relatedOpportunities: [
       {
-        title: "Young Creative Designers Exhibition",
-        type: "Showcase",
-        badgeText: "Annual",
-        image:
-          "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=600&auto=format&fit=crop&q=80",
+        title: "Enterprise Systems Digital Fellowship",
+        type: "Corporate Traineeship",
+        badgeText: "Consulting",
+        deadline: "Sep 2026",
+        image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&auto=format&fit=crop&q=80",
       },
     ],
   },
+
+  // 7. Business Administration
   {
-    id: "biomedical-sciences",
-    name: "Biomedical Sciences",
-    category: "Healthcare",
-    badge: {
-      text: "High Growth",
-      bg: "bg-[#EBF7F2]",
-      textColor: "text-[#059669]",
-    },
-    icon: Stethoscope,
+    id: "business-administration",
+    name: "Business Administration",
+    category: "Business & Management",
+    badge: getDemandBadge("High / Broad"),
+    icon: Briefcase,
     iconBg: "bg-momo",
-    iconColor: "text-[#EF4444]",
-    description:
-      "Investigate cellular biology, pharmacology, diagnostics, and human genetics to accelerate therapies, develop vaccines, and advance precision healthcare technology.",
-    tags: ["Genetics", "Clinical Trials", "Biochemistry", "Pathology"],
+    iconColor: "text-[#D97736]",
+    description: "Studies how businesses are created, managed, and operated.",
+    tags: ["Management", "Marketing", "Finance", "HR", "Entrepreneurship"],
     duration: "4 Years",
-    degreeType: "Bachelor of Science",
-    source: "NIH & Biomedical Science Institute Standards",
-    sourceUrl: "https://www.nih.gov",
-    lastVerified: "22 August 2026",
-    heroImage:
-      "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1000&auto=format&fit=crop&q=80",
+    degreeType: "Bachelor's Degree",
+    source: "MLVT, University Websites",
+    sourceUrl: "https://www.mlvt.gov.kh",
+    lastVerified: "2026",
+    heroImage: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1600&auto=format&fit=crop&q=80",
     whatYouLearn: [
-      {
-        title: "Molecular Genetics & CRISPR",
-        description: "Study DNA sequencing, genetic modification, and cellular pathology.",
-        icon: FlaskConical,
-      },
-      {
-        title: "Immunology & Virology",
-        description: "Analyze immune system responses, antibody therapies, and vaccine vectors.",
-        icon: Activity,
-      },
-      {
-        title: "Clinical Trial Protocols",
-        description: "Understand FDA/EMA approval phases, patient safety ethics, and trial data management.",
-        icon: UserCheck,
-      },
-      {
-        title: "Bio-Instrumentation & Imaging",
-        description: "Operate spectrometry, electron microscopes, and automated diagnostic analyzers.",
-        icon: Stethoscope,
-      },
+      { title: "Management & Leadership", description: "Strategic planning, organizational behavior, and effective executive leadership.", icon: Briefcase },
+      { title: "Marketing & Sales", description: "Market positioning, competitive intelligence, and customer retention strategies.", icon: Megaphone },
+      { title: "Corporate Finance", description: "Cash flow analysis, capital budgeting, and financial performance evaluation.", icon: Coins },
+      { title: "Operations & HR", description: "Talent acquisition, organizational culture, and operational efficiency.", icon: Layers },
     ],
-    skillsDeveloped: [
-      "Laboratory Protocols",
-      "Clinical Analysis",
-      "Bioethics",
-      "Scientific Writing",
-    ],
+    skillsDeveloped: ["Communication", "Leadership", "Problem-Solving", "Teamwork"],
     careerPathways: [
-      {
-        title: "Clinical Research Associate",
-        description: "Oversee trial compliance and patient safety in medical research centers.",
-        icon: Stethoscope,
-      },
-      {
-        title: "Biotech Laboratory Scientist",
-        description: "Conduct cutting-edge diagnostic tests and therapeutic discovery.",
-        icon: FlaskConical,
-      },
-      {
-        title: "Bioinformatics Scientist",
-        description: "Analyze genomic datasets and computational biology algorithms for precision medicine.",
-        icon: Binary,
-      },
+      { title: "Business Analyst", description: "Analyze organizational efficiency and market expansion opportunities.", icon: LineChart },
+      { title: "Operations Manager", description: "Oversee daily corporate logistics, supply chains, and departmental goals.", icon: Briefcase },
+      { title: "Entrepreneur & Founder", description: "Launch and scale new ventures in emerging commercial markets.", icon: Coins },
     ],
+    careerOpportunities: "Almost all industries, SMEs, corporations, startups",
+    jobMarketDemand: "High / Broad",
     relatedMajors: [
-      { id: "environmental-engineering", name: "Environmental Engineering", icon: Leaf },
-      { id: "data-science", name: "Data Science", icon: Binary },
-      { id: "cognitive-science", name: "Cognitive Science", icon: Brain },
+      { id: "marketing", name: "Marketing", icon: Megaphone },
+      { id: "finance-banking", name: "Finance & Banking", icon: Coins },
+      { id: "business-information-systems", name: "Business Information Systems", icon: Layers },
     ],
-    offerUniversities: [
-      {
-        name: "University of Health Sciences",
-        shortName: "UHS",
-        location: "Phnom Penh",
-        image:
-          "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=600&auto=format&fit=crop&q=80",
-      },
-    ],
+    offerUniversities: parseUniversities("PUC, Paragon.U, AUPP, UME"),
     relatedOpportunities: [
       {
-        title: "Global Medical Research Fellowship",
-        type: "Grant",
-        badgeText: "Full Funding",
-        image:
-          "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=600&auto=format&fit=crop&q=80",
+        title: "ASEAN Young Entrepreneurs Grant",
+        type: "Startup Funding",
+        badgeText: "Business",
+        deadline: "Aug 2026",
+        image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600&auto=format&fit=crop&q=80",
       },
     ],
   },
+
+  // 8. Marketing
   {
-    id: "ai-robotics",
-    name: "Artificial Intelligence & Robotics",
-    category: "Computer Science",
-    badge: {
-      text: "NextGen",
-      bg: "bg-[#F3EEFE]",
-      textColor: "text-[#7C3AED]",
-    },
-    icon: Cpu,
-    iconBg: "bg-sitomo",
-    iconColor: "text-sky-deep",
-    description:
-      "Combine autonomous robotics, computer vision, kinematics, and generative artificial intelligence. Engineer machines and intelligent agents that perceive, reason, and act in the physical and digital world.",
-    tags: ["Robotics", "Computer Vision", "Control Systems", "Deep Learning"],
-    duration: "4 Years",
-    degreeType: "Bachelor of Engineering",
-    source: "IEEE Robotics & Automation Society",
-    sourceUrl: "https://www.ieee-ras.org",
-    lastVerified: "27 August 2026",
-    heroImage:
-      "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1000&auto=format&fit=crop&q=80",
-    whatYouLearn: [
-      {
-        title: "Robot Kinematics & Motion Planning",
-        description: "Model robotic arms, inverse kinematics, trajectory generation, and motor controls.",
-        icon: Cpu,
-      },
-      {
-        title: "Computer Vision & Spatial Mapping",
-        description: "Process LiDAR point clouds, visual SLAM, and real-time object tracking.",
-        icon: Search,
-      },
-      {
-        title: "Reinforcement Learning & Autonomy",
-        description: "Train agents using policy gradients, simulation environments, and reward models.",
-        icon: Binary,
-      },
-      {
-        title: "Embedded Systems & Sensor Fusion",
-        description: "Integrate IMUs, microcontrollers, real-time operating systems (RTOS), and ROS2.",
-        icon: Layers,
-      },
-    ],
-    skillsDeveloped: [
-      "ROS / ROS2",
-      "Sensor Fusion",
-      "Control Theory",
-      "C++ & Python",
-      "3D Spatial Math",
-    ],
-    careerPathways: [
-      {
-        title: "Robotics Software Engineer",
-        description: "Program autonomous mobile robots, warehouse automation, and drone navigation.",
-        icon: Cpu,
-      },
-      {
-        title: "Computer Vision Engineer",
-        description: "Build visual recognition systems for autonomous vehicles and industrial quality control.",
-        icon: Search,
-      },
-      {
-        title: "Autonomous Systems Architect",
-        description: "Engineer motion planning, perception fusion, and vehicle hardware integrations.",
-        icon: Network,
-      },
-    ],
-    relatedMajors: [
-      { id: "computer-science", name: "Computer Science", icon: Laptop },
-      { id: "data-science", name: "Data Science", icon: Binary },
-      { id: "software-engineering", name: "Software Engineering", icon: Code2 },
-    ],
-    offerUniversities: [
-      {
-        name: "Institute of Technology of Cambodia",
-        shortName: "ITC",
-        location: "Phnom Penh",
-        image:
-          "https://images.unsplash.com/photo-1562774053-701939374585?w=600&auto=format&fit=crop&q=80",
-      },
-      {
-        name: "Cambodia Academy of Digital Technology",
-        shortName: "CADT",
-        location: "Phnom Penh",
-        image:
-          "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&auto=format&fit=crop&q=80",
-      },
-    ],
-    relatedOpportunities: [
-      {
-        title: "Asia-Pacific Robocon Championship",
-        type: "International Event",
-        badgeText: "National Team Selection",
-        image:
-          "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600&auto=format&fit=crop&q=80",
-      },
-    ],
-  },
-  {
-    id: "digital-marketing",
-    name: "Digital Marketing & Media Strategy",
-    category: "Business",
-    badge: {
-      text: "Creative",
-      bg: "bg-[#FFF4E5]",
-      textColor: "text-[#B76E00]",
-    },
+    id: "marketing",
+    name: "Marketing",
+    category: "Business & Management",
+    badge: getDemandBadge("High / Broad"),
     icon: Megaphone,
     iconBg: "bg-momo",
-    iconColor: "text-[#B76E00]",
-    description:
-      "Master modern content strategy, consumer psychology, search engine optimization (SEO), performance advertising, and multi-channel campaign analytics in the creator economy.",
-    tags: ["SEO", "Performance Ads", "Content Strategy", "Brand"],
-    duration: "3-4 Years",
-    degreeType: "Bachelor of Arts",
-    source: "Digital Marketing Institute Standards",
-    sourceUrl: "https://digitalmarketinginstitute.com",
-    lastVerified: "25 August 2026",
-    heroImage:
-      "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?w=1000&auto=format&fit=crop&q=80",
+    iconColor: "text-[#D97736]",
+    description: "Studies how businesses understand customers and promote products or services.",
+    tags: ["Consumer Behavior", "Digital Marketing", "Branding", "Market Research"],
+    duration: "4 Years",
+    degreeType: "Bachelor's Degree",
+    source: "MLVT, University Websites",
+    sourceUrl: "https://www.mlvt.gov.kh",
+    lastVerified: "2026",
+    heroImage: "https://images.unsplash.com/photo-1533750516457-a7f992034fec?w=1600&auto=format&fit=crop&q=80",
     whatYouLearn: [
-      {
-        title: "Search & Algorithmic Discovery",
-        description: "Master technical SEO, schema architecture, and algorithmic social recommendations.",
-        icon: Search,
-      },
-      {
-        title: "Performance Ads & Paid Growth",
-        description: "Manage programmatic campaigns across Meta, Google Ads, TikTok, and DSP networks.",
-        icon: LineChart,
-      },
-      {
-        title: "Audience Psychology & Copywriting",
-        description: "Craft compelling narrative hooks and conversion-centered landing page architecture.",
-        icon: Megaphone,
-      },
-      {
-        title: "Marketing Attribution & Analytics",
-        description: "Track customer acquisition cost (CAC), lifetime value (LTV), and multi-touch attribution models.",
-        icon: BarChart3,
-      },
+      { title: "Consumer Behavior", description: "Psychological drivers behind customer decisions and purchasing habits.", icon: Brain },
+      { title: "Digital Marketing", description: "SEO, performance advertising, email funnels, and social campaigns.", icon: Megaphone },
+      { title: "Brand Management", description: "Brand identity, narrative storytelling, and value proposition design.", icon: Palette },
+      { title: "Market Research", description: "Quantitative surveys, qualitative focus groups, and competitor tracking.", icon: LineChart },
     ],
-    skillsDeveloped: [
-      "Campaign Management",
-      "Copywriting",
-      "Google Analytics 4",
-      "Conversion Rate Optimization",
-    ],
+    skillsDeveloped: ["Creativity", "Communication", "Analytics", "Digital Skills"],
     careerPathways: [
-      {
-        title: "Growth Marketing Manager",
-        description: "Scale organic and paid user acquisition for high-growth tech startups.",
-        icon: Megaphone,
-      },
-      {
-        title: "Brand Strategy Director",
-        description: "Define corporate brand positioning and strategic media campaigns.",
-        icon: Palette,
-      },
-      {
-        title: "Marketing Analytics Lead",
-        description: "Model customer lifetime values, attribution models, and conversion optimization.",
-        icon: LineChart,
-      },
+      { title: "Marketing Officer", description: "Plan and execute comprehensive marketing campaigns across channels.", icon: Megaphone },
+      { title: "Digital Marketer", description: "Manage online ad budgets, viral content, and social media engagement.", icon: Laptop },
+      { title: "Brand Executive", description: "Build and protect commercial brand reputation and market presence.", icon: Palette },
     ],
+    careerOpportunities: "Companies, agencies, e-commerce, startups, media",
+    jobMarketDemand: "High / Broad",
     relatedMajors: [
-      { id: "business-analytics", name: "Business Analytics", icon: BarChart3 },
-      { id: "digital-design", name: "UI/UX & Interactive Design", icon: Sparkles },
-      { id: "financial-technology", name: "Financial Technology", icon: Coins },
+      { id: "business-administration", name: "Business Administration", icon: Briefcase },
+      { id: "digital-business", name: "Digital Business / Digital Economy", icon: LineChart },
+      { id: "graphic-design", name: "Graphic Design / Digital Arts & Design", icon: Palette },
     ],
-    offerUniversities: [
-      {
-        name: "National University of Management",
-        shortName: "NUM",
-        location: "Phnom Penh",
-        image:
-          "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&auto=format&fit=crop&q=80",
-      },
-      {
-        name: "American University of Phnom Penh",
-        shortName: "AUPP",
-        location: "Phnom Penh",
-        image:
-          "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=600&auto=format&fit=crop&q=80",
-      },
-    ],
+    offerUniversities: parseUniversities("PUC, UME and other universities"),
     relatedOpportunities: [
       {
-        title: "Digital Creator Accelerator Grant",
-        type: "Incubator",
-        badgeText: "Seed Funding",
-        image:
-          "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?w=600&auto=format&fit=crop&q=80",
+        title: "Digital Creator & Marketer Fellowship",
+        type: "Media Grant",
+        badgeText: "Marketing",
+        deadline: "Sep 2026",
+        image: "https://images.unsplash.com/photo-1557838923-2985c318be48?w=600&auto=format&fit=crop&q=80",
+      },
+    ],
+  },
+
+  // 9. Digital Business / Digital Economy
+  {
+    id: "digital-business",
+    name: "Digital Business / Digital Economy",
+    category: "Business & Management",
+    badge: getDemandBadge("Growing / High Potential"),
+    icon: LineChart,
+    iconBg: "bg-momo",
+    iconColor: "text-[#D97736]",
+    description: "Combines business with digital technologies and the digital economy.",
+    tags: ["E-commerce", "Digital Platforms", "Data Analytics", "Digital Strategy"],
+    duration: "4 Years",
+    degreeType: "Bachelor's Degree",
+    source: "CDRI, PUC, University Websites",
+    sourceUrl: "https://cdri.org.kh",
+    lastVerified: "2026",
+    heroImage: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1600&auto=format&fit=crop&q=80",
+    whatYouLearn: [
+      { title: "E-commerce Architecture", description: "Digital storefronts, multi-vendor platforms, and mobile checkout flows.", icon: LineChart },
+      { title: "Digital Platform Strategy", description: "Network effects, ecosystem monetization, and API-driven economies.", icon: Layers },
+      { title: "Data Analytics for Commerce", description: "Customer journey mapping, conversion rate optimization, and cohort data.", icon: Database },
+      { title: "FinTech & Digital Payments", description: "Mobile wallets, blockchain settlements, and cross-border digital trade.", icon: Coins },
+    ],
+    skillsDeveloped: ["Digital Literacy", "Analytics", "Business Thinking", "Communication"],
+    careerPathways: [
+      { title: "Digital Business Analyst", description: "Evaluate digital channels and advise on tech monetization opportunities.", icon: LineChart },
+      { title: "E-commerce Manager", description: "Direct online store performance, conversion funnels, and vendor networks.", icon: Briefcase },
+      { title: "Innovation Consultant", description: "Guide corporate transformation toward digital-first business models.", icon: Brain },
+    ],
+    careerOpportunities: "E-commerce, fintech, startups, technology companies",
+    jobMarketDemand: "Growing / High Potential",
+    relatedMajors: [
+      { id: "business-information-systems", name: "Business Information Systems", icon: Layers },
+      { id: "marketing", name: "Marketing", icon: Megaphone },
+      { id: "finance-banking", name: "Finance & Banking", icon: Coins },
+    ],
+    offerUniversities: parseUniversities("CADT, PUC and selected universities"),
+    relatedOpportunities: [
+      {
+        title: "National FinTech Accelerator Grant",
+        type: "Incubation Grant",
+        badgeText: "FinTech",
+        deadline: "Oct 2026",
+        image: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=600&auto=format&fit=crop&q=80",
+      },
+    ],
+  },
+
+  // 10. Accounting
+  {
+    id: "accounting",
+    name: "Accounting",
+    category: "Business & Management",
+    badge: getDemandBadge("High / Stable"),
+    icon: Coins,
+    iconBg: "bg-momo",
+    iconColor: "text-[#D97736]",
+    description: "Focuses on recording, analyzing, and reporting financial information.",
+    tags: ["Financial Accounting", "Management Accounting", "Taxation", "Auditing"],
+    duration: "4 Years",
+    degreeType: "Bachelor's Degree",
+    source: "MLVT, University Websites",
+    sourceUrl: "https://www.mlvt.gov.kh",
+    lastVerified: "2026",
+    heroImage: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1600&auto=format&fit=crop&q=80",
+    whatYouLearn: [
+      { title: "Financial Accounting", description: "Double-entry bookkeeping, balance sheets, and IFRS financial statements.", icon: Coins },
+      { title: "Management Accounting", description: "Cost accounting, budget forecasting, and corporate margin analysis.", icon: LineChart },
+      { title: "Taxation & Compliance", description: "Cambodian tax laws, corporate withholding, and VAT filings.", icon: Scale },
+      { title: "Auditing & Internal Controls", description: "Audit trail verification, fraud prevention, and regulatory compliance.", icon: ShieldCheck },
+    ],
+    skillsDeveloped: ["Numerical Skills", "Attention to Detail", "Excel Mastery", "Accounting Software"],
+    careerPathways: [
+      { title: "Certified Accountant", description: "Manage ledger accounts, balance reconciliations, and tax compliance.", icon: Coins },
+      { title: "Financial Auditor", description: "Examine financial records for accuracy, compliance, and fiduciary honesty.", icon: ShieldCheck },
+      { title: "Tax Officer & Controller", description: "Ensure corporate compliance with national tax policies and regulations.", icon: LineChart },
+    ],
+    careerOpportunities: "Banks, companies, accounting firms, government",
+    jobMarketDemand: "High / Stable",
+    relatedMajors: [
+      { id: "finance-banking", name: "Finance & Banking", icon: Coins },
+      { id: "business-administration", name: "Business Administration", icon: Briefcase },
+      { id: "economics", name: "Economics", icon: LineChart },
+    ],
+    offerUniversities: parseUniversities("PUC, UME and other Cambodian universities"),
+    relatedOpportunities: [
+      {
+        title: "ACCA Professional Fast-Track Fellowship",
+        type: "Certification Grant",
+        badgeText: "Accounting",
+        deadline: "Aug 2026",
+        image: "https://images.unsplash.com/photo-1450133064473-71024230f91b?w=600&auto=format&fit=crop&q=80",
+      },
+    ],
+  },
+
+  // 11. Finance & Banking
+  {
+    id: "finance-banking",
+    name: "Finance & Banking",
+    category: "Business & Management",
+    badge: getDemandBadge("High / Stable"),
+    icon: Coins,
+    iconBg: "bg-momo",
+    iconColor: "text-[#D97736]",
+    description: "Studies financial institutions, investments, money, and financial decisions.",
+    tags: ["Banking", "Investment", "Financial Management", "Risk Management"],
+    duration: "4 Years",
+    degreeType: "Bachelor's Degree",
+    source: "MLVT, University Websites",
+    sourceUrl: "https://www.mlvt.gov.kh",
+    lastVerified: "2026",
+    heroImage: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=1600&auto=format&fit=crop&q=80",
+    whatYouLearn: [
+      { title: "Commercial Banking", description: "Credit scoring, retail deposit mechanics, and central bank regulations.", icon: Building },
+      { title: "Investment & Capital Markets", description: "Securities valuation, equity analysis, and portfolio diversification.", icon: LineChart },
+      { title: "Financial Management", description: "Corporate capital structure, dividend policies, and liquidity management.", icon: Coins },
+      { title: "Financial Risk Assessment", description: "Credit risk, currency exposure, and hedging instruments.", icon: ShieldCheck },
+    ],
+    skillsDeveloped: ["Numerical Analysis", "Financial Literacy", "Communication", "Market Valuation"],
+    careerPathways: [
+      { title: "Bank Officer", description: "Administer branch operations, retail products, and corporate accounts.", icon: Building },
+      { title: "Financial Analyst", description: "Model company valuations and guide executive capital allocations.", icon: LineChart },
+      { title: "Credit & Investment Officer", description: "Evaluate commercial loan applications and manage asset portfolios.", icon: Coins },
+    ],
+    careerOpportunities: "Banks, microfinance, fintech, insurance, investment",
+    jobMarketDemand: "High / Stable",
+    relatedMajors: [
+      { id: "accounting", name: "Accounting", icon: Coins },
+      { id: "economics", name: "Economics", icon: LineChart },
+      { id: "digital-business", name: "Digital Business / Digital Economy", icon: LineChart },
+    ],
+    offerUniversities: parseUniversities("PUC, Paragon.U, UME"),
+    relatedOpportunities: [
+      {
+        title: "National Bank of Cambodia Young Bankers Award",
+        type: "Banking Traineeship",
+        badgeText: "Banking",
+        deadline: "Sep 2026",
+        image: "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=600&auto=format&fit=crop&q=80",
+      },
+    ],
+  },
+
+  // 12. Civil Engineering
+  {
+    id: "civil-engineering",
+    name: "Civil Engineering",
+    category: "Engineering & Architecture",
+    badge: getDemandBadge("High / Stable"),
+    icon: Building2,
+    iconBg: "bg-sitomo",
+    iconColor: "text-blue-ink",
+    description: "Applies engineering principles to buildings, roads, and infrastructure.",
+    tags: ["Structural Engineering", "Construction", "Materials", "Surveying"],
+    duration: "4-5 Years",
+    degreeType: "Bachelor of Engineering",
+    source: "MLVT, University Websites",
+    sourceUrl: "https://www.mlvt.gov.kh",
+    lastVerified: "2026",
+    heroImage: "https://images.unsplash.com/photo-1541888946425-d0fbb186c5f7?w=1600&auto=format&fit=crop&q=80",
+    whatYouLearn: [
+      { title: "Structural Engineering", description: "Reinforced concrete, steel beam design, and load-bearing static calculations.", icon: Building2 },
+      { title: "Construction Materials", description: "Soil mechanics, concrete durability, asphalt chemistry, and quality tests.", icon: Wrench },
+      { title: "Surveying & Geomatics", description: "Topographic mapping, total stations, GPS surveying, and elevation grading.", icon: Compass },
+      { title: "Transportation & Hydrology", description: "Highway geometry, drainage networks, and flood prevention infrastructure.", icon: Globe },
+    ],
+    skillsDeveloped: ["Mathematics", "Technical Drawing", "Project Management", "Structural Analysis"],
+    careerPathways: [
+      { title: "Civil Engineer", description: "Design, oversee, and certify public and private construction infrastructure.", icon: Building2 },
+      { title: "Site Engineer", description: "Manage on-site contractors, safety standards, and daily construction schedules.", icon: Wrench },
+      { title: "Structural Engineer", description: "Perform structural calculations and ensure seismic and wind safety.", icon: Cpu },
+    ],
+    careerOpportunities: "Construction, infrastructure, real estate, engineering firms",
+    jobMarketDemand: "High / Stable",
+    relatedMajors: [
+      { id: "architecture", name: "Architecture", icon: Building },
+      { id: "mechanical-engineering", name: "Mechanical Engineering", icon: Wrench },
+      { id: "electrical-engineering", name: "Electrical Engineering", icon: Cpu },
+    ],
+    offerUniversities: parseUniversities("PUC, Paragon.U, other universities"),
+    relatedOpportunities: [
+      {
+        title: "National Infrastructure Builders Grant",
+        type: "Field Traineeship",
+        badgeText: "Engineering",
+        deadline: "Oct 2026",
+        image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&auto=format&fit=crop&q=80",
+      },
+    ],
+  },
+
+  // 13. Electrical Engineering
+  {
+    id: "electrical-engineering",
+    name: "Electrical Engineering",
+    category: "Engineering & Architecture",
+    badge: getDemandBadge("High / Growing"),
+    icon: Cpu,
+    iconBg: "bg-sitomo",
+    iconColor: "text-blue-ink",
+    description: "Studies electricity, electrical systems, electronics, and power technologies.",
+    tags: ["Circuits", "Electronics", "Power Systems", "Control Systems"],
+    duration: "4-5 Years",
+    degreeType: "Bachelor of Engineering",
+    source: "MLVT, University Websites",
+    sourceUrl: "https://www.mlvt.gov.kh",
+    lastVerified: "2026",
+    heroImage: "https://images.unsplash.com/photo-1498084393753-b411b2d26b34?w=1600&auto=format&fit=crop&q=80",
+    whatYouLearn: [
+      { title: "Circuits & Electronics", description: "Semiconductors, analog/digital circuits, and signal amplification.", icon: Cpu },
+      { title: "Power Systems & Grids", description: "High voltage transmission, transformer substations, and grid stability.", icon: Building },
+      { title: "Renewable Energy", description: "Solar photovoltaic design, wind turbines, and energy battery storage.", icon: Compass },
+      { title: "Control Systems & Automation", description: "PLC programming, microcontrollers, sensor integration, and robotics.", icon: Wrench },
+    ],
+    skillsDeveloped: ["Mathematics", "Technical Skills", "Problem-Solving", "Engineering Design"],
+    careerPathways: [
+      { title: "Electrical Engineer", description: "Design electrical wiring systems, generation plants, and equipment.", icon: Cpu },
+      { title: "Electronics Engineer", description: "Develop circuit boards, embedded systems, and consumer electronics.", icon: Laptop },
+      { title: "Maintenance & Power Engineer", description: "Ensure operational safety across industrial manufacturing plants.", icon: Wrench },
+    ],
+    careerOpportunities: "Manufacturing, construction, energy, telecom, technology",
+    jobMarketDemand: "High / Growing",
+    relatedMajors: [
+      { id: "mechanical-engineering", name: "Mechanical Engineering", icon: Wrench },
+      { id: "civil-engineering", name: "Civil Engineering", icon: Building2 },
+      { id: "artificial-intelligence", name: "Artificial Intelligence", icon: Brain },
+    ],
+    offerUniversities: parseUniversities("PUC and other engineering universities"),
+    relatedOpportunities: [
+      {
+        title: "Clean Energy & Smart Grid Fellowship",
+        type: "Full Tuition Award",
+        badgeText: "Energy",
+        deadline: "Aug 2026",
+        image: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=600&auto=format&fit=crop&q=80",
+      },
+    ],
+  },
+
+  // 14. Mechanical Engineering
+  {
+    id: "mechanical-engineering",
+    name: "Mechanical Engineering",
+    category: "Engineering & Architecture",
+    badge: getDemandBadge("High / Stable"),
+    icon: Wrench,
+    iconBg: "bg-sitomo",
+    iconColor: "text-blue-ink",
+    description: "Focuses on machines, mechanical systems, manufacturing, and industrial equipment.",
+    tags: ["Mechanics", "Thermodynamics", "Manufacturing", "Machine Design"],
+    duration: "4-5 Years",
+    degreeType: "Bachelor of Engineering",
+    source: "MLVT",
+    sourceUrl: "https://www.mlvt.gov.kh",
+    lastVerified: "2026",
+    heroImage: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=1600&auto=format&fit=crop&q=80",
+    whatYouLearn: [
+      { title: "Mechanics & Dynamics", description: "Kinematics, fluid dynamics, stress analysis, and mechanical vibration.", icon: Wrench },
+      { title: "Thermodynamics & Heat", description: "Thermal energy transfer, refrigeration, HVAC systems, and combustion.", icon: Cpu },
+      { title: "Manufacturing & Materials", description: "CNC machining, casting, 3D additive printing, and metallurgy.", icon: Building2 },
+      { title: "Machine Design & CAD", description: "3D parametric modeling, mechanical assembly, and simulation testing.", icon: Laptop },
+    ],
+    skillsDeveloped: ["Mathematics", "CAD Mastery", "Engineering Design", "Troubleshooting"],
+    careerPathways: [
+      { title: "Mechanical Engineer", description: "Design complex mechanical machinery, engines, and automated lines.", icon: Wrench },
+      { title: "Maintenance Engineer", description: "Diagnose and prevent industrial equipment failures in factories.", icon: Cpu },
+      { title: "Manufacturing Engineer", description: "Optimize plant production lines for high throughput and safety.", icon: Building },
+    ],
+    careerOpportunities: "Manufacturing, factories, construction, automotive, industry",
+    jobMarketDemand: "High / Stable",
+    relatedMajors: [
+      { id: "electrical-engineering", name: "Electrical Engineering", icon: Cpu },
+      { id: "civil-engineering", name: "Civil Engineering", icon: Building2 },
+      { id: "architecture", name: "Architecture", icon: Building },
+    ],
+    offerUniversities: parseUniversities("Cambodian engineering universities"),
+    relatedOpportunities: [
+      {
+        title: "Industrial Manufacturing Excellence Grant",
+        type: "Apprenticeship",
+        badgeText: "Industry",
+        deadline: "Sep 2026",
+        image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&auto=format&fit=crop&q=80",
+      },
+    ],
+  },
+
+  // 15. Architecture
+  {
+    id: "architecture",
+    name: "Architecture",
+    category: "Engineering & Architecture",
+    badge: getDemandBadge("Moderate / Specialized"),
+    icon: Building,
+    iconBg: "bg-sitomo",
+    iconColor: "text-blue-ink",
+    description: "Combines design, technology, and planning to create buildings and spaces.",
+    tags: ["Architectural Design", "Drawing", "Construction", "Urban Planning", "CAD"],
+    duration: "5 Years",
+    degreeType: "Bachelor of Architecture",
+    source: "MLVT, University Websites",
+    sourceUrl: "https://www.mlvt.gov.kh",
+    lastVerified: "2026",
+    heroImage: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1600&auto=format&fit=crop&q=80",
+    whatYouLearn: [
+      { title: "Architectural Studio Design", description: "Concept development, spatial layout, facade aesthetics, and scale models.", icon: Building },
+      { title: "CAD & 3D Visualization", description: "AutoCAD, Revit BIM modeling, Lumion rendering, and digital walkthroughs.", icon: Laptop },
+      { title: "Construction Documentation", description: "Building codes, structural integration, materials, and MEP coordination.", icon: Wrench },
+      { title: "Urban Planning & Landscape", description: "City zoning, sustainable tropical architecture, and community spaces.", icon: Globe },
+    ],
+    skillsDeveloped: ["Creativity", "Spatial Design", "CAD / BIM", "Technical Drawing"],
+    careerPathways: [
+      { title: "Licensed Architect", description: "Design residential, commercial, and cultural landmark buildings.", icon: Building },
+      { title: "Architectural Designer", description: "Develop innovative facade concepts and interior spatial layouts.", icon: Palette },
+      { title: "Urban Planner & Project Coordinator", description: "Plan community developments, zoning schemes, and sustainable cities.", icon: Globe },
+    ],
+    careerOpportunities: "Architecture firms, construction, real estate, urban development",
+    jobMarketDemand: "Moderate / Specialized",
+    relatedMajors: [
+      { id: "civil-engineering", name: "Civil Engineering", icon: Building2 },
+      { id: "graphic-design", name: "Graphic Design / Digital Arts & Design", icon: Palette },
+      { id: "mechanical-engineering", name: "Mechanical Engineering", icon: Wrench },
+    ],
+    offerUniversities: parseUniversities("PUC, Paragon.U, other universities"),
+    relatedOpportunities: [
+      {
+        title: "Vann Molyvann Heritage Architecture Prize",
+        type: "Design Competition & Studio",
+        badgeText: "Architecture",
+        deadline: "Nov 2026",
+        image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&auto=format&fit=crop&q=80",
+      },
+    ],
+  },
+
+  // 16. Economics
+  {
+    id: "economics",
+    name: "Economics",
+    category: "Social Sciences & Humanities",
+    badge: getDemandBadge("Moderate / Specialized"),
+    icon: LineChart,
+    iconBg: "bg-momo",
+    iconColor: "text-[#8B5CF6]",
+    description: "Studies how people, businesses, and governments make decisions about resources.",
+    tags: ["Microeconomics", "Macroeconomics", "Statistics", "Finance", "Economic Policy"],
+    duration: "4 Years",
+    degreeType: "Bachelor of Economics",
+    source: "MLVT, University Websites",
+    sourceUrl: "https://www.mlvt.gov.kh",
+    lastVerified: "2026",
+    heroImage: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1600&auto=format&fit=crop&q=80",
+    whatYouLearn: [
+      { title: "Microeconomic Theory", description: "Price mechanisms, supply and demand equilibria, and firm market structures.", icon: LineChart },
+      { title: "Macroeconomic Analysis", description: "National GDP, inflation, interest rates, and monetary policy impacts.", icon: Coins },
+      { title: "Econometrics & Statistics", description: "Regression analysis, causal modeling, and econometric forecasting.", icon: Database },
+      { title: "Public & Economic Policy", description: "Fiscal taxation, welfare economics, and trade tariffs evaluation.", icon: Scale },
+    ],
+    skillsDeveloped: ["Data Analysis", "Mathematics", "Research", "Critical Thinking"],
+    careerPathways: [
+      { title: "Economist", description: "Analyze economic trends and provide macroeconomic forecasts.", icon: LineChart },
+      { title: "Policy Analyst", description: "Evaluate government regulations, taxation, and social economic policies.", icon: Scale },
+      { title: "Economic Researcher", description: "Conduct empirical field research for development banks and think tanks.", icon: Globe },
+    ],
+    careerOpportunities: "Government, banks, NGOs, research, consulting",
+    jobMarketDemand: "Moderate / Specialized",
+    relatedMajors: [
+      { id: "finance-banking", name: "Finance & Banking", icon: Coins },
+      { id: "international-relations", name: "International Relations", icon: Globe },
+      { id: "business-administration", name: "Business Administration", icon: Briefcase },
+    ],
+    offerUniversities: parseUniversities("PUC, Paragon.U, UME"),
+    relatedOpportunities: [
+      {
+        title: "Cambodia Economic Policy Forum Fellowship",
+        type: "Policy Research Grant",
+        badgeText: "Economics",
+        deadline: "Aug 2026",
+        image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=600&auto=format&fit=crop&q=80",
+      },
+    ],
+  },
+
+  // 17. International Relations
+  {
+    id: "international-relations",
+    name: "International Relations",
+    category: "Social Sciences & Humanities",
+    badge: getDemandBadge("Moderate / Specialized"),
+    icon: Globe,
+    iconBg: "bg-momo",
+    iconColor: "text-[#8B5CF6]",
+    description: "Studies relationships between countries, international organizations, and global issues.",
+    tags: ["Diplomacy", "International Politics", "International Law", "Global Affairs"],
+    duration: "4 Years",
+    degreeType: "Bachelor of Arts",
+    source: "University Websites",
+    sourceUrl: "https://rupp.edu.kh",
+    lastVerified: "2026",
+    heroImage: "https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=1600&auto=format&fit=crop&q=80",
+    whatYouLearn: [
+      { title: "Diplomacy & Foreign Affairs", description: "Bilateral negotiations, diplomatic protocol, and conflict mediation.", icon: Globe },
+      { title: "International Politics", description: "Geopolitical alliances, balance of power, and global governance institutions.", icon: Building },
+      { title: "International Public Law", description: "Treaties, human rights conventions, maritime law, and state sovereignty.", icon: Scale },
+      { title: "Global Political Economy", description: "Trade organizations, international aid, and regional ASEAN integration.", icon: LineChart },
+    ],
+    skillsDeveloped: ["Communication", "Research", "Foreign Languages", "Critical Thinking"],
+    careerPathways: [
+      { title: "Diplomat & Foreign Affairs Officer", description: "Represent national interests in embassies and multilateral summits.", icon: Globe },
+      { title: "International NGO Officer", description: "Direct cross-border humanitarian aid and sustainable development initiatives.", icon: Globe },
+      { title: "Policy & Strategic Advisor", description: "Analyze global risks and author foreign trade policy briefs.", icon: Scale },
+    ],
+    careerOpportunities: "Government, NGOs, international organizations, development sector",
+    jobMarketDemand: "Moderate / Specialized",
+    relatedMajors: [
+      { id: "law", name: "Law", icon: Scale },
+      { id: "economics", name: "Economics", icon: LineChart },
+      { id: "business-administration", name: "Business Administration", icon: Briefcase },
+    ],
+    offerUniversities: parseUniversities("PUC, Paragon.U, RUPP"),
+    relatedOpportunities: [
+      {
+        title: "ASEAN Youth Diplomatic Delegation",
+        type: "International Summit Grant",
+        badgeText: "Diplomacy",
+        deadline: "Sep 2026",
+        image: "https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=600&auto=format&fit=crop&q=80",
+      },
+    ],
+  },
+
+  // 18. Law
+  {
+    id: "law",
+    name: "Law",
+    category: "Social Sciences & Humanities",
+    badge: getDemandBadge("Moderate / Stable"),
+    icon: Scale,
+    iconBg: "bg-momo",
+    iconColor: "text-[#8B5CF6]",
+    description: "Studies legal systems, rights, contracts, and legal institutions.",
+    tags: ["Cambodian Law", "International Law", "Contracts", "Constitutional Law"],
+    duration: "4 Years",
+    degreeType: "Bachelor of Laws (LL.B)",
+    source: "PUC, University Websites",
+    sourceUrl: "https://puc.edu.kh",
+    lastVerified: "2026",
+    heroImage: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1600&auto=format&fit=crop&q=80",
+    whatYouLearn: [
+      { title: "Cambodian Civil & Penal Code", description: "Criminal justice, tort law, property rights, and courtroom procedures.", icon: Scale },
+      { title: "Commercial & Contract Law", description: "Commercial arbitration, corporate governance, and contract drafting.", icon: Briefcase },
+      { title: "Constitutional & Administrative Law", description: "State powers, separation of branches, and public administration ethics.", icon: Building },
+      { title: "International Jurisprudence", description: "Human rights, cross-border commercial arbitration, and comparative law.", icon: Globe },
+    ],
+    skillsDeveloped: ["Legal Research", "Analytical Writing", "Logical Reasoning", "Persuasive Communication"],
+    careerPathways: [
+      { title: "Attorney & Legal Counsel", description: "Represent clients in legal litigation, criminal defense, and settlements.", icon: Scale },
+      { title: "Corporate Compliance Officer", description: "Ensure business activities adhere strictly to national regulations.", icon: ShieldCheck },
+      { title: "Legal Consultant", description: "Advise institutions on commercial contracts, mergers, and liability.", icon: Briefcase },
+    ],
+    careerOpportunities: "Law firms, companies, banks, government, NGOs",
+    jobMarketDemand: "Moderate / Stable",
+    relatedMajors: [
+      { id: "international-relations", name: "International Relations", icon: Globe },
+      { id: "business-administration", name: "Business Administration", icon: Briefcase },
+      { id: "economics", name: "Economics", icon: LineChart },
+    ],
+    offerUniversities: parseUniversities("PUC and other Cambodian universities"),
+    relatedOpportunities: [
+      {
+        title: "National Moot Court Championship Award",
+        type: "Legal Fellowship",
+        badgeText: "Jurisprudence",
+        deadline: "Oct 2026",
+        image: "https://images.unsplash.com/photo-1479142506502-19b3a3b7ff33?w=600&auto=format&fit=crop&q=80",
+      },
+    ],
+  },
+
+  // 19. Tourism & Hospitality Management
+  {
+    id: "tourism-hospitality",
+    name: "Tourism & Hospitality Management",
+    category: "Tourism & Hospitality",
+    badge: getDemandBadge("High / Recovering"),
+    icon: Compass,
+    iconBg: "bg-sitomo",
+    iconColor: "text-[#10B981]",
+    description: "Focuses on tourism, hotels, restaurants, and visitor experiences.",
+    tags: ["Tourism Management", "Hotel Operations", "Customer Service", "Hospitality"],
+    duration: "4 Years",
+    degreeType: "Bachelor's Degree",
+    source: "MLVT, University Websites",
+    sourceUrl: "https://www.mlvt.gov.kh",
+    lastVerified: "2026",
+    heroImage: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1600&auto=format&fit=crop&q=80",
+    whatYouLearn: [
+      { title: "Hotel Operations & Front Office", description: "Reservations, guest management, revenue management, and housekeeping standards.", icon: Building },
+      { title: "Tourism Planning & Eco-Travel", description: "Destination marketing, cultural heritage preservation, and sustainable itineraries.", icon: Compass },
+      { title: "Food & Beverage Management", description: "Restaurant operations, culinary hospitality, and sanitation certifications.", icon: UtensilsCrossed },
+      { title: "Event & MICE Coordination", description: "Conferences, exhibitions, wedding galas, and corporate retreats.", icon: Briefcase },
+    ],
+    skillsDeveloped: ["Customer Service", "Communication", "Foreign Languages", "Event Organization"],
+    careerPathways: [
+      { title: "Hotel & Resort General Manager", description: "Direct operations, guest satisfaction, and financial performance.", icon: Building },
+      { title: "Tourism Development Officer", description: "Coordinate regional travel marketing and eco-tourism projects.", icon: Compass },
+      { title: "Event & Travel Consultant", description: "Design international travel experiences and manage corporate conventions.", icon: Globe },
+    ],
+    careerOpportunities: "Hotels, airlines, travel companies, tourism businesses",
+    jobMarketDemand: "High / Recovering",
+    relatedMajors: [
+      { id: "business-administration", name: "Business Administration", icon: Briefcase },
+      { id: "marketing", name: "Marketing", icon: Megaphone },
+      { id: "international-relations", name: "International Relations", icon: Globe },
+    ],
+    offerUniversities: parseUniversities("PUC, UME, other universities"),
+    relatedOpportunities: [
+      {
+        title: "Cambodia Hospitality Leadership Traineeship",
+        type: "Luxury Resort Residency",
+        badgeText: "Hospitality",
+        deadline: "Nov 2026",
+        image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&auto=format&fit=crop&q=80",
+      },
+    ],
+  },
+
+  // 20. Graphic Design / Digital Arts & Design
+  {
+    id: "graphic-design",
+    name: "Graphic Design / Digital Arts & Design",
+    category: "Arts, Design & Media",
+    badge: getDemandBadge("Growing / Competitive"),
+    icon: Palette,
+    iconBg: "bg-momo",
+    iconColor: "text-[#EF4444]",
+    description: "Focuses on visual communication, digital media, and creative design.",
+    tags: ["Graphic Design", "Typography", "Illustration", "Multimedia", "UI Design"],
+    duration: "4 Years",
+    degreeType: "Bachelor of Fine Arts",
+    source: "MLVT, University Websites",
+    sourceUrl: "https://www.mlvt.gov.kh",
+    lastVerified: "2026",
+    heroImage: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=1600&auto=format&fit=crop&q=80",
+    whatYouLearn: [
+      { title: "Visual Communication & Layout", description: "Composition, color theory, visual hierarchy, and brand guidelines.", icon: Palette },
+      { title: "Typography & Illustration", description: "Font pairing, custom lettering, vector artwork, and commercial illustration.", icon: Code2 },
+      { title: "Digital UI & Interaction Design", description: "Figma wireframing, component design systems, and responsive interfaces.", icon: Laptop },
+      { title: "Multimedia & Motion Graphics", description: "Video editing, 2D/3D animation, social media reels, and visual effects.", icon: Layers },
+    ],
+    skillsDeveloped: ["Creativity", "Design Software (Adobe, Figma)", "Communication", "Visual Thinking"],
+    careerPathways: [
+      { title: "Graphic Designer", description: "Craft visual brand identities, advertising posters, and publication layouts.", icon: Palette },
+      { title: "UI / Product Designer", description: "Design user interfaces for mobile apps, websites, and SaaS platforms.", icon: Laptop },
+      { title: "Creative & Multimedia Designer", description: "Produce video motion graphics, 3D assets, and interactive media.", icon: Layers },
+    ],
+    careerOpportunities: "Agencies, media, e-commerce, technology, freelance work",
+    jobMarketDemand: "Growing / Competitive",
+    relatedMajors: [
+      { id: "marketing", name: "Marketing", icon: Megaphone },
+      { id: "computer-science", name: "Computer Science", icon: Laptop },
+      { id: "architecture", name: "Architecture", icon: Building },
+    ],
+    offerUniversities: parseUniversities("PUC, Paragon.U, other universities"),
+    relatedOpportunities: [
+      {
+        title: "Creative Arts Young Designer Award",
+        type: "Studio Residency",
+        badgeText: "Design",
+        deadline: "Aug 2026",
+        image: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=600&auto=format&fit=crop&q=80",
       },
     ],
   },
 ];
 
+/* ── Lookup Helper ──────────────────────────────────────── */
+
+export function getMajorById(id: string): MajorItem | undefined {
+  return MAJORS_DATA.find((m) => m.id === id);
+}
