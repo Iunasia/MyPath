@@ -6,6 +6,7 @@ import {
   Share2,
   ExternalLink,
   ShieldCheck,
+  MapPin,
 } from "lucide-react";
 import { MAJORS_DATA } from "@/app/data/majors";
 import Header from "@/app/components/Header";
@@ -72,10 +73,14 @@ export default async function MajorDetailPage({ params }: PageProps) {
               {major.name}
             </h1>
 
-            {/* Overview Paragraph */}
-            <p className="text-sm sm:text-base lg:text-lg text-gray-body leading-relaxed font-medium mb-6 max-w-4xl">
-              {major.description}
-            </p>
+            {/* Overview Paragraphs */}
+            <div className="text-sm sm:text-base lg:text-lg text-gray-body leading-relaxed font-medium mb-6 max-w-4xl space-y-3.5">
+              {(major.extendedDescription || major.description)
+                .split("\n\n")
+                .map((para, i) => (
+                  <p key={i}>{para}</p>
+                ))}
+            </div>
 
             {/* Full Width Hero Image Banner */}
             <div className="relative w-full h-64 sm:h-80 md:h-96 lg:h-[420px] rounded-3xl overflow-hidden mb-6 border border-sky/20 bubble-shadow-sm bg-sitomo/50">
@@ -246,27 +251,41 @@ export default async function MajorDetailPage({ params }: PageProps) {
               </span>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+            {/* 3 cards per row on desktop (lg:grid-cols-3), 2 on tablet, 1 on mobile */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
               {major.offerUniversities.map((uni) => (
                 <div
                   key={uni.name}
-                  className="group relative rounded-3xl overflow-hidden aspect-[4/3] border border-sky/15 bubble-shadow-sm bg-sitomo/40 hover:border-sky/40 transition-all"
+                  className="group relative rounded-3xl overflow-hidden aspect-[16/11] border border-sky/20 bubble-shadow-sm bg-sitomo/40 hover:border-sky hover:shadow-xl transition-all duration-300"
                 >
+                  {/* University Campus Image (Enlarges on Hover) */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={uni.image}
                     alt={uni.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
-                  {/* Gradient Overlay for readable white text */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                  <div className="absolute bottom-3.5 left-3.5 right-3.5 text-white">
-                    <p className="text-xs sm:text-sm font-bold leading-tight drop-shadow-md">
-                      {uni.name} ({uni.shortName})
-                    </p>
-                    <p className="text-[11px] text-white/85 font-medium mt-0.5">
-                      {uni.location}
-                    </p>
+
+                  {/* Gradient Overlay for high-contrast white text */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10 group-hover:from-black/90 group-hover:via-black/50 transition-all duration-300" />
+
+                  {/* Top Badge: University Acronym */}
+                  <div className="absolute top-3.5 right-3.5">
+                    <span className="bg-white/20 backdrop-blur-xs text-white text-xs font-extrabold px-3 py-1 rounded-full border border-white/25 shadow-2xs">
+                      {uni.shortName}
+                    </span>
+                  </div>
+
+                  {/* Bottom Information */}
+                  <div className="absolute inset-x-0 bottom-0 p-5 flex flex-col justify-end text-white">
+                    <h3 className="font-display text-base sm:text-lg font-bold leading-snug drop-shadow-md mb-2 group-hover:text-sitomo transition-colors line-clamp-2">
+                      {uni.name}
+                    </h3>
+
+                    <div className="flex items-center gap-1.5 text-xs sm:text-sm text-white/90 font-medium">
+                      <MapPin className="w-4 h-4 text-sitomo shrink-0" />
+                      <span>{uni.location}</span>
+                    </div>
                   </div>
                 </div>
               ))}

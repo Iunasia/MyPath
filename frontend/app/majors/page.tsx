@@ -51,7 +51,7 @@ export default function MajorsPage() {
             </span>
           </h1>
           <p className="text-xs sm:text-sm lg:text-base text-gray-soft mb-8 max-w-xl mx-auto font-medium">
-            Explore 20 verified Cambodian academic disciplines, skill roadmaps, and career pathways.
+            Explore verified Cambodian academic disciplines, skill roadmaps, and career pathways.
           </p>
 
           {/* Search Input Bar */}
@@ -135,7 +135,7 @@ export default function MajorsPage() {
               href="/majors/all"
               className="text-xs font-bold text-sky-deep hover:underline"
             >
-              View all {MAJORS_DATA.length} majors →
+              View all majors →
             </Link>
           </div>
 
@@ -226,7 +226,7 @@ export default function MajorsPage() {
                     href="/majors/all"
                     className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-white border-2 border-sky/40 text-sky-deep font-bold text-sm hover:bg-sky/10 hover:border-sky transition-all bubble-shadow-sm cursor-pointer"
                   >
-                    <span>View All {MAJORS_DATA.length} Majors</span>
+                    <span>View All Majors</span>
                     <span aria-hidden="true">→</span>
                   </Link>
                 </div>

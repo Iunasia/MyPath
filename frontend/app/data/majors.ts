@@ -73,6 +73,7 @@ export interface MajorItem {
   iconBg: string;
   iconColor: string;
   description: string;
+  extendedDescription?: string;
   tags: string[];
   duration: string;
   degreeType: string;
@@ -256,7 +257,7 @@ function getDemandBadge(demand: string) {
   };
 }
 
-/* ── 20 Majors from Official Reference Table ─────────────── */
+/* ── 20 Majors with Detailed Overviews ───────────────────── */
 
 export const MAJORS_DATA: MajorItem[] = [
   // 1. Computer Science
@@ -269,6 +270,8 @@ export const MAJORS_DATA: MajorItem[] = [
     iconBg: "bg-sitomo",
     iconColor: "text-sky-deep",
     description: "Study of computers, software, algorithms, and computing systems.",
+    extendedDescription:
+      "Computer Science is the foundational study of computation, algorithmic logic, computer systems, and software engineering. Students engage in hands-on development, exploring how data structures, scalable algorithms, and modern programming languages solve real-world technical problems.\n\nThroughout the program, students master backend architectures, cloud computing frameworks, and practical artificial intelligence. In Cambodia and across the global digital economy, graduates power the next generation of software applications, fintech solutions, and innovative digital startups.",
     tags: ["Programming", "Algorithms", "Databases", "AI"],
     duration: "4 Years",
     degreeType: "Bachelor's Degree",
@@ -317,6 +320,8 @@ export const MAJORS_DATA: MajorItem[] = [
     iconBg: "bg-sitomo",
     iconColor: "text-sky-deep",
     description: "Focuses on using and managing technology to support organizations.",
+    extendedDescription:
+      "Information Technology focuses on the strategic deployment, operational management, and systematic maintenance of computing infrastructure and enterprise systems. Students delve into enterprise networking, server administration, cloud virtual infrastructure, and database management systems.\n\nRather than solely coding software, IT specialists master how hardware components, operating systems, and communication platforms integrate to sustain business workflows. In Cambodia's rapidly growing digital landscape, IT specialists safeguard uptime, streamline operations, and support organizational growth.",
     tags: ["Networking", "Databases", "IT Systems", "Web Tech"],
     duration: "4 Years",
     degreeType: "Bachelor's Degree",
@@ -365,6 +370,8 @@ export const MAJORS_DATA: MajorItem[] = [
     iconBg: "bg-sitomo",
     iconColor: "text-sky-deep",
     description: "Focuses on protecting systems, networks, and data from cyber threats.",
+    extendedDescription:
+      "Cybersecurity is the specialized discipline dedicated to safeguarding mission-critical digital assets, enterprise networks, sensitive user data, and cloud infrastructure against cyber threats and unauthorized intrusions. Students master defensive network architectures, penetration testing, cryptography, incident response management, and digital forensics.\n\nThrough practical lab simulations, learners analyze vulnerabilities, mitigate security incidents, and enforce compliance with modern cybersecurity standards. As financial institutions, government agencies, and digital platforms expand across Cambodia, cybersecurity professionals serve as essential guardians of digital integrity and trust.",
     tags: ["Network Security", "Digital Forensics", "Risk Management"],
     duration: "4 Years",
     degreeType: "Bachelor's Degree",
@@ -413,6 +420,8 @@ export const MAJORS_DATA: MajorItem[] = [
     iconBg: "bg-sitomo",
     iconColor: "text-sky-deep",
     description: "Combines programming, statistics, and data analysis to find useful insights.",
+    extendedDescription:
+      "Data Science represents the powerful convergence of statistical mathematics, computational programming, and domain strategy designed to extract actionable intelligence from complex datasets. Students explore predictive modeling, big data pipelines, machine learning algorithms, and high-impact visual storytelling.\n\nPractical projects prepare learners to build automated analytical pipelines that guide strategic decisions across commerce, finance, and technology. From banking credit scoring and market forecasting to healthcare analytics, data science graduates turn raw data into valuable strategic insights.",
     tags: ["Statistics", "Programming", "Databases", "Machine Learning"],
     duration: "4 Years",
     degreeType: "Bachelor's Degree",
@@ -461,6 +470,8 @@ export const MAJORS_DATA: MajorItem[] = [
     iconBg: "bg-sitomo",
     iconColor: "text-sky-deep",
     description: "Studies technologies that allow computers to perform intelligent tasks.",
+    extendedDescription:
+      "Artificial Intelligence studies computational architectures and algorithms that empower computer systems to simulate cognitive functions, recognize visual patterns, interpret human language, and solve complex problems. Students engage with state-of-the-art machine learning paradigms, deep neural networks, computer vision, and natural language processing.\n\nThe curriculum bridges rigorous mathematics with advanced software engineering, challenging students to train transformer models, deploy edge AI devices, and investigate ethical AI governance. Graduates lead advancements in intelligent automation, smart software, robotics, and generative computing.",
     tags: ["Machine Learning", "AI", "Computer Vision", "Algorithms"],
     duration: "4 Years",
     degreeType: "Bachelor's Degree",
@@ -509,6 +520,8 @@ export const MAJORS_DATA: MajorItem[] = [
     iconBg: "bg-sitomo",
     iconColor: "text-sky-deep",
     description: "Combines business knowledge with information technology and systems.",
+    extendedDescription:
+      "Business Information Systems (BIS) bridges corporate strategy with technological innovation, combining management theory with database engineering, enterprise resource planning, and systems design. Students learn to assess organizational workflows, implement enterprise ERP platforms, and orchestrate technical solutions toward measurable business objectives.\n\nBy developing the capability to communicate fluidly between executive leadership and software engineering teams, graduates become pivotal catalysts for organizational change. They lead digital transformation roadmaps, modernize enterprise architectures, and ensure technology investments deliver sustainable value.",
     tags: ["Business Processes", "Databases", "Information Systems", "Analytics"],
     duration: "4 Years",
     degreeType: "Bachelor's Degree",
@@ -557,6 +570,8 @@ export const MAJORS_DATA: MajorItem[] = [
     iconBg: "bg-momo",
     iconColor: "text-[#D97736]",
     description: "Studies how businesses are created, managed, and operated.",
+    extendedDescription:
+      "Business Administration is the comprehensive study of commercial management, corporate strategy, executive leadership, and organizational performance. Students acquire a balanced business perspective covering managerial accounting, corporate finance, market intelligence, human capital development, and venture entrepreneurship.\n\nThrough real-world case studies and collaborative projects, students develop leadership acumen, problem-solving skills, and strategic vision. Whether launching an innovative startup or leading operational divisions in established corporations, graduates are equipped to steer organizations toward sustainable profitability.",
     tags: ["Management", "Marketing", "Finance", "HR", "Entrepreneurship"],
     duration: "4 Years",
     degreeType: "Bachelor's Degree",
@@ -605,6 +620,8 @@ export const MAJORS_DATA: MajorItem[] = [
     iconBg: "bg-momo",
     iconColor: "text-[#D97736]",
     description: "Studies how businesses understand customers and promote products or services.",
+    extendedDescription:
+      "Marketing investigates the science and art of consumer psychology, strategic brand identity, market positioning, and omni-channel customer acquisition. Students explore market research methodologies, digital growth strategies, advertising campaign planning, and predictive consumer analytics.\n\nThe curriculum blends creative visual storytelling with data-driven performance metrics, enabling students to craft compelling brand narratives across modern digital channels. In an increasingly connected marketplace, skilled marketers drive revenue growth, build brand equity, and foster lasting customer loyalty.",
     tags: ["Consumer Behavior", "Digital Marketing", "Branding", "Market Research"],
     duration: "4 Years",
     degreeType: "Bachelor's Degree",
@@ -653,6 +670,8 @@ export const MAJORS_DATA: MajorItem[] = [
     iconBg: "bg-momo",
     iconColor: "text-[#D97736]",
     description: "Combines business with digital technologies and the digital economy.",
+    extendedDescription:
+      "Digital Business examines the economic paradigms, platform architectures, and commercial transformations catalyzed by global digital connectivity and e-commerce. Students master digital marketplace dynamics, API-driven platform economics, supply chain digitalization, mobile payment integration, and growth analytics.\n\nThe coursework emphasizes innovative platform management, digital consumer trends, and fintech adoption. Graduates emerge ready to lead e-commerce expansions, advise digital ventures, and pioneer commercial initiatives in Cambodia's rapidly evolving digital economy.",
     tags: ["E-commerce", "Digital Platforms", "Data Analytics", "Digital Strategy"],
     duration: "4 Years",
     degreeType: "Bachelor's Degree",
@@ -701,6 +720,8 @@ export const MAJORS_DATA: MajorItem[] = [
     iconBg: "bg-momo",
     iconColor: "text-[#D97736]",
     description: "Focuses on recording, analyzing, and reporting financial information.",
+    extendedDescription:
+      "Accounting is the authoritative language of commercial enterprise, governing the systematic recording, measurement, verification, and presentation of financial health and performance. Students gain deep mastery over financial accounting, managerial cost accounting, corporate taxation laws, and international auditing standards (IFRS).\n\nBeyond balancing ledgers, students learn to interpret balance sheets to evaluate operational risks, ensure regulatory compliance, and support strategic fiduciary decisions. Certified accountants and financial controllers play indispensable roles in public corporations, commercial banks, government bodies, and international advisory firms.",
     tags: ["Financial Accounting", "Management Accounting", "Taxation", "Auditing"],
     duration: "4 Years",
     degreeType: "Bachelor's Degree",
@@ -749,6 +770,8 @@ export const MAJORS_DATA: MajorItem[] = [
     iconBg: "bg-momo",
     iconColor: "text-[#D97736]",
     description: "Studies financial institutions, investments, money, and financial decisions.",
+    extendedDescription:
+      "Finance & Banking explores capital creation, resource allocation, investment portfolio management, asset valuation, and central monetary policy. Students analyze capital markets, debt and equity instruments, commercial lending mechanisms, financial risk modeling, and algorithmic portfolio management.\n\nThrough practical financial analysis and macroeconomic case studies, students learn how global trends influence credit liquidity, interest rates, and exchange rate stability. Graduates are prepared to manage corporate treasuries, direct retail and commercial banking branches, lead microfinance initiatives, and advise on investment portfolios.",
     tags: ["Banking", "Investment", "Financial Management", "Risk Management"],
     duration: "4 Years",
     degreeType: "Bachelor's Degree",
@@ -797,6 +820,8 @@ export const MAJORS_DATA: MajorItem[] = [
     iconBg: "bg-sitomo",
     iconColor: "text-blue-ink",
     description: "Applies engineering principles to buildings, roads, and infrastructure.",
+    extendedDescription:
+      "Civil Engineering is the foundational discipline dedicated to the planning, structural design, construction management, and maintenance of the physical built environment. Students master structural mechanics, geotechnical soil analysis, reinforced concrete design, steel frame engineering, transportation planning, and municipal hydrology.\n\nThrough technical drafting, BIM software, and rigorous field testing, students ensure bridges, residential high-rises, highways, and drainage systems withstand environmental demands. As Cambodia accelerates its infrastructure modernization, civil engineers serve as essential nation-builders transforming urban landscapes and regional transport corridors.",
     tags: ["Structural Engineering", "Construction", "Materials", "Surveying"],
     duration: "4-5 Years",
     degreeType: "Bachelor of Engineering",
@@ -845,6 +870,8 @@ export const MAJORS_DATA: MajorItem[] = [
     iconBg: "bg-sitomo",
     iconColor: "text-blue-ink",
     description: "Studies electricity, electrical systems, electronics, and power technologies.",
+    extendedDescription:
+      "Electrical Engineering explores the theory and practical application of electricity, electromagnetism, microelectronics, power distribution, and automated control systems. Students master circuit theory, semiconductor devices, high-voltage power grid transmission, renewable energy systems, and industrial programmable logic controllers (PLCs).\n\nThrough hands-on laboratory experimentation and engineering design projects, learners design efficient electrical architectures that power modern machinery, buildings, and smart grids. With the expansion of clean energy, telecommunications, and industrial automation, electrical engineers drive sustainable electrification and technological progress.",
     tags: ["Circuits", "Electronics", "Power Systems", "Control Systems"],
     duration: "4-5 Years",
     degreeType: "Bachelor of Engineering",
@@ -893,6 +920,8 @@ export const MAJORS_DATA: MajorItem[] = [
     iconBg: "bg-sitomo",
     iconColor: "text-blue-ink",
     description: "Focuses on machines, mechanical systems, manufacturing, and industrial equipment.",
+    extendedDescription:
+      "Mechanical Engineering applies physics, thermodynamics, and material science to design, analyze, manufacture, and maintain mechanical machinery and thermal systems. Students study kinematic motion, thermodynamic energy cycles, fluid dynamics, computer-aided design (CAD/CAM), and CNC manufacturing.\n\nThrough hands-on design labs and simulation testing, students learn to engineer reliable mechanical assemblies, HVAC climate control systems, robotics, and heavy industrial machinery. Mechanical engineers are the versatile problem-solvers behind modern manufacturing factories, automotive transport, power plants, and industrial processing lines.",
     tags: ["Mechanics", "Thermodynamics", "Manufacturing", "Machine Design"],
     duration: "4-5 Years",
     degreeType: "Bachelor of Engineering",
@@ -941,6 +970,8 @@ export const MAJORS_DATA: MajorItem[] = [
     iconBg: "bg-sitomo",
     iconColor: "text-blue-ink",
     description: "Combines design, technology, and planning to create buildings and spaces.",
+    extendedDescription:
+      "Architecture is the creative fusion of artistic vision, structural science, human culture, and environmental planning that shapes the buildings and public spaces we inhabit. Students immerse themselves in design studios, master architectural drafting, explore sustainable building techniques, and utilize Building Information Modeling (BIM) software.\n\nBy balancing spatial aesthetics with structural integrity, climate sustainability, and functional accessibility, learners develop the skill to turn conceptual ideas into buildable realities. Architects leave lasting marks on cultural heritage and urban landscapes, designing residential communities, commercial landmarks, and sustainable green cities.",
     tags: ["Architectural Design", "Drawing", "Construction", "Urban Planning", "CAD"],
     duration: "5 Years",
     degreeType: "Bachelor of Architecture",
@@ -989,6 +1020,8 @@ export const MAJORS_DATA: MajorItem[] = [
     iconBg: "bg-momo",
     iconColor: "text-[#8B5CF6]",
     description: "Studies how people, businesses, and governments make decisions about resources.",
+    extendedDescription:
+      "Economics is the social science that investigates how societies, businesses, and governments allocate resources to satisfy human needs and drive economic prosperity. Students master microeconomic behavior, macroeconomic policy, econometric statistical modeling, fiscal taxation, monetary theory, and international trade dynamics.\n\nThe curriculum develops analytical thinking, quantitative modeling, and empirical research capabilities to evaluate the societal impact of public policies and market trends. Economists serve as influential advisors in government ministries, central banks, multilateral development institutions, and economic policy think tanks.",
     tags: ["Microeconomics", "Macroeconomics", "Statistics", "Finance", "Economic Policy"],
     duration: "4 Years",
     degreeType: "Bachelor of Economics",
@@ -1037,6 +1070,8 @@ export const MAJORS_DATA: MajorItem[] = [
     iconBg: "bg-momo",
     iconColor: "text-[#8B5CF6]",
     description: "Studies relationships between countries, international organizations, and global issues.",
+    extendedDescription:
+      "International Relations examines diplomatic relations, global political dynamics, multilateral institutions, international law, and cross-border trade. Students analyze foreign policy decision-making, bilateral negotiations, conflict mediation, human rights treaties, and the economic integration of ASEAN and global bodies.\n\nThe program cultivates keen cross-cultural intelligence, persuasive debate skills, policy writing, and geopolitical awareness. Graduates pursue distinguished careers in diplomatic corps, foreign affairs ministries, international non-governmental organizations (NGOs), and multilateral development agencies.",
     tags: ["Diplomacy", "International Politics", "International Law", "Global Affairs"],
     duration: "4 Years",
     degreeType: "Bachelor of Arts",
@@ -1085,6 +1120,8 @@ export const MAJORS_DATA: MajorItem[] = [
     iconBg: "bg-momo",
     iconColor: "text-[#8B5CF6]",
     description: "Studies legal systems, rights, contracts, and legal institutions.",
+    extendedDescription:
+      "Law is the cornerstone of societal justice, governance, and commercial certainty, studying legal doctrines, judicial systems, contracts, and constitutional rights. Students master Cambodian civil and criminal codes, corporate commercial law, property ownership, labor rights, and international arbitration procedures.\n\nThrough case law analysis, statutory interpretation, and mock trial advocacy, students develop rigorous legal reasoning, precise legal drafting, and courtroom presentation skills. Legal graduates protect citizen rights, resolve complex commercial disputes, ensure regulatory compliance, and uphold the rule of law across society.",
     tags: ["Cambodian Law", "International Law", "Contracts", "Constitutional Law"],
     duration: "4 Years",
     degreeType: "Bachelor of Laws (LL.B)",
@@ -1133,6 +1170,8 @@ export const MAJORS_DATA: MajorItem[] = [
     iconBg: "bg-sitomo",
     iconColor: "text-[#10B981]",
     description: "Focuses on tourism, hotels, restaurants, and visitor experiences.",
+    extendedDescription:
+      "Tourism & Hospitality Management focuses on the strategic leadership, operational excellence, and guest experience curation across hotels, resorts, travel networks, and culinary destinations. Students study hospitality operations, hotel revenue management, destination marketing, eco-tourism development, and international event coordination (MICE).\n\nThe curriculum blends customer service psychology with financial accounting, human resources, and high service standards. As Cambodia's world-renowned cultural and coastal destinations welcome millions of international travelers, hospitality managers direct premier visitor experiences and sustainable tourism growth.",
     tags: ["Tourism Management", "Hotel Operations", "Customer Service", "Hospitality"],
     duration: "4 Years",
     degreeType: "Bachelor's Degree",
@@ -1181,6 +1220,8 @@ export const MAJORS_DATA: MajorItem[] = [
     iconBg: "bg-momo",
     iconColor: "text-[#EF4444]",
     description: "Focuses on visual communication, digital media, and creative design.",
+    extendedDescription:
+      "Graphic Design & Digital Arts explores the strategic craft of visual communication, aesthetic theory, brand identity creation, and interactive digital design. Students master typography, composition, color psychology, vector illustration, digital photo manipulation, 3D motion graphics, and UI/UX design systems.\n\nThrough hands-on studio projects, learners transform abstract concepts into striking visual narratives that captivate users across print, digital media, mobile apps, and video platforms. In an attention-driven digital economy, creative designers build memorable brand identities, intuitive user interfaces, and compelling multimedia assets.",
     tags: ["Graphic Design", "Typography", "Illustration", "Multimedia", "UI Design"],
     duration: "4 Years",
     degreeType: "Bachelor of Fine Arts",
