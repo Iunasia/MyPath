@@ -21,9 +21,9 @@ jobs:
       - name: Audit backend dependencies
         working-directory: backend
         run: |
-          for attempt in 1 2 3; do
+          for attempt in 1 2 3 4 5; do
             npm audit && exit 0
-            if [ "$attempt" -eq 3 ]; then
+            if [ "$attempt" -eq 5 ]; then
               exit 1
             fi
             echo "npm audit failed (attempt $attempt). Retrying in 20 seconds..."
@@ -33,9 +33,9 @@ jobs:
       - name: Audit frontend dependencies
         working-directory: frontend
         run: |
-          for attempt in 1 2 3; do
+          for attempt in 1 2 3 4 5; do
             npm audit && exit 0
-            if [ "$attempt" -eq 3 ]; then
+            if [ "$attempt" -eq 5 ]; then
               exit 1
             fi
             echo "npm audit failed (attempt $attempt). Retrying in 20 seconds..."
