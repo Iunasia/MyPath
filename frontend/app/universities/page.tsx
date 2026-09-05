@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
+import SaveItemButton from "@/app/components/SaveItemButton";
 import {
   UNIVERSITIES_DATA,
   LOCATIONS,
@@ -209,10 +210,26 @@ export default function UniversitiesPage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10 group-hover:from-black/95 group-hover:via-black/55 group-hover:to-black/20 transition-all duration-300" />
 
                   {/* Type Badge on Top */}
-                  <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3">
+                  <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-10">
                     <span className="bg-black/40 backdrop-blur-xs text-white text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full border border-white/15">
                       {uni.type}
                     </span>
+                  </div>
+
+                  {/* Save Button on Card Image */}
+                  <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-20">
+                    <SaveItemButton
+                      variant="card-action"
+                      item={{
+                        id: uni.id,
+                        type: "university",
+                        title: uni.name,
+                        subtitle: uni.location,
+                        image: uni.image,
+                        badge: uni.type,
+                        link: `/universities/${uni.id}`,
+                      }}
+                    />
                   </div>
 
                   {/* Bottom Text Content (Always Crisp White) */}

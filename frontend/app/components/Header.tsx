@@ -19,7 +19,7 @@ export interface HeaderProps {
   backHref?: string;
   backLabel?: string;
   showBackArrow?: boolean;
-  activeNav?: "home" | "careers" | "majors" | "universities" | "scholarships";
+  activeNav?: "home" | "careers" | "majors" | "universities" | "scholarships" | "saved";
   showSaveIcon?: boolean;
   actions?: React.ReactNode;
   className?: string;
@@ -182,13 +182,18 @@ export default function Header({
 
           {/* Save / Bookmark Icon */}
           {showSaveIcon && !actions && (
-            <button
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-sitomo text-sky-deep border border-sky/20 hover:bg-sky hover:text-white transition-all flex items-center justify-center focus:outline-none cursor-pointer shadow-2xs"
-              aria-label="Save"
-              title="Save to favorites"
+            <Link
+              href="/saved"
+              className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full border transition-all flex items-center justify-center focus:outline-none cursor-pointer shadow-2xs ${
+                activeNav === "saved"
+                  ? "bg-sky text-white border-sky"
+                  : "bg-sitomo text-sky-deep border-sky/20 hover:bg-sky hover:text-white"
+              }`}
+              aria-label="View saved items"
+              title="View saved favorites"
             >
               <Bookmark className="w-4 h-4" />
-            </button>
+            </Link>
           )}
 
           {/* Optional Actions (e.g. Share Icon) */}
@@ -275,8 +280,12 @@ export default function Header({
 
             {showSaveIcon && (
               <Link
-                href="#"
-                className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors text-blue-ink hover:bg-powder border-t border-sky/10 mt-1 pt-2.5"
+                href="/saved"
+                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors border-t border-sky/10 mt-1 pt-2.5 ${
+                  activeNav === "saved"
+                    ? "bg-sky/15 text-sky-deep font-bold"
+                    : "text-blue-ink hover:bg-powder"
+                }`}
                 onClick={() => setMenuOpen(false)}
               >
                 <Bookmark className="w-4 h-4 text-sky-deep" />

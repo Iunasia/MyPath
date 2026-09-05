@@ -100,8 +100,7 @@ export default function SavedPage() {
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-sky/15">
               <div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sitomo/60 border border-sky/20 text-sky-deep text-xs font-bold mb-3">
-                  <Bookmark className="w-3.5 h-3.5 fill-sky-deep" />
-                  <span>Your Bookmarks Collection</span>
+                  
                 </div>
                 <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight leading-tight">
                   Saved Opportunities

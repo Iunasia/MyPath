@@ -1,8 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
-  ArrowLeft,
-  Bookmark,
   Share2,
   ExternalLink,
   ShieldCheck,
@@ -11,6 +9,7 @@ import {
 import { MAJORS_DATA } from "@/app/data/majors";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
+import SaveItemButton from "@/app/components/SaveItemButton";
 
 /* ── Static Generation for all 12 Majors ────────────────── */
 
@@ -110,10 +109,17 @@ export default async function MajorDetailPage({ params }: PageProps) {
 
             {/* Save Major Button */}
             <div>
-              <button className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-sky text-white font-bold text-sm hover:bg-sky-bright transition-all bubble-shadow-sm cursor-pointer">
-                <Bookmark className="w-4 h-4 fill-white" />
-                <span>Save Major</span>
-              </button>
+              <SaveItemButton
+                item={{
+                  id: major.id,
+                  type: "major",
+                  title: major.name,
+                  subtitle: major.category,
+                  image: major.heroImage,
+                  link: `/majors/${major.id}`,
+                }}
+                className="w-auto"
+              />
             </div>
           </section>
 

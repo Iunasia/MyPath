@@ -1,7 +1,5 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import {
-  ArrowLeft,
   MapPin,
   Calendar,
   CheckCircle2,
@@ -13,10 +11,10 @@ import {
   Heart,
   Building2,
   ShieldCheck,
-  GraduationCap,
 } from "lucide-react";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
+import SaveItemButton from "@/app/components/SaveItemButton";
 import {
   UNIVERSITIES_DATA,
   getUniversityById,
@@ -78,7 +76,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
         />
 
         {/* ── Main Content Container ────────────────────────── */}
-        <main className="w-full pb-16 flex flex-col gap-10">
+        <main className="w-full pb-16 flex flex-col gap-10 mt-4">
           {/* 1. Hero Campus Image Banner */}
           <section className="w-full">
             <div className="relative w-full h-64 sm:h-80 md:h-96 lg:h-[420px] rounded-3xl overflow-hidden mb-6 border border-sky/20 bubble-shadow-sm bg-sitomo/50">
@@ -89,6 +87,22 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                 className="w-full h-full object-cover object-center"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
+              {/* Floating Save Button on Image Banner */}
+              <div className="absolute top-4 right-4 sm:top-5 sm:right-5 z-20">
+                <SaveItemButton
+                  item={{
+                    id: university.id,
+                    type: "university",
+                    title: university.name,
+                    subtitle: university.location,
+                    image: university.heroImage || university.image,
+                    badge: university.type,
+                    link: `/universities/${university.id}`,
+                  }}
+                  variant="pill"
+                />
+              </div>
 
               {/* Bottom Badges on Hero Banner */}
               <div className="absolute bottom-4 left-6 right-6 flex items-center justify-between text-white text-xs sm:text-sm font-bold">

@@ -10,7 +10,6 @@ import {
   Coins,
   ExternalLink,
   GraduationCap,
-  Bookmark,
   Share2,
   ShieldCheck,
   FileText,
@@ -19,12 +18,13 @@ import {
 } from "lucide-react";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
+import SaveItemButton from "@/app/components/SaveItemButton";
 import {
   getScholarshipById,
   getRelatedScholarships,
 } from "@/app/data/scholarships";
 
-function getStepDetails(stepText: string, index: number): { title: string; description: string } {
+function getStepDetails(stepText: string): { title: string; description: string } {
   if (stepText.includes(" - ")) {
     const parts = stepText.split(" - ");
     const cleanTitle = parts[0].replace(/^\d+[\.\)]\s*/, "").trim();
@@ -97,7 +97,6 @@ export default function ScholarshipDetailPage({
 }) {
   const resolvedParams = use(params);
   const scholarship = getScholarshipById(resolvedParams.id);
-  const [isSaved, setIsSaved] = useState(false);
   const [copied, setCopied] = useState(false);
 
   if (!scholarship) {
@@ -215,24 +214,23 @@ export default function ScholarshipDetailPage({
                     <ExternalLink className="w-4 h-4" />
                   </a>
 
-                  <button
-                    onClick={() => setIsSaved(!isSaved)}
-                    className={`inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-3.5 sm:py-4 rounded-full font-bold text-xs sm:text-sm transition-all bubble-shadow-sm cursor-pointer border ${
-                      isSaved
-                        ? "bg-sitomo border-sky text-sky-deep"
-                        : "bg-white border-sky/25 text-blue-ink hover:border-sky"
-                    }`}
-                  >
-                    <Bookmark
-                      className={`w-4 h-4 ${isSaved ? "fill-sky-deep text-sky-deep" : ""}`}
-                    />
-                    <span>{isSaved ? "Saved" : "Save Scholarship"}</span>
-                  </button>
+                  <SaveItemButton
+                    item={{
+                      id: scholarship.id,
+                      type: "scholarship",
+                      title: scholarship.title,
+                      subtitle: scholarship.provider,
+                      image: scholarship.image,
+                      link: `/scholarships/${scholarship.id}`,
+                    }}
+                    label="Save Scholarship"
+                    savedLabel="Saved"
+                  />
                 </div>
               </div>
 
               {/* Right Column: Hero Graphic Frame (Clean image without overlays) */}
-              <div className="lg:col-span-5 relative w-full flex justify-center">
+              <div className="lg:col-span-5 relative w-full flex justify-start">
                 <div className="relative aspect-[4/3] sm:aspect-[4/3] lg:aspect-[5/4] w-full max-w-lg lg:max-w-none rounded-3xl rounded-br-[86px] sm:rounded-br-[86px] overflow-hidden border-2 border-sky/25 bubble-shadow-sm bg-sitomo/40">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -375,7 +373,7 @@ export default function ScholarshipDetailPage({
                   {/* Vertical Stepper Timeline (Matching reference with connected lines & number circles) */}
                   <div className="relative pt-2">
                     {scholarship.applicationProcess.map((step, i) => {
-                      const details = getStepDetails(step, i);
+                      const details = getStepDetails(step);
                       const isLast = i === scholarship.applicationProcess.length - 1;
                       return (
                         <div

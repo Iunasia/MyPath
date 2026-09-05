@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
+import { SavedProvider } from "./context/SavedContext";
 import SmoothScroll from "./components/SmoothScroll";
 import ScrollToTop from "./components/ScrollToTop";
+import SavedToast from "./components/SavedToast";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -26,7 +28,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-screen flex flex-col">
         <SmoothScroll>
-          <AuthProvider>{children}</AuthProvider>
+          <SavedProvider>
+            <AuthProvider>{children}</AuthProvider>
+            <SavedToast />
+          </SavedProvider>
         </SmoothScroll>
         <ScrollToTop />
       </body>

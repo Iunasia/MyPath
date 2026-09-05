@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
+import SaveItemButton from "@/app/components/SaveItemButton";
 import {
   SCHOLARSHIPS_DATA,
   SCHOLARSHIP_CATEGORIES,
@@ -192,6 +193,21 @@ export default function ScholarshipsPage() {
 
                   {/* Gentle Darkening Overlay on Hover */}
                   <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors duration-300" />
+
+                  {/* Floating Save Button on Image */}
+                  <div className="absolute top-3 right-3 z-20">
+                    <SaveItemButton
+                      variant="card-action"
+                      item={{
+                        id: scholarship.id,
+                        type: "scholarship",
+                        title: scholarship.title,
+                        subtitle: scholarship.provider,
+                        image: scholarship.image,
+                        link: `/scholarships/${scholarship.id}`,
+                      }}
+                    />
+                  </div>
 
                   {/* Bottom Gradient Overlay for Text */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent flex flex-col justify-end p-4 sm:p-5 z-10">

@@ -28,7 +28,9 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
       touchMultiplier: 2,
     });
 
-    setLenis(lenisInstance);
+    queueMicrotask(() => {
+      setLenis(lenisInstance);
+    });
 
     let animationFrameId: number;
 
