@@ -327,7 +327,7 @@ export const SCHOLARSHIPS_DATA: Scholarship[] = [
       "Verify national exam grades against departmental cutoff percentiles",
       "Complete registration verification at the ITC Academic Office in Phnom Penh",
     ],
-    officialSource: "https://www.itc.edu.kh/",
+    officialSource: "https://itc.edu.kh/",
     image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=1200&auto=format&fit=crop&q=80",
     isVerified: true,
     lastVerified: "August 2026",
