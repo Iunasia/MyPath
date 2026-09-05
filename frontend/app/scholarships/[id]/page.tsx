@@ -1,6 +1,3 @@
-"use client";
-
-import { use, useState } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -10,7 +7,6 @@ import {
   Coins,
   ExternalLink,
   GraduationCap,
-  Share2,
   ShieldCheck,
   FileText,
   Clock,
@@ -20,9 +16,16 @@ import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import SaveItemButton from "@/app/components/SaveItemButton";
 import {
+  SCHOLARSHIPS_DATA,
   getScholarshipById,
   getRelatedScholarships,
 } from "@/app/data/scholarships";
+
+export function generateStaticParams() {
+  return SCHOLARSHIPS_DATA.map((scholarship) => ({
+    id: scholarship.id,
+  }));
+}
 
 function getStepDetails(stepText: string): { title: string; description: string } {
   if (stepText.includes(" - ")) {
@@ -90,28 +93,19 @@ function getStepDetails(stepText: string): { title: string; description: string 
   };
 }
 
-export default function ScholarshipDetailPage({
+export default async function ScholarshipDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const resolvedParams = use(params);
-  const scholarship = getScholarshipById(resolvedParams.id);
-  const [copied, setCopied] = useState(false);
+  const { id } = await params;
+  const scholarship = getScholarshipById(id);
 
   if (!scholarship) {
     notFound();
   }
 
   const related = getRelatedScholarships(scholarship.id, 3);
-
-  const handleShare = () => {
-    if (typeof window !== "undefined") {
-      navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
@@ -123,24 +117,7 @@ export default function ScholarshipDetailPage({
           backLabel="All Scholarships"
           activeNav="scholarships"
           showBackArrow={true}
-          actions={
-            <button
-              onClick={handleShare}
-              className="p-2 rounded-full text-blue-ink/75 hover:text-sky-deep hover:bg-sitomo/50 transition-colors focus:outline-none cursor-pointer"
-              aria-label="Share scholarship"
-              title="Share link"
-            >
-              <Share2 className="w-5 h-5" strokeWidth={2} />
-            </button>
-          }
         />
-
-        {copied && (
-          <div className="fixed bottom-6 right-6 z-50 bg-blue-ink text-white text-xs font-bold px-4 py-2.5 rounded-full bubble-shadow-sm flex items-center gap-2 animate-bounce">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            Link copied to clipboard!
-          </div>
-        )}
 
         {/* ── Main Content Area (Clean text-focused editorial layout) ── */}
         <main className="w-full pb-16 flex flex-col gap-12 md:gap-16 mt-2 sm:mt-4">
@@ -230,7 +207,7 @@ export default function ScholarshipDetailPage({
               </div>
 
               {/* Right Column: Hero Graphic Frame (Clean image without overlays) */}
-              <div className="lg:col-span-5 relative w-full flex justify-start">
+              <div className="lg:col-span-5 relative w-full flex justify-center">
                 <div className="relative aspect-[4/3] sm:aspect-[4/3] lg:aspect-[5/4] w-full max-w-lg lg:max-w-none rounded-3xl rounded-br-[86px] sm:rounded-br-[86px] overflow-hidden border-2 border-sky/25 bubble-shadow-sm bg-sitomo/40">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img

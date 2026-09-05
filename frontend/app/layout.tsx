@@ -28,10 +28,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-screen flex flex-col">
         <SmoothScroll>
-          <SavedProvider>
-            <AuthProvider>{children}</AuthProvider>
-            <SavedToast />
-          </SavedProvider>
+          <AuthProvider>
+            <SavedProvider>
+              {children}
+              <SavedToast />
+            </SavedProvider>
+          </AuthProvider>
         </SmoothScroll>
         <ScrollToTop />
       </body>
