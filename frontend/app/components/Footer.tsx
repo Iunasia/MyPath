@@ -12,7 +12,7 @@ export default function Footer({ className = "" }: FooterProps) {
         { label: "Careers", href: "/careers" },
         { label: "Majors", href: "/majors" },
         { label: "Universities", href: "/universities" },
-        { label: "Scholarships", href: "/#scholarships" },
+        { label: "Scholarships", href: "/scholarships" },
       ],
     },
     {

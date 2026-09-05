@@ -41,12 +41,10 @@ export default function MajorsPage() {
 
         {/* ── Hero Search Section ───────────────────────────── */}
         <section className="mb-10 text-center max-w-3xl mx-auto w-full pt-4 sm:pt-6">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-sitomo text-sky-deep text-xs font-extrabold uppercase tracking-wider mb-3.5 border border-sky/20">
-            Higher Education & Career Navigator
-          </span>
+ 
           <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight leading-[1.15] mb-4">
             Find the right Major for{" "}
-            <span className="text-sky-deep underline decoration-sky/40 underline-offset-4">
+            <span className="text-sky-deep  decoration-sky/40 underline-offset-4">
               your future
             </span>
           </h1>

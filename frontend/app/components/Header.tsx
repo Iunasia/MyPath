@@ -19,7 +19,7 @@ export interface HeaderProps {
   backHref?: string;
   backLabel?: string;
   showBackArrow?: boolean;
-  activeNav?: "home" | "majors" | "careers" | "universities" | "scholarships";
+  activeNav?: "home" | "careers" | "majors" | "universities" | "scholarships";
   showSaveIcon?: boolean;
   actions?: React.ReactNode;
   className?: string;
@@ -30,7 +30,7 @@ export default function Header({
   backHref = "/",
   backLabel = "DOMNER",
   showBackArrow = false,
-  activeNav = "majors",
+  activeNav = "careers",
   showSaveIcon = true,
   actions,
   className = "",
@@ -70,12 +70,12 @@ export default function Header({
             >
               Universities
             </Link>
-            <a
-              href="#scholarships"
+            <Link
+              href="/scholarships"
               className="text-sm font-semibold text-gray-soft hover:text-blue-ink transition-colors"
             >
               Scholarships
-            </a>
+            </Link>
           </div>
 
           <div className="flex items-center gap-2">
@@ -139,16 +139,6 @@ export default function Header({
               Home
             </Link>
             <Link
-              href="/majors"
-              className={`transition-colors ${
-                activeNav === "majors"
-                  ? "font-bold text-sky-deep"
-                  : "text-gray-soft hover:text-blue-ink"
-              }`}
-            >
-              Majors
-            </Link>
-            <Link
               href="/careers"
               className={`transition-colors ${
                 activeNav === "careers"
@@ -157,6 +147,16 @@ export default function Header({
               }`}
             >
               Careers
+            </Link>
+            <Link
+              href="/majors"
+              className={`transition-colors ${
+                activeNav === "majors"
+                  ? "font-bold text-sky-deep"
+                  : "text-gray-soft hover:text-blue-ink"
+              }`}
+            >
+              Majors
             </Link>
             <Link
               href="/universities"
@@ -169,7 +169,7 @@ export default function Header({
               Universities
             </Link>
             <Link
-              href="/#scholarships"
+              href="/scholarships"
               className={`transition-colors ${
                 activeNav === "scholarships"
                   ? "font-bold text-sky-deep"
@@ -225,18 +225,6 @@ export default function Header({
               <span>Home</span>
             </Link>
             <Link
-              href="/majors"
-              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors ${
-                activeNav === "majors"
-                  ? "bg-sky/15 text-sky-deep font-bold"
-                  : "text-blue-ink hover:bg-powder"
-              }`}
-              onClick={() => setMenuOpen(false)}
-            >
-              <BookOpen className="w-4 h-4 text-sky-deep" />
-              <span>Major Explorer</span>
-            </Link>
-            <Link
               href="/careers"
               className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors ${
                 activeNav === "careers"
@@ -247,6 +235,18 @@ export default function Header({
             >
               <Compass className="w-4 h-4 text-sky-deep" />
               <span>Career Explorer</span>
+            </Link>
+            <Link
+              href="/majors"
+              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors ${
+                activeNav === "majors"
+                  ? "bg-sky/15 text-sky-deep font-bold"
+                  : "text-blue-ink hover:bg-powder"
+              }`}
+              onClick={() => setMenuOpen(false)}
+            >
+              <BookOpen className="w-4 h-4 text-sky-deep" />
+              <span>Major Explorer</span>
             </Link>
             <Link
               href="/universities"
@@ -261,7 +261,7 @@ export default function Header({
               <span>Universities</span>
             </Link>
             <Link
-              href="/#scholarships"
+              href="/scholarships"
               className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors ${
                 activeNav === "scholarships"
                   ? "bg-sky/15 text-sky-deep font-bold"
