@@ -24,14 +24,18 @@ export default function UniversitiesPage() {
 
   // Filter universities based on search and filters
   const filteredUniversities = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
     return UNIVERSITIES_DATA.filter((uni) => {
       const matchesSearch =
-        searchQuery.trim() === "" ||
-        uni.name.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
-        uni.shortName.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
-        uni.location.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
-        uni.popularMajors.some((m) =>
-          m.toLowerCase().includes(searchQuery.toLowerCase().trim())
+        q === "" ||
+        uni.name.toLowerCase().includes(q) ||
+        uni.shortName.toLowerCase().includes(q) ||
+        uni.location.toLowerCase().includes(q) ||
+        uni.popularMajors.some((m) => m.toLowerCase().includes(q)) ||
+        uni.facultiesList?.some(
+          (f) =>
+            f.facultyName.toLowerCase().includes(q) ||
+            f.majors.some((m) => m.toLowerCase().includes(q))
         );
 
       const matchesLocation =
@@ -39,7 +43,7 @@ export default function UniversitiesPage() {
 
       const matchesType = !selectedType || uni.type === selectedType;
 
-      return matchesSearch && matchesLocation && matchesType;
+      return Boolean(matchesSearch && matchesLocation && matchesType);
     });
   }, [searchQuery, selectedLocation, selectedType]);
 
@@ -234,9 +238,15 @@ export default function UniversitiesPage() {
 
                   {/* Bottom Text Content (Always Crisp White) */}
                   <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 flex flex-col justify-end">
-                    <h3 className="font-display font-bold text-white text-xs sm:text-sm leading-snug line-clamp-2 drop-shadow-sm mb-2 group-hover:text-sitomo transition-colors">
+                    <h3 className="font-display font-bold text-white text-xs sm:text-sm leading-snug line-clamp-2 drop-shadow-sm mb-1.5 group-hover:text-sitomo transition-colors">
                       {uni.name}
                     </h3>
+
+                    {uni.tuitionFee && (
+                      <p className="text-[10px] sm:text-[11px] font-semibold text-sitomo/90 line-clamp-1 mb-2">
+                        {uni.tuitionFee}
+                      </p>
+                    )}
 
                     <div className="flex items-center justify-between gap-1 text-white">
                       <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs text-white/90 font-medium truncate">
