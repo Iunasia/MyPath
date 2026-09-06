@@ -5,6 +5,12 @@ import {
   Share2,
   ExternalLink,
   ShieldCheck,
+  Briefcase,
+  GraduationCap,
+  Sparkles,
+  TrendingUp,
+  Target,
+  CheckCircle2,
 } from "lucide-react";
 import { CAREERS_DATA } from "@/app/data/careers";
 import Header from "@/app/components/Header";
@@ -66,14 +72,18 @@ export default async function CareerDetailPage({ params }: PageProps) {
         <main className="w-full pb-16 flex flex-col gap-10">
           {/* 1. Hero Section */}
           <section className="w-full">
-            <div className="mb-3">
+            <div className="flex flex-wrap items-center gap-2 mb-3">
               <span className="inline-block px-4 py-1.5 rounded-full bg-sky/20 text-sky-deep text-xs font-extrabold uppercase tracking-wider border border-sky/20">
                 {career.category}
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold uppercase tracking-wider border border-emerald-200">
+                <TrendingUp className="w-4 h-4 text-emerald-600" />
+                Demand: {career.jobMarketDemand}
               </span>
             </div>
 
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-16 h-16 rounded-2xl bg-sitomo flex items-center justify-center border border-sky/15">
+              <div className="w-16 h-16 rounded-2xl bg-sitomo flex items-center justify-center border border-sky/15 shrink-0">
                 <Icon className="w-8 h-8 text-sky-deep" strokeWidth={2.2} />
               </div>
               <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight leading-[1.15]">
@@ -81,9 +91,31 @@ export default async function CareerDetailPage({ params }: PageProps) {
               </h1>
             </div>
 
-            <p className="text-sm sm:text-base lg:text-lg text-gray-body leading-relaxed font-medium mb-6 max-w-4xl">
-              {career.description}
-            </p>
+            {/* What You Do Banner */}
+            <div className="p-5 bg-white rounded-2xl border border-sky/20 bubble-shadow-sm mb-6 max-w-4xl">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-sitomo flex items-center justify-center text-sky-deep shrink-0">
+                  <Briefcase className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-xs font-extrabold uppercase tracking-wider text-sky-deep mb-1">
+                    What You Do
+                  </h2>
+                  <p className="text-base sm:text-lg font-bold text-blue-ink leading-snug">
+                    {career.whatYouDo}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="max-w-4xl mb-6">
+              <h2 className="text-xs font-extrabold uppercase tracking-wider text-gray-soft mb-2">
+                Short Overview
+              </h2>
+              <p className="text-sm sm:text-base lg:text-lg text-gray-body leading-relaxed font-medium">
+                {career.shortOverview}
+              </p>
+            </div>
 
             <div>
               <button className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-sky text-white font-bold text-sm hover:bg-sky-bright transition-all bubble-shadow-sm cursor-pointer">
@@ -93,7 +125,87 @@ export default async function CareerDetailPage({ params }: PageProps) {
             </div>
           </section>
 
-          {/* 2. Majors That Lead Here */}
+          {/* 2. Key Specifications Grid */}
+          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 w-full">
+            {/* Key Skills */}
+            <div className="bg-white rounded-3xl p-6 border border-sky/15 bubble-shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="w-10 h-10 rounded-2xl bg-sitomo flex items-center justify-center text-sky-deep mb-4 border border-sky/15">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <h3 className="font-display text-base font-bold text-blue-ink mb-3">
+                  Key Skills
+                </h3>
+                <div className="flex flex-wrap gap-1.5">
+                  {career.keySkills.map((skill) => (
+                    <span
+                      key={skill}
+                      className="bg-sitomo text-sky-deep text-xs font-bold px-3 py-1 rounded-full border border-sky/15"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Education Required */}
+            <div className="bg-white rounded-3xl p-6 border border-sky/15 bubble-shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="w-10 h-10 rounded-2xl bg-sitomo flex items-center justify-center text-sky-deep mb-4 border border-sky/15">
+                  <GraduationCap className="w-5 h-5" />
+                </div>
+                <h3 className="font-display text-base font-bold text-blue-ink mb-2">
+                  Education Required
+                </h3>
+                <p className="text-xs text-gray-body leading-relaxed font-medium">
+                  {career.educationRequired}
+                </p>
+              </div>
+            </div>
+
+            {/* Best-Fit Personality */}
+            <div className="bg-white rounded-3xl p-6 border border-sky/15 bubble-shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="w-10 h-10 rounded-2xl bg-momo flex items-center justify-center text-amber-800 mb-4 border border-momo">
+                  <Target className="w-5 h-5" />
+                </div>
+                <h3 className="font-display text-base font-bold text-blue-ink mb-3">
+                  Best-Fit Personality
+                </h3>
+                <div className="flex flex-wrap gap-1.5">
+                  {career.bestFitPersonality.map((trait) => (
+                    <span
+                      key={trait}
+                      className="bg-amber-50 text-amber-800 text-xs font-bold px-3 py-1 rounded-full border border-amber-200"
+                    >
+                      {trait}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Job-Market Demand */}
+            <div className="bg-white rounded-3xl p-6 border border-sky/15 bubble-shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-700 mb-4 border border-emerald-200">
+                  <TrendingUp className="w-5 h-5" />
+                </div>
+                <h3 className="font-display text-base font-bold text-blue-ink mb-2">
+                  Job-Market Demand
+                </h3>
+                <span className="inline-block px-3.5 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold">
+                  {career.jobMarketDemand}
+                </span>
+                <p className="text-xs text-gray-soft mt-2 font-medium">
+                  Strong job market outlook and demand across industries.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* 3. Majors That Lead Here */}
           <section className="bg-white rounded-3xl p-6 sm:p-8 lg:p-10 border border-sky/15 bubble-shadow-sm w-full rounded-br-[86px]">
             <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink mb-2">
               Majors That Lead Here
@@ -103,112 +215,76 @@ export default async function CareerDetailPage({ params }: PageProps) {
               {career.title}.
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {career.relatedMajors.map((major) => {
-                const MajorIcon = major.icon;
-                return (
-                  <Link
-                    key={major.id}
-                    href={`/majors/${major.id}`}
-                    className="flex items-center gap-4 p-5 rounded-2xl bg-sitomo/20 border border-sky/10 hover:border-sky/30 hover:bg-sitomo/40 transition-all group"
+            {career.relatedMajors.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {career.relatedMajors.map((major) => {
+                  const MajorIcon = major.icon;
+                  return (
+                    <Link
+                      key={major.id}
+                      href={`/majors/${major.id}`}
+                      className="flex items-center gap-4 p-5 rounded-2xl bg-sitomo/20 border border-sky/10 hover:border-sky/30 hover:bg-sitomo/40 transition-all group"
+                    >
+                      <div className="w-12 h-12 rounded-2xl bg-sitomo flex items-center justify-center shrink-0 border border-sky/15 group-hover:scale-110 transition-transform">
+                        <MajorIcon
+                          className="w-6 h-6 text-sky-deep"
+                          strokeWidth={2.2}
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-display text-base font-bold text-blue-ink group-hover:text-sky-deep transition-colors">
+                          {major.name}
+                        </h3>
+                        <p className="text-xs text-gray-soft font-medium mt-0.5">
+                          View major details →
+                        </p>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {career.relatedMajorsText.map((m) => (
+                  <span
+                    key={m}
+                    className="bg-momo text-blue-ink text-sm font-bold px-4 py-2 rounded-full border border-momo/70"
                   >
-                    <div className="w-12 h-12 rounded-2xl bg-sitomo flex items-center justify-center shrink-0 border border-sky/15 group-hover:scale-110 transition-transform">
-                      <MajorIcon
-                        className="w-6 h-6 text-sky-deep"
-                        strokeWidth={2.2}
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-display text-base font-bold text-blue-ink group-hover:text-sky-deep transition-colors">
-                        {major.name}
-                      </h3>
-                      <p className="text-xs text-gray-soft font-medium mt-0.5">
-                        View major details →
-                      </p>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
+                    {m}
+                  </span>
+                ))}
+              </div>
+            )}
           </section>
 
-          {/* 3. Skills You'll Develop */}
+          {/* 4. Skills Developed */}
           <section className="bg-white rounded-3xl p-6 sm:p-8 lg:p-10 border border-sky/15 bubble-shadow-sm w-full">
             <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink mb-2">
-              Skills You&apos;ll Develop
+              Key Skills Developed
             </h2>
             <p className="text-xs sm:text-sm text-gray-soft mb-6 font-medium">
-              These skills are built across the related majors and are highly
-              valued for this career.
+              These core competencies are built through academic programs and are essential for success as a {career.title}.
             </p>
             <div className="flex flex-wrap gap-3">
-              {career.skillsFromMajors.map((skill) => (
+              {career.keySkills.map((skill) => (
                 <span
                   key={skill}
-                  className="bg-momo text-blue-ink text-xs sm:text-sm font-semibold px-5 py-2.5 rounded-full border border-momo/70 shadow-2xs"
+                  className="bg-momo text-blue-ink text-xs sm:text-sm font-semibold px-5 py-2.5 rounded-full border border-momo/70 shadow-2xs flex items-center gap-2"
                 >
+                  <CheckCircle2 className="w-4 h-4 text-sky-deep" />
                   {skill}
                 </span>
               ))}
             </div>
           </section>
 
-          {/* 4. Career Overview */}
-          <section className="w-full">
-            <h2 className="font-display text-2xl sm:text-3xl font-bold text-blue-ink tracking-tight text-center mb-10">
-              About This Career
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 max-w-5xl mx-auto w-full">
-              <div className="flex flex-col items-center text-center px-4">
-                <div className="w-16 h-16 rounded-full bg-momo text-sky-deep flex items-center justify-center mb-4 border border-momo/80 shadow-2xs">
-                  <Icon className="w-8 h-8 text-sky-deep" strokeWidth={2.2} />
-                </div>
-                <h3 className="font-display text-lg sm:text-xl font-bold text-blue-ink mb-2">
-                  Field
-                </h3>
-                <p className="text-xs sm:text-sm text-gray-body leading-relaxed font-medium max-w-xs">
-                  {career.category}
-                </p>
-              </div>
-
-              <div className="flex flex-col items-center text-center px-4">
-                <div className="w-16 h-16 rounded-full bg-momo text-sky-deep flex items-center justify-center mb-4 border border-momo/80 shadow-2xs">
-                  <span className="text-2xl font-bold text-sky-deep">
-                    {career.relatedMajors.length}
-                  </span>
-                </div>
-                <h3 className="font-display text-lg sm:text-xl font-bold text-blue-ink mb-2">
-                  Related Majors
-                </h3>
-                <p className="text-xs sm:text-sm text-gray-body leading-relaxed font-medium max-w-xs">
-                  Majors that directly prepare you for this career path.
-                </p>
-              </div>
-
-              <div className="flex flex-col items-center text-center px-4">
-                <div className="w-16 h-16 rounded-full bg-momo text-sky-deep flex items-center justify-center mb-4 border border-momo/80 shadow-2xs">
-                  <span className="text-2xl font-bold text-sky-deep">
-                    {career.skillsFromMajors.length}
-                  </span>
-                </div>
-                <h3 className="font-display text-lg sm:text-xl font-bold text-blue-ink mb-2">
-                  Key Skills
-                </h3>
-                <p className="text-xs sm:text-sm text-gray-body leading-relaxed font-medium max-w-xs">
-                  Core competencies you&apos;ll build through related programs.
-                </p>
-              </div>
-            </div>
-          </section>
-
-          {/* 5. DMIL Verification Card */}
+          {/* 5. Verification Card */}
           <div className="rounded-3xl bg-momo p-6 sm:p-8 border border-momo w-full">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-sky-deep" />
                 <span className="text-xs sm:text-sm font-bold text-blue-ink uppercase tracking-wider">
-                  Information Check
+                  Verified Career Profile
                 </span>
               </div>
               <span className="inline-flex items-center gap-1 rounded-full bg-sky/20 px-3 py-1 text-xs font-bold text-sky-deep">
@@ -217,25 +293,21 @@ export default async function CareerDetailPage({ params }: PageProps) {
             </div>
 
             <p className="text-xs sm:text-sm text-gray-body mb-4 font-medium">
-              Career pathway data is aggregated from accredited major curricula
-              and cross-referenced with industry standards.
+              Career profile data is structured based on official educational guidelines, job market demand metrics, and industry skill standards.
             </p>
 
             <div className="grid sm:grid-cols-2 gap-4 text-xs sm:text-sm text-blue-ink font-medium">
               <div>
                 <span className="text-xs text-gray-soft block">
-                  Data Source:
+                  Category:
                 </span>
-                <span className="font-bold">
-                  Aggregated from {career.relatedMajors.length} related major
-                  {career.relatedMajors.length !== 1 ? "s" : ""}
-                </span>
+                <span className="font-bold">{career.category}</span>
               </div>
               <div>
                 <span className="text-xs text-gray-soft block">
-                  Career Field:
+                  Market Demand:
                 </span>
-                <span className="font-bold">{career.category}</span>
+                <span className="font-bold">{career.jobMarketDemand}</span>
               </div>
             </div>
 
@@ -255,3 +327,4 @@ export default async function CareerDetailPage({ params }: PageProps) {
     </div>
   );
 }
+
