@@ -8,6 +8,8 @@ import {
   SlidersHorizontal,
   Building2,
   X,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
@@ -18,6 +20,8 @@ import {
 } from "@/app/data/universities";
 
 export default function UniversitiesPage() {
+  const ITEMS_PER_PAGE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("All Locations");
   const [selectedType, setSelectedType] = useState<string | null>(null);
@@ -47,6 +51,17 @@ export default function UniversitiesPage() {
     });
   }, [searchQuery, selectedLocation, selectedType]);
 
+  // Reset page on filter change
+  useMemo(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedLocation, selectedType]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredUniversities.length / ITEMS_PER_PAGE));
+  const paginatedUniversities = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredUniversities.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredUniversities, currentPage]);
+
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       {/* Responsive Viewport Container: 25px on mobile, 80px on desktop */}
@@ -59,7 +74,7 @@ export default function UniversitiesPage() {
           {/* Background Image */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1600&auto=format&fit=crop&q=80"
+            src="https://www.waca.or.jp/en/wp-content/uploads/2021/03/vasily-koloda-8CqDvPuo_kI-unsplash-860x573.jpg"
             alt="University Graduation and Campus"
             className="absolute inset-0 w-full h-full object-cover object-center"
           />
@@ -104,7 +119,7 @@ export default function UniversitiesPage() {
             <div>
               <h2 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-blue-ink tracking-tight">
                 Have you considered{" "}
-                <span className="text-sky-deep underline decoration-sky/40 underline-offset-4">
+                <span className="text-sky-deep">
                   where to study?
                 </span>
               </h2>
@@ -196,22 +211,22 @@ export default function UniversitiesPage() {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4 lg:gap-5">
-              {filteredUniversities.map((uni) => (
+              {paginatedUniversities.map((uni) => (
                 <Link
                   key={uni.id}
                   href={`/universities/${uni.id}`}
-                  className="group relative aspect-[3/4] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer bubble-shadow-sm border border-sky/15 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg block"
+                  className="group relative aspect-[3/4] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer bubble-shadow-sm border border-sky/15 block"
                 >
-                  {/* University Campus Image (Darkens on Hover) */}
+                  {/* University Campus Image */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={uni.image}
                     alt={uni.name}
-                    className="w-full h-full object-cover object-center transition-all duration-300 group-hover:scale-110 group-hover:brightness-75"
+                    className="w-full h-full object-cover object-center"
                   />
 
-                  {/* Dark Gradient Overlay (Darkens on Hover while text stays white) */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10 group-hover:from-black/95 group-hover:via-black/55 group-hover:to-black/20 transition-all duration-300" />
+                  {/* Dark Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
 
                   {/* Type Badge on Top */}
                   <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-10">
@@ -236,17 +251,11 @@ export default function UniversitiesPage() {
                     />
                   </div>
 
-                  {/* Bottom Text Content (Always Crisp White) */}
+                  {/* Bottom Text Content */}
                   <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 flex flex-col justify-end">
-                    <h3 className="font-display font-bold text-white text-xs sm:text-sm leading-snug line-clamp-2 drop-shadow-sm mb-1.5 group-hover:text-sitomo transition-colors">
+                    <h3 className="font-display font-bold text-white text-xs sm:text-sm leading-snug line-clamp-2 drop-shadow-sm mb-2 group-hover:text-sky-bright transition-colors">
                       {uni.name}
                     </h3>
-
-                    {uni.tuitionFee && (
-                      <p className="text-[10px] sm:text-[11px] font-semibold text-sitomo/90 line-clamp-1 mb-2">
-                        {uni.tuitionFee}
-                      </p>
-                    )}
 
                     <div className="flex items-center justify-between gap-1 text-white">
                       <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs text-white/90 font-medium truncate">
@@ -261,6 +270,63 @@ export default function UniversitiesPage() {
                   </div>
                 </Link>
               ))}
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-sky/20">
+              <span className="text-xs font-bold text-gray-soft">
+                Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, filteredUniversities.length)} of {filteredUniversities.length} Institutions
+              </span>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCurrentPage((p) => Math.max(1, p - 1));
+                    window.scrollTo({ top: 350, behavior: "smooth" });
+                  }}
+                  disabled={currentPage <= 1}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-sky/30 bg-white text-blue-ink text-xs font-bold hover:bg-sitomo/60 disabled:opacity-40 disabled:cursor-not-allowed transition-all bubble-shadow-sm cursor-pointer"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>Prev</span>
+                </button>
+
+                <div className="flex items-center gap-1.5">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                    <button
+                      key={pageNum}
+                      type="button"
+                      onClick={() => {
+                        setCurrentPage(pageNum);
+                        window.scrollTo({ top: 350, behavior: "smooth" });
+                      }}
+                      className={`w-8 h-8 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                        currentPage === pageNum
+                          ? "bg-sky text-white bubble-shadow-sm"
+                          : "bg-white border border-sky/20 text-blue-ink hover:bg-sitomo/60"
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCurrentPage((p) => Math.min(totalPages, p + 1));
+                    window.scrollTo({ top: 350, behavior: "smooth" });
+                  }}
+                  disabled={currentPage >= totalPages}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-sky/30 bg-white text-blue-ink text-xs font-bold hover:bg-sitomo/60 disabled:opacity-40 disabled:cursor-not-allowed transition-all bubble-shadow-sm cursor-pointer"
+                >
+                  <span>Next</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           )}
         </section>

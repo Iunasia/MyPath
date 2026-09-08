@@ -292,6 +292,15 @@ export default function Header({
                 <span>Saved Items</span>
               </Link>
             )}
+
+            <Link
+              href="/admin"
+              className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-bold text-sky-deep bg-sitomo/60 hover:bg-sky hover:text-white transition-all mt-1 border border-sky/20"
+              onClick={() => setMenuOpen(false)}
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+              <span>Admin Dashboard</span>
+            </Link>
           </div>
         </nav>
       )}

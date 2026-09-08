@@ -140,7 +140,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
 
               <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight leading-[1.15]">
                 {university.taglinePrefix}{" "}
-                <span className="text-sky-deep underline decoration-sky/40 underline-offset-4">
+                <span className="text-sky-deep">
                   {university.taglineHighlight}
                 </span>
               </h1>
@@ -286,7 +286,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-5xl">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 w-full">
                 {university.facultiesList.map((faculty, fIdx) => (
                   <div
                     key={fIdx}
@@ -445,7 +445,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                     <img
                       src={fac.image}
                       alt={fac.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-cover"
                     />
                   </div>
                   <h3 className="text-xs sm:text-sm font-bold text-blue-ink leading-snug">

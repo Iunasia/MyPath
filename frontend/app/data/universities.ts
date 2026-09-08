@@ -81,7 +81,7 @@ export const UNIVERSITIES_DATA: University[] = [
     shortName: "CADT",
     location: "Phnom Penh",
     type: "Public",
-    image: "https://images.unsplash.com/photo-1562774053-701939374585?w=600&auto=format&fit=crop&q=80",
+    image: "https://cadt.edu.kh/wp-content/uploads/2024/06/Our-10th-Anniversary-Celebration-scaled.webp",
     heroImage: "https://images.unsplash.com/photo-1562774053-701939374585?w=1600&auto=format&fit=crop&q=80",
     description:
       "Cambodia's national flagship digital higher education institute, specializing in software engineering, artificial intelligence, cybersecurity, and digital entrepreneurship.",
@@ -198,7 +198,7 @@ export const UNIVERSITIES_DATA: University[] = [
     shortName: "RUPP",
     location: "Phnom Penh",
     type: "Public",
-    image: "https://images.unsplash.com/photo-1519452635265-7b1fbfd1e4e0?w=600&auto=format&fit=crop&q=80",
+    image: "https://cambodiamcc.wordpress.com/wp-content/uploads/2012/02/frontcampus.jpg",
     heroImage: "https://images.unsplash.com/photo-1519452635265-7b1fbfd1e4e0?w=1600&auto=format&fit=crop&q=80",
     description:
       "Cambodia's oldest and largest public university, established in 1960. Strong in science, technology, social sciences, humanities and languages.",
@@ -355,7 +355,7 @@ export const UNIVERSITIES_DATA: University[] = [
     shortName: "ITC",
     location: "Phnom Penh",
     type: "Public",
-    image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&auto=format&fit=crop&q=80",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcxQ1ENA_HDTb8CevHH_xedT04l3el4XrY-WAhB-GBgdG1lCKuR1QuxUS1&s=10",
     heroImage: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1600&auto=format&fit=crop&q=80",
     description:
       "Cambodia's leading public engineering and technology institution, known particularly for engineering, science and technology.",
@@ -471,7 +471,7 @@ export const UNIVERSITIES_DATA: University[] = [
     shortName: "Paragon.U",
     location: "Phnom Penh",
     type: "International",
-    image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&auto=format&fit=crop&q=80",
+    image: "https://academics-bucket-sj19asxm-prod.s3.ap-southeast-1.amazonaws.com/47268da4-7c59-4aa1-9d5d-1f94a31756af/feature-image.jpg",
     heroImage: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1600&auto=format&fit=crop&q=80",
     description:
       "Private international university focused strongly on engineering, ICT, business, mathematics and international education.",
