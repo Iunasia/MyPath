@@ -3,7 +3,10 @@ RUN apk update && apk upgrade --no-cache libssl3 libcrypto3
 RUN npm install -g npm@latest
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --omit=optional
+# NOTE: do NOT add --omit=optional here. esbuild (pulled in by tsx) ships its
+# platform binary as an optionalDependency; omitting it makes the container
+# fail at startup with "@esbuild/linux-x64 could not be found".
+RUN npm ci
 COPY . .
 USER node
 EXPOSE 5000

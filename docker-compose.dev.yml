@@ -1,18 +1,55 @@
+name: mypath
+
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: mypath_db_dev
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-mypath}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-mypath_dev_password}
+      - POSTGRES_DB=${POSTGRES_DB:-mypath}
+    ports:
+      # Exposed so you can connect with psql / TablePlus / pgAdmin from the host.
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # Backend waits on this so it never starts querying a database that
+      # is still initialising on first boot.
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mypath} -d ${POSTGRES_DB:-mypath}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
     container_name: mypath_backend_dev
+    restart: unless-stopped
     ports:
       - "5000:5000"
     environment:
       - NODE_ENV=development
       - PORT=5000
+      # Host is the "db" service name — Compose resolves it on the internal network.
+      - DATABASE_URL=postgres://${POSTGRES_USER:-mypath}:${POSTGRES_PASSWORD:-mypath_dev_password}@db:5432/${POSTGRES_DB:-mypath}
+      - SESSION_SECRET=${SESSION_SECRET:-mypath-dev-secret}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+      # Optional — Google OAuth stays disabled unless these are set in .env
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+      - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL:-http://localhost:5000/auth/google/callback}
+      - SAFE_BROWSING_API_KEY=${SAFE_BROWSING_API_KEY:-}
     volumes:
       - ./backend:/app
       # Anonymous volume preserves container's installed node_modules from being overwritten by the host
       - /app/node_modules
+    depends_on:
+      db:
+        condition: service_healthy
     stdin_open: true
     tty: true
 
@@ -21,12 +58,13 @@ services:
       context: ./frontend
       dockerfile: Dockerfile.dev
     container_name: mypath_frontend_dev
+    restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=development
       - BACKEND_INTERNAL_URL=http://backend:5000
-      - NEXT_PUBLIC_API_URL=http://localhost:5000
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:5000}
       # Enables polling for fast refresh inside Docker across different OS file systems
       - WATCHPACK_POLLING=true
     volumes:
@@ -37,3 +75,6 @@ services:
       - backend
     stdin_open: true
     tty: true
+
+volumes:
+  pgdata:
