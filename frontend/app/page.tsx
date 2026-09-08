@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import HeroSlider from "./components/HeroSlider";
 import {
   Compass,
   Search,
@@ -91,61 +92,14 @@ export default function Home() {
       {/* ── Reusable Floating Navbar Component ────────── */}
       <Header variant="home" />
 
-      {/* ── Hero ──────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-powder pt-28 pb-8">
-        <div className="relative max-w-5xl mx-auto px-6 lg:px-8 pt-12 pb-20 lg:pt-16 lg:pb-28">
-          <div className="text-center max-w-3xl mx-auto">
-            <span className="sticker mb-6">
-              <span className="sticker-dot" aria-hidden="true" />
-              Digital Information Literacy
-            </span>
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-[3.5rem] font-extrabold text-blue-ink leading-[1.15] tracking-tight mt-5">
-              Figure out your future,
-              <br />
-              <span className="text-sky-deep">one check at a time.</span>
-            </h1>
-            <p className="mt-5 text-lg text-gray-body leading-relaxed max-w-xl mx-auto font-medium">
-              Domner helps you evaluate, verify, and compare the information
-              you find about careers, universities, and scholarships — so you
-              can actually trust what you decide.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <a href="#start" className="inline-flex items-center gap-1.5 rounded-full bg-sky px-7 py-3 text-sm font-bold text-white hover:bg-sky-bright transition-colors bubble-shadow">
-                Start exploring
-                <span aria-hidden="true">→</span>
-              </a>
-              <a href="#how-it-works" className="inline-flex items-center gap-1.5 rounded-full border-2 border-sky/25 bg-white px-7 py-3 text-sm font-bold text-blue-ink hover:bg-sky/10 transition-colors">
-                See how it works
-              </a>
-            </div>
-
-            {/* Quick stats as pastel chips */}
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-2.5">
-              {[
-                { label: "7-Step Process", chip: "bg-sitomo text-sky-deep" },
-                { label: "Source Verified", chip: "bg-momo text-blue-ink" },
-                { label: "Always Free", chip: "bg-sitomo text-blue-ink" },
-              ].map((s) => (
-                <span key={s.label} className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold ${s.chip}`}>
-                  <span className="w-1.5 h-1.5 rounded-full bg-current opacity-40" aria-hidden="true" />
-                  {s.label}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <WaveBottom fill="#FFFFFF" />
-      </section>
+      {/* ── Hero Slider (EduBlock Style with Left Slide Animation) ── */}
+      <HeroSlider />
 
       {/* ── DMIL Bubble Path ─────────────────────────────── */}
       <section id="how-it-works" className="py-20 lg:py-28 bg-white">
         <div className="max-w-5xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-14">
-            <span className="sticker mb-4">
-              <span className="sticker-dot" aria-hidden="true" />
-              The DMIL difference
-            </span>
+
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-blue-ink tracking-tight mt-4">
               Not just finding information.
               <br />
