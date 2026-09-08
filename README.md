@@ -8,18 +8,25 @@ Welcome to the **MyPath** project! This repository consists of a **Node.js Expre
 
 ```text
 MyPath/
-├── backend/                  # Node.js + Express REST API
+├── backend/                  # Node.js + Express REST API (TypeScript)
 │   ├── Dockerfile.dev        # Docker development file for backend
-│   ├── server.js             # Express application entry point
-│   ├── config/               # Database & service configurations
-│   ├── routes/               # API routes (auth, careers, majors, scholarships, etc.)
-│   ├── seeds/                # Database seed scripts
+│   ├── .env.example          # Template for local (non-Docker) backend env
+│   ├── src/
+│   │   ├── server.ts         # Express application entry point
+│   │   ├── config/           # Database (pg Pool) & Passport configuration
+│   │   ├── models/           # Data access layer (Career, Major, University, …)
+│   │   ├── routes/           # API routes (auth, careers, majors, scholarships, …)
+│   │   ├── middleware/       # Auth & admin guards
+│   │   └── seeds/            # Database schema + seed script
+│   ├── middleware/           # Cross-cutting security middleware (rate limiting)
+│   ├── utils/                # Scholarship URL risk checking
 │   └── package.json          # Node.js backend dependencies & scripts
 ├── frontend/                 # Next.js 16 App Router UI
 │   ├── Dockerfile.dev        # Docker development file for frontend
 │   ├── app/                  # Next.js application routes & components
 │   └── package.json          # Frontend dependencies & scripts
-├── docker-compose.dev.yml    # Docker Compose setup for development
+├── .env.example              # Template for Docker Compose env
+├── docker-compose.dev.yml    # Docker Compose setup (db + backend + frontend)
 └── README.md                 # Project documentation
 ```
 
@@ -27,27 +34,43 @@ MyPath/
 
 ## 🚀 Quick Start with Docker (Recommended)
 
-Running the project with Docker Compose is the easiest way to launch both the backend and frontend simultaneously with environment isolation.
+Running the project with Docker Compose is the easiest way to launch the database, backend, and frontend together with environment isolation. Three services come up: **db** (PostgreSQL 16), **backend**, and **frontend**.
 
 ### Prerequisites for Docker
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running on your machine.
 
 ### Docker Commands
 
-#### 1. Start All Services (Backend & Frontend)
-Run the following command in the root folder of the project:
+#### 1. Create your environment file
+From the root folder, copy the template. Compose picks up `.env` automatically:
 
+```bash
+cp .env.example .env
+```
+> Every variable already has a working development default, so an unedited `.env` boots fine. Fill in `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` only if you need Google sign-in.
+
+#### 2. Start All Services (Database, Backend & Frontend)
 ```bash
 docker compose -f docker-compose.dev.yml up --build
 ```
 > *Note for older Docker CLI versions: use `docker-compose -f docker-compose.dev.yml up --build`*
 
-#### 2. Run Containers in the Background (Detached Mode)
+The backend waits for the database healthcheck to pass before it starts, so the first boot takes a few extra seconds.
+
+#### 3. Create the tables and load sample data
+The database starts empty. With the containers running, seed it once from another terminal:
+
+```bash
+docker compose -f docker-compose.dev.yml exec backend npm run seed
+```
+> This creates every table and loads sample records. Re-running it **wipes and reloads** all data.
+
+#### 4. Run Containers in the Background (Detached Mode)
 ```bash
 docker compose -f docker-compose.dev.yml up -d
 ```
 
-#### 3. View Container Logs
+#### 5. View Container Logs
 ```bash
 # View logs from all services
 docker compose -f docker-compose.dev.yml logs -f
@@ -57,16 +80,26 @@ docker compose -f docker-compose.dev.yml logs -f backend
 
 # View logs for frontend only
 docker compose -f docker-compose.dev.yml logs -f frontend
+
+# View logs for the database only
+docker compose -f docker-compose.dev.yml logs -f db
 ```
 
-#### 4. Stop All Running Containers
+#### 6. Open a psql shell against the running database
+```bash
+docker compose -f docker-compose.dev.yml exec db psql -U mypath -d mypath
+```
+
+#### 7. Stop All Running Containers
 ```bash
 docker compose -f docker-compose.dev.yml down
 ```
+> Your data survives `down` — it lives in the `pgdata` named volume. To wipe the database completely, use `docker compose -f docker-compose.dev.yml down -v` and seed again.
 
 #### Service URLs in Docker Mode
 - **Frontend App**: [http://localhost:3000](http://localhost:3000)
 - **Backend API**: [http://localhost:5000](http://localhost:5000)
+- **PostgreSQL**: `localhost:5432` (user `mypath`, database `mypath`)
 
 ---
 
@@ -94,15 +127,23 @@ npm install
 ```
 
 #### Step 3: Configure Environment Variables
-Create a `.env` file inside the `backend/` directory:
+Copy the template into `backend/.env` and point `DATABASE_URL` at your PostgreSQL instance:
+
+```bash
+cp .env.example .env
+```
 
 ```env
 PORT=5000
 NODE_ENV=development
-DATABASE_URL=postgres://your_user:your_password@localhost:5432/mypath_db
+DATABASE_URL=postgres://your_user:your_password@localhost:5432/mypath
+SESSION_SECRET=mypath-dev-secret
+FRONTEND_URL=http://localhost:3000
 ```
 
-#### Step 4: (Optional) Seed the Database
+#### Step 4: Create Tables & Seed the Database
+The seed script creates every table before inserting sample data, so run it at least once against a fresh database:
+
 ```bash
 npm run seed
 ```
@@ -173,16 +214,24 @@ The frontend application will start on **[http://localhost:3000](http://localhos
 | Service | Local URL | Container Name | Default Port | Main Env Variables |
 | :--- | :--- | :--- | :--- | :--- |
 | **Frontend** | `http://localhost:3000` | `mypath_frontend_dev` | `3000` | `NEXT_PUBLIC_API_URL`, `BACKEND_INTERNAL_URL` |
-| **Backend** | `http://localhost:5000` | `mypath_backend_dev` | `5000` | `PORT`, `DATABASE_URL`, `NODE_ENV` |
+| **Backend** | `http://localhost:5000` | `mypath_backend_dev` | `5000` | `PORT`, `DATABASE_URL`, `NODE_ENV`, `SESSION_SECRET`, `FRONTEND_URL` |
+| **Database** | `localhost:5432` | `mypath_db_dev` | `5432` | `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_PORT` |
+
+Optional variables: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK_URL` (Google sign-in) and `SAFE_BROWSING_API_KEY` (scholarship link risk checks). All are safe to leave blank in development.
 
 ---
 
 ## 💡 Troubleshooting & Common Issues
 
 - **Port Conflict (`EADDRINUSE`):**
-  Ensure port `3000` or `5000` is not being used by another application on your system before starting.
+  Ensure ports `3000`, `5000`, and `5432` are not being used by another application on your system before starting. If you already run PostgreSQL locally, set `POSTGRES_PORT` in `.env` to something free like `5433` — this only changes the host port, so the backend container is unaffected.
 - **Database Connection Failure:**
-  Verify that your PostgreSQL database service is active and the `DATABASE_URL` credential in backend `.env` is correct.
+  Under Docker, the backend waits for the database healthcheck, so this usually means the seed has not been run yet. Run `docker compose -f docker-compose.dev.yml exec backend npm run seed`. Running natively, verify your PostgreSQL service is active and `DATABASE_URL` in `backend/.env` is correct.
+- **`relation "careers" does not exist`:**
+  The tables have not been created. The seed script creates the schema — run it as shown in step 3.
+- **`@esbuild/linux-x64 could not be found`:**
+  The container is holding a stale `node_modules` volume. Recreate it with:
+  `docker compose -f docker-compose.dev.yml up -d --renew-anon-volumes backend`
 - **Node Modules in Docker:**
-  If you install new npm packages, rebuild the Docker containers with `--build` flag:
-  `docker compose -f docker-compose.dev.yml up --build`
+  If you install new npm packages, rebuild the containers and refresh the module volume:
+  `docker compose -f docker-compose.dev.yml up --build --renew-anon-volumes`

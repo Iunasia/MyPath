@@ -6,3 +6,6 @@ dist/
 *.key
 *.crt
 .DS_Store
+
+# Templates are safe to commit — the real .env files stay ignored above.
+!.env.example
