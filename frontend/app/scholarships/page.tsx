@@ -181,18 +181,15 @@ export default function ScholarshipsPage() {
                 <Link
                   key={scholarship.id}
                   href={`/scholarships/${scholarship.id}`}
-                  className="group relative aspect-[4/3] min-h-[210px] rounded-3xl rounded-br-[86px] sm:rounded-br-[86px] overflow-hidden cursor-pointer bubble-shadow-sm border border-sky/15 transition-all duration-300 hover:scale-[1.01] hover:shadow-xl block bg-sitomo/40"
+                  className="group relative aspect-[4/3] min-h-[210px] rounded-3xl rounded-br-[86px] sm:rounded-br-[86px] overflow-hidden cursor-pointer bubble-shadow-sm border border-sky/15 block bg-sitomo/40"
                 >
                   {/* Full Card Image */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={scholarship.image}
                     alt={scholarship.title}
-                    className="absolute inset-0 w-full h-full object-cover object-center transition-all duration-500 group-hover:scale-105"
+                    className="absolute inset-0 w-full h-full object-cover object-center"
                   />
-
-                  {/* Gentle Darkening Overlay on Hover */}
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors duration-300" />
 
                   {/* Floating Save Button on Image */}
                   <div className="absolute top-3 right-3 z-20">
@@ -212,14 +209,9 @@ export default function ScholarshipsPage() {
                   {/* Bottom Gradient Overlay for Text */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent flex flex-col justify-end p-4 sm:p-5 z-10">
                     {/* Title */}
-                    <h3 className="font-display text-base sm:text-lg md:text-lg lg:text-xl font-extrabold text-white tracking-tight leading-snug drop-shadow-sm mb-1 group-hover:text-sky-bright transition-colors line-clamp-2">
+                    <h3 className="font-display text-base sm:text-lg md:text-lg lg:text-xl font-extrabold text-white tracking-tight leading-snug drop-shadow-sm mb-2 group-hover:text-sky-bright transition-colors line-clamp-2">
                       {scholarship.title}
                     </h3>
-
-                    {/* Name of University / Provider */}
-                    <p className="text-xs font-semibold text-white/90 drop-shadow-xs mb-1.5 truncate">
-                      {scholarship.provider}
-                    </p>
 
                     {/* Dateline (Deadline) */}
                     <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-white/75 font-medium drop-shadow-xs">

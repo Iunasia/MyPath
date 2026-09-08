@@ -8,12 +8,16 @@ import {
   X,
   ExternalLink,
   BookOpen,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { MAJORS_DATA, CATEGORIES, MajorItem } from "@/app/data/majors";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 
 export default function AllMajorsPage() {
+  const ITEMS_PER_PAGE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -36,6 +40,16 @@ export default function AllMajorsPage() {
       return matchesCategory && matchesSearch;
     });
   }, [searchQuery, selectedCategory]);
+
+  useMemo(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredMajors.length / ITEMS_PER_PAGE));
+  const paginatedMajors = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredMajors.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredMajors, currentPage]);
 
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
