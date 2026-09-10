@@ -31,15 +31,45 @@ const normalize = (value: string): string =>
 export const plainCategory = (value: string): string =>
   value.replace(/^[^\p{L}\p{N}]+/u, "").trim();
 
+/**
+ * Abbreviations the sheets use for majors ("Bachelor's in CS, IT, …"). Without
+ * these, "CS" fell through to the containment match below and landed on
+ * "Economi*cs*".
+ */
+const ABBREVIATIONS: Record<string, string> = {
+  cs: "computerscience",
+  it: "informationtechnology",
+  ai: "artificialintelligence",
+  bis: "businessinformationsystems",
+  ir: "internationalrelations",
+};
+
+/** Shorter than this, a name is an abbreviation — never a substring match. */
+const MIN_PARTIAL = 4;
+
+/** University names the majors sheet writes differently from our short names. */
+const UNIVERSITY_ALIASES: Record<string, string> = {
+  dmucambodia: "dmuc",
+};
+
+/** "AUPP-related digital programs", "AUPP/ICT-related programs" → AUPP. */
+const startsWithShortName = (name: string, shortName: string): boolean => {
+  if (!shortName) return false;
+  const escaped = shortName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`^${escaped}[\\s\\-/]`, "i").test(name);
+};
+
 const findByName = <T extends { name?: string; title?: string }>(
   list: T[],
   name: string
 ): T | undefined => {
-  const target = normalize(name);
+  const raw = normalize(name);
+  const target = ABBREVIATIONS[raw] ?? raw;
   if (!target) return undefined;
 
   const exact = list.find(item => normalize(item.name ?? item.title ?? "") === target);
   if (exact) return exact;
+  if (target.length < MIN_PARTIAL) return undefined;
 
   // Fall back to a containment match so "Computer Science" still finds
   // "Computer Science (Software Engineering)". When several contain it, take
@@ -50,7 +80,7 @@ const findByName = <T extends { name?: string; title?: string }>(
   let bestGap = Infinity;
   for (const item of list) {
     const candidate = normalize(item.name ?? item.title ?? "");
-    if (!candidate || !(candidate.includes(target) || target.includes(candidate))) continue;
+    if (candidate.length < MIN_PARTIAL || !(candidate.includes(target) || target.includes(candidate))) continue;
 
     const gap = Math.abs(candidate.length - target.length);
     if (gap < bestGap) {
@@ -283,8 +313,9 @@ export const linkMajors = (
 
   for (const name of names) {
     const match = findByName(majors, name);
-    if (match) links.push({ id: match.id, name: match.name, icon: match.icon });
-    else unmatched.push(name);
+    // Two names can resolve to one record ("CS" and "Computer Science").
+    if (match && !links.some(l => l.id === match.id)) links.push({ id: match.id, name: match.name, icon: match.icon });
+    else if (!match) unmatched.push(name);
   }
   return { links, unmatched };
 };
@@ -301,8 +332,8 @@ export const linkCareers = (
       careers.map(c => ({ ...c, name: c.title })),
       name
     );
-    if (match) links.push({ id: match.id, name: match.title, icon: match.icon });
-    else unmatched.push(name);
+    if (match && !links.some(l => l.id === match.id)) links.push({ id: match.id, name: match.title, icon: match.icon });
+    else if (!match) unmatched.push(name);
   }
   return { links, unmatched };
 };
@@ -315,11 +346,18 @@ export const linkUniversities = (
   const unmatched: string[] = [];
 
   for (const name of names) {
+    // The sheet qualifies names — "Paragon.U (MIS)", "AUPP-related digital
+    // programs", "DMU Cambodia" — so drop the brackets, then try the short
+    // name on its own and as a prefix before falling back to the full name.
+    const cleaned = name.replace(/\(.*?\)/g, " ").replace(/\s+/g, " ").trim();
+    const key = normalize(cleaned);
+    const short = UNIVERSITY_ALIASES[key] ?? key;
     const match =
-      universities.find(u => normalize(u.shortName) === normalize(name)) ??
-      findByName(universities, name);
-    if (match) links.push({ id: match.id, name: match.name });
-    else unmatched.push(name);
+      universities.find(u => normalize(u.shortName) === short) ??
+      universities.find(u => startsWithShortName(cleaned, u.shortName)) ??
+      findByName(universities, cleaned);
+    if (match && !links.some(l => l.id === match.id)) links.push({ id: match.id, name: match.name });
+    else if (!match) unmatched.push(name);
   }
   return { links, unmatched };
 };

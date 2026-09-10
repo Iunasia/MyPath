@@ -119,7 +119,7 @@ export default function Home() {
                   <div className={`relative flex items-center justify-center w-16 h-16 lg:w-[4.5rem] lg:h-[4.5rem] rounded-full ${step.bg} ${i === 3 ? "ring-4 ring-sky/35 bubble-shadow" : ""}`}>
                     <step.icon className={`w-7 h-7 lg:w-8 lg:h-8 ${step.color}`} strokeWidth={2.2} aria-hidden="true" />
                     {i === 3 && (
-                      <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-sky flex items-center justify-center text-[10px] font-bold text-white border-2 border-white">
+                      <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-sky-deep flex items-center justify-center text-[10px] font-bold text-white border-2 border-white">
                         ★
                       </span>
                     )}
@@ -271,7 +271,7 @@ export default function Home() {
               </div>
 
               <div className="flex gap-3">
-                <a href="#" className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-sky px-4 py-2.5 text-sm font-bold text-white hover:bg-sky-bright transition-colors bubble-shadow-sm">
+                <a href="#" className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-sky-deep px-4 py-2.5 text-sm font-bold text-white hover:bg-sky-dark transition-colors bubble-shadow-sm">
                   View original source
                   <span aria-hidden="true">↗</span>
                 </a>
@@ -331,7 +331,7 @@ export default function Home() {
               Join Domner and learn to navigate, evaluate, and verify the information
               that shapes your education and career decisions.
             </p>
-            <a href="#" className="inline-flex items-center gap-1.5 rounded-full bg-sky px-8 py-3.5 text-sm font-bold text-white hover:bg-sky-bright transition-colors bubble-shadow">
+            <a href="#" className="inline-flex items-center gap-1.5 rounded-full bg-sky-deep px-8 py-3.5 text-sm font-bold text-white hover:bg-sky-dark transition-colors bubble-shadow">
               Start exploring for free
               <span aria-hidden="true">→</span>
             </a>

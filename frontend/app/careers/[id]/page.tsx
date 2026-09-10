@@ -1,9 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
-  Bookmark,
-  Share2,
-  ExternalLink,
+  ArrowRight,
   ShieldCheck,
   Briefcase,
   GraduationCap,
@@ -16,6 +14,10 @@ import { getCareer, getMajors } from "@/app/lib/api.server";
 import { linkMajors, toCareerView, toMajorViews } from "@/app/lib/catalogAdapters";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
+import BackLink from "@/app/components/BackLink";
+import SaveItemButton from "@/app/components/SaveItemButton";
+import CompareButton from "@/app/components/CompareButton";
+import ShareButton from "@/app/components/ShareButton";
 
 /**
  * Rendered per request. Prerendering would need the API up at build time, and
@@ -52,29 +54,8 @@ export default async function CareerDetailPage({ params }: PageProps) {
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       <div className="w-full px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
         {/* ── Header ────────────────────────────────────────── */}
-        <Header
-          backHref="/careers"
-          backLabel="Back to Careers"
-          activeNav="careers"
-          actions={
-            <>
-              <button
-                className="p-2.5 rounded-2xl text-blue-ink bg-white border border-sky/15 hover:bg-sitomo/80 transition-colors focus:outline-none cursor-pointer bubble-shadow-sm"
-                aria-label="Save career"
-                title="Save to favorites"
-              >
-                <Bookmark className="w-5 h-5 text-sky-deep" />
-              </button>
-              <button
-                className="p-2.5 rounded-2xl text-blue-ink bg-white border border-sky/15 hover:bg-sitomo/80 transition-colors focus:outline-none cursor-pointer bubble-shadow-sm"
-                aria-label="Share career"
-                title="Share"
-              >
-                <Share2 className="w-5 h-5 text-sky-deep" />
-              </button>
-            </>
-          }
-        />
+        <Header activeNav="careers" />
+        <BackLink href="/careers" label="All careers" className="mb-6" />
 
         {/* ── Main Content ──────────────────────────────────── */}
         <main className="w-full pb-16 flex flex-col gap-10">
@@ -82,7 +63,7 @@ export default async function CareerDetailPage({ params }: PageProps) {
           <section className="w-full">
             <div className="flex flex-wrap items-center gap-2 mb-3">
               <span className="inline-block px-4 py-1.5 rounded-full bg-sky/20 text-sky-deep text-xs font-extrabold uppercase tracking-wider border border-sky/20">
-                {career.category}
+                {career.categoryKey}
               </span>
               <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold uppercase tracking-wider border border-emerald-200">
                 <TrendingUp className="w-4 h-4 text-emerald-600" />
@@ -125,11 +106,30 @@ export default async function CareerDetailPage({ params }: PageProps) {
               </p>
             </div>
 
-            <div>
-              <button className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-sky text-white font-bold text-sm hover:bg-sky-bright transition-all bubble-shadow-sm cursor-pointer">
-                <Bookmark className="w-4 h-4 fill-white" />
-                <span>Save Career</span>
-              </button>
+            <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3">
+              <SaveItemButton
+                item={{
+                  id: career.id,
+                  type: "career",
+                  title: career.title,
+                  subtitle: career.categoryKey,
+                  link: `/careers/${career.id}`,
+                }}
+                label="Save Career"
+                className="w-full sm:w-auto"
+              />
+              <div className="flex items-center gap-3">
+                <CompareButton
+                  item={{
+                    type: "career",
+                    apiId: Number(career.id),
+                    title: career.title,
+                    subtitle: career.categoryKey,
+                  }}
+                  className="flex-1 sm:flex-none"
+                />
+                <ShareButton title={career.title} />
+              </div>
             </div>
           </section>
 
@@ -313,7 +313,7 @@ export default async function CareerDetailPage({ params }: PageProps) {
                 <span className="text-xs text-gray-soft block">
                   Category:
                 </span>
-                <span className="font-bold">{career.category}</span>
+                <span className="font-bold">{career.categoryKey}</span>
               </div>
               <div>
                 <span className="text-xs text-gray-soft block">
@@ -328,7 +328,7 @@ export default async function CareerDetailPage({ params }: PageProps) {
                 href="/careers"
                 className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-sky-deep hover:underline"
               >
-                Browse All Careers <ExternalLink className="w-3.5 h-3.5" />
+                Browse all careers <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           </div>

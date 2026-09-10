@@ -9,7 +9,14 @@
  * Client components must keep using `./api` — importing this on the client
  * would leak a URL the browser cannot resolve.
  */
-import type { ApiCareer, ApiMajor, ApiScholarship, ApiUniversity, ApiInfoCheck } from "./api";
+import type {
+  ApiCareer,
+  ApiComparison,
+  ApiMajor,
+  ApiScholarship,
+  ApiUniversity,
+  ApiInfoCheck,
+} from "./api";
 
 const SERVER_BASE =
   process.env.BACKEND_INTERNAL_URL ||
@@ -53,3 +60,26 @@ export const getScholarship = (id: string) =>
   getOrNull<{ title: string; scholarship: ApiScholarship; infoCheck: ApiInfoCheck }>(
     `/scholarships/${id}`
   );
+
+export type ComparisonResult =
+  | { ok: true; comparison: ApiComparison }
+  | { ok: false; status: number; error: string; missing?: number[] };
+
+/**
+ * Unlike the getters above, the compare page shows the API's reason for a
+ * 400 or 404 ("No scholarship with id 99") rather than a generic not-found.
+ */
+export async function getComparison(type: string, ids: string): Promise<ComparisonResult> {
+  const query = `type=${encodeURIComponent(type)}&ids=${encodeURIComponent(ids)}`;
+  const res = await fetch(`${SERVER_BASE}/compare?${query}`, { cache: "no-store" });
+  const body = await res.json().catch(() => ({}));
+
+  if (res.ok) return { ok: true, comparison: body as ApiComparison };
+  if (res.status >= 500) throw new Error(`Upstream API error ${res.status} for /compare`);
+  return {
+    ok: false,
+    status: res.status,
+    error: typeof body.error === "string" ? body.error : "We couldn't compare those.",
+    missing: Array.isArray(body.missing) ? body.missing : undefined,
+  };
+}

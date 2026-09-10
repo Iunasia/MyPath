@@ -43,6 +43,8 @@ export interface ApiScholarship {
   source_type: string;
   verified_status: string;
   last_verified: string | null;
+  /** The admin who last checked it; null when nobody has, or the date came from the sheet. */
+  last_verified_by: number | null;
   safety_warnings: string[];
   infoCheck: ApiInfoCheck;
 }
@@ -308,3 +310,11 @@ export const reviewVerificationRequest = (
   id: number,
   input: { status: RequestStatus; verdict?: Verdict | null; response?: string }
 ) => sendJson<ApiVerificationRequest>("PATCH", `/verification-requests/${id}`, input);
+
+/** Admin only. Records that you checked the listing against its source (MVP #8). */
+export const markScholarshipChecked = (id: number) =>
+  sendJson<{ scholarship: ApiScholarship; infoCheck: ApiInfoCheck }>(
+    "POST",
+    `/scholarships/${id}/verify`,
+    {}
+  );

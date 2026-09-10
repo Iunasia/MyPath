@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
-  Share2,
   ExternalLink,
   ShieldCheck,
   MapPin,
@@ -24,7 +23,10 @@ import {
 import { toScholarshipViews } from "@/app/lib/adapters";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
+import BackLink from "@/app/components/BackLink";
 import SaveItemButton from "@/app/components/SaveItemButton";
+import CompareButton from "@/app/components/CompareButton";
+import ShareButton from "@/app/components/ShareButton";
 
 /** Rendered per request — see the note on the career detail page. */
 export const dynamic = "force-dynamic";
@@ -85,6 +87,7 @@ export default async function MajorDetailPage({ params }: PageProps) {
   });
 
   const lastVerified = "Sourced from the MyPath dataset";
+  const hasDemand = Boolean(major.jobMarketDemand) && major.jobMarketDemand !== "Not stated";
 
   // Scholarships this major's sheet points at, matched by title.
   const relatedOpportunities = major.relatedScholarshipsText
@@ -104,21 +107,8 @@ export default async function MajorDetailPage({ params }: PageProps) {
       <div className="w-full px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
         
         {/* ── Top Header Component ────────────────────────── */}
-        <Header
-          backHref="/majors"
-          backLabel="Back to Majors"
-          showBackArrow={true}
-          activeNav="majors"
-          actions={
-            <button
-              className="p-1.5 text-blue-ink/75 hover:text-sky-deep transition-colors focus:outline-none cursor-pointer"
-              aria-label="Share major"
-              title="Share"
-            >
-              <Share2 className="w-5 h-5" strokeWidth={2} />
-            </button>
-          }
-        />
+        <Header activeNav="majors" />
+        <BackLink href="/majors" label="Majors" className="mb-6" />
 
         {/* ── Main Content: Full Screen with 80px Desktop Margins ── */}
         <main className="w-full pb-16 flex flex-col gap-10">
@@ -128,7 +118,7 @@ export default async function MajorDetailPage({ params }: PageProps) {
             {/* Category Pill */}
             <div className="mb-3">
               <span className="inline-block px-4 py-1.5 rounded-full bg-sky/20 text-sky-deep text-xs font-extrabold uppercase tracking-wider border border-sky/20">
-                {major.category}
+                {major.categoryKey}
               </span>
             </div>
 
@@ -164,27 +154,41 @@ export default async function MajorDetailPage({ params }: PageProps) {
                     {major.duration}
                   </span>
                 </div>
-                {major.jobMarketDemand && (
-                  <span className="bg-sky/90 backdrop-blur-xs px-3.5 py-1.5 rounded-full border border-white/25 text-white font-extrabold shadow-sm">
-                    {major.jobMarketDemand} Demand
+                {/* "Not stated" is the adapter's placeholder, not a level —
+                    it read as "Not stated Demand". */}
+                {hasDemand && (
+                  <span className="bg-sky-deep/90 backdrop-blur-xs px-3.5 py-1.5 rounded-full border border-white/25 text-white font-extrabold shadow-sm">
+                    {major.jobMarketDemand} demand
                   </span>
                 )}
               </div>
             </div>
 
-            {/* Save Major Button */}
-            <div>
+            {/* Save, Compare, Share */}
+            <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3">
               <SaveItemButton
                 item={{
                   id: major.id,
                   type: "major",
                   title: major.name,
-                  subtitle: major.category,
+                  subtitle: major.categoryKey,
                   image: major.heroImage,
                   link: `/majors/${major.id}`,
                 }}
-                className="w-auto"
+                className="w-full sm:w-auto"
               />
+              <div className="flex items-center gap-3">
+                <CompareButton
+                  item={{
+                    type: "major",
+                    apiId: Number(major.id),
+                    title: major.name,
+                    subtitle: major.categoryKey,
+                  }}
+                  className="flex-1 sm:flex-none"
+                />
+                <ShareButton title={major.name} />
+              </div>
             </div>
           </section>
 
@@ -275,16 +279,20 @@ export default async function MajorDetailPage({ params }: PageProps) {
                     {major.careerOpportunities}
                   </p>
                 </div>
-                <div className="shrink-0">
-                  <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-sitomo text-xs font-bold text-sky-deep border border-sky/20 shadow-2xs">
-                    Demand: {major.jobMarketDemand}
-                  </span>
-                </div>
+                {hasDemand && (
+                  <div className="shrink-0">
+                    <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-sitomo text-xs font-bold text-sky-deep border border-sky/20 shadow-2xs">
+                      Demand: {major.jobMarketDemand}
+                    </span>
+                  </div>
+                )}
               </div>
             )}
           </section>
 
-          {/* 5. Related Majors (Full Width 3-Column Grid) */}
+          {/* 5. Related Majors — only when the field has others; an empty
+              heading read as a broken section. */}
+          {relatedMajors.length > 0 && (
           <section className="w-full">
             <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink tracking-tight mb-6">
               Related Majors
@@ -310,15 +318,16 @@ export default async function MajorDetailPage({ params }: PageProps) {
               })}
             </div>
           </section>
+          )}
 
-          {/* 6. Offer Universities (Full Width 4-Column Grid) */}
+          {/* 6. Universities offering this major */}
           <section className="w-full">
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink tracking-tight">
-                Offer Universities
+                Universities offering this major
               </h2>
               <span className="text-xs font-semibold text-gray-soft">
-                {offerUniversities.length} Institutions
+                {offerUniversities.length} {offerUniversities.length === 1 ? "university" : "universities"}
               </span>
             </div>
 

@@ -3,18 +3,18 @@
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import {
-  Search,
   Coins,
   Calendar,
   CheckCircle2,
   SlidersHorizontal,
-  X,
   AlertTriangle,
   Loader2,
 } from "lucide-react";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
+import ListHero from "@/app/components/ListHero";
 import SaveItemButton from "@/app/components/SaveItemButton";
+import CompareButton from "@/app/components/CompareButton";
 import {
   SCHOLARSHIP_CATEGORIES,
   COVERAGE_FILTERS,
@@ -88,43 +88,17 @@ export default function ScholarshipsPage() {
       {/* Responsive Viewport Container: 25px on mobile, 32px on tablet, 80px on desktop */}
       <div className="w-full flex-1 px-[25px] py-6 sm:px-8 md:px-10 lg:px-[80px] flex flex-col">
         {/* ── Top Header ───────────────────────────────────── */}
-        <Header backHref="/" backLabel="DOMNER" activeNav="scholarships" />
+        <Header activeNav="scholarships" />
 
-        {/* ── Hero Search Section (Same style as Majors page) ──── */}
-        <section className="mb-10 text-center max-w-3xl mx-auto w-full pt-4 sm:pt-6">
-
-          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight leading-[1.15] mb-4">
-            Find the right Scholarship for{" "}
-            <span className="text-sky-deep decoration-sky/40 underline-offset-4">
-              your future
-            </span>
-          </h1>
-          <p className="text-xs sm:text-sm lg:text-base text-gray-soft mb-8 max-w-xl mx-auto font-medium">
-            Explore verified Cambodian scholarship programs and tuition waivers to fund your undergraduate degree.
-          </p>
-
-          {/* Search Input Bar */}
-          <div className="relative max-w-xl mx-auto">
-            <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none z-10">
-              <Search className="h-5 w-5 text-blue-ink/60" strokeWidth={2.2} />
-            </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search scholarship name, university, or major..."
-              className="w-full pl-12 pr-10 py-3.5 sm:py-4 bg-white rounded-full text-sm text-blue-ink placeholder:text-gray-faint focus:outline-none focus:ring-2 focus:ring-sky focus:bg-white transition-all bubble-shadow-sm font-medium border border-sky/20"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-soft hover:text-blue-ink cursor-pointer z-10"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-        </section>
+        <ListHero
+          title="Find a scholarship"
+          description="Scholarships and tuition waivers for undergraduate study in Cambodia, each with its deadline and a link to the official source."
+          search={{
+            value: searchQuery,
+            onChange: setSearchQuery,
+            placeholder: "Search by name, university or major",
+          }}
+        />
 
 
         {/* ── Category & Filter Controls (Responsive for Tablet & Desktop) ── */}
@@ -140,7 +114,7 @@ export default function ScholarshipsPage() {
                     onClick={() => setSelectedCategory(cat)}
                     className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                       isSelected
-                        ? "bg-sky text-white bubble-shadow-sm"
+                        ? "bg-sky-deep text-white bubble-shadow-sm"
                         : "bg-white text-blue-ink border border-sky/20 hover:border-sky bubble-shadow-sm"
                     }`}
                   >
@@ -203,7 +177,7 @@ export default function ScholarshipsPage() {
               </p>
               <button
                 onClick={() => window.location.reload()}
-                className="mt-5 inline-flex items-center px-5 py-2.5 rounded-full bg-sky text-white text-xs sm:text-sm font-bold hover:bg-sky-bright transition-colors cursor-pointer bubble-shadow-sm"
+                className="mt-5 inline-flex items-center px-5 py-2.5 rounded-full bg-sky-deep text-white text-xs sm:text-sm font-bold hover:bg-sky-dark transition-colors cursor-pointer bubble-shadow-sm"
               >
                 Retry
               </button>
@@ -219,7 +193,7 @@ export default function ScholarshipsPage() {
               </p>
               <button
                 onClick={resetFilters}
-                className="mt-5 inline-flex items-center px-5 py-2.5 rounded-full bg-sky text-white text-xs sm:text-sm font-bold hover:bg-sky-bright transition-colors cursor-pointer bubble-shadow-sm"
+                className="mt-5 inline-flex items-center px-5 py-2.5 rounded-full bg-sky-deep text-white text-xs sm:text-sm font-bold hover:bg-sky-dark transition-colors cursor-pointer bubble-shadow-sm"
               >
                 Clear all filters
               </button>
@@ -254,8 +228,17 @@ export default function ScholarshipsPage() {
                     </div>
                   )}
 
-                  {/* Floating Save Button on Image */}
-                  <div className="absolute top-3 right-3 z-20">
+                  {/* Floating Compare + Save Buttons on Image */}
+                  <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5">
+                    <CompareButton
+                      variant="card-action"
+                      item={{
+                        type: "scholarship",
+                        apiId: scholarship.apiId,
+                        title: scholarship.title,
+                        subtitle: scholarship.provider,
+                      }}
+                    />
                     <SaveItemButton
                       variant="card-action"
                       item={{

@@ -152,10 +152,40 @@ const FALLBACK_IMAGE =
 
 const IMAGE_FILE = /\.(jpe?g|png|webp|gif|avif)(\?|$)/i;
 
+/**
+ * Facebook and Instagram CDN links are signed and expire within days, and the
+ * CDN refuses hotlinks — the ÆON card showed a broken image because the sheet
+ * holds one. Treat them as no image rather than a broken one.
+ */
+const EXPIRING_IMAGE_HOST = /(^|\.)(fbcdn\.net|cdninstagram\.com|fbsbx\.com)$/i;
+
+const usableImage = (url: string): boolean => {
+  try {
+    const parsed = new URL(url);
+    return (
+      parsed.protocol === "https:" &&
+      !EXPIRING_IMAGE_HOST.test(parsed.hostname) &&
+      IMAGE_FILE.test(parsed.pathname + parsed.search)
+    );
+  } catch {
+    return false;
+  }
+};
+
+const isExpiringHost = (url: string): boolean => {
+  try {
+    return EXPIRING_IMAGE_HOST.test(new URL(url).hostname);
+  } catch {
+    return true;
+  }
+};
+
 const toImage = (row: ApiScholarship): string => {
+  // The curated file holds one of these Facebook links too (the ÆON card).
+  // Curated Unsplash URLs carry no file extension, so only the host is checked.
   const curated = CURATED_IMAGES.get(row.title.trim().toLowerCase());
-  if (curated) return curated;
-  if (row.image_url && IMAGE_FILE.test(row.image_url)) return row.image_url;
+  if (curated && !isExpiringHost(curated)) return curated;
+  if (row.image_url && usableImage(row.image_url)) return row.image_url;
   return FALLBACK_IMAGE;
 };
 

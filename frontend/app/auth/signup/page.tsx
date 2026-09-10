@@ -59,7 +59,7 @@ export default function SignUpPage() {
         {/* Brand */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-4">
-            <span className="flex items-center justify-center w-10 h-10 rounded-full bg-sky text-white text-base font-bold font-display">
+            <span className="flex items-center justify-center w-10 h-10 rounded-full bg-sky-deep text-white text-base font-bold font-display">
               D
             </span>
             <span className="font-display text-xl font-bold text-blue-ink">
@@ -187,7 +187,7 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full rounded-full bg-sky py-3 text-sm font-bold text-white hover:bg-sky-bright transition-colors bubble-shadow-sm disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+              className="w-full rounded-full bg-sky-deep py-3 text-sm font-bold text-white hover:bg-sky-dark transition-colors bubble-shadow-sm disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
             >
               {submitting ? "Creating account..." : "Create account"}
             </button>
@@ -234,7 +234,7 @@ export default function SignUpPage() {
           Already have an account?{" "}
           <Link
             href="/auth/signin"
-            className="font-bold text-sky-deep hover:text-sky transition-colors"
+            className="font-bold text-sky-deep hover:text-blue-ink transition-colors"
           >
             Sign in
           </Link>

@@ -19,7 +19,9 @@ import {
 } from "lucide-react";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
+import BackLink from "@/app/components/BackLink";
 import SaveItemButton from "@/app/components/SaveItemButton";
+import CompareButton from "@/app/components/CompareButton";
 import { UNIVERSITIES_DATA } from "@/app/data/universities";
 import { getUniversity } from "@/app/lib/api.server";
 import { toUniversityView } from "@/app/lib/catalogAdapters";
@@ -87,15 +89,11 @@ export default async function UniversityDetailPage({ params }: PageProps) {
       {/* Full-width responsive container */}
       <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
         {/* ── Top Header Component ────────────────────────── */}
-        <Header
-          backHref="/universities"
-          backLabel="Back to Universities"
-          showBackArrow={true}
-          activeNav="universities"
-        />
+        <Header activeNav="universities" />
+        <BackLink href="/universities" label="All universities" className="mb-6" />
 
         {/* ── Main Content Container ────────────────────────── */}
-        <main className="w-full pb-16 flex flex-col gap-10 mt-4">
+        <main className="w-full pb-16 flex flex-col gap-10">
           {/* 1. Hero Campus Image Banner */}
           <section className="w-full">
             <div className="relative w-full h-64 sm:h-80 md:h-96 lg:h-[420px] rounded-3xl overflow-hidden mb-6 border border-sky/20 bubble-shadow-sm bg-sitomo/50">
@@ -107,8 +105,16 @@ export default async function UniversityDetailPage({ params }: PageProps) {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
 
-              {/* Floating Save Button on Image Banner */}
-              <div className="absolute top-4 right-4 sm:top-5 sm:right-5 z-20">
+              {/* Floating Compare + Save Buttons on Image Banner */}
+              <div className="absolute top-4 right-4 sm:top-5 sm:right-5 z-20 flex flex-wrap justify-end gap-2">
+                <CompareButton
+                  item={{
+                    type: "university",
+                    apiId: university.apiId,
+                    title: university.name,
+                    subtitle: university.location,
+                  }}
+                />
                 <SaveItemButton
                   item={{
                     id: university.id,
@@ -317,7 +323,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                             key={mIdx}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sitomo/40 border border-sky/20 text-xs font-semibold text-blue-ink hover:bg-sitomo transition-colors"
                           >
-                            <span className="w-1.5 h-1.5 rounded-full bg-sky shrink-0" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-sky-deep shrink-0" />
                             <span>{major}</span>
                           </span>
                         ))}

@@ -10,7 +10,6 @@ import {
   Coins,
   ExternalLink,
   GraduationCap,
-  Share2,
   ShieldCheck,
   ShieldAlert,
   FileText,
@@ -21,6 +20,10 @@ import {
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import SaveItemButton from "@/app/components/SaveItemButton";
+import CompareButton from "@/app/components/CompareButton";
+import ReportOutdatedButton from "@/app/components/ReportOutdatedButton";
+import ShareButton from "@/app/components/ShareButton";
+import BackLink from "@/app/components/BackLink";
 import { ApiError, fetchScholarship, fetchScholarships } from "@/app/lib/api";
 import {
   relatedScholarships,
@@ -101,7 +104,6 @@ export default function ScholarshipDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const resolvedParams = use(params);
-  const [copied, setCopied] = useState(false);
 
   const [scholarship, setScholarship] = useState<ScholarshipView | null>(null);
   const [related, setRelated] = useState<ScholarshipView[]>([]);
@@ -116,7 +118,9 @@ export default function ScholarshipDetailPage({
     Promise.all([fetchScholarship(resolvedParams.id), fetchScholarships()])
       .then(([detail, all]) => {
         if (cancelled) return;
-        const view = toScholarshipView(detail.scholarship);
+        // The detail endpoint returns infoCheck beside the row, not inside it
+        // (the list endpoint nests it), so merge before adapting.
+        const view = toScholarshipView({ ...detail.scholarship, infoCheck: detail.infoCheck });
         setScholarship(view);
         setRelated(relatedScholarships(toScholarshipViews(all), view, 3));
       })
@@ -150,42 +154,13 @@ export default function ScholarshipDetailPage({
     );
   }
 
-  const handleShare = () => {
-    if (typeof window !== "undefined") {
-      navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       {/* Responsive Viewport Container: 25px on mobile, 32px-40px on tablet, 80px on desktop */}
       <div className="w-full flex-1 px-[25px] py-6 sm:px-8 md:px-10 lg:px-[80px] flex flex-col">
         {/* ── Top Header Component ────────────────────────── */}
-        <Header
-          backHref="/scholarships"
-          backLabel="All Scholarships"
-          activeNav="scholarships"
-          showBackArrow={true}
-          actions={
-            <button
-              onClick={handleShare}
-              className="p-2 rounded-full text-blue-ink/75 hover:text-sky-deep hover:bg-sitomo/50 transition-colors focus:outline-none cursor-pointer"
-              aria-label="Share scholarship"
-              title="Share link"
-            >
-              <Share2 className="w-5 h-5" strokeWidth={2} />
-            </button>
-          }
-        />
-
-        {copied && (
-          <div className="fixed bottom-6 right-6 z-50 bg-blue-ink text-white text-xs font-bold px-4 py-2.5 rounded-full bubble-shadow-sm flex items-center gap-2 animate-bounce">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            Link copied to clipboard!
-          </div>
-        )}
+        <Header activeNav="scholarships" />
+        <BackLink href="/scholarships" label="All scholarships" className="mb-4" />
 
         {/* ── Main Content Area (Clean text-focused editorial layout) ── */}
         <main className="w-full pb-16 flex flex-col gap-12 md:gap-16 mt-2 sm:mt-4">
@@ -261,13 +236,15 @@ export default function ScholarshipDetailPage({
                   </span>
                 </div>
 
-                {/* Call to Action Buttons Row */}
-                <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+                {/* Call to Action Buttons Row — full width and stacked on a
+                    phone (they used to wrap at three different widths), in a
+                    row from sm up. All three share one height. */}
+                <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3">
                   <a
                     href={scholarship.officialSource}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 px-7 sm:px-8 py-3.5 sm:py-4 rounded-full bg-sky text-white font-bold text-xs sm:text-sm hover:bg-sky-bright transition-all bubble-shadow-sm cursor-pointer"
+                    className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-3 rounded-full border border-transparent bg-sky-deep text-white font-bold text-sm hover:bg-sky-dark transition-all bubble-shadow-sm cursor-pointer"
                   >
                     <span>Apply on Official Website</span>
                     <ExternalLink className="w-4 h-4" />
@@ -284,7 +261,21 @@ export default function ScholarshipDetailPage({
                     }}
                     label="Save Scholarship"
                     savedLabel="Saved"
+                    className="w-full sm:w-auto"
                   />
+
+                  <div className="flex items-center gap-3">
+                    <CompareButton
+                      item={{
+                        type: "scholarship",
+                        apiId: scholarship.apiId,
+                        title: scholarship.title,
+                        subtitle: scholarship.provider,
+                      }}
+                      className="flex-1 sm:flex-none"
+                    />
+                    <ShareButton title={scholarship.title} />
+                  </div>
                 </div>
               </div>
 
@@ -310,7 +301,8 @@ export default function ScholarshipDetailPage({
             {/* Section Title */}
             <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
               <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold text-blue-ink tracking-tight">
-                Apply for this scholarship in {scholarship.applicationProcess.length} easy steps
+                Apply for this scholarship in {scholarship.applicationProcess.length}{" "}
+                {scholarship.applicationProcess.length === 1 ? "step" : "easy steps"}
               </h2>
               <p className="text-xs sm:text-sm text-gray-soft font-medium mt-2.5">
                 Follow these official steps to complete your admission and scholarship submission to {scholarship.provider}.
@@ -442,13 +434,13 @@ export default function ScholarshipDetailPage({
                           {/* Connecting vertical line to next step */}
                           {!isLast && (
                             <div
-                              className="absolute left-4 top-8 bottom-0 w-0.5 bg-sky -translate-x-1/2"
+                              className="absolute left-4 top-8 bottom-0 w-0.5 bg-sky-deep -translate-x-1/2"
                               aria-hidden="true"
                             />
                           )}
 
                           {/* Number Circle */}
-                          <div className="w-8 h-8 rounded-full bg-sky text-white text-xs font-extrabold flex items-center justify-center shrink-0 shadow-xs z-10 ring-4 ring-powder">
+                          <div className="w-8 h-8 rounded-full bg-sky-deep text-white text-xs font-extrabold flex items-center justify-center shrink-0 shadow-xs z-10 ring-4 ring-powder">
                             {i + 1}
                           </div>
 
@@ -630,17 +622,20 @@ export default function ScholarshipDetailPage({
               </p>
             </div>
 
-            {scholarship.officialSource && (
-              <a
-                href={scholarship.officialSource}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-sky-deep hover:underline shrink-0"
-              >
-                <span>View original source</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-            )}
+            <div className="flex flex-col items-start md:items-end gap-3 shrink-0">
+              {scholarship.officialSource && (
+                <a
+                  href={scholarship.officialSource}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-sky-deep hover:underline"
+                >
+                  <span>View original source</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              )}
+              <ReportOutdatedButton scholarshipId={scholarship.apiId} title={scholarship.title} />
+            </div>
           </section>
 
           {/* ── 7. Similar Opportunities ── */}

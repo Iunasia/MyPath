@@ -43,7 +43,7 @@ export default function Footer({ className = "" }: FooterProps) {
           {/* Brand Info */}
           <div>
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <span className="flex items-center justify-center w-7 h-7 rounded-full bg-sky text-white text-xs font-bold font-display">
+              <span className="flex items-center justify-center w-7 h-7 rounded-full bg-sky-deep text-white text-xs font-bold font-display">
                 D
               </span>
               <span className="font-display text-base font-bold text-blue-ink">

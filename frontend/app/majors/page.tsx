@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { Search, X, AlertTriangle, Loader2, GraduationCap } from "lucide-react";
+import { AlertTriangle, Loader2, GraduationCap } from "lucide-react";
 import { CATEGORIES } from "@/app/data/majors";
 import { fetchMajors } from "@/app/lib/api";
 import {
@@ -13,6 +13,8 @@ import {
 } from "@/app/lib/catalogAdapters";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
+import ListHero from "@/app/components/ListHero";
+import CompareButton from "@/app/components/CompareButton";
 
 /* ── Page Component ────────────────────────────────────── */
 
@@ -83,43 +85,17 @@ export default function MajorsPage() {
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
         {/* ── Top Header Component ────────────────────────── */}
-        <Header backHref="/" backLabel="DOMNER" activeNav="majors" />
+        <Header activeNav="majors" />
 
-        {/* ── Hero Search Section ───────────────────────────── */}
-        <section className="mb-10 text-center max-w-3xl mx-auto w-full pt-4 sm:pt-6">
- 
-          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight leading-[1.15] mb-4">
-            Find the right Major for{" "}
-            <span className="text-sky-deep  decoration-sky/40 underline-offset-4">
-              your future
-            </span>
-          </h1>
-          <p className="text-xs sm:text-sm lg:text-base text-gray-soft mb-8 max-w-xl mx-auto font-medium">
-            Explore verified Cambodian academic disciplines, skill roadmaps, and career pathways.
-          </p>
-
-          {/* Search Input Bar */}
-          <div className="relative max-w-xl mx-auto">
-            <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none z-10">
-              <Search className="h-5 w-5 text-blue-ink/60" strokeWidth={2.2} />
-            </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by major, skills, or career interest..."
-              className="w-full pl-12 pr-10 py-3.5 sm:py-4 bg-white rounded-full text-sm text-blue-ink placeholder:text-gray-faint focus:outline-none focus:ring-2 focus:ring-sky focus:bg-white transition-all bubble-shadow-sm font-medium border border-sky/20"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-soft hover:text-blue-ink cursor-pointer z-10"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-        </section>
+        <ListHero
+          title="Explore majors"
+          description="What you'd study, the skills you'd build, and the careers each major leads to."
+          search={{
+            value: searchQuery,
+            onChange: setSearchQuery,
+            placeholder: "Search by major, skill or career",
+          }}
+        />
 
         {/* ── Browse by Interest (6 Categories on Desktop) ──── */}
         <section className="mb-12">
@@ -197,7 +173,7 @@ export default function MajorsPage() {
               </p>
               <button
                 onClick={() => window.location.reload()}
-                className="mt-5 inline-flex items-center px-5 py-2.5 rounded-full bg-sky text-white text-xs sm:text-sm font-bold hover:bg-sky-bright transition-colors cursor-pointer"
+                className="mt-5 inline-flex items-center px-5 py-2.5 rounded-full bg-sky-deep text-white text-xs sm:text-sm font-bold hover:bg-sky-dark transition-colors cursor-pointer"
               >
                 Retry
               </button>
@@ -213,7 +189,7 @@ export default function MajorsPage() {
                   setSelectedCategory(null);
                   setSearchQuery("");
                 }}
-                className="mt-5 inline-flex items-center px-5 py-2.5 rounded-full bg-sky text-white text-xs sm:text-sm font-bold hover:bg-sky-bright transition-colors cursor-pointer"
+                className="mt-5 inline-flex items-center px-5 py-2.5 rounded-full bg-sky-deep text-white text-xs sm:text-sm font-bold hover:bg-sky-dark transition-colors cursor-pointer"
               >
                 Clear all filters
               </button>
@@ -270,13 +246,24 @@ export default function MajorsPage() {
                           ))}
                         </div>
 
-                        {/* Action Button */}
-                        <Link
-                          href={`/majors/${major.id}`}
-                          className="w-full rounded-full border-2 border-sky/50 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-sky-deep hover:bg-sky/10 hover:border-sky transition-colors text-center cursor-pointer block"
-                        >
-                          Explore Major
-                        </Link>
+                        {/* Action Buttons */}
+                        <div className="flex items-center gap-2">
+                          <Link
+                            href={`/majors/${major.id}`}
+                            className="flex-1 rounded-full border-2 border-sky/50 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-sky-deep hover:bg-sky/10 hover:border-sky transition-colors text-center cursor-pointer block"
+                          >
+                            Explore Major
+                          </Link>
+                          <CompareButton
+                            variant="icon"
+                            item={{
+                              type: "major",
+                              apiId: Number(major.id),
+                              title: major.name,
+                              subtitle: major.categoryKey,
+                            }}
+                          />
+                        </div>
                       </div>
                     </article>
                   );

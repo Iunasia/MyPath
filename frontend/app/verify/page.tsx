@@ -172,7 +172,7 @@ export default function VerifyPage() {
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
-        <Header backHref="/" backLabel="DOMNER" activeNav="scholarships" />
+        <Header activeNav="verify" />
 
         <main className="w-full pb-16 flex flex-col gap-10 max-w-4xl mx-auto">
           {/* Intro */}
@@ -205,7 +205,7 @@ export default function VerifyPage() {
                 </p>
                 <Link
                   href="/auth/signin?next=/verify"
-                  className="inline-flex items-center rounded-full bg-sky px-6 py-2.5 text-sm font-bold text-white hover:bg-sky-bright transition-colors"
+                  className="inline-flex items-center rounded-full bg-sky-deep px-6 py-2.5 text-sm font-bold text-white hover:bg-sky-dark transition-colors"
                 >
                   Sign in
                 </Link>
@@ -269,7 +269,7 @@ export default function VerifyPage() {
                 <button
                   type="submit"
                   disabled={submitting || (!url.trim() && !title.trim())}
-                  className="inline-flex items-center gap-2 rounded-full bg-sky px-6 py-3 text-sm font-bold text-white hover:bg-sky-bright transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  className="inline-flex items-center gap-2 rounded-full bg-sky-deep px-6 py-3 text-sm font-bold text-white hover:bg-sky-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   {submitting ? (
                     <>

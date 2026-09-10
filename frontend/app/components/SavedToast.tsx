@@ -13,7 +13,7 @@ export default function SavedToast() {
     <div className="fixed bottom-6 right-6 z-50 animate-fadeInUp max-w-sm w-[calc(100%-3rem)] sm:w-auto">
       <div className="bg-white/95 backdrop-blur-md rounded-2xl border border-sky px-4 py-3 bubble-shadow flex items-center justify-between gap-3 text-sm">
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-8 h-8 rounded-full bg-sky text-white flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-full bg-sky-deep text-white flex items-center justify-center shrink-0">
             <Bookmark className="w-4 h-4 fill-white" />
           </div>
           <div className="min-w-0">
