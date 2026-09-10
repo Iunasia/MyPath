@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowRight,
-  ShieldCheck,
+  Info,
   Briefcase,
   GraduationCap,
   Sparkles,
@@ -290,22 +290,21 @@ export default async function CareerDetailPage({ params }: PageProps) {
             </div>
           </section>
 
-          {/* 5. Verification Card */}
+          {/* 5. Where this comes from. No "verified" badge: career profiles
+              haven't been checked against an official source. */}
           <div className="rounded-3xl bg-momo p-6 sm:p-8 border border-momo w-full">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-sky-deep" />
-                <span className="text-xs sm:text-sm font-bold text-blue-ink uppercase tracking-wider">
-                  Verified Career Profile
-                </span>
-              </div>
-              <span className="inline-flex items-center gap-1 rounded-full bg-sky/20 px-3 py-1 text-xs font-bold text-sky-deep">
-                Verified Source
+            <div className="flex items-center gap-2 mb-3">
+              <Info className="w-5 h-5 text-sky-deep" />
+              <span className="text-xs sm:text-sm font-bold text-blue-ink uppercase tracking-wider">
+                About this information
               </span>
             </div>
 
             <p className="text-xs sm:text-sm text-gray-body mb-4 font-medium">
-              Career profile data is structured based on official educational guidelines, job market demand metrics, and industry skill standards.
+              This profile comes from Domner&apos;s careers dataset, written by our team. It
+              hasn&apos;t been checked against an official source, and the demand level is an
+              estimate rather than official job-market data. Use it as a starting point, and
+              ask people who work in the field.
             </p>
 
             <div className="grid sm:grid-cols-2 gap-4 text-xs sm:text-sm text-blue-ink font-medium">

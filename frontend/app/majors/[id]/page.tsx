@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
   ExternalLink,
-  ShieldCheck,
+  Info,
   MapPin,
 } from "lucide-react";
 import {
@@ -86,7 +86,6 @@ export default async function MajorDetailPage({ params }: PageProps) {
     };
   });
 
-  const lastVerified = "Sourced from the MyPath dataset";
   const hasDemand = Boolean(major.jobMarketDemand) && major.jobMarketDemand !== "Not stated";
 
   // Scholarships this major's sheet points at, matched by title.
@@ -410,46 +409,40 @@ export default async function MajorDetailPage({ params }: PageProps) {
             </section>
           )}
 
-          {/* 8. DMIL Information Verification Card (Full Width) */}
+          {/* 8. Where this comes from. No "verified" badge: majors haven't been
+              checked against an accreditation body, and the card used to say
+              they had. */}
           <div className="rounded-3xl bg-momo p-6 sm:p-8 border border-momo w-full">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-sky-deep" />
-                <span className="text-xs sm:text-sm font-bold text-blue-ink uppercase tracking-wider">
-                  Information Check
-                </span>
-              </div>
-              <span className="inline-flex items-center gap-1 rounded-full bg-sky/20 px-3 py-1 text-xs font-bold text-sky-deep">
-                Verified Source
+            <div className="flex items-center gap-2 mb-3">
+              <Info className="w-5 h-5 text-sky-deep" />
+              <span className="text-xs sm:text-sm font-bold text-blue-ink uppercase tracking-wider">
+                About this information
               </span>
             </div>
 
             <p className="text-xs sm:text-sm text-gray-body mb-4 font-medium">
-              Curricula standards and competencies for this major were cross-checked
-              against certified accreditation bodies.
+              This description comes from Domner&apos;s majors dataset. It hasn&apos;t been
+              checked against an accreditation body, so confirm the curriculum and fees on
+              each university&apos;s own page before you decide.
             </p>
 
-            <div className="grid sm:grid-cols-2 gap-4 text-xs sm:text-sm text-blue-ink font-medium">
-              <div>
-                <span className="text-xs text-gray-soft block">Accreditation Source:</span>
-                <span className="font-bold">{major.source}</span>
-              </div>
-              <div>
-                <span className="text-xs text-gray-soft block">Last Verified:</span>
-                <span className="font-bold">{lastVerified}</span>
-              </div>
+            <div className="text-xs sm:text-sm text-blue-ink font-medium">
+              <span className="text-xs text-gray-soft block">Source</span>
+              <span className="font-bold">{major.source || "Domner majors dataset"}</span>
             </div>
 
-            <div className="mt-4 pt-3 border-t border-blue-ink/10 flex justify-end">
-              <a
-                href={major.sourceUrl ?? "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-sky-deep hover:underline"
-              >
-                Official Standards <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-            </div>
+            {major.sourceUrl && (
+              <div className="mt-4 pt-3 border-t border-blue-ink/10 flex justify-end">
+                <a
+                  href={major.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-sky-deep hover:underline"
+                >
+                  View source <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            )}
           </div>
 
         </main>
