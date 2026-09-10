@@ -163,11 +163,24 @@ body {
 @keyframes heroImageSlideLeft {
   0% {
     opacity: 0;
-    transform: translateX(-80px) scale(1.02);
+    transform: scale(1.05) translateX(-35px);
   }
   100% {
     opacity: 1;
-    transform: translateX(0) scale(1);
+    transform: scale(1) translateX(0);
+  }
+}
+
+@media (max-width: 640px) {
+  @keyframes heroImageSlideLeft {
+    0% {
+      opacity: 0;
+      transform: scale(1.04) translateX(-12px);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) translateX(0);
+    }
   }
 }
 

@@ -92,7 +92,7 @@ export default function UniversitiesPage() {
             {/* Search Bar inside Hero */}
             <div className="relative max-w-md w-full">
               <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none z-10">
-                <Search className="w-5 h-5 text-blue-ink/60" strokeWidth={2.2} />
+                <Search className="w-5 h-5 text-black" strokeWidth={2.2} />
               </div>
               <input
                 type="text"
@@ -104,9 +104,9 @@ export default function UniversitiesPage() {
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-blue-ink cursor-pointer z-10"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-black hover:opacity-70 cursor-pointer z-10"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-4 w-4 text-black" />
                 </button>
               )}
             </div>
@@ -143,8 +143,8 @@ export default function UniversitiesPage() {
                     </option>
                   ))}
                 </select>
-                <MapPin className="w-3.5 h-3.5 text-sky-deep absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <SlidersHorizontal className="w-3 h-3 text-gray-soft absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <MapPin className="w-3.5 h-3.5 text-black absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <SlidersHorizontal className="w-3 h-3 text-black absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
 
               {/* Type Filters */}
@@ -182,12 +182,16 @@ export default function UniversitiesPage() {
 
           <div className="flex items-center justify-between mt-4">
             <span className="text-xs font-bold text-gray-soft uppercase tracking-wider">
-              Showing {filteredUniversities.length} Institutions
+              {selectedType
+                ? `${selectedType} Institutions`
+                : selectedLocation !== "All Locations"
+                ? `Institutions in ${selectedLocation}`
+                : "All Institutions"}
             </span>
           </div>
         </section>
 
-        {/* ── Universities Responsive Grid (6 cols desktop, 3 cols tablet, 2 cols mobile) ── */}
+        {/* ── Universities Responsive Grid (5 cols desktop, 3 cols tablet, 2 cols mobile) ── */}
         <section className="flex-1 pb-16">
           {filteredUniversities.length === 0 ? (
             <div className="bg-white rounded-3xl p-10 text-center border border-sky/15 bubble-shadow-sm max-w-lg mx-auto mt-6">
@@ -210,19 +214,19 @@ export default function UniversitiesPage() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4 lg:gap-5">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4 lg:gap-5">
               {paginatedUniversities.map((uni) => (
                 <Link
                   key={uni.id}
                   href={`/universities/${uni.id}`}
-                  className="group relative aspect-[3/4] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer bubble-shadow-sm border border-sky/15 block"
+                  className="group relative aspect-[3/4] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer bubble-shadow-sm border border-sky/15 hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 block"
                 >
                   {/* University Campus Image */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={uni.image}
                     alt={uni.name}
-                    className="w-full h-full object-cover object-center"
+                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
                   />
 
                   {/* Dark Gradient Overlay */}
@@ -277,7 +281,7 @@ export default function UniversitiesPage() {
           {totalPages > 1 && (
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-sky/20">
               <span className="text-xs font-bold text-gray-soft">
-                Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, filteredUniversities.length)} of {filteredUniversities.length} Institutions
+                Page {currentPage} of {totalPages}
               </span>
 
               <div className="flex items-center gap-2">

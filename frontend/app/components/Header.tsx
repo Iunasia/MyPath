@@ -12,14 +12,16 @@ import {
   GraduationCap,
   Coins,
   Bookmark,
+  ShieldCheck,
 } from "lucide-react";
+import { useAuth } from "@/app/context/AuthContext";
 
 export interface HeaderProps {
   variant?: "default" | "home";
   backHref?: string;
   backLabel?: string;
   showBackArrow?: boolean;
-  activeNav?: "home" | "careers" | "majors" | "universities" | "scholarships" | "saved";
+  activeNav?: "home" | "careers" | "majors" | "universities" | "scholarships" | "saved" | "admin";
   showSaveIcon?: boolean;
   actions?: React.ReactNode;
   className?: string;
@@ -36,6 +38,8 @@ export default function Header({
   className = "",
 }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const isAdmin = user?.role === "admin";
 
   // 1. Floating Pill Navbar for Homepage
   if (variant === "home") {
@@ -54,46 +58,80 @@ export default function Header({
           <div className="hidden md:flex items-center gap-6">
             <Link
               href="/careers"
-              className="text-sm font-semibold text-gray-soft hover:text-blue-ink transition-colors"
+              className="text-sm font-semibold text-gray-soft hover:text-sky-deep transition-colors"
             >
               Careers
             </Link>
             <Link
               href="/majors"
-              className="text-sm font-semibold text-gray-soft hover:text-blue-ink transition-colors"
+              className="text-sm font-semibold text-gray-soft hover:text-sky-deep transition-colors"
             >
               Majors
             </Link>
             <Link
               href="/universities"
-              className="text-sm font-semibold text-gray-soft hover:text-blue-ink transition-colors"
+              className="text-sm font-semibold text-gray-soft hover:text-sky-deep transition-colors"
             >
               Universities
             </Link>
             <Link
               href="/scholarships"
-              className="text-sm font-semibold text-gray-soft hover:text-blue-ink transition-colors"
+              className="text-sm font-semibold text-gray-soft hover:text-sky-deep transition-colors"
             >
               Scholarships
             </Link>
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="text-sm font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1.5 transition-colors"
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                Dashboard
+              </Link>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
-            <Link
-              href="/auth/signin"
-              className="hidden sm:inline-flex text-sm font-semibold text-gray-soft hover:text-blue-ink transition-colors px-3 py-1.5"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/auth/signup"
-              className="inline-flex items-center gap-1.5 rounded-full bg-sky px-5 py-2 text-sm font-bold text-white hover:bg-sky-bright transition-colors bubble-shadow-sm"
-            >
-              Get started
-              <span aria-hidden="true" className="text-xs">
-                →
-              </span>
-            </Link>
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="inline-flex md:hidden items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold hover:bg-emerald-100 transition-colors"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Dashboard
+              </Link>
+            )}
+            {user ? (
+              <div className="flex items-center gap-2">
+                <span className="hidden sm:inline-block text-xs font-bold text-blue-ink bg-sitomo/80 px-3 py-1.5 rounded-full border border-sky/20">
+                  {user.name}
+                </span>
+                <button
+                  onClick={() => logout()}
+                  className="text-xs font-semibold text-gray-soft hover:text-rose-600 transition-colors px-2 py-1.5 cursor-pointer"
+                >
+                  Sign out
+                </button>
+              </div>
+            ) : (
+              <>
+                <Link
+                  href="/auth/signin"
+                  className="hidden sm:inline-flex text-sm font-semibold text-gray-soft hover:text-sky-deep transition-colors px-3 py-1.5"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  href="/auth/signup"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-sky px-5 py-2 text-sm font-bold text-white hover:bg-sky-bright transition-colors bubble-shadow-sm"
+                >
+                  Get started
+                  <span aria-hidden="true" className="text-xs">
+                    →
+                  </span>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -133,7 +171,7 @@ export default function Header({
               className={`transition-colors ${
                 activeNav === "home"
                   ? "font-bold text-sky-deep"
-                  : "text-gray-soft hover:text-blue-ink"
+                  : "text-gray-soft hover:text-sky-deep"
               }`}
             >
               Home
@@ -143,7 +181,7 @@ export default function Header({
               className={`transition-colors ${
                 activeNav === "careers"
                   ? "font-bold text-sky-deep"
-                  : "text-gray-soft hover:text-blue-ink"
+                  : "text-gray-soft hover:text-sky-deep"
               }`}
             >
               Careers
@@ -153,7 +191,7 @@ export default function Header({
               className={`transition-colors ${
                 activeNav === "majors"
                   ? "font-bold text-sky-deep"
-                  : "text-gray-soft hover:text-blue-ink"
+                  : "text-gray-soft hover:text-sky-deep"
               }`}
             >
               Majors
@@ -163,7 +201,7 @@ export default function Header({
               className={`transition-colors ${
                 activeNav === "universities"
                   ? "font-bold text-sky-deep"
-                  : "text-gray-soft hover:text-blue-ink"
+                  : "text-gray-soft hover:text-sky-deep"
               }`}
             >
               Universities
@@ -173,11 +211,24 @@ export default function Header({
               className={`transition-colors ${
                 activeNav === "scholarships"
                   ? "font-bold text-sky-deep"
-                  : "text-gray-soft hover:text-blue-ink"
+                  : "text-gray-soft hover:text-sky-deep"
               }`}
             >
               Scholarships
             </Link>
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className={`flex items-center gap-1.5 transition-colors ${
+                  activeNav === "admin"
+                    ? "font-bold text-emerald-600"
+                    : "text-emerald-600 hover:text-emerald-700 font-bold"
+                }`}
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                Dashboard
+              </Link>
+            )}
           </nav>
 
           {/* Save / Bookmark Icon */}
@@ -293,14 +344,51 @@ export default function Header({
               </Link>
             )}
 
-            <Link
-              href="/admin"
-              className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-bold text-sky-deep bg-sitomo/60 hover:bg-sky hover:text-white transition-all mt-1 border border-sky/20"
-              onClick={() => setMenuOpen(false)}
-            >
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-              <span>Admin Dashboard</span>
-            </Link>
+            {/* Admin Dashboard: ONLY rendered when user is signed in with role === 'admin' */}
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-600 hover:text-white transition-all mt-1 border border-emerald-200"
+                onClick={() => setMenuOpen(false)}
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse"></span>
+                <span>Admin Dashboard</span>
+              </Link>
+            )}
+
+            {user ? (
+              <div className="flex items-center justify-between px-3.5 py-2.5 mt-2 pt-2.5 border-t border-sky/10 text-xs text-gray-soft">
+                <span>
+                  Hi, <strong className="text-blue-ink">{user.name}</strong>
+                </span>
+                <button
+                  onClick={() => {
+                    logout();
+                    setMenuOpen(false);
+                  }}
+                  className="text-rose-500 hover:text-rose-700 font-bold cursor-pointer"
+                >
+                  Sign out
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 px-1 pt-2.5 mt-2 border-t border-sky/10">
+                <Link
+                  href="/auth/signin"
+                  className="flex-1 text-center py-2 text-xs font-bold text-blue-ink bg-sitomo/50 hover:bg-sitomo rounded-xl transition-colors"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Sign in
+                </Link>
+                <Link
+                  href="/auth/signup"
+                  className="flex-1 text-center py-2 text-xs font-bold text-white bg-sky hover:bg-sky-bright rounded-xl transition-colors"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Get started
+                </Link>
+              </div>
+            )}
           </div>
         </nav>
       )}

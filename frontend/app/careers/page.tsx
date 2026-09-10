@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { Search, X, ArrowRight, Briefcase, GraduationCap, TrendingUp } from "lucide-react";
+import { Search, X } from "lucide-react";
 
 import { CAREERS_DATA, CAREER_CATEGORIES } from "@/app/data/careers";
 import Header from "@/app/components/Header";
@@ -62,7 +62,7 @@ export default function CareersPage() {
             <div className="w-full lg:max-w-md">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Search className="h-4 w-4 text-gray-soft" />
+                  <Search className="h-4 w-4 text-black" />
                 </div>
                 <input
                   type="text"
@@ -74,9 +74,9 @@ export default function CareersPage() {
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery("")}
-                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-soft hover:text-blue-ink cursor-pointer"
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-black hover:opacity-70 cursor-pointer"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-4 w-4 text-black" />
                   </button>
                 )}
               </div>
@@ -113,15 +113,15 @@ export default function CareersPage() {
                   }
                   className={`flex flex-col items-center justify-center p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-3xl border-2 transition-all text-center group cursor-pointer min-h-[120px] sm:min-h-[135px] ${
                     isSelected
-                      ? "border-sky ring-2 ring-sky/30 bg-sky/5 bubble-shadow"
-                      : "border-sky/40 bg-white hover:border-sky bubble-shadow-sm hover:scale-[1.03] hover:shadow-md"
+                      ? "border-sky ring-2 ring-sky/30 bg-sky/5 shadow-md"
+                      : "border-sky/40 bg-white hover:border-sky shadow-xs hover:shadow-md hover:-translate-y-1 transition-all duration-300"
                   }`}
                 >
                   <div
                     className={`w-12 h-12 sm:w-13 sm:h-13 rounded-full ${cat.bg} flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform shadow-2xs`}
                   >
                     <Icon
-                      className={`w-5 h-5 sm:w-6 sm:h-6 ${cat.iconColor}`}
+                      className="w-5 h-5 sm:w-6 sm:h-6 text-black"
                       strokeWidth={2.2}
                     />
                   </div>
@@ -140,7 +140,7 @@ export default function CareersPage() {
             <h2 className="font-display text-lg sm:text-xl font-bold text-blue-ink tracking-tight">
               {selectedCategory
                 ? `${selectedCategory} Careers`
-                : `All Careers (${filteredCareers.length})`}
+                : "All Careers"}
             </h2>
           </div>
 
@@ -163,73 +163,51 @@ export default function CareersPage() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5">
               {filteredCareers.map((career) => {
-                const Icon = career.icon;
-
                 return (
                   <article
                     key={career.id}
-                    className="bg-white rounded-3xl p-6 lg:p-7 border border-sky/15 bubble-shadow-sm hover:border-sky/35 bubble-shadow-hover transition-all flex flex-col justify-between"
+                    className="bg-white rounded-2xl border border-sky/20 overflow-hidden shadow-xs hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
                   >
                     <div>
-                      {/* Header Badge */}
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 rounded-2xl bg-sitomo flex items-center justify-center border border-sky/15">
-                          <Icon
-                            className="w-6 h-6 text-sky-deep"
-                            strokeWidth={2.2}
-                          />
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[11px] font-extrabold px-3 py-1 rounded-full bg-sitomo text-sky-deep border border-sky/10">
+                      {/* Top Image */}
+                      <Link href={`/careers/${career.id}`} className="block w-full aspect-[16/10] overflow-hidden bg-sky/5">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={career.image}
+                          alt={career.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          loading="lazy"
+                        />
+                      </Link>
+
+                      {/* Card Content: Title & Important Text */}
+                      <div className="p-4 sm:p-5 pb-2">
+                        <Link href={`/careers/${career.id}`}>
+                          <h3 className="font-display text-lg sm:text-xl font-bold text-blue-ink hover:text-sky-deep transition-colors leading-snug line-clamp-2">
+                            {career.title}
+                          </h3>
+                        </Link>
+
+                        <div className="mt-2.5 space-y-1">
+                          <p className="text-xs text-gray-soft font-medium line-clamp-1">
                             {career.category}
-                          </span>
-                          <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 flex items-center gap-1">
-                            <TrendingUp className="w-3 h-3 text-emerald-600" />
-                            {career.jobMarketDemand}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Title */}
-                      <h3 className="font-display text-xl font-extrabold text-blue-ink mb-2 leading-tight">
-                        {career.title}
-                      </h3>
-
-                      {/* What You Do Banner */}
-                      <div className="p-3 bg-sky/5 rounded-2xl border border-sky/15 mb-3.5">
-                        <div className="flex items-start gap-2">
-                          <Briefcase className="w-4 h-4 text-sky-deep shrink-0 mt-0.5" />
-                          <p className="text-xs text-blue-ink font-semibold leading-snug">
-                            <span className="font-extrabold text-sky-deep">What You Do: </span>
-                            {career.whatYouDo}
                           </p>
-                        </div>
-                      </div>
-
-                      {/* Short Overview */}
-                      <p className="text-xs text-gray-body leading-relaxed mb-4 line-clamp-3 font-medium">
-                        {career.shortOverview}
-                      </p>
-
-                      {/* Education Required */}
-                      <div className="mb-4 text-xs font-medium text-gray-body flex items-start gap-1.5 bg-powder/50 p-2.5 rounded-xl border border-sky/10">
-                        <GraduationCap className="w-4 h-4 text-sky-deep shrink-0 mt-0.5" />
-                        <div>
-                          <span className="font-bold text-blue-ink block text-[11px]">Education Required:</span>
-                          <span className="text-[11px] text-gray-body leading-tight block">{career.educationRequired}</span>
+                          <p className="text-xs font-semibold text-blue-ink">
+                            Market Demand: <span className="font-bold text-sky-deep">{career.jobMarketDemand}</span>
+                          </p>
                         </div>
                       </div>
                     </div>
 
-                    <div>
+                    {/* Bottom: View more Button */}
+                    <div className="p-4 sm:p-5 pt-1 pb-4 sm:pb-5">
                       <Link
                         href={`/careers/${career.id}`}
-                        className="w-full rounded-full border-2 border-sky/50 py-2.5 text-xs font-extrabold text-sky-deep hover:bg-sky/10 hover:border-sky transition-colors text-center cursor-pointer flex items-center justify-center gap-1.5"
+                        className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-sky text-sky-deep hover:bg-sky hover:text-white text-xs font-bold transition-colors cursor-pointer"
                       >
-                        View Full Career Details
-                        <ArrowRight className="w-3.5 h-3.5" />
+                        View more
                       </Link>
                     </div>
                   </article>

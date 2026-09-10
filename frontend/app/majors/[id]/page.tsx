@@ -46,11 +46,11 @@ export default async function MajorDetailPage({ params }: PageProps) {
           activeNav="majors"
           actions={
             <button
-              className="p-1.5 text-blue-ink/75 hover:text-sky-deep transition-colors focus:outline-none cursor-pointer"
+              className="p-1.5 text-black hover:opacity-75 transition-colors focus:outline-none cursor-pointer"
               aria-label="Share major"
               title="Share"
             >
-              <Share2 className="w-5 h-5" strokeWidth={2} />
+              <Share2 className="w-5 h-5 text-black" strokeWidth={2} />
             </button>
           }
         />
@@ -58,68 +58,71 @@ export default async function MajorDetailPage({ params }: PageProps) {
         {/* ── Main Content: Full Screen with 80px Desktop Margins ── */}
         <main className="w-full pb-16 flex flex-col gap-10">
           
-          {/* 1. Header & Hero Section */}
+          {/* 1. Header & Hero Section: Content & Image in One Row */}
           <section className="w-full">
-            {/* Category Pill */}
-            <div className="mb-3">
-              <span className="inline-block px-4 py-1.5 rounded-full bg-sky/20 text-sky-deep text-xs font-extrabold uppercase tracking-wider border border-sky/20">
-                {major.category}
-              </span>
-            </div>
-
-            {/* Major Title */}
-            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight leading-[1.15] mb-4">
-              {major.name}
-            </h1>
-
-            {/* Overview Paragraphs */}
-            <div className="text-sm sm:text-base lg:text-lg text-gray-body leading-relaxed font-medium mb-6 max-w-4xl space-y-3.5">
-              {(major.extendedDescription || major.description)
-                .split("\n\n")
-                .map((para, i) => (
-                  <p key={i}>{para}</p>
-                ))}
-            </div>
-
-            {/* Full Width Hero Image Banner */}
-            <div className="relative w-full h-64 sm:h-80 md:h-96 lg:h-[420px] rounded-3xl overflow-hidden mb-6 border border-sky/20 bubble-shadow-sm bg-sitomo/50">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={major.heroImage}
-                alt={major.name}
-                className="w-full h-full object-cover object-center"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-              <div className="absolute bottom-4 left-6 right-6 flex items-center justify-between text-white text-xs sm:text-sm font-bold">
-                <div className="flex items-center gap-2">
-                  <span className="bg-black/50 backdrop-blur-xs px-3.5 py-1.5 rounded-full border border-white/20">
-                    {major.degreeType}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 items-center">
+              {/* Left Column: Content */}
+              <div className="md:col-span-7 flex flex-col">
+                {/* Category & Demand Pills */}
+                <div className="flex flex-wrap items-center gap-2 mb-3">
+                  <span className="inline-block px-4 py-1.5 rounded-full bg-sky/20 text-sky-deep text-xs font-extrabold uppercase tracking-wider border border-sky/20">
+                    {major.category}
                   </span>
-                  <span className="bg-black/50 backdrop-blur-xs px-3.5 py-1.5 rounded-full border border-white/20">
-                    {major.duration}
-                  </span>
+ 
                 </div>
-                {major.jobMarketDemand && (
-                  <span className="bg-sky/90 backdrop-blur-xs px-3.5 py-1.5 rounded-full border border-white/25 text-white font-extrabold shadow-sm">
-                    {major.jobMarketDemand} Demand
-                  </span>
-                )}
-              </div>
-            </div>
 
-            {/* Save Major Button */}
-            <div>
-              <SaveItemButton
-                item={{
-                  id: major.id,
-                  type: "major",
-                  title: major.name,
-                  subtitle: major.category,
-                  image: major.heroImage,
-                  link: `/majors/${major.id}`,
-                }}
-                className="w-auto"
-              />
+                {/* Major Title */}
+                <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight leading-[1.15] mb-4">
+                  {major.name}
+                </h1>
+
+                {/* Overview Paragraphs */}
+                <div className="text-sm sm:text-base text-gray-body leading-relaxed font-medium mb-6 space-y-3">
+                  {(major.extendedDescription || major.description)
+                    .split("\n\n")
+                    .map((para, i) => (
+                      <p key={i}>{para}</p>
+                    ))}
+                </div>
+
+                {/* Save Major Button */}
+                <div>
+                  <SaveItemButton
+                    item={{
+                      id: major.id,
+                      type: "major",
+                      title: major.name,
+                      subtitle: major.category,
+                      image: major.heroImage,
+                      link: `/majors/${major.id}`,
+                    }}
+                    className="w-auto"
+                  />
+                </div>
+              </div>
+
+              {/* Right Column: Hero Image with badges */}
+              <div className="md:col-span-5 w-full">
+                <div className="relative aspect-[4/3] sm:aspect-[16/11] md:aspect-square w-full rounded-3xl overflow-hidden border-2 border-sky/20 shadow-lg shadow-slate-300/40 bg-white">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={major.heroImage}
+                    alt={major.name}
+                    className="w-full h-full object-cover object-center"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                  <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-white text-xs font-bold">
+                    <div className="flex items-center gap-2">
+                      <span className="bg-black/50 backdrop-blur-xs px-3 py-1 rounded-full border border-white/20">
+                        {major.degreeType}
+                      </span>
+                      <span className="bg-black/50 backdrop-blur-xs px-3 py-1 rounded-full border border-white/20">
+                        {major.duration}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -138,7 +141,7 @@ export default async function MajorDetailPage({ params }: PageProps) {
                     className="flex items-start gap-4 p-4 rounded-2xl bg-sitomo/20 border border-sky/10"
                   >
                     <div className="w-12 h-12 rounded-2xl bg-sitomo flex items-center justify-center shrink-0 border border-sky/15">
-                      <Icon className="w-6 h-6 text-sky-deep" strokeWidth={2.2} />
+                      <Icon className="w-6 h-6 text-black" strokeWidth={2.2} />
                     </div>
                     <div>
                       <h3 className="font-display text-base font-bold text-blue-ink">
@@ -185,8 +188,8 @@ export default async function MajorDetailPage({ params }: PageProps) {
                     key={career.title}
                     className="flex flex-col items-center text-center px-4"
                   >
-                    <div className="w-16 h-16 rounded-full bg-momo text-sky-deep flex items-center justify-center mb-4 border border-momo/80 shadow-2xs">
-                      <Icon className="w-8 h-8 text-sky-deep" strokeWidth={2.2} />
+                    <div className="w-16 h-16 rounded-full bg-momo text-black flex items-center justify-center mb-4 border border-momo/80 shadow-2xs">
+                      <Icon className="w-8 h-8 text-black" strokeWidth={2.2} />
                     </div>
                     <h3 className="font-display text-lg sm:text-xl font-bold text-blue-ink mb-2">
                       {career.title}
@@ -235,7 +238,7 @@ export default async function MajorDetailPage({ params }: PageProps) {
                     className="flex flex-col items-center justify-center p-7 sm:p-8 bg-white border-2 border-sky/50 rounded-3xl rounded-br-[56px] bubble-shadow-sm hover:border-sky hover:shadow-md hover:scale-[1.02] transition-all text-center group cursor-pointer min-h-[160px]"
                   >
                     <div className="w-14 h-14 rounded-full bg-momo flex items-center justify-center mb-3.5 group-hover:scale-110 transition-transform">
-                      <Icon className="w-7 h-7 text-blue-ink" strokeWidth={2} />
+                      <Icon className="w-7 h-7 text-black" strokeWidth={2} />
                     </div>
                     <span className="font-display text-base font-bold text-blue-ink group-hover:text-sky-deep transition-colors leading-snug">
                       {rel.name}
@@ -253,12 +256,12 @@ export default async function MajorDetailPage({ params }: PageProps) {
                 Offer Universities
               </h2>
               <span className="text-xs font-semibold text-gray-soft">
-                {major.offerUniversities.length} Institutions
+                Available Institutions
               </span>
             </div>
 
-            {/* 3 cards per row on desktop (lg:grid-cols-3), 2 on tablet, 1 on mobile */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
+            {/* 5 cards per row on desktop (lg:grid-cols-5), 3 on tablet, 2 on mobile */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4 lg:gap-5">
               {major.offerUniversities.map((uni) => (
                 <div
                   key={uni.name}
@@ -340,7 +343,7 @@ export default async function MajorDetailPage({ params }: PageProps) {
           <div className="rounded-3xl bg-momo p-6 sm:p-8 border border-momo w-full">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-sky-deep" />
+                <ShieldCheck className="w-5 h-5 text-black" />
                 <span className="text-xs sm:text-sm font-bold text-blue-ink uppercase tracking-wider">
                   Information Check
                 </span>

@@ -15,6 +15,7 @@ import {
 import { CAREERS_DATA } from "@/app/data/careers";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
+import SaveItemButton from "@/app/components/SaveItemButton";
 
 /* ── Static Generation for all Careers ─────────────────── */
 
@@ -70,58 +71,82 @@ export default async function CareerDetailPage({ params }: PageProps) {
 
         {/* ── Main Content ──────────────────────────────────── */}
         <main className="w-full pb-16 flex flex-col gap-10">
-          {/* 1. Hero Section */}
+          {/* 1. Hero Section: Content & Image in One Row */}
           <section className="w-full">
-            <div className="flex flex-wrap items-center gap-2 mb-3">
-              <span className="inline-block px-4 py-1.5 rounded-full bg-sky/20 text-sky-deep text-xs font-extrabold uppercase tracking-wider border border-sky/20">
-                {career.category}
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold uppercase tracking-wider border border-emerald-200">
-                <TrendingUp className="w-4 h-4 text-emerald-600" />
-                Demand: {career.jobMarketDemand}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-16 h-16 rounded-2xl bg-sitomo flex items-center justify-center border border-sky/15 shrink-0">
-                <Icon className="w-8 h-8 text-sky-deep" strokeWidth={2.2} />
-              </div>
-              <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight leading-[1.15]">
-                {career.title}
-              </h1>
-            </div>
-
-            {/* What You Do Banner */}
-            <div className="p-5 bg-white rounded-2xl border border-sky/20 bubble-shadow-sm mb-6 max-w-4xl">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-sitomo flex items-center justify-center text-sky-deep shrink-0">
-                  <Briefcase className="w-5 h-5" />
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 items-center">
+              {/* Left Column: Content */}
+              <div className="md:col-span-7 flex flex-col">
+                <div className="flex flex-wrap items-center gap-2 mb-3">
+                  <span className="inline-block px-4 py-1.5 rounded-full bg-sky/20 text-sky-deep text-xs font-extrabold uppercase tracking-wider border border-sky/20">
+                    {career.category}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold uppercase tracking-wider border border-emerald-200">
+                    <TrendingUp className="w-4 h-4 text-emerald-600" />
+                    Demand: {career.jobMarketDemand}
+                  </span>
                 </div>
-                <div>
-                  <h2 className="text-xs font-extrabold uppercase tracking-wider text-sky-deep mb-1">
-                    What You Do
+
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-14 h-14 rounded-2xl bg-sitomo flex items-center justify-center border border-sky/15 shrink-0">
+                    <Icon className="w-7 h-7 text-sky-deep" strokeWidth={2.2} />
+                  </div>
+                  <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight leading-[1.15]">
+                    {career.title}
+                  </h1>
+                </div>
+
+                {/* What You Do Banner */}
+                <div className="p-4 sm:p-5 bg-white rounded-2xl border border-sky/20 bubble-shadow-sm mb-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-sitomo flex items-center justify-center text-sky-deep shrink-0">
+                      <Briefcase className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h2 className="text-xs font-extrabold uppercase tracking-wider text-sky-deep mb-1">
+                        What You Do
+                      </h2>
+                      <p className="text-sm sm:text-base font-bold text-blue-ink leading-snug">
+                        {career.whatYouDo}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mb-6">
+                  <h2 className="text-xs font-extrabold uppercase tracking-wider text-gray-soft mb-1.5">
+                    Short Overview
                   </h2>
-                  <p className="text-base sm:text-lg font-bold text-blue-ink leading-snug">
-                    {career.whatYouDo}
+                  <p className="text-sm sm:text-base text-gray-body leading-relaxed font-medium">
+                    {career.shortOverview}
                   </p>
                 </div>
+
+                <div>
+                  <SaveItemButton
+                    item={{
+                      id: career.id,
+                      type: "career",
+                      title: career.title,
+                      subtitle: career.category,
+                      image: career.image,
+                      link: `/careers/${career.id}`,
+                    }}
+                    className="w-auto"
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="max-w-4xl mb-6">
-              <h2 className="text-xs font-extrabold uppercase tracking-wider text-gray-soft mb-2">
-                Short Overview
-              </h2>
-              <p className="text-sm sm:text-base lg:text-lg text-gray-body leading-relaxed font-medium">
-                {career.shortOverview}
-              </p>
-            </div>
-
-            <div>
-              <button className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-sky text-white font-bold text-sm hover:bg-sky-bright transition-all bubble-shadow-sm cursor-pointer">
-                <Bookmark className="w-4 h-4 fill-white" />
-                <span>Save Career</span>
-              </button>
+              {/* Right Column: Same Image from Career Card */}
+              <div className="md:col-span-5 w-full">
+                <div className="relative aspect-[4/3] sm:aspect-[16/11] md:aspect-square w-full rounded-3xl overflow-hidden border-2 border-sky/20 shadow-lg shadow-slate-300/40 bg-white">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={career.image}
+                    alt={career.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
             </div>
           </section>
 

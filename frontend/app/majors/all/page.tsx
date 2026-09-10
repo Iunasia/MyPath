@@ -76,7 +76,7 @@ export default function AllMajorsPage() {
             <div className="w-full lg:max-w-md">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
-                  <Search className="h-4.5 w-4.5 text-blue-ink/60" strokeWidth={2.2} />
+                  <Search className="h-4.5 w-4.5 text-black" strokeWidth={2.2} />
                 </div>
                 <input
                   type="text"
@@ -88,9 +88,9 @@ export default function AllMajorsPage() {
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery("")}
-                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-soft hover:text-blue-ink cursor-pointer"
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-black hover:opacity-70 cursor-pointer"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-4 w-4 text-black" />
                   </button>
                 )}
               </div>
@@ -163,61 +163,51 @@ export default function AllMajorsPage() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5">
               {filteredMajors.map((major) => {
-                const Icon = major.icon;
-
                 return (
                   <article
                     key={major.id}
-                    className="bg-white rounded-3xl p-6 lg:p-7 border border-sky/15 bubble-shadow-sm hover:border-sky/35 bubble-shadow-hover transition-all flex flex-col justify-between"
+                    className="bg-white rounded-2xl border border-sky/20 overflow-hidden shadow-xs hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
                   >
                     <div>
-                      {/* Top: Icon + Badge */}
-                      <div className="flex items-center justify-between mb-4">
-                        <div
-                          className={`w-12 h-12 rounded-2xl ${major.iconBg} flex items-center justify-center`}
-                        >
-                          <Icon className={`w-6 h-6 ${major.iconColor}`} strokeWidth={2.2} />
+                      {/* Top Image */}
+                      <Link href={`/majors/${major.id}`} className="block w-full aspect-[16/10] overflow-hidden bg-sky/5">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={major.heroImage}
+                          alt={major.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          loading="lazy"
+                        />
+                      </Link>
+
+                      {/* Card Content: Title & Important Text */}
+                      <div className="p-4 sm:p-5 pb-2">
+                        <Link href={`/majors/${major.id}`}>
+                          <h3 className="font-display text-lg sm:text-xl font-bold text-blue-ink hover:text-sky-deep transition-colors leading-snug line-clamp-2">
+                            {major.name}
+                          </h3>
+                        </Link>
+
+                        <div className="mt-2.5 space-y-1">
+                          <p className="text-xs text-gray-soft font-medium line-clamp-1">
+                            {major.category} • {major.duration}
+                          </p>
+                          <p className="text-xs font-semibold text-blue-ink">
+                            Market Demand: <span className="font-bold text-sky-deep">{major.jobMarketDemand}</span>
+                          </p>
                         </div>
-
-                        {major.badge && (
-                          <span
-                            className={`text-xs font-bold px-3 py-1 rounded-full ${major.badge.bg} ${major.badge.textColor}`}
-                          >
-                            {major.badge.text}
-                          </span>
-                        )}
                       </div>
-
-                      {/* Title & Description */}
-                      <h3 className="font-display text-lg lg:text-xl font-bold text-blue-ink mb-2">
-                        {major.name}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-gray-body leading-relaxed mb-4 font-medium line-clamp-3">
-                        {major.description}
-                      </p>
                     </div>
 
-                    <div>
-                      {/* Tags */}
-                      <div className="flex flex-wrap gap-1.5 mb-5">
-                        {major.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="bg-sitomo/70 text-blue-ink text-xs font-semibold px-3 py-1 rounded-full border border-sky/10"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-
-                      {/* Explore Major Action linking to /majors/[id] */}
+                    {/* Bottom: View more Button */}
+                    <div className="p-4 sm:p-5 pt-1 pb-4 sm:pb-5">
                       <Link
                         href={`/majors/${major.id}`}
-                        className="block w-full rounded-full border-2 border-sky/50 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-sky-deep hover:bg-sky/10 hover:border-sky transition-colors text-center cursor-pointer"
+                        className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-sky text-sky-deep hover:bg-sky hover:text-white text-xs font-bold transition-colors cursor-pointer"
                       >
-                        Explore Major
+                        View more
                       </Link>
                     </div>
                   </article>
