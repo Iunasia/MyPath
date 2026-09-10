@@ -247,6 +247,62 @@ export const fetchVerificationQueue = (status?: RequestStatus) =>
     `/verification-requests/all${status ? `?status=${status}` : ""}`
   );
 
+/* ------------------------------------------------------------------ */
+/* Compare — 2 to 4 items of one type, side by side                    */
+/* ------------------------------------------------------------------ */
+
+export type CompareType = "scholarship" | "university" | "major" | "career";
+
+/**
+ * How a row's `values` are shaped:
+ *   text → string | null        list → string[]        number → number | null
+ *   date → ISO string | null     url  → string | null
+ *   deadline → { date: ISO string | null; note: string | null }
+ */
+export type CompareFieldKind = "text" | "list" | "number" | "date" | "url" | "deadline";
+
+export interface ApiCompareItem {
+  id: number;
+  title: string;
+  subtitle: string | null;
+  /** Scholarships only. */
+  infoCheck?: ApiInfoCheck;
+}
+
+export interface ApiCompareRow {
+  key: string;
+  label: string;
+  group: string;
+  kind: CompareFieldKind;
+  /** One per item, in `items` order. */
+  values: unknown[];
+  /** At least two items say different things. Highlight these. */
+  differs: boolean;
+  /** Ids of items that leave this blank — show "Not stated", not an empty cell. */
+  missing: number[];
+  /** List rows only: values every item shares. */
+  common?: string[];
+}
+
+export interface ApiCompareNote {
+  /** null when it applies to every item. */
+  itemId: number | null;
+  level: "warning" | "info";
+  text: string;
+}
+
+export interface ApiComparison {
+  type: CompareType;
+  items: ApiCompareItem[];
+  rows: ApiCompareRow[];
+  /** Warnings first. Show above the table. */
+  notes: ApiCompareNote[];
+}
+
+/** Public — no sign-in needed. Items come back in the order of `ids`. */
+export const fetchComparison = (type: CompareType, ids: number[]) =>
+  get<ApiComparison>(`/compare?type=${type}&ids=${ids.join(",")}`);
+
 /** Admin only. */
 export const reviewVerificationRequest = (
   id: number,
