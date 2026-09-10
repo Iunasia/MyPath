@@ -208,3 +208,21 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--sky-bright);
 }
+
+/* ── Page transitions ─────────────────────────────────── */
+/* A quick crossfade between pages, from the <ViewTransition> in the root
+   layout. The header is named there, so it holds still while pages fade. */
+
+::view-transition-group(*),
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: 180ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

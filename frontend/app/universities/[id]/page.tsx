@@ -17,7 +17,6 @@ import {
   Award,
   BookOpen,
 } from "lucide-react";
-import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import BackLink from "@/app/components/BackLink";
 import SaveItemButton from "@/app/components/SaveItemButton";
@@ -88,8 +87,6 @@ export default async function UniversityDetailPage({ params }: PageProps) {
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       {/* Full-width responsive container */}
       <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
-        {/* ── Top Header Component ────────────────────────── */}
-        <Header activeNav="universities" />
         <BackLink href="/universities" label="All universities" className="mb-6" />
 
         {/* ── Main Content Container ────────────────────────── */}

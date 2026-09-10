@@ -11,7 +11,6 @@ import {
   toMajorViews,
   type MajorView,
 } from "@/app/lib/catalogAdapters";
-import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import ListHero from "@/app/components/ListHero";
 import CompareButton from "@/app/components/CompareButton";
@@ -82,8 +81,6 @@ export default function AllMajorsPage() {
       {/* Responsive Viewport Container: 25px on mobile, 80px on desktop */}
       <div className="w-full px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
         
-        {/* ── Top Header Component ────────────────────────── */}
-        <Header activeNav="majors" />
 
         <ListHero
           back={{ href: "/majors", label: "Majors" }}
