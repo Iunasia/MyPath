@@ -17,6 +17,8 @@ export interface ScholarshipView extends Scholarship {
   /** Raw benefits text, when the bullet split is not enough. */
   coverageText: string;
   deadlineNote: string | null;
+  /** The raw deadline instant — for sorting and the closed state. */
+  deadlineAt: string | null;
 }
 
 /* ------------------------------------------------------------------ */
@@ -91,6 +93,45 @@ export const formatLastVerified = (iso: string | null): string => {
     year: "numeric"
   }).format(date);
 };
+
+export type DeadlineState =
+  | { kind: "unknown" }
+  | { kind: "closed" }
+  | { kind: "open"; daysLeft: number };
+
+/** Midnight UTC of the Phnom Penh calendar day that `time` falls on. */
+const phnomPenhDay = (time: number): number =>
+  Date.parse(
+    new Intl.DateTimeFormat("en-CA", {
+      timeZone: PHNOM_PENH,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).format(time)
+  );
+
+/**
+ * Whether a deadline has passed and, if not, how many Phnom Penh days are
+ * left. It reads the clock, so it lives here rather than in a component body.
+ */
+export const deadlineState = (iso: string | null): DeadlineState => {
+  const at = iso ? Date.parse(iso) : NaN;
+  if (Number.isNaN(at)) return { kind: "unknown" };
+  const now = Date.now();
+  if (at <= now) return { kind: "closed" };
+  return { kind: "open", daysLeft: Math.round((phnomPenhDay(at) - phnomPenhDay(now)) / 86_400_000) };
+};
+
+export const deadlineLabel = (state: DeadlineState): string =>
+  state.kind === "closed"
+    ? "Closed"
+    : state.kind === "unknown"
+      ? "No date yet"
+      : state.daysLeft === 0
+        ? "Closes today"
+        : state.daysLeft === 1
+          ? "1 day left"
+          : `${state.daysLeft} days left`;
 
 /* ------------------------------------------------------------------ */
 /* Enums                                                               */
@@ -218,19 +259,43 @@ export const toScholarshipView = (row: ApiScholarship): ScholarshipView => ({
 
   infoCheck: row.infoCheck,
   coverageText: row.coverage,
-  deadlineNote: row.deadline_note
+  deadlineNote: row.deadline_note,
+  deadlineAt: row.deadline
 });
 
 export const toScholarshipViews = (rows: ApiScholarship[]): ScholarshipView[] =>
   rows.map(toScholarshipView);
 
-/** Same-category scholarships, excluding the one being viewed. */
+const DEADLINE_RANK = { open: 0, unknown: 1, closed: 2 } as const;
+
+/**
+ * Open soonest-first, then no date announced, then closed most-recent-first.
+ * The API sorts by date alone, which put closed scholarships at the top.
+ */
+export const sortByDeadline = (rows: ScholarshipView[]): ScholarshipView[] =>
+  rows
+    .map(row => ({
+      row,
+      kind: deadlineState(row.deadlineAt).kind,
+      at: row.deadlineAt ? Date.parse(row.deadlineAt) : 0
+    }))
+    .sort(
+      (a, b) =>
+        DEADLINE_RANK[a.kind] - DEADLINE_RANK[b.kind] ||
+        (a.kind === "closed" ? b.at - a.at : a.at - b.at)
+    )
+    .map(({ row }) => row);
+
+/** Same-category scholarships still open (or undated), excluding the one being viewed. */
 export const relatedScholarships = (
   all: ScholarshipView[],
   current: ScholarshipView,
   limit = 3
 ): ScholarshipView[] => {
-  const sameCategory = all.filter(s => s.id !== current.id && s.category === current.category);
-  const others = all.filter(s => s.id !== current.id && s.category !== current.category);
+  const candidates = all.filter(
+    s => s.id !== current.id && deadlineState(s.deadlineAt).kind !== "closed"
+  );
+  const sameCategory = candidates.filter(s => s.category === current.category);
+  const others = candidates.filter(s => s.category !== current.category);
   return [...sameCategory, ...others].slice(0, limit);
 };

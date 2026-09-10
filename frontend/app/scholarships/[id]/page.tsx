@@ -26,6 +26,8 @@ import ShareButton from "@/app/components/ShareButton";
 import BackLink from "@/app/components/BackLink";
 import { ApiError, fetchScholarship, fetchScholarships } from "@/app/lib/api";
 import {
+  deadlineLabel,
+  deadlineState,
   relatedScholarships,
   toScholarshipView,
   toScholarshipViews,
@@ -154,6 +156,8 @@ export default function ScholarshipDetailPage({
     );
   }
 
+  const deadline = deadlineState(scholarship.deadlineAt);
+
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       {/* Responsive Viewport Container: 25px on mobile, 32px-40px on tablet, 80px on desktop */}
@@ -230,11 +234,29 @@ export default function ScholarshipDetailPage({
                     <span>{scholarship.degreeLevel} Degree</span>
                   </span>
 
-                  <span className="flex items-center gap-2 bg-powder px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full border border-sky">
+                  <span
+                    className={`flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full border ${
+                      deadline.kind === "closed"
+                        ? "bg-rose-50 border-rose-200 text-rose-800"
+                        : "bg-powder border-sky"
+                    }`}
+                  >
                     <Calendar className="w-4 h-4 text-[#D97736] shrink-0" />
-                    <span>Deadline: {scholarship.deadline}</span>
+                    <span>
+                      {deadline.kind === "closed" ? "Closed" : "Deadline"}: {scholarship.deadline}
+                    </span>
+                    {deadline.kind === "open" && (
+                      <span className="text-sky-deep">· {deadlineLabel(deadline)}</span>
+                    )}
                   </span>
                 </div>
+
+                {deadline.kind === "closed" && (
+                  <p className="mb-5 max-w-xl rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-800">
+                    The deadline for this round has passed. Providers often run the same
+                    scholarship again — check the official page for the next intake.
+                  </p>
+                )}
 
                 {/* Call to Action Buttons Row — full width and stacked on a
                     phone (they used to wrap at three different widths), in a
@@ -246,7 +268,7 @@ export default function ScholarshipDetailPage({
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-3 rounded-full border border-transparent bg-sky-deep text-white font-bold text-sm hover:bg-sky-dark transition-all bubble-shadow-sm cursor-pointer"
                   >
-                    <span>Apply on Official Website</span>
+                    <span>{deadline.kind === "closed" ? "View official page" : "Apply on Official Website"}</span>
                     <ExternalLink className="w-4 h-4" />
                   </a>
 

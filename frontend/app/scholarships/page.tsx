@@ -6,6 +6,7 @@ import {
   Coins,
   Calendar,
   CheckCircle2,
+  Clock,
   SlidersHorizontal,
   AlertTriangle,
   Loader2,
@@ -20,7 +21,101 @@ import {
   COVERAGE_FILTERS,
 } from "@/app/data/scholarships";
 import { fetchScholarships } from "@/app/lib/api";
-import { toScholarshipViews, type ScholarshipView } from "@/app/lib/adapters";
+import {
+  deadlineLabel,
+  deadlineState,
+  sortByDeadline,
+  toScholarshipViews,
+  type ScholarshipView,
+} from "@/app/lib/adapters";
+
+const GRID = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6";
+
+function ScholarshipCard({ scholarship }: { scholarship: ScholarshipView }) {
+  const deadline = deadlineState(scholarship.deadlineAt);
+  const closed = deadline.kind === "closed";
+  const closingSoon = deadline.kind === "open" && deadline.daysLeft <= 14;
+  const urgent = deadline.kind === "open" && deadline.daysLeft <= 3;
+
+  return (
+    <Link
+      href={`/scholarships/${scholarship.id}`}
+      className="group relative aspect-[4/3] min-h-[210px] rounded-3xl rounded-br-[86px] sm:rounded-br-[86px] overflow-hidden cursor-pointer bubble-shadow-sm border border-sky/15 block bg-sitomo/40"
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={scholarship.image}
+        alt=""
+        className={`absolute inset-0 w-full h-full object-cover object-center ${closed ? "grayscale opacity-60" : ""}`}
+      />
+
+      {/* Deadline status first, then the Information Check verdict — flagged
+          sources are called out before a student clicks through. */}
+      <div className="absolute top-3 left-3 z-20 flex flex-col items-start gap-1.5">
+        {closed ? (
+          <span className="rounded-full bg-blue-ink/85 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white shadow-sm">
+            Closed
+          </span>
+        ) : closingSoon ? (
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-extrabold shadow-sm ${
+              urgent ? "bg-rose-600 text-white" : "bg-white text-blue-ink"
+            }`}
+          >
+            <Clock className="w-3 h-3" />
+            {deadlineLabel(deadline)}
+          </span>
+        ) : null}
+        {scholarship.infoCheck.isRisky && (
+          <span
+            className="inline-flex items-center gap-1.5 rounded-full bg-momo px-2.5 py-1 text-[10px] font-extrabold text-blue-ink shadow-sm"
+            title={scholarship.infoCheck.reasons.join(" ")}
+          >
+            <AlertTriangle className="w-3 h-3" />
+            Check source
+          </span>
+        )}
+      </div>
+
+      {/* Floating Compare + Save Buttons on Image */}
+      <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5">
+        <CompareButton
+          variant="card-action"
+          item={{
+            type: "scholarship",
+            apiId: scholarship.apiId,
+            title: scholarship.title,
+            subtitle: scholarship.provider,
+          }}
+        />
+        <SaveItemButton
+          variant="card-action"
+          item={{
+            id: scholarship.id,
+            type: "scholarship",
+            title: scholarship.title,
+            subtitle: scholarship.provider,
+            image: scholarship.image,
+            link: `/scholarships/${scholarship.id}`,
+          }}
+        />
+      </div>
+
+      {/* Bottom Gradient Overlay for Text */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent flex flex-col justify-end p-4 sm:p-5 z-10">
+        <h3 className="font-display text-base sm:text-lg lg:text-xl font-extrabold text-white tracking-tight leading-snug drop-shadow-sm mb-2 group-hover:text-sky-bright transition-colors line-clamp-2">
+          {scholarship.title}
+        </h3>
+        <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-white/80 font-medium drop-shadow-xs">
+          <Calendar className="w-3.5 h-3.5 text-sky-bright shrink-0" />
+          <span>
+            {closed ? "Closed" : "Deadline"}: {scholarship.deadline}
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+}
 
 export default function ScholarshipsPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -54,7 +149,7 @@ export default function ScholarshipsPage() {
 
   // Filtering logic (Cambodia only - no study abroad)
   const filteredScholarships = useMemo(() => {
-    return scholarships.filter((item) => {
+    return sortByDeadline(scholarships.filter((item) => {
       const q = searchQuery.toLowerCase().trim();
       const matchesSearch =
         q === "" ||
@@ -69,8 +164,15 @@ export default function ScholarshipsPage() {
         selectedCoverage === "All Coverage" || item.coverage === selectedCoverage;
 
       return matchesSearch && matchesCategory && matchesCoverage;
-    });
+    }));
   }, [scholarships, searchQuery, selectedCategory, selectedCoverage]);
+
+  const openScholarships = filteredScholarships.filter(
+    (s) => deadlineState(s.deadlineAt).kind !== "closed"
+  );
+  const closedScholarships = filteredScholarships.filter(
+    (s) => deadlineState(s.deadlineAt).kind === "closed"
+  );
 
   const hasActiveFilters =
     selectedCategory !== "All Categories" ||
@@ -199,75 +301,34 @@ export default function ScholarshipsPage() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
-              {filteredScholarships.map((scholarship) => (
-                <Link
-                  key={scholarship.id}
-                  href={`/scholarships/${scholarship.id}`}
-                  className="group relative aspect-[4/3] min-h-[210px] rounded-3xl rounded-br-[86px] sm:rounded-br-[86px] overflow-hidden cursor-pointer bubble-shadow-sm border border-sky/15 block bg-sitomo/40"
-                >
-                  {/* Full Card Image */}
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={scholarship.image}
-                    alt={scholarship.title}
-                    className="absolute inset-0 w-full h-full object-cover object-center"
-                  />
+            <>
+              {openScholarships.length > 0 && (
+                <div className={GRID}>
+                  {openScholarships.map((scholarship) => (
+                    <ScholarshipCard key={scholarship.id} scholarship={scholarship} />
+                  ))}
+                </div>
+              )}
 
-                  {/* Information Check verdict — flagged sources are called out
-                      on the card, before a student clicks through. */}
-                  {scholarship.infoCheck.isRisky && (
-                    <div className="absolute top-3 left-3 z-20">
-                      <span
-                        className="inline-flex items-center gap-1.5 rounded-full bg-momo px-2.5 py-1 text-[10px] font-extrabold text-blue-ink shadow-sm"
-                        title={scholarship.infoCheck.reasons.join(" ")}
-                      >
-                        <AlertTriangle className="w-3 h-3" />
-                        Check source
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Floating Compare + Save Buttons on Image */}
-                  <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5">
-                    <CompareButton
-                      variant="card-action"
-                      item={{
-                        type: "scholarship",
-                        apiId: scholarship.apiId,
-                        title: scholarship.title,
-                        subtitle: scholarship.provider,
-                      }}
-                    />
-                    <SaveItemButton
-                      variant="card-action"
-                      item={{
-                        id: scholarship.id,
-                        type: "scholarship",
-                        title: scholarship.title,
-                        subtitle: scholarship.provider,
-                        image: scholarship.image,
-                        link: `/scholarships/${scholarship.id}`,
-                      }}
-                    />
+              {/* Closed ones stay visible for reference, but below the open
+                  ones and greyed out — they used to lead the list. */}
+              {closedScholarships.length > 0 && (
+                <div className={openScholarships.length > 0 ? "mt-14" : ""}>
+                  <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink tracking-tight">
+                    Closed
+                  </h2>
+                  <p className="text-sm text-gray-soft font-medium mt-1 mb-5">
+                    The deadline has passed. Kept for reference — providers often run the same
+                    scholarship again, so check their page for the next round.
+                  </p>
+                  <div className={GRID}>
+                    {closedScholarships.map((scholarship) => (
+                      <ScholarshipCard key={scholarship.id} scholarship={scholarship} />
+                    ))}
                   </div>
-
-                  {/* Bottom Gradient Overlay for Text */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent flex flex-col justify-end p-4 sm:p-5 z-10">
-                    {/* Title */}
-                    <h3 className="font-display text-base sm:text-lg md:text-lg lg:text-xl font-extrabold text-white tracking-tight leading-snug drop-shadow-sm mb-2 group-hover:text-sky-bright transition-colors line-clamp-2">
-                      {scholarship.title}
-                    </h3>
-
-                    {/* Dateline (Deadline) */}
-                    <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-white/75 font-medium drop-shadow-xs">
-                      <Calendar className="w-3.5 h-3.5 text-sky-bright shrink-0" />
-                      <span>Deadline: {scholarship.deadline}</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+                </div>
+              )}
+            </>
           )}
         </section>
 

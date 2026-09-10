@@ -26,7 +26,7 @@
   --blue-ink: #2D3A3A;       /* Dark Charcoal Text (Headings & title) */
   --gray-body: #475858;      /* Body copy */
   --gray-soft: #5A6B6B;      /* Muted text — 4.8:1 on powder, 5.6:1 on white */
-  --gray-faint: #91A1A1;     /* Subtle borders & hints */
+  --gray-faint: #6F8080;     /* Hints and placeholders — 4.1:1 on white, 3.6:1 on powder */
 }
 
 @theme inline {
