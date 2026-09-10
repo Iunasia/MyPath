@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import {
   Search,
@@ -10,14 +10,14 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  AlertTriangle,
+  Loader2,
 } from "lucide-react";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import SaveItemButton from "@/app/components/SaveItemButton";
-import {
-  UNIVERSITIES_DATA,
-  LOCATIONS,
-} from "@/app/data/universities";
+import { fetchUniversities } from "@/app/lib/api";
+import { toUniversityViews, type UniversityView } from "@/app/lib/catalogAdapters";
 
 export default function UniversitiesPage() {
   const ITEMS_PER_PAGE = 10;
@@ -26,21 +26,49 @@ export default function UniversitiesPage() {
   const [selectedLocation, setSelectedLocation] = useState("All Locations");
   const [selectedType, setSelectedType] = useState<string | null>(null);
 
+  const [universities, setUniversities] = useState<UniversityView[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetchUniversities()
+      .then((rows) => {
+        if (!cancelled) setUniversities(toUniversityViews(rows));
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) {
+          setLoadError(err instanceof Error ? err.message : "Could not load universities");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Locations come from the data, so a university in a new city filters
+  // correctly without editing a constant.
+  const locations = useMemo(
+    () => ["All Locations", ...new Set(universities.map((u) => u.location))],
+    [universities]
+  );
+
   // Filter universities based on search and filters
   const filteredUniversities = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
-    return UNIVERSITIES_DATA.filter((uni) => {
+    return universities.filter((uni) => {
       const matchesSearch =
         q === "" ||
         uni.name.toLowerCase().includes(q) ||
         uni.shortName.toLowerCase().includes(q) ||
         uni.location.toLowerCase().includes(q) ||
         uni.popularMajors.some((m) => m.toLowerCase().includes(q)) ||
-        uni.facultiesList?.some(
-          (f) =>
-            f.facultyName.toLowerCase().includes(q) ||
-            f.majors.some((m) => m.toLowerCase().includes(q))
-        );
+        uni.scholarshipsList.some((s) => s.toLowerCase().includes(q));
 
       const matchesLocation =
         selectedLocation === "All Locations" || uni.location === selectedLocation;
@@ -49,7 +77,7 @@ export default function UniversitiesPage() {
 
       return Boolean(matchesSearch && matchesLocation && matchesType);
     });
-  }, [searchQuery, selectedLocation, selectedType]);
+  }, [universities, searchQuery, selectedLocation, selectedType]);
 
   // Reset page on filter change
   useMemo(() => {
@@ -137,7 +165,7 @@ export default function UniversitiesPage() {
                   onChange={(e) => setSelectedLocation(e.target.value)}
                   className="appearance-none bg-white border border-sky/25 text-blue-ink text-xs font-bold pl-8 pr-8 py-2 rounded-full cursor-pointer hover:border-sky transition-colors focus:outline-none focus:ring-2 focus:ring-sky/30 bubble-shadow-sm"
                 >
-                  {LOCATIONS.map((loc) => (
+                  {locations.map((loc) => (
                     <option key={loc} value={loc}>
                       {loc}
                     </option>
@@ -189,7 +217,28 @@ export default function UniversitiesPage() {
 
         {/* ── Universities Responsive Grid (6 cols desktop, 3 cols tablet, 2 cols mobile) ── */}
         <section className="flex-1 pb-16">
-          {filteredUniversities.length === 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center gap-3 py-20 text-gray-soft">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span className="text-sm font-semibold">Loading universities…</span>
+            </div>
+          ) : loadError ? (
+            <div className="bg-white rounded-3xl p-10 text-center border border-sky/15 bubble-shadow-sm max-w-lg mx-auto mt-6">
+              <AlertTriangle className="w-12 h-12 text-momo mx-auto mb-3" />
+              <p className="font-bold text-blue-ink text-base">
+                Couldn&apos;t load universities
+              </p>
+              <p className="text-xs sm:text-sm text-gray-soft mt-1.5 font-medium">
+                {loadError}. Check that the API is running, then try again.
+              </p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-5 inline-flex items-center px-5 py-2.5 rounded-full bg-sky text-white text-xs sm:text-sm font-bold hover:bg-sky-bright transition-colors cursor-pointer"
+              >
+                Retry
+              </button>
+            </div>
+          ) : filteredUniversities.length === 0 ? (
             <div className="bg-white rounded-3xl p-10 text-center border border-sky/15 bubble-shadow-sm max-w-lg mx-auto mt-6">
               <Building2 className="w-12 h-12 text-sky-deep mx-auto mb-3 opacity-60" />
               <p className="font-bold text-blue-ink text-base">
@@ -241,6 +290,7 @@ export default function UniversitiesPage() {
                       variant="card-action"
                       item={{
                         id: uni.id,
+                        apiId: uni.apiId,
                         type: "university",
                         title: uni.name,
                         subtitle: uni.location,

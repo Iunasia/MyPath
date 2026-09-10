@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useAuth } from "@/app/context/AuthContext";
 import {
   ArrowLeft,
   Menu,
@@ -12,6 +13,7 @@ import {
   GraduationCap,
   Coins,
   Bookmark,
+  ShieldCheck,
 } from "lucide-react";
 
 export interface HeaderProps {
@@ -36,6 +38,9 @@ export default function Header({
   className = "",
 }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { user } = useAuth();
+  // Cosmetic only — the guard on /admin is what actually protects the page.
+  const isAdmin = user?.role === "admin";
 
   // 1. Floating Pill Navbar for Homepage
   if (variant === "home") {
@@ -178,6 +183,14 @@ export default function Header({
             >
               Scholarships
             </Link>
+            <Link
+              href="/verify"
+              className="inline-flex items-center gap-1.5 text-sky-deep hover:text-blue-ink transition-colors"
+              title="Ask us to check whether a scholarship is real"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              Verify
+            </Link>
           </nav>
 
           {/* Save / Bookmark Icon */}
@@ -277,6 +290,14 @@ export default function Header({
               <Coins className="w-4 h-4 text-sky-deep" />
               <span>Scholarships</span>
             </Link>
+            <Link
+              href="/verify"
+              className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-blue-ink hover:bg-powder transition-colors"
+              onClick={() => setMenuOpen(false)}
+            >
+              <ShieldCheck className="w-4 h-4 text-sky-deep" />
+              <span>Is this scholarship real?</span>
+            </Link>
 
             {showSaveIcon && (
               <Link
@@ -293,14 +314,16 @@ export default function Header({
               </Link>
             )}
 
-            <Link
-              href="/admin"
-              className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-bold text-sky-deep bg-sitomo/60 hover:bg-sky hover:text-white transition-all mt-1 border border-sky/20"
-              onClick={() => setMenuOpen(false)}
-            >
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-              <span>Admin Dashboard</span>
-            </Link>
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-bold text-sky-deep bg-sitomo/60 hover:bg-sky hover:text-white transition-all mt-1 border border-sky/20"
+                onClick={() => setMenuOpen(false)}
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                <span>Admin Dashboard</span>
+              </Link>
+            )}
           </div>
         </nav>
       )}

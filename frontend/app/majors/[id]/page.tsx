@@ -6,18 +6,28 @@ import {
   ShieldCheck,
   MapPin,
 } from "lucide-react";
-import { MAJORS_DATA } from "@/app/data/majors";
+import {
+  getCareers,
+  getMajor,
+  getMajors,
+  getScholarships,
+  getUniversities,
+} from "@/app/lib/api.server";
+import {
+  linkCareers,
+  linkUniversities,
+  toMajorView,
+  toCareerViews,
+  toMajorViews,
+  toUniversityViews,
+} from "@/app/lib/catalogAdapters";
+import { toScholarshipViews } from "@/app/lib/adapters";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import SaveItemButton from "@/app/components/SaveItemButton";
 
-/* ── Static Generation for all 12 Majors ────────────────── */
-
-export function generateStaticParams() {
-  return MAJORS_DATA.map((major) => ({
-    id: major.id,
-  }));
-}
+/** Rendered per request — see the note on the career detail page. */
+export const dynamic = "force-dynamic";
 
 /* ── Major Detail Page ─────────────────────────────────── */
 
@@ -27,11 +37,66 @@ interface PageProps {
 
 export default async function MajorDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const major = MAJORS_DATA.find((m) => m.id === id);
 
-  if (!major) {
+  // Relationships are stored as names, so the related records are fetched and
+  // resolved here rather than being foreign keys.
+  const [row, majorRows, universityRows, scholarshipRows, careerRows] = await Promise.all([
+    getMajor(id),
+    getMajors(),
+    getUniversities(),
+    getScholarships(),
+    getCareers(),
+  ]);
+
+  if (!row) {
     notFound();
   }
+
+  const major = toMajorView(row);
+  const allMajors = toMajorViews(majorRows);
+  const allScholarships = toScholarshipViews(scholarshipRows);
+
+  // Universities named in the spreadsheet, resolved to real records.
+  const { links: universityLinks, unmatched: universityNames } = linkUniversities(
+    major.universitiesText,
+    toUniversityViews(universityRows)
+  );
+  const offerUniversities = universityLinks.map((link) => {
+    const record = toUniversityViews(universityRows).find((u) => u.id === link.id)!;
+    return record;
+  });
+
+  // Same field, excluding this one.
+  const relatedMajors = allMajors
+    .filter((m) => m.id !== major.id && m.category === major.category)
+    .slice(0, 3);
+
+  // Careers this major leads to, resolved from the names in the sheet.
+  const allCareers = toCareerViews(careerRows);
+  const { links: careerLinks } = linkCareers(major.relatedCareersText, allCareers);
+  const careerPathways = careerLinks.slice(0, 3).map((link) => {
+    const record = allCareers.find((c) => c.id === link.id);
+    return {
+      id: link.id,
+      title: link.name,
+      description: record?.whatYouDo ?? "",
+      icon: link.icon,
+    };
+  });
+
+  const lastVerified = "Sourced from the MyPath dataset";
+
+  // Scholarships this major's sheet points at, matched by title.
+  const relatedOpportunities = major.relatedScholarshipsText
+    .map((name) => {
+      const needle = name.toLowerCase().replace(/[^a-z0-9]/g, "");
+      return allScholarships.find((s) => {
+        const title = s.title.toLowerCase().replace(/[^a-z0-9]/g, "");
+        return title.includes(needle) || needle.includes(title);
+      });
+    })
+    .filter((s): s is (typeof allScholarships)[number] => Boolean(s))
+    .slice(0, 3);
 
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
@@ -178,7 +243,7 @@ export default async function MajorDetailPage({ params }: PageProps) {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 max-w-5xl mx-auto w-full">
-              {major.careerPathways.map((career) => {
+              {careerPathways.map((career) => {
                 const Icon = career.icon;
                 return (
                   <div
@@ -226,7 +291,7 @@ export default async function MajorDetailPage({ params }: PageProps) {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {major.relatedMajors.map((rel) => {
+              {relatedMajors.map((rel) => {
                 const Icon = rel.icon;
                 return (
                   <Link
@@ -253,13 +318,13 @@ export default async function MajorDetailPage({ params }: PageProps) {
                 Offer Universities
               </h2>
               <span className="text-xs font-semibold text-gray-soft">
-                {major.offerUniversities.length} Institutions
+                {offerUniversities.length} Institutions
               </span>
             </div>
 
             {/* 3 cards per row on desktop (lg:grid-cols-3), 2 on tablet, 1 on mobile */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
-              {major.offerUniversities.map((uni) => (
+              {offerUniversities.map((uni) => (
                 <div
                   key={uni.name}
                   className="group relative rounded-3xl overflow-hidden aspect-[16/11] border border-sky/20 bubble-shadow-sm bg-sitomo/40 hover:border-sky hover:shadow-xl transition-all duration-300"
@@ -299,14 +364,14 @@ export default async function MajorDetailPage({ params }: PageProps) {
           </section>
 
           {/* 7. Related Opportunities (Full Width Grid) */}
-          {major.relatedOpportunities.length > 0 && (
+          {relatedOpportunities.length > 0 && (
             <section className="w-full">
               <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink tracking-tight mb-6">
                 Related Opportunity
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {major.relatedOpportunities.map((opp) => (
+                {relatedOpportunities.map((opp) => (
                   <div
                     key={opp.title}
                     className="flex flex-col sm:flex-row items-center gap-5 bg-white rounded-3xl p-5 border border-sky/15 bubble-shadow-sm hover:border-sky/35 transition-all"
@@ -321,13 +386,13 @@ export default async function MajorDetailPage({ params }: PageProps) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <span className="inline-block px-3 py-1 rounded-full bg-sitomo text-sky-deep text-[10px] font-bold mb-2 border border-sky/10">
-                        {opp.badgeText}
+                        {opp.coverage}
                       </span>
                       <h3 className="font-display text-base font-bold text-blue-ink leading-snug mb-2">
                         {opp.title}
                       </h3>
                       <p className="text-xs text-gray-soft font-medium">
-                        {opp.type} {opp.deadline && `· Deadline: ${opp.deadline}`}
+                        {opp.provider} · Deadline: {opp.deadline}
                       </p>
                     </div>
                   </div>
@@ -362,13 +427,13 @@ export default async function MajorDetailPage({ params }: PageProps) {
               </div>
               <div>
                 <span className="text-xs text-gray-soft block">Last Verified:</span>
-                <span className="font-bold">{major.lastVerified}</span>
+                <span className="font-bold">{lastVerified}</span>
               </div>
             </div>
 
             <div className="mt-4 pt-3 border-t border-blue-ink/10 flex justify-end">
               <a
-                href={major.sourceUrl}
+                href={major.sourceUrl ?? "#"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-sky-deep hover:underline"

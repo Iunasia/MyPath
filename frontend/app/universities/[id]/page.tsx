@@ -20,18 +20,12 @@ import {
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import SaveItemButton from "@/app/components/SaveItemButton";
-import {
-  UNIVERSITIES_DATA,
-  getUniversityById,
-} from "@/app/data/universities";
+import { UNIVERSITIES_DATA } from "@/app/data/universities";
+import { getUniversity } from "@/app/lib/api.server";
+import { toUniversityView } from "@/app/lib/catalogAdapters";
 
-/* ── Static Generation for All Universities ──────────────── */
-
-export function generateStaticParams() {
-  return UNIVERSITIES_DATA.map((uni) => ({
-    id: uni.id,
-  }));
-}
+/** Rendered per request — see the note on the career detail page. */
+export const dynamic = "force-dynamic";
 
 /* ── Icon Selector Helper ────────────────────────────────── */
 
@@ -62,11 +56,24 @@ interface PageProps {
 
 export default async function UniversityDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const university = getUniversityById(id);
 
-  if (!university) {
+  // The API decides which universities exist and supplies the core facts.
+  const row = await getUniversity(id);
+  if (!row) {
     notFound();
   }
+
+  const view = toUniversityView(row);
+
+  /**
+   * The designed sections on this page — faculties, campus facilities, degree
+   * levels, admission requirements, the map — have no columns in the database
+   * yet, so they still come from the curated dataset, matched by slug. API
+   * values win wherever both have the field, and every curated-only section is
+   * guarded so a university added via the spreadsheet renders without them.
+   */
+  const curated = UNIVERSITIES_DATA.find((u) => u.id === view.id);
+  const university = { ...curated, ...view };
 
   // Calculate total majors across all faculties
   const totalMajorsCount =
@@ -105,6 +112,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                 <SaveItemButton
                   item={{
                     id: university.id,
+                    apiId: university.apiId,
                     type: "university",
                     title: university.name,
                     subtitle: university.location,
@@ -321,7 +329,8 @@ export default async function UniversityDetailPage({ params }: PageProps) {
             </section>
           )}
 
-          {/* 4. Degree Levels: Undergraduate & Graduate */}
+          {/* 4. Degree Levels — curated dataset only */}
+          {university.undergraduate && university.graduate && (
           <section className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
             {/* Undergraduate Degree */}
             <div className="flex flex-col">
@@ -363,8 +372,10 @@ export default async function UniversityDetailPage({ params }: PageProps) {
               </div>
             </div>
           </section>
+          )}
 
-          {/* 5. Academic Programs Highlights */}
+          {/* 5. Academic Programs Highlights — curated dataset only */}
+          {university.programs && university.programs.length > 0 && (
           <section>
             <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink mb-6">
               Program Highlights
@@ -394,8 +405,10 @@ export default async function UniversityDetailPage({ params }: PageProps) {
               })}
             </div>
           </section>
+          )}
 
-          {/* 6. Admission Requirements & Deadline */}
+          {/* 6. Admission Requirements — curated dataset only */}
+          {university.admissionRequirements && (
           <section>
             <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink mb-6">
               Admission
@@ -430,8 +443,10 @@ export default async function UniversityDetailPage({ params }: PageProps) {
               </div>
             </div>
           </section>
+          )}
 
-          {/* 7. Campus Facilities */}
+          {/* 7. Campus Facilities — curated dataset only */}
+          {university.facilities && university.facilities.length > 0 && (
           <section>
             <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink mb-6">
               Campus Facilities
@@ -455,6 +470,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
               ))}
             </div>
           </section>
+          )}
 
           {/* 8. Scholarship Opportunities */}
           <section>
@@ -494,8 +510,8 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                   </div>
                 ))}
               </div>
-            ) : (
-              /* Fallback single scholarship banner */
+            ) : university.scholarship ? (
+              /* Fallback single scholarship banner — curated dataset only */
               <div className="bg-white rounded-3xl p-5 sm:p-6 border border-sky/15 bubble-shadow-sm max-w-3xl flex flex-col sm:flex-row items-center gap-5 sm:gap-6">
                 <div className="w-full sm:w-44 h-32 rounded-2xl overflow-hidden shrink-0 border border-sky/15">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -516,7 +532,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                   </div>
                 </div>
               </div>
-            )}
+            ) : null}
           </section>
 
           {/* 9. Location & Campus Branches */}

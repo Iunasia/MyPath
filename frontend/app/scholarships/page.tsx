@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import {
   Search,
@@ -9,24 +9,52 @@ import {
   CheckCircle2,
   SlidersHorizontal,
   X,
+  AlertTriangle,
+  Loader2,
 } from "lucide-react";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import SaveItemButton from "@/app/components/SaveItemButton";
 import {
-  SCHOLARSHIPS_DATA,
   SCHOLARSHIP_CATEGORIES,
   COVERAGE_FILTERS,
 } from "@/app/data/scholarships";
+import { fetchScholarships } from "@/app/lib/api";
+import { toScholarshipViews, type ScholarshipView } from "@/app/lib/adapters";
 
 export default function ScholarshipsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All Categories");
   const [selectedCoverage, setSelectedCoverage] = useState<string>("All Coverage");
 
+  const [scholarships, setScholarships] = useState<ScholarshipView[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetchScholarships()
+      .then((rows) => {
+        if (!cancelled) setScholarships(toScholarshipViews(rows));
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) {
+          setLoadError(err instanceof Error ? err.message : "Could not load scholarships");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // Filtering logic (Cambodia only - no study abroad)
   const filteredScholarships = useMemo(() => {
-    return SCHOLARSHIPS_DATA.filter((item) => {
+    return scholarships.filter((item) => {
       const q = searchQuery.toLowerCase().trim();
       const matchesSearch =
         q === "" ||
@@ -42,7 +70,7 @@ export default function ScholarshipsPage() {
 
       return matchesSearch && matchesCategory && matchesCoverage;
     });
-  }, [searchQuery, selectedCategory, selectedCoverage]);
+  }, [scholarships, searchQuery, selectedCategory, selectedCoverage]);
 
   const hasActiveFilters =
     selectedCategory !== "All Categories" ||
@@ -159,7 +187,28 @@ export default function ScholarshipsPage() {
 
         {/* ── Scholarships Grid (Tablet Responsive: 1 col on mobile, 2 cols on tablet, 3 cols on desktop) ── */}
         <section className="flex-1 pb-16">
-          {filteredScholarships.length === 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center gap-3 py-20 text-gray-soft">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span className="text-sm font-semibold">Loading scholarships…</span>
+            </div>
+          ) : loadError ? (
+            <div className="bg-white rounded-3xl p-10 text-center border border-sky/15 bubble-shadow-sm max-w-lg mx-auto mt-6">
+              <AlertTriangle className="w-12 h-12 text-momo mx-auto mb-3" />
+              <p className="font-bold text-blue-ink text-base">
+                Couldn&apos;t load scholarships
+              </p>
+              <p className="text-xs sm:text-sm text-gray-soft mt-1.5 font-medium">
+                {loadError}. Check that the API is running, then try again.
+              </p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-5 inline-flex items-center px-5 py-2.5 rounded-full bg-sky text-white text-xs sm:text-sm font-bold hover:bg-sky-bright transition-colors cursor-pointer bubble-shadow-sm"
+              >
+                Retry
+              </button>
+            </div>
+          ) : filteredScholarships.length === 0 ? (
             <div className="bg-white rounded-3xl p-10 text-center border border-sky/15 bubble-shadow-sm max-w-lg mx-auto mt-6">
               <Coins className="w-12 h-12 text-sky-deep mx-auto mb-3 opacity-60" />
               <p className="font-bold text-blue-ink text-base">
@@ -190,6 +239,20 @@ export default function ScholarshipsPage() {
                     alt={scholarship.title}
                     className="absolute inset-0 w-full h-full object-cover object-center"
                   />
+
+                  {/* Information Check verdict — flagged sources are called out
+                      on the card, before a student clicks through. */}
+                  {scholarship.infoCheck.isRisky && (
+                    <div className="absolute top-3 left-3 z-20">
+                      <span
+                        className="inline-flex items-center gap-1.5 rounded-full bg-momo px-2.5 py-1 text-[10px] font-extrabold text-blue-ink shadow-sm"
+                        title={scholarship.infoCheck.reasons.join(" ")}
+                      >
+                        <AlertTriangle className="w-3 h-3" />
+                        Check source
+                      </span>
+                    </div>
+                  )}
 
                   {/* Floating Save Button on Image */}
                   <div className="absolute top-3 right-3 z-20">

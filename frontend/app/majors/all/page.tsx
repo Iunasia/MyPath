@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import {
   Search,
@@ -11,7 +11,14 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { MAJORS_DATA, CATEGORIES, MajorItem } from "@/app/data/majors";
+import { CATEGORIES } from "@/app/data/majors";
+import { fetchMajors } from "@/app/lib/api";
+import {
+  categoriesOf,
+  plainCategory,
+  toMajorViews,
+  type MajorView,
+} from "@/app/lib/catalogAdapters";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 
@@ -21,9 +28,46 @@ export default function AllMajorsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  // Filter 12 majors by category and search keyword
+  const [majors, setMajors] = useState<MajorView[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetchMajors()
+      .then((rows) => {
+        if (!cancelled) setMajors(toMajorViews(rows));
+      })
+      .catch(() => {
+        /* The list simply stays empty; the main /majors page reports errors. */
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const categories = useMemo(
+    () =>
+      categoriesOf(majors).map((category) => {
+        const styling = CATEGORIES.find(
+          (c) => plainCategory(c.id) === plainCategory(category)
+        );
+        return {
+          id: category,
+          name: plainCategory(category),
+          icon: styling?.icon ?? BookOpen,
+        };
+      }),
+    [majors]
+  );
+
+  // Filter majors by category and search keyword
   const filteredMajors = useMemo(() => {
-    return MAJORS_DATA.filter((major) => {
+    return majors.filter((major) => {
       const matchesCategory = selectedCategory
         ? major.category === selectedCategory
         : true;
@@ -39,7 +83,7 @@ export default function AllMajorsPage() {
 
       return matchesCategory && matchesSearch;
     });
-  }, [searchQuery, selectedCategory]);
+  }, [majors, searchQuery, selectedCategory]);
 
   useMemo(() => {
     setCurrentPage(1);
@@ -111,8 +155,8 @@ export default function AllMajorsPage() {
             >
               All Majors
             </button>
-            {CATEGORIES.map((cat) => {
-              const count = MAJORS_DATA.filter((m) => m.category === cat.id).length;
+            {categories.map((cat) => {
+              const count = majors.filter((m) => m.category === cat.id).length;
               const isSelected = selectedCategory === cat.id;
 
               return (
@@ -181,11 +225,9 @@ export default function AllMajorsPage() {
                           <Icon className={`w-6 h-6 ${major.iconColor}`} strokeWidth={2.2} />
                         </div>
 
-                        {major.badge && (
-                          <span
-                            className={`text-xs font-bold px-3 py-1 rounded-full ${major.badge.bg} ${major.badge.textColor}`}
-                          >
-                            {major.badge.text}
+                        {major.jobMarketDemand !== "Not stated" && (
+                          <span className="text-xs font-bold px-3 py-1 rounded-full bg-momo text-blue-ink">
+                            {major.jobMarketDemand}
                           </span>
                         )}
                       </div>

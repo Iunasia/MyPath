@@ -1,10 +1,26 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { Search, X, ArrowRight, Briefcase, GraduationCap, TrendingUp } from "lucide-react";
+import {
+  Search,
+  X,
+  ArrowRight,
+  Briefcase,
+  GraduationCap,
+  TrendingUp,
+  AlertTriangle,
+  Loader2,
+} from "lucide-react";
 
-import { CAREERS_DATA, CAREER_CATEGORIES } from "@/app/data/careers";
+import { CAREER_CATEGORIES } from "@/app/data/careers";
+import { fetchCareers } from "@/app/lib/api";
+import {
+  categoriesOf,
+  plainCategory,
+  toCareerViews,
+  type CareerView,
+} from "@/app/lib/catalogAdapters";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 
@@ -14,8 +30,50 @@ export default function CareersPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
+  const [careers, setCareers] = useState<CareerView[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetchCareers()
+      .then((rows) => {
+        if (!cancelled) setCareers(toCareerViews(rows));
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) {
+          setLoadError(err instanceof Error ? err.message : "Could not load careers");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Built from the data rather than a constant, so a category added to the
+  // spreadsheet becomes a filter without a code change.
+  const categories = useMemo(() => {
+    return categoriesOf(careers).map((category) => {
+      const styling = CAREER_CATEGORIES.find(
+        (c) => plainCategory(c.id) === plainCategory(category)
+      );
+      return {
+        id: category,
+        name: plainCategory(category),
+        icon: styling?.icon ?? Briefcase,
+        bg: styling?.bg ?? "bg-sitomo",
+        iconColor: styling?.iconColor ?? "text-sky-deep",
+      };
+    });
+  }, [careers]);
+
   const filteredCareers = useMemo(() => {
-    return CAREERS_DATA.filter((career) => {
+    return careers.filter((career) => {
       const matchesCategory = selectedCategory
         ? career.category === selectedCategory
         : true;
@@ -32,12 +90,11 @@ export default function CareersPage() {
             career.educationRequired.toLowerCase().includes(q) ||
             career.keySkills.some((s) => s.toLowerCase().includes(q)) ||
             career.bestFitPersonality.some((p) => p.toLowerCase().includes(q)) ||
-            career.relatedMajors.some((m) => m.name.toLowerCase().includes(q)) ||
             career.relatedMajorsText.some((m) => m.toLowerCase().includes(q));
 
       return matchesCategory && matchesSearch;
     });
-  }, [searchQuery, selectedCategory]);
+  }, [careers, searchQuery, selectedCategory]);
 
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
@@ -101,7 +158,7 @@ export default function CareersPage() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 lg:gap-4">
-            {CAREER_CATEGORIES.map((cat) => {
+            {categories.map((cat) => {
               const Icon = cat.icon;
               const isSelected = selectedCategory === cat.id;
 
@@ -144,7 +201,26 @@ export default function CareersPage() {
             </h2>
           </div>
 
-          {filteredCareers.length === 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center gap-3 py-20 text-gray-soft">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span className="text-sm font-semibold">Loading careers…</span>
+            </div>
+          ) : loadError ? (
+            <div className="bg-white rounded-3xl p-10 text-center border border-sky/15 bubble-shadow-sm mt-4 max-w-lg mx-auto">
+              <AlertTriangle className="w-12 h-12 text-momo mx-auto mb-3" />
+              <p className="font-bold text-blue-ink text-base">Couldn&apos;t load careers</p>
+              <p className="text-xs sm:text-sm text-gray-soft mt-1.5">
+                {loadError}. Check that the API is running, then try again.
+              </p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-5 inline-flex items-center px-5 py-2.5 rounded-full bg-sky text-white text-xs sm:text-sm font-bold hover:bg-sky-bright transition-colors cursor-pointer"
+              >
+                Retry
+              </button>
+            </div>
+          ) : filteredCareers.length === 0 ? (
             <div className="bg-white rounded-3xl p-10 text-center border border-sky/15 bubble-shadow-sm mt-4 max-w-lg mx-auto">
               <p className="font-bold text-blue-ink text-base">
                 No careers found

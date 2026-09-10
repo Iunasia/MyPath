@@ -12,17 +12,16 @@ import {
   Target,
   CheckCircle2,
 } from "lucide-react";
-import { CAREERS_DATA } from "@/app/data/careers";
+import { getCareer, getMajors } from "@/app/lib/api.server";
+import { linkMajors, toCareerView, toMajorViews } from "@/app/lib/catalogAdapters";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 
-/* ── Static Generation for all Careers ─────────────────── */
-
-export function generateStaticParams() {
-  return CAREERS_DATA.map((career) => ({
-    id: career.id,
-  }));
-}
+/**
+ * Rendered per request. Prerendering would need the API up at build time, and
+ * content changes whenever the team re-seeds.
+ */
+export const dynamic = "force-dynamic";
 
 /* ── Career Detail Page ────────────────────────────────── */
 
@@ -32,11 +31,20 @@ interface PageProps {
 
 export default async function CareerDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const career = CAREERS_DATA.find((c) => c.id === id);
 
-  if (!career) {
+  // Majors are fetched too, so "Majors That Lead Here" can link by real id —
+  // the spreadsheet stores the relationship as a plain name.
+  const [row, majorRows] = await Promise.all([getCareer(id), getMajors()]);
+
+  if (!row) {
     notFound();
   }
+
+  const career = toCareerView(row);
+  const { links: relatedMajors, unmatched: relatedMajorsUnmatched } = linkMajors(
+    career.relatedMajorsText,
+    toMajorViews(majorRows)
+  );
 
   const Icon = career.icon;
 
@@ -215,9 +223,9 @@ export default async function CareerDetailPage({ params }: PageProps) {
               {career.title}.
             </p>
 
-            {career.relatedMajors.length > 0 ? (
+            {relatedMajors.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {career.relatedMajors.map((major) => {
+                {relatedMajors.map((major) => {
                   const MajorIcon = major.icon;
                   return (
                     <Link
@@ -243,9 +251,13 @@ export default async function CareerDetailPage({ params }: PageProps) {
                   );
                 })}
               </div>
-            ) : (
-              <div className="flex flex-wrap gap-2">
-                {career.relatedMajorsText.map((m) => (
+            ) : null}
+
+            {/* Names the spreadsheet lists that have no major record yet —
+                shown as plain chips rather than links that would 404. */}
+            {relatedMajorsUnmatched.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-4">
+                {relatedMajorsUnmatched.map((m) => (
                   <span
                     key={m}
                     className="bg-momo text-blue-ink text-sm font-bold px-4 py-2 rounded-full border border-momo/70"

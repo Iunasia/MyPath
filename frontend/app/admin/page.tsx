@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
+import RequireAdmin from "@/app/components/RequireAdmin";
 import {
   LayoutDashboard,
   GraduationCap,
@@ -105,7 +106,7 @@ const MAJOR_CATEGORIES = [
   "Social Sciences & Law",
 ];
 
-export default function AdminDashboardPage() {
+function AdminDashboardContent() {
   // Navigation tabs: 'majors' | 'universities' | 'scholarships'
   const [activeTab, setActiveTab] = useState<"majors" | "universities" | "scholarships">("majors");
 
@@ -2251,5 +2252,14 @@ export default function AdminDashboardPage() {
         </div>
       )}
     </div>
+  );
+}
+
+/** Admin-only. The server must enforce this too — see RequireAdmin. */
+export default function AdminDashboardPage() {
+  return (
+    <RequireAdmin>
+      <AdminDashboardContent />
+    </RequireAdmin>
   );
 }
