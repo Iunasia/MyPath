@@ -472,7 +472,7 @@ export const UNIVERSITIES_DATA: University[] = [
     location: "Phnom Penh",
     type: "International",
     image: "https://academics-bucket-sj19asxm-prod.s3.ap-southeast-1.amazonaws.com/47268da4-7c59-4aa1-9d5d-1f94a31756af/feature-image.jpg",
-    heroImage: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1600&auto=format&fit=crop&q=80",
+    heroImage: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1600&auto=format&fit=crop&q=80",
     description:
       "Private international university focused strongly on engineering, ICT, business, mathematics and international education.",
     popularMajors: [
@@ -573,12 +573,12 @@ export const UNIVERSITIES_DATA: University[] = [
     applicationDeadline: "August 15, 2026",
     facilities: [
       { name: "Paragon Robotics & AI Lab", image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&auto=format&fit=crop&q=80" },
-      { name: "Modern Sports & Recreation Complex", image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&auto=format&fit=crop&q=80" },
+      { name: "Modern Sports & Recreation Complex", image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80" },
     ],
     scholarship: {
       title: "Paragon.U Scholarship Exam 2026",
       deadline: "01 Aug, 2026",
-      image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&auto=format&fit=crop&q=80",
+      image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80",
     },
     mapImage: "https://images.unsplash.com/photo-1524661135-423995f22d0b?w=900&auto=format&fit=crop&q=80",
     mapUrl: "https://maps.app.goo.gl/uNmh8B18t12wYNkeA",
@@ -1336,8 +1336,8 @@ export const UNIVERSITIES_DATA: University[] = [
     shortName: "NUM",
     location: "Phnom Penh",
     type: "Public",
-    image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&auto=format&fit=crop&q=80",
-    heroImage: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1600&auto=format&fit=crop&q=80",
+    image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80",
+    heroImage: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1600&auto=format&fit=crop&q=80",
     description:
       "Public university focused on business, economics, management, finance, accounting, IT and related fields.",
     popularMajors: [
@@ -1423,13 +1423,13 @@ export const UNIVERSITIES_DATA: University[] = [
     ],
     applicationDeadline: "September 08, 2026",
     facilities: [
-      { name: "NUM Digital Innovation Center", image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&auto=format&fit=crop&q=80" },
+      { name: "NUM Digital Innovation Center", image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80" },
       { name: "Stock Exchange Simulation Room", image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&auto=format&fit=crop&q=80" },
     ],
     scholarship: {
       title: "ÆON & NUM Undergraduate Merit Grants",
       deadline: "22 Sep, 2026",
-      image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&auto=format&fit=crop&q=80",
+      image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80",
     },
     mapImage: "https://images.unsplash.com/photo-1524661135-423995f22d0b?w=900&auto=format&fit=crop&q=80",
     mapUrl: "https://maps.app.goo.gl/YFAB1qB7Lxt139p49",
