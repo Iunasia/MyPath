@@ -54,7 +54,8 @@ const DMIL_STEPS = [
   { icon: Compass, title: "Discover", bg: "bg-sitomo", color: "text-sky-deep" },
   { icon: Search, title: "Search", bg: "bg-momo", color: "text-blue-ink" },
   { icon: Scale, title: "Evaluate", bg: "bg-sitomo", color: "text-blue-ink" },
-  { icon: ShieldCheck, title: "Verify", bg: "bg-sky/25", color: "text-blue-ink" },
+  // Solid, so the connector line doesn't show through; the ring marks it out.
+  { icon: ShieldCheck, title: "Verify", bg: "bg-sitomo", color: "text-blue-ink" },
   { icon: ArrowLeftRight, title: "Compare", bg: "bg-sitomo", color: "text-sky-deep" },
   { icon: FolderTree, title: "Organize", bg: "bg-momo", color: "text-blue-ink" },
   { icon: CheckCircle2, title: "Decide", bg: "bg-sitomo", color: "text-blue-ink" },
@@ -109,12 +110,20 @@ export default function Home() {
 
           {/* Bubble path — desktop: horizontal, mobile: vertical */}
           <div className="relative">
-            {/* Desktop connector line */}
-            <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-0.5 bg-sky/20 -translate-y-1/2 rounded-full" style={{ left: "4%", right: "4%" }} />
+            {/* Desktop connector line — through the bubbles' centres (half of
+                the 4.5rem bubble), from the first bubble to the last: seven
+                equal columns put those centres 1/14 in from each edge. It sat
+                at the middle of the whole row before, cutting through the
+                labels. */}
+            <div
+              className="hidden lg:block absolute top-9 h-0.5 bg-sky/40 -translate-y-1/2 rounded-full"
+              style={{ left: "calc(100% / 14)", right: "calc(100% / 14)" }}
+              aria-hidden="true"
+            />
 
             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 lg:gap-0">
               {DMIL_STEPS.map((step, i) => (
-                <div key={step.title} className={`flex flex-col items-center text-center lg:flex-1 ${i === 3 ? "relative z-10" : ""}`}>
+                <div key={step.title} className="relative z-10 flex flex-col items-center text-center lg:flex-1">
                   {/* Bubble */}
                   <div className={`relative flex items-center justify-center w-16 h-16 lg:w-[4.5rem] lg:h-[4.5rem] rounded-full ${step.bg} ${i === 3 ? "ring-4 ring-sky/35 bubble-shadow" : ""}`}>
                     <step.icon className={`w-7 h-7 lg:w-8 lg:h-8 ${step.color}`} strokeWidth={2.2} aria-hidden="true" />
