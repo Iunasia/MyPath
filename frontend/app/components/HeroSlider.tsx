@@ -13,7 +13,7 @@ const HERO_IMAGES = [
   {
     // pngtree refuses hotlinked requests (403), so this slide was always blank.
     // Same Unsplash photo the scholarship cards already use as a fallback.
-    src: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=2000&auto=format&fit=crop&q=80",
+    src: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=2000&auto=format&fit=crop&q=80",
     alt: "University graduates celebrating with diploma",
   },
   {

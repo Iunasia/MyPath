@@ -194,7 +194,7 @@ export interface MajorView {
 }
 
 const FALLBACK_HERO =
-  "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1600&auto=format&fit=crop&q=80";
+  "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1600&auto=format&fit=crop&q=80";
 
 export const toMajorView = (row: ApiMajor): MajorView => {
   const curated = findByName(MAJORS_DATA, row.name);

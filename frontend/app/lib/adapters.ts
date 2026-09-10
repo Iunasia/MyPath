@@ -148,7 +148,7 @@ const CURATED_IMAGES = new Map(
 );
 
 const FALLBACK_IMAGE =
-  "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&auto=format&fit=crop&q=80";
+  "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1200&auto=format&fit=crop&q=80";
 
 const IMAGE_FILE = /\.(jpe?g|png|webp|gif|avif)(\?|$)/i;
 
