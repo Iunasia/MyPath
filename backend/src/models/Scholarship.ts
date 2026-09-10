@@ -10,25 +10,25 @@ interface Scholarship {
   amount: string;
   coverage: string;
   eligibility: string;
-  deadline: Date;
+  degree_level: string | null;
+  field_of_study: string | null;
+  /** Documents the applicant must prepare. */
+  documents: string[];
+  application_process: string | null;
+  deadline: Date | null;
+  /** Verbatim deadline text when the source is prose ("Rolling", "Aug-Nov"). */
+  deadline_note: string | null;
   application_link: string;
+  image_url: string | null;
   country: string;
+  /** 'scholarship' | 'exchange' | 'internship' */
+  opportunity_type: string;
   source: string;
   source_url: string;
   source_type: string;
   verified_status: string;
+  last_verified: Date | null;
   safety_warnings: string[];
-}
-
-// Interface for the joined query in getSavedByUser
-interface SavedScholarship extends Scholarship {
-  saved_at: Date;
-}
-
-// Interface for the saved_opportunities table
-interface SavedOpportunity {
-  user_id: number;
-  scholarship_id: number;
 }
 
 // Interface for the reports table
@@ -42,7 +42,9 @@ interface Report {
 const Scholarship = {
   // Get all verified scholarships
   getAll: async (): Promise<Scholarship[]> => {
-    const res = await pool.query('SELECT * FROM scholarships ORDER BY deadline ASC NULLS LAST');
+    // Most imported rows have prose deadlines rather than dates, so fall back
+    // to title to keep the ordering stable rather than arbitrary.
+    const res = await pool.query('SELECT * FROM scholarships ORDER BY deadline ASC NULLS LAST, title ASC');
     return res.rows as Scholarship[];
   },
 
@@ -53,34 +55,38 @@ const Scholarship = {
 
   create: async (data: Omit<Scholarship, 'id'>): Promise<Scholarship> => {
     const res = await pool.query(
-      `INSERT INTO scholarships (title, provider, provider_type, description, amount, coverage, eligibility, deadline, application_link, country, source, source_url, source_type, verified_status, safety_warnings)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING *`,
-      [data.title, data.provider, data.provider_type, data.description, data.amount, data.coverage, data.eligibility, data.deadline, data.application_link, data.country, data.source, data.source_url, data.source_type, data.verified_status, data.safety_warnings]
+      `INSERT INTO scholarships (title, provider, provider_type, description, amount, coverage, eligibility, degree_level, field_of_study, documents, application_process, deadline, deadline_note, application_link, image_url, country, opportunity_type, source, source_url, source_type, verified_status, last_verified, safety_warnings)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23) RETURNING *`,
+      [
+        data.title,
+        data.provider,
+        data.provider_type,
+        data.description,
+        data.amount,
+        data.coverage,
+        data.eligibility,
+        data.degree_level ?? null,
+        data.field_of_study ?? null,
+        data.documents ?? [],
+        data.application_process ?? null,
+        data.deadline,
+        data.deadline_note ?? null,
+        data.application_link,
+        data.image_url ?? null,
+        data.country,
+        data.opportunity_type ?? 'scholarship',
+        data.source,
+        data.source_url,
+        data.source_type,
+        data.verified_status,
+        data.last_verified ?? null,
+        data.safety_warnings ?? []
+      ]
     );
     return res.rows[0] as Scholarship;
   },
 
-  // Save opportunity for student
-  saveForUser: async (userId: number, scholarshipId: number): Promise<SavedOpportunity | undefined> => {
-    const res = await pool.query(
-      'INSERT INTO saved_opportunities (user_id, scholarship_id) VALUES ($1, $2) ON CONFLICT DO NOTHING RETURNING *',
-      [userId, scholarshipId]
-    );
-    return res.rows[0] as SavedOpportunity | undefined;
-  },
-
-  // Get all saved opportunities for a student
-  getSavedByUser: async (userId: number): Promise<SavedScholarship[]> => {
-    const res = await pool.query(
-      `SELECT s.*, so.saved_at 
-       FROM scholarships s
-       JOIN saved_opportunities so ON s.id = so.scholarship_id
-       WHERE so.user_id = $1
-       ORDER BY so.saved_at DESC`,
-      [userId]
-    );
-    return res.rows as SavedScholarship[];
-  },
+  // Saving is handled by models/SavedItem.ts, which covers every item type.
 
   // Report outdated info
   report: async (userId: number, scholarshipId: number, reason: string): Promise<Report | undefined> => {

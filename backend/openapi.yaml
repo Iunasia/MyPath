@@ -1,0 +1,849 @@
+openapi: 3.1.0
+
+info:
+  title: MyPath API
+  version: 0.1.0
+  description: |
+    Backend for MyPath — a Digital Media & Information Literacy (DMIL) platform
+    that helps students discover, evaluate, verify and compare information about
+    careers, majors, universities and scholarships.
+
+    This document describes the API **as it currently behaves**, and is kept
+    honest by contract tests in `src/tests/openapi.test.ts`: adding a route
+    without documenting it fails the build.
+
+    ## Authentication
+
+    Session cookies. `POST /auth/register` and `POST /auth/login` set a
+    `connect.sid` cookie; send it on subsequent requests. Browser clients must
+    use `credentials: "include"` — the API is CORS-restricted to `FRONTEND_URL`
+    and allows credentials.
+
+    ## Content type
+
+    Every response is JSON, including 404s and unexpected 500s.
+
+servers:
+  - url: http://localhost:5000
+    description: Local development
+  - url: http://backend:5000
+    description: Inside the Docker Compose network
+
+tags:
+  - name: Pages
+    description: Aggregate data for frontend screens
+  - name: Auth
+    description: Registration, login, session and Google OAuth
+  - name: Scholarships
+    description: Scholarship listings, DMIL information checks, and saving
+  - name: Catalog
+    description: Careers, majors and universities
+  - name: Verification
+    description: "Student requests to verify a scholarship — the DMIL loop"
+  - name: Saved
+    description: A student's saved scholarships, majors, careers and universities
+
+paths:
+  /:
+    get:
+      tags: [Pages]
+      summary: Home page counts
+      description: Totals used by the landing page.
+      security: []
+      responses:
+        '200':
+          description: Counts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title: { type: string, examples: ['MyPath — Home'] }
+                  scholarshipCount: { type: integer, examples: [26] }
+                  universityCount: { type: integer, examples: [2] }
+
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Create an account and start a session
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name: { type: string, examples: ['Sokha Chan'] }
+                email: { type: string, format: email }
+                password: { type: string, format: password, minLength: 8 }
+      description: |
+        New accounts are always created with the `student` role. A `role` field
+        in the request body is ignored — honouring it would let a client
+        register itself as an admin.
+      responses:
+        '201':
+          description: Account created; session cookie set
+          headers:
+            Set-Cookie:
+              schema: { type: string }
+              description: '`connect.sid` session cookie'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  user: { $ref: '#/components/schemas/User' }
+        '400':
+          description: |
+            Email already registered, or the request was invalid. The API
+            returns the same message for both cases.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '403':
+          description: Already logged in
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+    get:
+      tags: [Auth]
+      summary: Registration endpoint probe
+      description: Returns a placeholder message. Present for parity with the old server-rendered app.
+      security: []
+      responses:
+        '200':
+          description: Placeholder
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+        '403': { description: Already logged in }
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Log in and start a session
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, format: password }
+      responses:
+        '200':
+          description: Logged in; session cookie set.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  user: { $ref: '#/components/schemas/User' }
+        '400':
+          description: Email or password missing
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          description: |
+            Invalid email or password. Deliberately identical for an unknown
+            email and a wrong password, so accounts cannot be enumerated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '403': { description: Already logged in }
+        '429': { $ref: '#/components/responses/RateLimited' }
+    get:
+      tags: [Auth]
+      summary: Login endpoint probe
+      security: []
+      responses:
+        '200': { description: Placeholder }
+        '403': { description: Already logged in }
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: The currently authenticated user
+      description: |
+        Called by the frontend on every page load to restore the session.
+        Not rate limited — the brute-force limiter covers only login and
+        register, so normal browsing never trips it.
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { $ref: '#/components/schemas/User' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /auth/logout:
+    get:
+      tags: [Auth]
+      summary: Destroy the session
+      description: Succeeds whether or not a session exists.
+      security: []
+      responses:
+        '200':
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+
+  /auth/google:
+    get:
+      tags: [Auth]
+      summary: Begin Google OAuth
+      security: []
+      responses:
+        '302': { description: Redirect to Google's consent screen }
+        '503':
+          description: Google OAuth is not configured on the server
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /auth/google/callback:
+    get:
+      tags: [Auth]
+      summary: Google OAuth callback
+      description: Redirects to `FRONTEND_URL` on success, or to `/auth/signin` on failure.
+      security: []
+      parameters:
+        - { name: code, in: query, schema: { type: string } }
+        - { name: state, in: query, schema: { type: string } }
+      responses:
+        '302': { description: Redirect to the frontend }
+
+  /scholarships:
+    get:
+      tags: [Scholarships]
+      summary: List all scholarships
+      description: |
+        Ordered by `deadline` ascending, with undated entries last, then by
+        title. Each item carries an `infoCheck` object (see the DMIL section in
+        `docs/API.md`).
+      security: []
+      responses:
+        '200':
+          description: All scholarships
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/Scholarship'
+                    - type: object
+                      properties:
+                        infoCheck: { $ref: '#/components/schemas/InfoCheck' }
+
+  /scholarships/{id}:
+    get:
+      tags: [Scholarships]
+      summary: A single scholarship
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: The scholarship and its information check
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title: { type: string }
+                  scholarship: { $ref: '#/components/schemas/Scholarship' }
+                  infoCheck: { $ref: '#/components/schemas/InfoCheck' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /saved:
+    get:
+      tags: [Saved]
+      summary: Everything the current student has saved
+      description: |
+        Newest first, across all four item types. Each entry carries a `title`,
+        `subtitle` and `image` so a card can be rendered without a second
+        request.
+      responses:
+        '200':
+          description: The saved list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/SavedItem' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /saved/{type}/{id}:
+    parameters:
+      - name: type
+        in: path
+        required: true
+        schema: { type: string, enum: [scholarship, major, career, university] }
+      - $ref: '#/components/parameters/Id'
+    post:
+      tags: [Saved]
+      summary: Save an item
+      description: Idempotent — saving twice stores one row and still returns `201`.
+      responses:
+        '201':
+          description: Saved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Saved]
+      summary: Remove a saved item
+      description: Answers `204` whether or not the item was saved.
+      responses:
+        '204': { description: Removed }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /verification-requests:
+    post:
+      tags: [Verification]
+      summary: Ask us to check a scholarship
+      description: |
+        The DMIL submission flow. The important case is a link a student saw on
+        social media that is **not** in our catalogue, so `url` is the primary
+        input and `scholarshipId` is optional — but a `scholarshipId` on its own
+        is also a complete request ("is this deadline still right?").
+
+        An offline automated check runs inline and comes back in the response,
+        so the student gets something immediately while a human review is
+        queued. The review team is alerted over Telegram.
+
+        Limited to 10 accepted submissions per account per hour, since each
+        one pings the team. Rejected submissions (4xx) don't count.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: At least one of `url`, `title` or `scholarshipId` is required.
+              properties:
+                url: { type: string, examples: ['https://www.facebook.com/share/p/abc/'] }
+                title: { type: string, maxLength: 300 }
+                note: { type: string, maxLength: 2000, description: What the student wants to know. }
+                scholarshipId: { type: integer, description: When asking about a listing we already hold. }
+      responses:
+        '201':
+          description: Request recorded, with the automated first pass
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request: { $ref: '#/components/schemas/VerificationRequest' }
+                  autoCheck: { $ref: '#/components/schemas/LinkCheck' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429':
+          description: 10 accepted submissions from this account in the last hour
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+    get:
+      tags: [Verification]
+      summary: The student's own requests — their inbox
+      responses:
+        '200':
+          description: Requests, newest first, plus the unread answer count
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requests:
+                    type: array
+                    items: { $ref: '#/components/schemas/VerificationRequest' }
+                  unread: { type: integer }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /verification-requests/all:
+    get:
+      tags: [Verification]
+      summary: The review queue (admins only)
+      description: Pending first, then oldest first within each status.
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema: { type: string, enum: [pending, reviewing, resolved] }
+      responses:
+        '200':
+          description: Every request
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/VerificationRequest' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /verification-requests/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Verification]
+      summary: One request
+      description: |
+        Readable by the student who submitted it or by any admin. Opening your
+        own resolved request clears its unread flag.
+      responses:
+        '200':
+          description: The request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VerificationRequest' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      tags: [Verification]
+      summary: Record a review decision (admins only)
+      description: |
+        Setting `status` to `resolved` requires a `verdict`, stamps the reviewer
+        and time, and marks the answer unread so it surfaces in the student's
+        inbox. `reviewing` claims a request without answering it yet.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [pending, reviewing, resolved] }
+                verdict: { type: [string, 'null'], enum: [legitimate, scam, outdated, unverifiable, null] }
+                response: { type: string, description: What the student is told. }
+      responses:
+        '200':
+          description: The updated request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VerificationRequest' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /careers:
+    get:
+      tags: [Catalog]
+      summary: List all careers
+      description: Ordered by category, then title.
+      security: []
+      responses:
+        '200':
+          description: All careers
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Career' }
+
+  /careers/{id}:
+    get:
+      tags: [Catalog]
+      summary: A single career
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: The career
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Career' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /majors:
+    get:
+      tags: [Catalog]
+      summary: List all majors
+      description: Ordered by field, then name.
+      security: []
+      responses:
+        '200':
+          description: All majors
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Major' }
+
+  /majors/{id}:
+    get:
+      tags: [Catalog]
+      summary: A single major
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: The major
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Major' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /universities:
+    get:
+      tags: [Catalog]
+      summary: List all universities
+      description: Ordered by name.
+      security: []
+      responses:
+        '200':
+          description: All universities
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/University' }
+
+  /universities/{idOrSlug}:
+    get:
+      tags: [Catalog]
+      summary: A single university, by numeric id or slug
+      description: |
+        Accepts either form — `/universities/5` or `/universities/cadt` — so the
+        frontend's slug-based links keep working.
+      security: []
+      parameters:
+        - name: idOrSlug
+          in: path
+          required: true
+          schema: { type: string }
+          description: Numeric primary key, or the university's slug.
+          examples:
+            slug: { value: cadt }
+            id: { value: '5' }
+      responses:
+        '200':
+          description: The university
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/University' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: connect.sid
+      description: Session cookie issued by `/auth/register` or `/auth/login`.
+
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema: { type: integer, minimum: 1 }
+      description: Numeric primary key.
+
+  responses:
+    BadRequest:
+      description: Malformed request (for example a non-numeric `id`)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Forbidden:
+      description: Signed in, but not allowed to do this
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Unauthorized:
+      description: No valid session
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound:
+      description: Resource does not exist
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    RateLimited:
+      description: Too many requests (10 per 15 minutes per IP on login and register)
+      headers:
+        RateLimit-Limit: { schema: { type: integer } }
+        RateLimit-Remaining: { schema: { type: integer } }
+        RateLimit-Reset: { schema: { type: integer } }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error: { type: string, examples: ['Unauthorized: Please log in to access this page.'] }
+
+    User:
+      type: object
+      description: Safe user projection — never includes the password hash.
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string, format: email }
+        role: { type: string, enum: [student, admin], default: student }
+        auth_provider: { type: string, enum: [local, google] }
+        google_id: { type: [string, 'null'] }
+        avatar_url: { type: [string, 'null'] }
+        created_at: { type: string, format: date-time }
+
+    InfoCheck:
+      type: object
+      description: |
+        The DMIL "Information Check" verdict attached to every scholarship.
+
+        Derived from the provenance stored on the row at seed time
+        (`verified_status`, `source_type`, `safety_warnings`) plus a re-check of
+        the cheap invariants, so rows written by any other path are still
+        assessed. Offline and synchronous — no network calls.
+      properties:
+        isRisky:
+          type: boolean
+          description: True when the listing is flagged or has any reason recorded.
+        reasons:
+          type: array
+          items: { type: string }
+          description: Concerns to show the student, safe to render directly.
+          examples: [['Link points to a social media post rather than an official application page.']]
+        source:
+          type: [string, 'null']
+          description: Hostname the information came from.
+          examples: ['cadt.edu.kh']
+        sourceUrl: { type: [string, 'null'], description: Link to the original page. }
+        sourceType:
+          type: string
+          enum: [official, organisation, news, social_media, unknown]
+        verifiedStatus:
+          type: string
+          enum: [verified, flagged, unverified]
+          description: Result of the offline checks; not a human review.
+        lastVerified: { type: [string, 'null'], format: date-time }
+        summary:
+          type: string
+          description: One line for the "Why should I trust this?" panel.
+          examples: ['This information comes from an official government or academic source.']
+
+    LinkCheck:
+      type: object
+      description: |
+        The automated first pass over a submitted link. Offline only — URL
+        structure, domain reputation and scam wording. Never a verdict; it
+        exists to answer the student immediately and point the reviewer at
+        what to look at.
+      properties:
+        score: { type: integer, minimum: 0, maximum: 100, description: Higher is more concerning. }
+        level: { type: string, enum: [low, caution, high] }
+        findings:
+          type: array
+          items: { type: string }
+          description: Plain-English concerns, safe to show a student directly.
+          examples: [['Mentions a fee to apply — legitimate scholarships do not charge one.']]
+        passed:
+          type: array
+          items: { type: string }
+          description: What the automated pass could confirm.
+        hostname: { type: [string, 'null'] }
+        sourceType:
+          type: string
+          enum: [official, organisation, news, social_media, unknown]
+
+    VerificationRequest:
+      type: object
+      description: A student asking us to check whether a scholarship is real.
+      properties:
+        id: { type: integer }
+        user_id: { type: [integer, 'null'] }
+        scholarship_id:
+          type: [integer, 'null']
+          description: Null when the submission is a link we do not hold — the common case.
+        submitted_url: { type: [string, 'null'] }
+        submitted_title: { type: string }
+        note: { type: [string, 'null'], description: What the student wants to know. }
+        auto_check: { $ref: '#/components/schemas/LinkCheck' }
+        status: { type: string, enum: [pending, reviewing, resolved] }
+        verdict: { type: [string, 'null'], enum: [legitimate, scam, outdated, unverifiable, null] }
+        admin_response: { type: [string, 'null'] }
+        reviewed_by: { type: [integer, 'null'] }
+        reviewed_at: { type: [string, 'null'], format: date-time }
+        read_by_user: { type: boolean }
+        created_at: { type: string, format: date-time }
+        submitted_by_name: { type: [string, 'null'], description: Present on list endpoints. }
+        submitted_by_email: { type: [string, 'null'] }
+        reviewed_by_name: { type: [string, 'null'] }
+
+    SavedItem:
+      type: object
+      description: |
+        A polymorphic saved row, joined with enough of the target record to
+        render a card. `item_id` points at a different table depending on
+        `item_type`.
+      properties:
+        user_id: { type: integer }
+        item_type: { type: string, enum: [scholarship, major, career, university] }
+        item_id: { type: integer }
+        saved_at: { type: string, format: date-time }
+        title: { type: string }
+        subtitle: { type: [string, 'null'] }
+        image: { type: [string, 'null'] }
+
+    Scholarship:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        provider: { type: string, examples: ['AUPP / MPTC'] }
+        provider_type:
+          type: string
+          enum: [government, university, foundation, company, organisation, unknown]
+        description: { type: string }
+        amount:
+          type: string
+          description: Short award summary, derived from `coverage`.
+          examples: ['100% tuition']
+        coverage: { type: string, description: Full benefits text from the source sheet. }
+        eligibility: { type: string }
+        degree_level: { type: [string, 'null'], examples: ['Bachelor'] }
+        field_of_study: { type: [string, 'null'] }
+        documents: { type: array, items: { type: string } }
+        application_process: { type: [string, 'null'] }
+        deadline:
+          type: [string, 'null']
+          format: date-time
+          description: |
+            Stored as an instant. Source sheets are written in Cambodian local
+            time (UTC+7), so a 5:00 PM deadline is stored as `17:00+07:00`.
+        deadline_note:
+          type: [string, 'null']
+          description: Verbatim text when the deadline is prose rather than a date.
+          examples: ['Not announced']
+        application_link: { type: string }
+        image_url: { type: [string, 'null'] }
+        country: { type: string, default: Cambodia }
+        opportunity_type: { type: string, enum: [scholarship, exchange, internship] }
+        source: { type: string, description: Hostname of the official page. }
+        source_url: { type: string }
+        source_type:
+          type: string
+          enum: [official, organisation, news, social_media, unknown]
+        verified_status:
+          type: string
+          enum: [verified, flagged, unverified]
+          description: Result of the offline seed-time checks; not a human review.
+        last_verified: { type: [string, 'null'], format: date-time }
+        safety_warnings: { type: array, items: { type: string } }
+
+    Career:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        category: { type: string, examples: ['💻 Technology & Digital'] }
+        description: { type: string }
+        responsibilities: { type: [string, 'null'] }
+        average_salary:
+          type: [string, 'null']
+          description: Not supplied by the source spreadsheet; always null today.
+        growth_outlook: { type: [string, 'null'], examples: ['High / Growing'] }
+        education_required: { type: [string, 'null'] }
+        personality_fit: { type: [string, 'null'] }
+        required_skills: { type: array, items: { type: string } }
+        related_majors: { type: array, items: { type: string } }
+        source: { type: [string, 'null'] }
+        source_url: { type: [string, 'null'] }
+
+    Major:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        field: { type: string }
+        description: { type: string }
+        duration: { type: [string, 'null'] }
+        degree_type: { type: [string, 'null'] }
+        subjects: { type: array, items: { type: string } }
+        personality_fit: { type: [string, 'null'] }
+        job_market_demand: { type: [string, 'null'] }
+        related_careers: { type: array, items: { type: string } }
+        universities: { type: array, items: { type: string } }
+        related_scholarships: { type: array, items: { type: string } }
+        source: { type: [string, 'null'] }
+        source_url: { type: [string, 'null'] }
+
+    University:
+      type: object
+      description: |
+        Seeded from `src/seeds/data/universities.json`, which came from the
+        frontend's curated Cambodian dataset.
+      properties:
+        id: { type: integer }
+        slug:
+          type: [string, 'null']
+          description: Stable URL segment, e.g. `cadt`.
+        name: { type: string }
+        short_name: { type: [string, 'null'], examples: ['CADT'] }
+        country: { type: string, default: Cambodia }
+        city: { type: string }
+        type: { type: [string, 'null'], enum: [Public, Private, International, null] }
+        ranking:
+          type: [integer, 'null']
+          description: Not supplied by the current dataset; always null today.
+        description: { type: string }
+        website: { type: string }
+        phone: { type: [string, 'null'] }
+        established: { type: [string, 'null'], examples: ['2014'] }
+        student_count: { type: [string, 'null'], examples: ['1,500+'] }
+        image_url: { type: [string, 'null'] }
+        tuition_range: { type: [string, 'null'] }
+        acceptance_rate:
+          type: [string, 'null']
+          description: Not supplied by the current dataset; always null today.
+        programs: { type: array, items: { type: string } }
+        scholarships:
+          type: array
+          items: { type: string }
+          description: Scholarship names this university lists.
+        source: { type: string }
+        source_url: { type: string }
+
+security:
+  - sessionCookie: []
