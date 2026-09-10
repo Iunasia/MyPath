@@ -14,7 +14,6 @@ import {
   ArrowRight,
   Building2,
 } from "lucide-react";
-import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import { useSaved, SavedItem } from "@/app/context/SavedContext";
 
@@ -90,8 +89,6 @@ export default function SavedPage() {
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       {/* Responsive Viewport Container: 25px on mobile, 40px tablet, 80px desktop */}
       <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
-        {/* ── Top Header Navigation ────────────────────────── */}
-        <Header activeNav="saved" />
 
         {/* ── Main Content Area ────────────────────────────── */}
         <main className="w-full pb-16 flex flex-col mt-4 sm:mt-6">

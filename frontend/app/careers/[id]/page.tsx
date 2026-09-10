@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { getCareer, getMajors } from "@/app/lib/api.server";
 import { linkMajors, toCareerView, toMajorViews } from "@/app/lib/catalogAdapters";
-import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import BackLink from "@/app/components/BackLink";
 import SaveItemButton from "@/app/components/SaveItemButton";
@@ -54,7 +53,6 @@ export default async function CareerDetailPage({ params }: PageProps) {
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       <div className="w-full px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
         {/* ── Header ────────────────────────────────────────── */}
-        <Header activeNav="careers" />
         <BackLink href="/careers" label="All careers" className="mb-6" />
 
         {/* ── Main Content ──────────────────────────────────── */}

@@ -19,7 +19,6 @@ import {
   toCareerViews,
   type CareerView,
 } from "@/app/lib/catalogAdapters";
-import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import ListHero from "@/app/components/ListHero";
 import CompareButton from "@/app/components/CompareButton";
@@ -99,7 +98,6 @@ export default function CareersPage() {
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       <div className="w-full px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col flex-1">
-        <Header activeNav="careers" />
 
         <ListHero
           title="Explore careers"

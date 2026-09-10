@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Header from "./components/Header";
 import Footer from "./components/Footer";
 import HeroSlider from "./components/HeroSlider";
 import {
@@ -90,8 +89,6 @@ const TRUST_ITEMS = [
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      {/* ── Reusable Floating Navbar Component ────────── */}
-      <Header variant="home" />
 
       {/* ── Hero Slider (EduBlock Style with Left Slide Animation) ── */}
       <HeroSlider />

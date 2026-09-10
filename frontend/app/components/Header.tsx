@@ -122,10 +122,12 @@ export default function Header({ variant = "default", activeNav, className = "" 
       active ? "bg-sky/15 text-sky-deep font-bold" : "text-blue-ink hover:bg-powder"
     }`;
 
+  // Rendered once from the root layout (see SiteHeader), outside the pages'
+  // padded containers, so it carries the same side margins itself.
   const position =
     variant === "home"
       ? "fixed top-4 inset-x-[25px] sm:inset-x-10 lg:inset-x-[80px]"
-      : "sticky top-3.5 w-full mb-8";
+      : "sticky top-3.5 mt-6 mb-2 mx-[25px] sm:mx-10 lg:mx-[80px]";
 
   return (
     <div className={`${position} z-50 ${className}`}>

@@ -21,7 +21,6 @@ import {
   toUniversityViews,
 } from "@/app/lib/catalogAdapters";
 import { toScholarshipViews } from "@/app/lib/adapters";
-import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import BackLink from "@/app/components/BackLink";
 import SaveItemButton from "@/app/components/SaveItemButton";
@@ -105,8 +104,6 @@ export default async function MajorDetailPage({ params }: PageProps) {
       {/* Full-width responsive container: exactly 25px on mobile, 80px on desktop */}
       <div className="w-full px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
         
-        {/* ── Top Header Component ────────────────────────── */}
-        <Header activeNav="majors" />
         <BackLink href="/majors" label="Majors" className="mb-6" />
 
         {/* ── Main Content: Full Screen with 80px Desktop Margins ── */}

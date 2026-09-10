@@ -17,7 +17,6 @@ import {
   ArrowRight,
   Loader2,
 } from "lucide-react";
-import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import SaveItemButton from "@/app/components/SaveItemButton";
 import CompareButton from "@/app/components/CompareButton";
@@ -162,8 +161,6 @@ export default function ScholarshipDetailPage({
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       {/* Responsive Viewport Container: 25px on mobile, 32px-40px on tablet, 80px on desktop */}
       <div className="w-full flex-1 px-[25px] py-6 sm:px-8 md:px-10 lg:px-[80px] flex flex-col">
-        {/* ── Top Header Component ────────────────────────── */}
-        <Header activeNav="scholarships" />
         <BackLink href="/scholarships" label="All scholarships" className="mb-4" />
 
         {/* ── Main Content Area (Clean text-focused editorial layout) ── */}
