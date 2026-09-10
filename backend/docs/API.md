@@ -148,6 +148,19 @@ by title. Each item carries an [`infoCheck`](#the-dmil-information-check).
 
 To save a scholarship, use [`POST /saved/scholarship/{id}`](#saved-items).
 
+#### `POST /scholarships/{id}/verify` 🛡️
+Records that an admin checked the listing against the provider's own page
+(MVP #8, "Last Verified"). Stamps `last_verified` with the current time and
+`last_verified_by` with the admin; students see the date as "Last verified" in
+the Information Check. `200` → `{ scholarship, infoCheck }`. `400` for a
+malformed id, `404` for an unknown one.
+
+Answering a [verification request](#verification-requests--the-dmil-loop)
+about a listing with the verdict `legitimate` does the same. Re-seeding keeps
+the stamp: a blank "Last verified" cell in the sheet never wipes it, and a
+newer date typed into the sheet wins — without an admin's name, since nobody
+in the app recorded it.
+
 ---
 
 ### Catalog
@@ -369,7 +382,7 @@ for anything else).
 | `status` | Effect |
 |---|---|
 | `reviewing` | Claims the request so teammates know someone's on it. No verdict needed. |
-| `resolved` | **Requires** a `verdict`. Stamps `reviewed_by` and `reviewed_at`, and marks the answer unread so it surfaces in the student's inbox. |
+| `resolved` | **Requires** a `verdict`. Stamps `reviewed_by` and `reviewed_at`, and marks the answer unread so it surfaces in the student's inbox. A `legitimate` verdict on a request about a listing we hold also marks that listing [checked](#post-scholarshipsidverify-️). |
 | `pending` | Puts it back in the queue. |
 
 `verdict` is one of `legitimate`, `scam`, `outdated`, `unverifiable`. Every
@@ -472,9 +485,11 @@ The check re-runs the cheap invariants (missing link, non-HTTPS) rather than
 trusting the stored warnings alone, so a row inserted by any other path — a
 manual `INSERT`, a future admin form — is still assessed.
 
-> `last_verified` is `NULL` for all 26 seeded rows: the `Last verified` column is
-> blank in the source spreadsheet. Fill it in and re-seed to light up that line
-> of the panel.
+> `last_verified` starts as `NULL` because the `Last verified` column is blank in
+> the source spreadsheet. It fills in when an admin checks a listing —
+> [`POST /scholarships/{id}/verify`](#post-scholarshipsidverify-️), or answering
+> a request about it as `legitimate` — or when the sheet carries a date. The
+> admin dashboard's scholarships screen has a "Mark checked by me" button.
 
 ---
 
@@ -609,11 +624,14 @@ so the two save lists had drifted apart. Use `POST /saved/scholarship/{id}` and
 
 ## Not built yet
 
-- **Report Outdated Information** — a `reports` table exists with no endpoint.
-  Likely to become a verification request with `scholarshipId` instead, since
-  `outdated` is already a verdict.
-- **Admin content editing** — no write endpoints for scholarships, universities,
-  careers or majors. Content changes go through the spreadsheets and a re-seed.
+- **Content editing in the app** — the admin dashboard shows every catalogue
+  table and can mark a scholarship checked, but there are no endpoints to
+  create, edit or delete scholarships, universities, careers or majors. Content
+  changes still go through the spreadsheets and a re-seed.
+- **The `reports` table** — unused. "Report outdated information" on a
+  scholarship page sends a verification request with `scholarshipId`, so
+  reports land in the same admin queue and get an answer; the table can be
+  dropped.
 - **Live link checks** — reachability and Google Safe Browsing for submitted links.
 - **Persistent sessions** — sessions use express-session's in-memory store, so a
   backend restart signs everyone out. Needs a Postgres session store before

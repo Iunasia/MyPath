@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Scholarship from '../models/Scholarship';
+import { isAdmin } from '../middleware/admin';
 import { generateInfoCheck } from '../utils/infoCheck';
 import { parseId } from '../utils/params';
 
@@ -24,6 +25,23 @@ router.get('/:id', async (req: Request, res: Response) => {
     scholarship,
     infoCheck: generateInfoCheck(scholarship)
   });
+});
+
+/**
+ * An admin has checked this listing against the provider's own page. Stamps
+ * `last_verified`, which students see as "Last verified" (MVP #8). Admins only.
+ */
+router.post('/:id/verify', isAdmin, async (req: Request, res: Response) => {
+  const id = parseId(req.params.id);
+  if (id === null) {
+    return res.status(400).json({ error: 'Scholarship id must be a positive integer.' });
+  }
+
+  const session = req.session as any;
+  const scholarship = await Scholarship.markVerified(id, session.userId);
+  if (!scholarship) return res.status(404).json({ error: 'Scholarship not found' });
+
+  res.json({ scholarship, infoCheck: generateInfoCheck(scholarship) });
 });
 
 // Saving lives in routes/saved.ts (`POST /saved/scholarship/:id`), which covers

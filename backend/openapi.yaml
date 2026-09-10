@@ -277,6 +277,33 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '404': { $ref: '#/components/responses/NotFound' }
 
+  /scholarships/{id}/verify:
+    post:
+      tags: [Scholarships]
+      summary: Record that an admin checked this listing (admins only)
+      description: |
+        Stamps `last_verified` with the current time and `last_verified_by`
+        with the admin; students see the date as "Last verified" in the
+        Information Check. Resolving a verification request about this
+        listing with the verdict `legitimate` does the same. Re-seeding keeps
+        the stamp unless the sheet carries a more recent date.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: The stamped scholarship
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scholarship: { $ref: '#/components/schemas/Scholarship' }
+                  infoCheck: { $ref: '#/components/schemas/InfoCheck' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /saved:
     get:
       tags: [Saved]
@@ -808,7 +835,13 @@ components:
           type: string
           enum: [verified, flagged, unverified]
           description: Result of the offline seed-time checks; not a human review.
-        last_verified: { type: [string, 'null'], format: date-time }
+        last_verified:
+          type: [string, 'null']
+          format: date-time
+          description: When a person last checked the listing — by an admin in the app, or a date typed into the sheet.
+        last_verified_by:
+          type: [integer, 'null']
+          description: The admin who recorded that check. Null when nobody has, or when the date came from the sheet.
         safety_warnings: { type: array, items: { type: string } }
 
     Career:

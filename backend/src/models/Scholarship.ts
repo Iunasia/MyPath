@@ -27,7 +27,10 @@ interface Scholarship {
   source_url: string;
   source_type: string;
   verified_status: string;
+  /** When a person last checked the listing against its source. */
   last_verified: Date | null;
+  /** The admin who did that check. Set in the app, never by the sheets. */
+  last_verified_by: number | null;
   safety_warnings: string[];
 }
 
@@ -59,7 +62,7 @@ const Scholarship = {
     return res.rows as Scholarship[];
   },
 
-  create: async (data: Omit<Scholarship, 'id'>): Promise<Scholarship> => {
+  create: async (data: Omit<Scholarship, 'id' | 'last_verified_by'>): Promise<Scholarship> => {
     const res = await pool.query(
       `INSERT INTO scholarships (title, provider, provider_type, description, amount, coverage, eligibility, degree_level, field_of_study, documents, application_process, deadline, deadline_note, application_link, image_url, country, opportunity_type, source, source_url, source_type, verified_status, last_verified, safety_warnings)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23) RETURNING *`,
@@ -90,6 +93,18 @@ const Scholarship = {
       ]
     );
     return res.rows[0] as Scholarship;
+  },
+
+  /**
+   * A person confirmed the listing against the provider's own page. Stamps when
+   * and who — students see the date as "Last verified" in the Information Check.
+   */
+  markVerified: async (id: number, userId: number): Promise<Scholarship | undefined> => {
+    const res = await pool.query(
+      'UPDATE scholarships SET last_verified = NOW(), last_verified_by = $2 WHERE id = $1 RETURNING *',
+      [id, userId]
+    );
+    return res.rows[0] as Scholarship | undefined;
   },
 
   // Saving is handled by models/SavedItem.ts, which covers every item type.

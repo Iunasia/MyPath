@@ -161,6 +161,12 @@ router.patch('/:id', isAdmin, async (req: Request, res: Response) => {
 
   if (!updated) return res.status(404).json({ error: 'Request not found' });
 
+  // Confirming a listing we hold as legitimate is a human check of it, so the
+  // scholarship's "Last verified" line updates too.
+  if (status === 'resolved' && verdict === 'legitimate' && updated.scholarship_id) {
+    await Scholarship.markVerified(updated.scholarship_id, session.userId);
+  }
+
   res.json(updated);
 });
 

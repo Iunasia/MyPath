@@ -42,6 +42,7 @@ const TABLES: string[] = [
     source_type TEXT NOT NULL,
     verified_status TEXT NOT NULL,
     last_verified TIMESTAMPTZ,
+    last_verified_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
     safety_warnings TEXT[] NOT NULL DEFAULT '{}'
   )`,
   `CREATE TABLE IF NOT EXISTS careers (
@@ -157,6 +158,8 @@ const ADD_COLUMNS: Array<[string, string]> = [
   ['scholarships', 'image_url TEXT'],
   ['scholarships', "opportunity_type TEXT NOT NULL DEFAULT 'scholarship'"],
   ['scholarships', 'last_verified TIMESTAMPTZ'],
+  // Who did the last human check. Set in the app, never by the sheets.
+  ['scholarships', 'last_verified_by INTEGER REFERENCES users(id) ON DELETE SET NULL'],
   ['careers', 'responsibilities TEXT'],
   ['careers', 'education_required TEXT'],
   ['careers', 'personality_fit TEXT'],
