@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
 import {
   Loader2,
   ShieldAlert,
@@ -9,10 +8,8 @@ import {
   ExternalLink,
   AlertTriangle,
   CheckCircle2,
-  ArrowLeft,
   Inbox,
 } from "lucide-react";
-import RequireAdmin from "@/app/components/RequireAdmin";
 import {
   fetchVerificationQueue,
   reviewVerificationRequest,
@@ -20,12 +17,13 @@ import {
   type RequestStatus,
   type Verdict,
 } from "@/app/lib/api";
+import { formatAge, formatDate as formatDay, PageHeader, Segments } from "../ui";
 
 const VERDICTS: Array<{ value: Verdict; label: string; cls: string }> = [
   { value: "legitimate", label: "Legitimate", cls: "bg-emerald-600 hover:bg-emerald-700" },
   { value: "scam", label: "Scam", cls: "bg-rose-600 hover:bg-rose-700" },
   { value: "outdated", label: "Out of date", cls: "bg-amber-600 hover:bg-amber-700" },
-  { value: "unverifiable", label: "Can't verify", cls: "bg-slate-600 hover:bg-slate-700" },
+  { value: "unverifiable", label: "Can't verify", cls: "bg-gray-body hover:bg-blue-ink" },
 ];
 
 const RISK_CLS: Record<string, string> = {
@@ -34,14 +32,13 @@ const RISK_CLS: Record<string, string> = {
   low: "bg-emerald-50 text-emerald-700 border-emerald-200",
 };
 
+/** "10 Sep, 12:12" — the shared day format ("Sept" from Intl otherwise), plus the time. */
 const formatDate = (iso: string) =>
-  new Intl.DateTimeFormat("en-GB", {
+  `${formatDay(iso)}, ${new Intl.DateTimeFormat("en-GB", {
     timeZone: "Asia/Phnom_Penh",
-    day: "numeric",
-    month: "short",
     hour: "2-digit",
     minute: "2-digit",
-  }).format(new Date(iso));
+  }).format(new Date(iso))}`;
 
 /* ── One request in the queue ──────────────────────────── */
 
@@ -72,28 +69,42 @@ function RequestCard({
   };
 
   return (
-    <article className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+    <article
+      id={`request-${request.id}`}
+      className="scroll-mt-6 bg-white rounded-lg border border-sky/20 p-5 target:ring-2 target:ring-sky"
+    >
       <div className="flex flex-wrap items-start justify-between gap-3 mb-1">
-        <h3 className="font-bold text-slate-900 leading-snug min-w-0">
-          #{request.id} · {request.submitted_title}
+        <h3 className="font-bold text-blue-ink leading-snug min-w-0">
+          <span className="font-mono text-xs text-gray-soft mr-1.5">#{request.id}</span>
+          {request.submitted_title}
         </h3>
         <span
           className={`text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full shrink-0 ${
             request.status === "pending"
-              ? "bg-sky-100 text-sky-800"
+              ? "bg-sky/15 text-sky-deep"
               : request.status === "reviewing"
                 ? "bg-amber-100 text-amber-800"
-                : "bg-slate-100 text-slate-600"
+                : "bg-sitomo text-gray-body"
           }`}
         >
           {request.status}
         </span>
       </div>
 
-      <p className="text-xs text-slate-500 mb-3">
+      <p className="text-xs text-gray-soft mb-3">
         From {request.submitted_by_name ?? "a deleted account"}
-        {request.submitted_by_email && ` (${request.submitted_by_email})`} ·{" "}
-        {formatDate(request.created_at)}
+        {request.submitted_by_email && ` (${request.submitted_by_email})`} · {formatDate(request.created_at)}
+        {request.status !== "resolved" && (
+          <span className="font-bold text-gray-body"> · waiting {formatAge(request.created_at)}</span>
+        )}
+        {request.scholarship_id && (
+          <>
+            {" · "}
+            <a href={`/scholarships/${request.scholarship_id}`} className="font-bold text-sky-deep hover:underline">
+              about listing #{request.scholarship_id}
+            </a>
+          </>
+        )}
       </p>
 
       {request.submitted_url && (
@@ -101,7 +112,7 @@ function RequestCard({
           href={request.submitted_url}
           target="_blank"
           rel="noopener noreferrer nofollow"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-sky-700 hover:underline mb-3 break-all"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-sky-deep hover:underline mb-3 break-all"
         >
           <ExternalLink className="w-3.5 h-3.5 shrink-0" />
           <span className="truncate max-w-full">{request.submitted_url}</span>
@@ -109,16 +120,14 @@ function RequestCard({
       )}
 
       {request.note && (
-        <div className="rounded-xl bg-slate-50 border border-slate-100 px-3.5 py-2.5 mb-3">
-          <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">
-            They said
-          </p>
-          <p className="text-sm text-slate-700">{request.note}</p>
+        <div className="rounded-md bg-powder/50 border border-sky/10 px-3.5 py-2.5 mb-3">
+          <p className="text-[11px] font-extrabold uppercase tracking-wider text-gray-soft mb-1">They said</p>
+          <p className="text-sm text-gray-body">{request.note}</p>
         </div>
       )}
 
       {check && (
-        <div className={`rounded-xl border px-3.5 py-2.5 mb-4 ${RISK_CLS[check.level] ?? RISK_CLS.low}`}>
+        <div className={`rounded-md border px-3.5 py-2.5 mb-4 ${RISK_CLS[check.level] ?? RISK_CLS.low}`}>
           <div className="flex items-center gap-1.5 mb-1.5">
             {check.level === "low" ? (
               <ShieldCheck className="w-4 h-4 shrink-0" />
@@ -135,25 +144,29 @@ function RequestCard({
               <span>{finding}</span>
             </p>
           ))}
-          {check.findings.length === 0 && (
-            <p className="text-xs font-medium">No automatic warning signs.</p>
-          )}
+          {check.findings.length === 0 && <p className="text-xs font-medium">No automatic warning signs.</p>}
         </div>
       )}
 
       {request.status === "resolved" ? (
-        <div className="rounded-xl bg-slate-50 border border-slate-100 px-3.5 py-2.5">
-          <p className="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-1">
+        <div className="rounded-md bg-powder/50 border border-sky/10 px-3.5 py-2.5">
+          <p className="text-xs font-extrabold uppercase tracking-wider text-gray-soft mb-1">
             Answered — {request.verdict}
           </p>
-          <p className="text-sm text-slate-700">{request.admin_response}</p>
-          {request.reviewed_by_name && (
-            <p className="text-[11px] text-slate-400 mt-1.5">by {request.reviewed_by_name}</p>
+          <p className="text-sm text-gray-body">{request.admin_response}</p>
+          {request.reviewed_by_name && <p className="text-[11px] text-gray-soft mt-1.5">by {request.reviewed_by_name}</p>}
+          {!request.user_id && (
+            <p className="text-[11px] text-amber-800 mt-1.5">
+              The account that asked has been deleted, so nobody will read this answer.
+            </p>
           )}
         </div>
       ) : (
         <>
-          <label htmlFor={`r-${request.id}`} className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5">
+          <label
+            htmlFor={`r-${request.id}`}
+            className="block text-[11px] font-extrabold uppercase tracking-wider text-gray-soft mb-1.5"
+          >
             Your reply to the student
           </label>
           <textarea
@@ -162,9 +175,15 @@ function RequestCard({
             onChange={(e) => setResponse(e.target.value)}
             rows={3}
             placeholder="Explain what you found, and what they should do."
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200 focus:border-sky-400 resize-none mb-3"
+            className="w-full px-3.5 py-2.5 rounded-md border border-sky/35 text-sm focus:outline-none focus:ring-2 focus:ring-sky/40 resize-none mb-3"
           />
 
+          {request.scholarship_id && (
+            <p className="text-[11px] text-gray-soft mb-2">
+              Answering <strong>Legitimate</strong> also marks listing #{request.scholarship_id} as checked by you
+              today.
+            </p>
+          )}
           {error && <p className="text-xs text-rose-600 font-medium mb-2">{error}</p>}
 
           <div className="flex flex-wrap items-center gap-2">
@@ -173,7 +192,7 @@ function RequestCard({
                 key={v.value}
                 onClick={() => submit("resolved", v.value)}
                 disabled={busy}
-                className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white transition-colors disabled:opacity-50 cursor-pointer ${v.cls}`}
+                className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-md text-xs font-bold text-white transition-colors disabled:opacity-50 cursor-pointer ${v.cls}`}
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 {v.label}
@@ -184,13 +203,13 @@ function RequestCard({
               <button
                 onClick={() => submit("reviewing")}
                 disabled={busy}
-                className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-600 border border-slate-200 hover:bg-slate-50 transition-colors disabled:opacity-50 cursor-pointer"
+                className="px-3.5 py-2 rounded-md text-xs font-bold text-gray-body border border-sky/35 hover:bg-powder/70 transition-colors disabled:opacity-50 cursor-pointer"
               >
                 I&apos;m looking at this
               </button>
             )}
 
-            {busy && <Loader2 className="w-4 h-4 animate-spin text-slate-400" />}
+            {busy && <Loader2 className="w-4 h-4 animate-spin text-gray-soft" />}
           </div>
         </>
       )}
@@ -200,7 +219,7 @@ function RequestCard({
 
 /* ── Page ──────────────────────────────────────────────── */
 
-function QueueContent() {
+export default function AdminRequestsPage() {
   const [requests, setRequests] = useState<ApiVerificationRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -226,83 +245,66 @@ function QueueContent() {
     })();
   }, [load]);
 
-  const pending = requests.filter((r) => r.status !== "resolved").length;
+  // Links from "Needs attention" point at #request-12 — the cards load after
+  // the browser's own jump to the anchor, so jump again once they're here.
+  useEffect(() => {
+    if (!loading && window.location.hash) {
+      document.querySelector(window.location.hash)?.scrollIntoView({ block: "start" });
+    }
+  }, [loading]);
+
+  const waiting = requests.filter((r) => r.status !== "resolved").length;
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-4xl mx-auto px-5 sm:px-8 py-8">
-        <Link
-          href="/admin"
-          className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-800 mb-6"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Admin dashboard
-        </Link>
-
-        <header className="mb-6">
-          <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 mb-1">
-            Verification requests
-          </h1>
-          <p className="text-sm text-slate-500">
+    <>
+      <PageHeader
+        title="Verification requests"
+        description={
+          <>
             Students asking whether a scholarship is real.
-            {pending > 0 && (
-              <span className="font-bold text-slate-800"> {pending} waiting.</span>
-            )}
-          </p>
-        </header>
+            {waiting > 0 && <span className="font-bold text-blue-ink"> {waiting} waiting.</span>}
+          </>
+        }
+      />
 
-        <div className="flex flex-wrap items-center gap-2 mb-6">
-          {(["all", "pending", "reviewing", "resolved"] as const).map((value) => (
-            <button
-              key={value}
-              onClick={() => setFilter(value)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-bold capitalize transition-colors cursor-pointer ${
-                filter === value
-                  ? "bg-slate-900 text-white"
-                  : "bg-white text-slate-600 border border-slate-200 hover:border-slate-400"
-              }`}
-            >
-              {value}
-            </button>
+      <div className="mb-5">
+        <Segments
+          value={filter}
+          onChange={setFilter}
+          options={[
+            { value: "all", label: "All" },
+            { value: "pending", label: "Pending" },
+            { value: "reviewing", label: "Reviewing" },
+            { value: "resolved", label: "Resolved" },
+          ]}
+        />
+      </div>
+
+      {loading ? (
+        <div className="flex items-center gap-3 py-16 justify-center text-gray-soft">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          <span className="text-sm font-semibold">Loading…</span>
+        </div>
+      ) : error ? (
+        <div className="bg-white rounded-lg border border-rose-200 p-8 text-center">
+          <AlertTriangle className="w-10 h-10 text-rose-400 mx-auto mb-3" />
+          <p className="font-bold text-blue-ink">{error}</p>
+        </div>
+      ) : requests.length === 0 ? (
+        <div className="bg-white rounded-lg border border-sky/20 p-10 text-center">
+          <Inbox className="w-10 h-10 text-gray-faint mx-auto mb-3" />
+          <p className="font-bold text-blue-ink">Nothing here</p>
+          <p className="text-sm text-gray-soft mt-1">
+            {filter === "all" ? "No student has asked us to check anything yet." : `No ${filter} requests.`}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4 max-w-4xl">
+          {requests.map((request) => (
+            <RequestCard key={request.id} request={request} onReviewed={load} />
           ))}
         </div>
-
-        {loading ? (
-          <div className="flex items-center gap-3 py-16 justify-center text-slate-400">
-            <Loader2 className="w-5 h-5 animate-spin" />
-            <span className="text-sm font-semibold">Loading…</span>
-          </div>
-        ) : error ? (
-          <div className="bg-white rounded-2xl border border-rose-200 p-8 text-center">
-            <AlertTriangle className="w-10 h-10 text-rose-400 mx-auto mb-3" />
-            <p className="font-bold text-slate-900">{error}</p>
-          </div>
-        ) : requests.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200 p-10 text-center">
-            <Inbox className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-            <p className="font-bold text-slate-900">Nothing here</p>
-            <p className="text-sm text-slate-500 mt-1">
-              {filter === "all"
-                ? "No student has asked us to check anything yet."
-                : `No ${filter} requests.`}
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {requests.map((request) => (
-              <RequestCard key={request.id} request={request} onReviewed={load} />
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-export default function AdminRequestsPage() {
-  return (
-    <RequireAdmin>
-      <QueueContent />
-    </RequireAdmin>
+      )}
+    </>
   );
 }
