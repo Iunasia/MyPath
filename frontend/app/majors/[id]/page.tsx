@@ -1,23 +1,35 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
-  Share2,
   ExternalLink,
   ShieldCheck,
   MapPin,
 } from "lucide-react";
-import { MAJORS_DATA } from "@/app/data/majors";
+import {
+  getCareers,
+  getMajor,
+  getMajors,
+  getScholarships,
+  getUniversities,
+} from "@/app/lib/api.server";
+import {
+  linkCareers,
+  linkUniversities,
+  toMajorView,
+  toCareerViews,
+  toMajorViews,
+  toUniversityViews,
+} from "@/app/lib/catalogAdapters";
+import { toScholarshipViews } from "@/app/lib/adapters";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
+import BackLink from "@/app/components/BackLink";
 import SaveItemButton from "@/app/components/SaveItemButton";
+import CompareButton from "@/app/components/CompareButton";
+import ShareButton from "@/app/components/ShareButton";
 
-/* ── Static Generation for all 12 Majors ────────────────── */
-
-export function generateStaticParams() {
-  return MAJORS_DATA.map((major) => ({
-    id: major.id,
-  }));
-}
+/** Rendered per request — see the note on the career detail page. */
+export const dynamic = "force-dynamic";
 
 /* ── Major Detail Page ─────────────────────────────────── */
 
@@ -27,11 +39,67 @@ interface PageProps {
 
 export default async function MajorDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const major = MAJORS_DATA.find((m) => m.id === id);
 
-  if (!major) {
+  // Relationships are stored as names, so the related records are fetched and
+  // resolved here rather than being foreign keys.
+  const [row, majorRows, universityRows, scholarshipRows, careerRows] = await Promise.all([
+    getMajor(id),
+    getMajors(),
+    getUniversities(),
+    getScholarships(),
+    getCareers(),
+  ]);
+
+  if (!row) {
     notFound();
   }
+
+  const major = toMajorView(row);
+  const allMajors = toMajorViews(majorRows);
+  const allScholarships = toScholarshipViews(scholarshipRows);
+
+  // Universities named in the spreadsheet, resolved to real records.
+  const { links: universityLinks, unmatched: universityNames } = linkUniversities(
+    major.universitiesText,
+    toUniversityViews(universityRows)
+  );
+  const offerUniversities = universityLinks.map((link) => {
+    const record = toUniversityViews(universityRows).find((u) => u.id === link.id)!;
+    return record;
+  });
+
+  // Same field, excluding this one.
+  const relatedMajors = allMajors
+    .filter((m) => m.id !== major.id && m.category === major.category)
+    .slice(0, 3);
+
+  // Careers this major leads to, resolved from the names in the sheet.
+  const allCareers = toCareerViews(careerRows);
+  const { links: careerLinks } = linkCareers(major.relatedCareersText, allCareers);
+  const careerPathways = careerLinks.slice(0, 3).map((link) => {
+    const record = allCareers.find((c) => c.id === link.id);
+    return {
+      id: link.id,
+      title: link.name,
+      description: record?.whatYouDo ?? "",
+      icon: link.icon,
+    };
+  });
+
+  const lastVerified = "Sourced from the MyPath dataset";
+  const hasDemand = Boolean(major.jobMarketDemand) && major.jobMarketDemand !== "Not stated";
+
+  // Scholarships this major's sheet points at, matched by title.
+  const relatedOpportunities = major.relatedScholarshipsText
+    .map((name) => {
+      const needle = name.toLowerCase().replace(/[^a-z0-9]/g, "");
+      return allScholarships.find((s) => {
+        const title = s.title.toLowerCase().replace(/[^a-z0-9]/g, "");
+        return title.includes(needle) || needle.includes(title);
+      });
+    })
+    .filter((s): s is (typeof allScholarships)[number] => Boolean(s))
+    .slice(0, 3);
 
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
@@ -39,21 +107,8 @@ export default async function MajorDetailPage({ params }: PageProps) {
       <div className="w-full px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
         
         {/* ── Top Header Component ────────────────────────── */}
-        <Header
-          backHref="/majors"
-          backLabel="Back to Majors"
-          showBackArrow={true}
-          activeNav="majors"
-          actions={
-            <button
-              className="p-1.5 text-blue-ink/75 hover:text-sky-deep transition-colors focus:outline-none cursor-pointer"
-              aria-label="Share major"
-              title="Share"
-            >
-              <Share2 className="w-5 h-5" strokeWidth={2} />
-            </button>
-          }
-        />
+        <Header activeNav="majors" />
+        <BackLink href="/majors" label="Majors" className="mb-6" />
 
         {/* ── Main Content: Full Screen with 80px Desktop Margins ── */}
         <main className="w-full pb-16 flex flex-col gap-10">
@@ -63,7 +118,7 @@ export default async function MajorDetailPage({ params }: PageProps) {
             {/* Category Pill */}
             <div className="mb-3">
               <span className="inline-block px-4 py-1.5 rounded-full bg-sky/20 text-sky-deep text-xs font-extrabold uppercase tracking-wider border border-sky/20">
-                {major.category}
+                {major.categoryKey}
               </span>
             </div>
 
@@ -99,27 +154,41 @@ export default async function MajorDetailPage({ params }: PageProps) {
                     {major.duration}
                   </span>
                 </div>
-                {major.jobMarketDemand && (
-                  <span className="bg-sky/90 backdrop-blur-xs px-3.5 py-1.5 rounded-full border border-white/25 text-white font-extrabold shadow-sm">
-                    {major.jobMarketDemand} Demand
+                {/* "Not stated" is the adapter's placeholder, not a level —
+                    it read as "Not stated Demand". */}
+                {hasDemand && (
+                  <span className="bg-sky-deep/90 backdrop-blur-xs px-3.5 py-1.5 rounded-full border border-white/25 text-white font-extrabold shadow-sm">
+                    {major.jobMarketDemand} demand
                   </span>
                 )}
               </div>
             </div>
 
-            {/* Save Major Button */}
-            <div>
+            {/* Save, Compare, Share */}
+            <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3">
               <SaveItemButton
                 item={{
                   id: major.id,
                   type: "major",
                   title: major.name,
-                  subtitle: major.category,
+                  subtitle: major.categoryKey,
                   image: major.heroImage,
                   link: `/majors/${major.id}`,
                 }}
-                className="w-auto"
+                className="w-full sm:w-auto"
               />
+              <div className="flex items-center gap-3">
+                <CompareButton
+                  item={{
+                    type: "major",
+                    apiId: Number(major.id),
+                    title: major.name,
+                    subtitle: major.categoryKey,
+                  }}
+                  className="flex-1 sm:flex-none"
+                />
+                <ShareButton title={major.name} />
+              </div>
             </div>
           </section>
 
@@ -178,7 +247,7 @@ export default async function MajorDetailPage({ params }: PageProps) {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 max-w-5xl mx-auto w-full">
-              {major.careerPathways.map((career) => {
+              {careerPathways.map((career) => {
                 const Icon = career.icon;
                 return (
                   <div
@@ -210,23 +279,27 @@ export default async function MajorDetailPage({ params }: PageProps) {
                     {major.careerOpportunities}
                   </p>
                 </div>
-                <div className="shrink-0">
-                  <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-sitomo text-xs font-bold text-sky-deep border border-sky/20 shadow-2xs">
-                    Demand: {major.jobMarketDemand}
-                  </span>
-                </div>
+                {hasDemand && (
+                  <div className="shrink-0">
+                    <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-sitomo text-xs font-bold text-sky-deep border border-sky/20 shadow-2xs">
+                      Demand: {major.jobMarketDemand}
+                    </span>
+                  </div>
+                )}
               </div>
             )}
           </section>
 
-          {/* 5. Related Majors (Full Width 3-Column Grid) */}
+          {/* 5. Related Majors — only when the field has others; an empty
+              heading read as a broken section. */}
+          {relatedMajors.length > 0 && (
           <section className="w-full">
             <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink tracking-tight mb-6">
               Related Majors
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {major.relatedMajors.map((rel) => {
+              {relatedMajors.map((rel) => {
                 const Icon = rel.icon;
                 return (
                   <Link
@@ -245,21 +318,22 @@ export default async function MajorDetailPage({ params }: PageProps) {
               })}
             </div>
           </section>
+          )}
 
-          {/* 6. Offer Universities (Full Width 4-Column Grid) */}
+          {/* 6. Universities offering this major */}
           <section className="w-full">
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink tracking-tight">
-                Offer Universities
+                Universities offering this major
               </h2>
               <span className="text-xs font-semibold text-gray-soft">
-                {major.offerUniversities.length} Institutions
+                {offerUniversities.length} {offerUniversities.length === 1 ? "university" : "universities"}
               </span>
             </div>
 
             {/* 3 cards per row on desktop (lg:grid-cols-3), 2 on tablet, 1 on mobile */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
-              {major.offerUniversities.map((uni) => (
+              {offerUniversities.map((uni) => (
                 <div
                   key={uni.name}
                   className="group relative rounded-3xl overflow-hidden aspect-[16/11] border border-sky/20 bubble-shadow-sm bg-sitomo/40 hover:border-sky hover:shadow-xl transition-all duration-300"
@@ -299,14 +373,14 @@ export default async function MajorDetailPage({ params }: PageProps) {
           </section>
 
           {/* 7. Related Opportunities (Full Width Grid) */}
-          {major.relatedOpportunities.length > 0 && (
+          {relatedOpportunities.length > 0 && (
             <section className="w-full">
               <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink tracking-tight mb-6">
                 Related Opportunity
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {major.relatedOpportunities.map((opp) => (
+                {relatedOpportunities.map((opp) => (
                   <div
                     key={opp.title}
                     className="flex flex-col sm:flex-row items-center gap-5 bg-white rounded-3xl p-5 border border-sky/15 bubble-shadow-sm hover:border-sky/35 transition-all"
@@ -321,13 +395,13 @@ export default async function MajorDetailPage({ params }: PageProps) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <span className="inline-block px-3 py-1 rounded-full bg-sitomo text-sky-deep text-[10px] font-bold mb-2 border border-sky/10">
-                        {opp.badgeText}
+                        {opp.coverage}
                       </span>
                       <h3 className="font-display text-base font-bold text-blue-ink leading-snug mb-2">
                         {opp.title}
                       </h3>
                       <p className="text-xs text-gray-soft font-medium">
-                        {opp.type} {opp.deadline && `· Deadline: ${opp.deadline}`}
+                        {opp.provider} · Deadline: {opp.deadline}
                       </p>
                     </div>
                   </div>
@@ -362,13 +436,13 @@ export default async function MajorDetailPage({ params }: PageProps) {
               </div>
               <div>
                 <span className="text-xs text-gray-soft block">Last Verified:</span>
-                <span className="font-bold">{major.lastVerified}</span>
+                <span className="font-bold">{lastVerified}</span>
               </div>
             </div>
 
             <div className="mt-4 pt-3 border-t border-blue-ink/10 flex justify-end">
               <a
-                href={major.sourceUrl}
+                href={major.sourceUrl ?? "#"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-sky-deep hover:underline"

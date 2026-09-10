@@ -1,8 +1,6 @@
 import { Request, Response } from 'express';
 import University from '../models/University';
 import Scholarship from '../models/Scholarship';
-import User from '../models/User';
-import { isAuthenticated } from '../middleware/auth';
 
 const router = require('express').Router();
 
@@ -14,26 +12,14 @@ router.get('/', async (req: Request, res: Response) => {
   ]);
 
   // CHANGED to res.json() - sends data to your Next.js frontend
-  res.json({ 
-    title: 'MyPath — Home', 
-    scholarshipCount: scholarships.length, 
-    universityCount: universities.length 
+  res.json({
+    title: 'MyPath — Home',
+    scholarshipCount: scholarships.length,
+    universityCount: universities.length
   });
 });
 
-router.get('/dashboard', isAuthenticated, async (req: Request, res: Response) => {
-  // Access session safely
-  const session = req.session as any;
-  const userId = session.userId;
-
-  // Get user info (returns safe user without password)
-  const user = await User.findById(userId);
-  
-  // Get the user's saved scholarships using the dedicated method
-  const saved = await Scholarship.getSavedByUser(userId);
-
-  // CHANGED to res.json() - sends data to your Next.js frontend
-  res.json({ title: 'My Dashboard', user, saved });
-});
+// The old GET /dashboard (user + saved scholarships) was removed: the frontend
+// gets the user from GET /auth/me and the saved list from GET /saved.
 
 module.exports = router;

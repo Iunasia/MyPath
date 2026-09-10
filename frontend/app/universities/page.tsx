@@ -1,46 +1,64 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import {
-  Search,
-  MapPin,
-  SlidersHorizontal,
-  Building2,
-  X,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { MapPin, SlidersHorizontal, Building2, AlertTriangle, Loader2 } from "lucide-react";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
+import ListHero from "@/app/components/ListHero";
 import SaveItemButton from "@/app/components/SaveItemButton";
-import {
-  UNIVERSITIES_DATA,
-  LOCATIONS,
-} from "@/app/data/universities";
+import CompareButton from "@/app/components/CompareButton";
+import { fetchUniversities } from "@/app/lib/api";
+import { toUniversityViews, type UniversityView } from "@/app/lib/catalogAdapters";
 
 export default function UniversitiesPage() {
-  const ITEMS_PER_PAGE = 10;
-  const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("All Locations");
   const [selectedType, setSelectedType] = useState<string | null>(null);
 
+  const [universities, setUniversities] = useState<UniversityView[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetchUniversities()
+      .then((rows) => {
+        if (!cancelled) setUniversities(toUniversityViews(rows));
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) {
+          setLoadError(err instanceof Error ? err.message : "Could not load universities");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Locations come from the data, so a university in a new city filters
+  // correctly without editing a constant.
+  const locations = useMemo(
+    () => ["All Locations", ...new Set(universities.map((u) => u.location))],
+    [universities]
+  );
+
   // Filter universities based on search and filters
   const filteredUniversities = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
-    return UNIVERSITIES_DATA.filter((uni) => {
+    return universities.filter((uni) => {
       const matchesSearch =
         q === "" ||
         uni.name.toLowerCase().includes(q) ||
         uni.shortName.toLowerCase().includes(q) ||
         uni.location.toLowerCase().includes(q) ||
         uni.popularMajors.some((m) => m.toLowerCase().includes(q)) ||
-        uni.facultiesList?.some(
-          (f) =>
-            f.facultyName.toLowerCase().includes(q) ||
-            f.majors.some((m) => m.toLowerCase().includes(q))
-        );
+        uni.scholarshipsList.some((s) => s.toLowerCase().includes(q));
 
       const matchesLocation =
         selectedLocation === "All Locations" || uni.location === selectedLocation;
@@ -49,95 +67,45 @@ export default function UniversitiesPage() {
 
       return Boolean(matchesSearch && matchesLocation && matchesType);
     });
-  }, [searchQuery, selectedLocation, selectedType]);
+  }, [universities, searchQuery, selectedLocation, selectedType]);
 
-  // Reset page on filter change
-  useMemo(() => {
-    setCurrentPage(1);
-  }, [searchQuery, selectedLocation, selectedType]);
+  const hasActiveFilters = selectedLocation !== "All Locations" || selectedType !== null || searchQuery !== "";
 
-  const totalPages = Math.max(1, Math.ceil(filteredUniversities.length / ITEMS_PER_PAGE));
-  const paginatedUniversities = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredUniversities.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredUniversities, currentPage]);
+  const resetFilters = () => {
+    setSelectedLocation("All Locations");
+    setSelectedType(null);
+    setSearchQuery("");
+  };
 
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       {/* Responsive Viewport Container: 25px on mobile, 80px on desktop */}
       <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
-        {/* ── Top Header Component ────────────────────────── */}
-        <Header backHref="/" backLabel="DOMNER" activeNav="universities" />
+        <Header activeNav="universities" />
 
-        {/* ── Hero Banner: Discover Universities ───────────── */}
-        <section className="relative rounded-3xl overflow-hidden mb-10 border border-sky/20 bubble-shadow-sm min-h-[260px] sm:min-h-[300px] md:min-h-[340px] flex items-center">
-          {/* Background Image */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="https://www.waca.or.jp/en/wp-content/uploads/2021/03/vasily-koloda-8CqDvPuo_kI-unsplash-860x573.jpg"
-            alt="University Graduation and Campus"
-            className="absolute inset-0 w-full h-full object-cover object-center"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/30" />
+        <ListHero
+          title="Find a university"
+          description="Public, private and international universities in Cambodia, with their programmes, tuition and scholarships."
+          search={{
+            value: searchQuery,
+            onChange: setSearchQuery,
+            placeholder: "Search by name, major or scholarship",
+          }}
+        />
 
-          {/* Hero Content */}
-          <div className="relative z-10 p-6 sm:p-10 md:p-14 max-w-2xl w-full">
-            <span className="inline-block px-3.5 py-1 rounded-full bg-white/20 backdrop-blur-xs text-white text-[11px] font-extrabold uppercase tracking-wider mb-3 border border-white/25">
-              Higher Education Directory
-            </span>
-            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-[1.15] mb-6 drop-shadow-sm">
-              Discover Universities
-            </h1>
-
-            {/* Search Bar inside Hero */}
-            <div className="relative max-w-md w-full">
-              <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none z-10">
-                <Search className="w-5 h-5 text-blue-ink/60" strokeWidth={2.2} />
-              </div>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search for University..."
-                className="w-full pl-12 pr-10 py-3.5 bg-white rounded-full text-sm text-blue-ink placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-sky focus:bg-white transition-all bubble-shadow-sm font-medium"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-blue-ink cursor-pointer z-10"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* ── Section Title & Filter Controls ──────────────── */}
+        {/* ── Filter Controls ─────────────────────────────── */}
         <section className="mb-8">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 pb-4 border-b border-sky/15">
-            <div>
-              <h2 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-blue-ink tracking-tight">
-                Have you considered{" "}
-                <span className="text-sky-deep">
-                  where to study?
-                </span>
-              </h2>
-              <p className="text-xs sm:text-sm text-gray-soft mt-1.5 font-medium">
-                Discover Universities and find the right one for you
-              </p>
-            </div>
-
-            {/* Filter Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-sky/15">
             <div className="flex flex-wrap items-center gap-2.5">
               {/* Location Selector */}
               <div className="relative">
                 <select
                   value={selectedLocation}
                   onChange={(e) => setSelectedLocation(e.target.value)}
+                  aria-label="Location"
                   className="appearance-none bg-white border border-sky/25 text-blue-ink text-xs font-bold pl-8 pr-8 py-2 rounded-full cursor-pointer hover:border-sky transition-colors focus:outline-none focus:ring-2 focus:ring-sky/30 bubble-shadow-sm"
                 >
-                  {LOCATIONS.map((loc) => (
+                  {locations.map((loc) => (
                     <option key={loc} value={loc}>
                       {loc}
                     </option>
@@ -154,9 +122,10 @@ export default function UniversitiesPage() {
                   <button
                     key={type}
                     onClick={() => setSelectedType(isSelected ? null : type)}
+                    aria-pressed={isSelected}
                     className={`px-3.5 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
                       isSelected
-                        ? "bg-sky text-white bubble-shadow-sm"
+                        ? "bg-sky-deep text-white bubble-shadow-sm"
                         : "bg-white text-blue-ink border border-sky/20 hover:border-sky bubble-shadow-sm"
                     }`}
                   >
@@ -165,31 +134,51 @@ export default function UniversitiesPage() {
                 );
               })}
 
-              {(selectedLocation !== "All Locations" || selectedType || searchQuery) && (
+              {hasActiveFilters && (
                 <button
-                  onClick={() => {
-                    setSelectedLocation("All Locations");
-                    setSelectedType(null);
-                    setSearchQuery("");
-                  }}
+                  onClick={resetFilters}
                   className="text-xs font-bold text-sky-deep hover:underline px-2 py-1 cursor-pointer"
                 >
                   Reset
                 </button>
               )}
             </div>
-          </div>
 
-          <div className="flex items-center justify-between mt-4">
-            <span className="text-xs font-bold text-gray-soft uppercase tracking-wider">
-              Showing {filteredUniversities.length} Institutions
-            </span>
+            {!loading && !loadError && (
+              <span className="text-xs font-bold text-gray-soft uppercase tracking-wider">
+                {filteredUniversities.length}{" "}
+                {filteredUniversities.length === 1 ? "university" : "universities"}
+              </span>
+            )}
           </div>
         </section>
 
-        {/* ── Universities Responsive Grid (6 cols desktop, 3 cols tablet, 2 cols mobile) ── */}
+        {/* ── Universities Grid (6 cols desktop, 3 tablet, 2 mobile) ──
+            All on one page: the catalogue is small enough that paging split
+            twelve universities into ten and two. */}
         <section className="flex-1 pb-16">
-          {filteredUniversities.length === 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center gap-3 py-20 text-gray-soft">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span className="text-sm font-semibold">Loading universities…</span>
+            </div>
+          ) : loadError ? (
+            <div className="bg-white rounded-3xl p-10 text-center border border-sky/15 bubble-shadow-sm max-w-lg mx-auto mt-6">
+              <AlertTriangle className="w-12 h-12 text-momo mx-auto mb-3" />
+              <p className="font-bold text-blue-ink text-base">
+                Couldn&apos;t load universities
+              </p>
+              <p className="text-xs sm:text-sm text-gray-soft mt-1.5 font-medium">
+                {loadError}. Check that the API is running, then try again.
+              </p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-5 inline-flex items-center px-5 py-2.5 rounded-full bg-sky-deep text-white text-xs sm:text-sm font-bold hover:bg-sky-dark transition-colors cursor-pointer"
+              >
+                Retry
+              </button>
+            </div>
+          ) : filteredUniversities.length === 0 ? (
             <div className="bg-white rounded-3xl p-10 text-center border border-sky/15 bubble-shadow-sm max-w-lg mx-auto mt-6">
               <Building2 className="w-12 h-12 text-sky-deep mx-auto mb-3 opacity-60" />
               <p className="font-bold text-blue-ink text-base">
@@ -199,19 +188,15 @@ export default function UniversitiesPage() {
                 Try clearing your search or picking a different location filter.
               </p>
               <button
-                onClick={() => {
-                  setSelectedLocation("All Locations");
-                  setSelectedType(null);
-                  setSearchQuery("");
-                }}
-                className="mt-5 inline-flex items-center px-5 py-2.5 rounded-full bg-sky text-white text-xs sm:text-sm font-bold hover:bg-sky-bright transition-colors cursor-pointer"
+                onClick={resetFilters}
+                className="mt-5 inline-flex items-center px-5 py-2.5 rounded-full bg-sky-deep text-white text-xs sm:text-sm font-bold hover:bg-sky-dark transition-colors cursor-pointer"
               >
                 Clear all filters
               </button>
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4 lg:gap-5">
-              {paginatedUniversities.map((uni) => (
+              {filteredUniversities.map((uni) => (
                 <Link
                   key={uni.id}
                   href={`/universities/${uni.id}`}
@@ -235,12 +220,22 @@ export default function UniversitiesPage() {
                     </span>
                   </div>
 
-                  {/* Save Button on Card Image */}
-                  <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-20">
+                  {/* Compare + Save Buttons on Card Image */}
+                  <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-20 flex items-center gap-1">
+                    <CompareButton
+                      variant="card-action"
+                      item={{
+                        type: "university",
+                        apiId: uni.apiId,
+                        title: uni.name,
+                        subtitle: uni.location,
+                      }}
+                    />
                     <SaveItemButton
                       variant="card-action"
                       item={{
                         id: uni.id,
+                        apiId: uni.apiId,
                         type: "university",
                         title: uni.name,
                         subtitle: uni.location,
@@ -270,63 +265,6 @@ export default function UniversitiesPage() {
                   </div>
                 </Link>
               ))}
-            </div>
-          )}
-
-          {/* Pagination Controls */}
-          {totalPages > 1 && (
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-sky/20">
-              <span className="text-xs font-bold text-gray-soft">
-                Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, filteredUniversities.length)} of {filteredUniversities.length} Institutions
-              </span>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCurrentPage((p) => Math.max(1, p - 1));
-                    window.scrollTo({ top: 350, behavior: "smooth" });
-                  }}
-                  disabled={currentPage <= 1}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-sky/30 bg-white text-blue-ink text-xs font-bold hover:bg-sitomo/60 disabled:opacity-40 disabled:cursor-not-allowed transition-all bubble-shadow-sm cursor-pointer"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  <span>Prev</span>
-                </button>
-
-                <div className="flex items-center gap-1.5">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-                    <button
-                      key={pageNum}
-                      type="button"
-                      onClick={() => {
-                        setCurrentPage(pageNum);
-                        window.scrollTo({ top: 350, behavior: "smooth" });
-                      }}
-                      className={`w-8 h-8 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                        currentPage === pageNum
-                          ? "bg-sky text-white bubble-shadow-sm"
-                          : "bg-white border border-sky/20 text-blue-ink hover:bg-sitomo/60"
-                      }`}
-                    >
-                      {pageNum}
-                    </button>
-                  ))}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCurrentPage((p) => Math.min(totalPages, p + 1));
-                    window.scrollTo({ top: 350, behavior: "smooth" });
-                  }}
-                  disabled={currentPage >= totalPages}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-sky/30 bg-white text-blue-ink text-xs font-bold hover:bg-sitomo/60 disabled:opacity-40 disabled:cursor-not-allowed transition-all bubble-shadow-sm cursor-pointer"
-                >
-                  <span>Next</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
             </div>
           )}
         </section>

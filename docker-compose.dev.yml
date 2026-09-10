@@ -43,6 +43,13 @@ services:
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
       - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL:-http://localhost:5000/auth/google/callback}
       - SAFE_BROWSING_API_KEY=${SAFE_BROWSING_API_KEY:-}
+      # Optional — Telegram alert to the review team on each verification
+      # request. Disabled unless both are set in .env.
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID:-}
+      # The admin account `npm run seed` creates if that email isn't registered.
+      - SEED_ADMIN_EMAIL=${SEED_ADMIN_EMAIL:-admin@domner.edu.kh}
+      - SEED_ADMIN_PASSWORD=${SEED_ADMIN_PASSWORD:-admin123}
     volumes:
       - ./backend:/app
       # Anonymous volume preserves container's installed node_modules from being overwritten by the host

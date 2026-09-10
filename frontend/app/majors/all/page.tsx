@@ -1,29 +1,65 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
+import { BookOpen } from "lucide-react";
+import { CATEGORIES } from "@/app/data/majors";
+import { fetchMajors } from "@/app/lib/api";
 import {
-  Search,
-  ArrowLeft,
-  X,
-  ExternalLink,
-  BookOpen,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
-import { MAJORS_DATA, CATEGORIES, MajorItem } from "@/app/data/majors";
+  categoriesOf,
+  plainCategory,
+  toMajorViews,
+  type MajorView,
+} from "@/app/lib/catalogAdapters";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
+import ListHero from "@/app/components/ListHero";
+import CompareButton from "@/app/components/CompareButton";
 
 export default function AllMajorsPage() {
-  const ITEMS_PER_PAGE = 10;
-  const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  // Filter 12 majors by category and search keyword
+  const [majors, setMajors] = useState<MajorView[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetchMajors()
+      .then((rows) => {
+        if (!cancelled) setMajors(toMajorViews(rows));
+      })
+      .catch(() => {
+        /* The list simply stays empty; the main /majors page reports errors. */
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const categories = useMemo(
+    () =>
+      categoriesOf(majors).map((category) => {
+        const styling = CATEGORIES.find(
+          (c) => plainCategory(c.id) === plainCategory(category)
+        );
+        return {
+          id: category,
+          name: plainCategory(category),
+          icon: styling?.icon ?? BookOpen,
+        };
+      }),
+    [majors]
+  );
+
+  // Filter majors by category and search keyword
   const filteredMajors = useMemo(() => {
-    return MAJORS_DATA.filter((major) => {
+    return majors.filter((major) => {
       const matchesCategory = selectedCategory
         ? major.category === selectedCategory
         : true;
@@ -39,17 +75,7 @@ export default function AllMajorsPage() {
 
       return matchesCategory && matchesSearch;
     });
-  }, [searchQuery, selectedCategory]);
-
-  useMemo(() => {
-    setCurrentPage(1);
-  }, [searchQuery, selectedCategory]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredMajors.length / ITEMS_PER_PAGE));
-  const paginatedMajors = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredMajors.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredMajors, currentPage]);
+  }, [majors, searchQuery, selectedCategory]);
 
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
@@ -57,46 +83,18 @@ export default function AllMajorsPage() {
       <div className="w-full px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
         
         {/* ── Top Header Component ────────────────────────── */}
-        <Header backHref="/majors" backLabel="Back to Major Explorer" showBackArrow={true} activeNav="majors" />
+        <Header activeNav="majors" />
 
-        {/* ── Page Header & Search ─────────────────────────── */}
-        <section className="mb-8 lg:mb-10">
-          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
-            <div className="max-w-2xl">
-              <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight leading-[1.15]">
-                All Majors &amp; Pathways
-              </h1>
-              <p className="text-xs sm:text-sm lg:text-base text-gray-soft mt-3 leading-relaxed font-medium">
-                Explore our full catalog of university majors, curriculum requirements,
-                accredited institutions, and verified career trajectories.
-              </p>
-            </div>
-
-            {/* Search Input */}
-            <div className="w-full lg:max-w-md">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
-                  <Search className="h-4.5 w-4.5 text-blue-ink/60" strokeWidth={2.2} />
-                </div>
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search all majors, skills, or fields..."
-                  className="w-full pl-11 pr-10 py-3.5 bg-white rounded-2xl border border-sky/20 text-sm text-blue-ink placeholder:text-gray-faint focus:outline-none focus:ring-2 focus:ring-sky/40 focus:border-sky transition-all bubble-shadow-sm font-medium"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery("")}
-                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-soft hover:text-blue-ink cursor-pointer"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
+        <ListHero
+          back={{ href: "/majors", label: "Majors" }}
+          title="All majors"
+          description="Every major in the catalogue. Filter by field, or search by name, skill or subject."
+          search={{
+            value: searchQuery,
+            onChange: setSearchQuery,
+            placeholder: "Search majors, skills or fields",
+          }}
+        />
 
         {/* ── Category Filter Pills ────────────────────────── */}
         <section className="mb-8 overflow-x-auto pb-2 scrollbar-none">
@@ -105,14 +103,14 @@ export default function AllMajorsPage() {
               onClick={() => setSelectedCategory(null)}
               className={`px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
                 selectedCategory === null
-                  ? "bg-sky text-white bubble-shadow-sm"
+                  ? "bg-sky-deep text-white bubble-shadow-sm"
                   : "bg-white text-blue-ink border border-sky/20 hover:border-sky"
               }`}
             >
               All Majors
             </button>
-            {CATEGORIES.map((cat) => {
-              const count = MAJORS_DATA.filter((m) => m.category === cat.id).length;
+            {categories.map((cat) => {
+              const count = majors.filter((m) => m.category === cat.id).length;
               const isSelected = selectedCategory === cat.id;
 
               return (
@@ -121,7 +119,7 @@ export default function AllMajorsPage() {
                   onClick={() => setSelectedCategory(isSelected ? null : cat.id)}
                   className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                     isSelected
-                      ? "bg-sky text-white bubble-shadow-sm"
+                      ? "bg-sky-deep text-white bubble-shadow-sm"
                       : "bg-white text-blue-ink border border-sky/20 hover:border-sky"
                   }`}
                 >
@@ -157,7 +155,7 @@ export default function AllMajorsPage() {
                   setSelectedCategory(null);
                   setSearchQuery("");
                 }}
-                className="mt-5 inline-flex items-center px-5 py-2.5 rounded-full bg-sky text-white text-xs sm:text-sm font-bold hover:bg-sky-bright transition-colors cursor-pointer"
+                className="mt-5 inline-flex items-center px-5 py-2.5 rounded-full bg-sky-deep text-white text-xs sm:text-sm font-bold hover:bg-sky-dark transition-colors cursor-pointer"
               >
                 Clear all filters
               </button>
@@ -181,11 +179,9 @@ export default function AllMajorsPage() {
                           <Icon className={`w-6 h-6 ${major.iconColor}`} strokeWidth={2.2} />
                         </div>
 
-                        {major.badge && (
-                          <span
-                            className={`text-xs font-bold px-3 py-1 rounded-full ${major.badge.bg} ${major.badge.textColor}`}
-                          >
-                            {major.badge.text}
+                        {major.jobMarketDemand !== "Not stated" && (
+                          <span className="text-xs font-bold px-3 py-1 rounded-full bg-momo text-blue-ink">
+                            {major.jobMarketDemand}
                           </span>
                         )}
                       </div>
@@ -213,12 +209,23 @@ export default function AllMajorsPage() {
                       </div>
 
                       {/* Explore Major Action linking to /majors/[id] */}
-                      <Link
-                        href={`/majors/${major.id}`}
-                        className="block w-full rounded-full border-2 border-sky/50 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-sky-deep hover:bg-sky/10 hover:border-sky transition-colors text-center cursor-pointer"
-                      >
-                        Explore Major
-                      </Link>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/majors/${major.id}`}
+                          className="block flex-1 rounded-full border-2 border-sky/50 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-sky-deep hover:bg-sky/10 hover:border-sky transition-colors text-center cursor-pointer"
+                        >
+                          Explore Major
+                        </Link>
+                        <CompareButton
+                          variant="icon"
+                          item={{
+                            type: "major",
+                            apiId: Number(major.id),
+                            title: major.name,
+                            subtitle: major.categoryKey,
+                          }}
+                        />
+                      </div>
                     </div>
                   </article>
                 );

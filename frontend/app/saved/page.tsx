@@ -99,9 +99,6 @@ export default function SavedPage() {
           <section className="mb-8">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-sky/15">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sitomo/60 border border-sky/20 text-sky-deep text-xs font-bold mb-3">
-                  
-                </div>
                 <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight leading-tight">
                   Saved Opportunities
                 </h1>
@@ -167,7 +164,7 @@ export default function SavedPage() {
                     onClick={() => setSelectedTab(tab.id)}
                     className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                       isActive
-                        ? "bg-sky text-white bubble-shadow-sm"
+                        ? "bg-sky-deep text-white bubble-shadow-sm"
                         : "bg-white text-blue-ink border border-sky/20 hover:border-sky bubble-shadow-sm"
                     }`}
                   >
@@ -235,7 +232,7 @@ export default function SavedPage() {
               <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
                 <Link
                   href="/scholarships"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-sky text-white text-xs sm:text-sm font-bold hover:bg-sky-bright transition-all bubble-shadow-sm cursor-pointer"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-sky-deep text-white text-xs sm:text-sm font-bold hover:bg-sky-dark transition-all bubble-shadow-sm cursor-pointer"
                 >
                   <Award className="w-4 h-4" />
                   <span>Explore Scholarships</span>
@@ -280,7 +277,7 @@ export default function SavedPage() {
                   setSelectedTab("all");
                   setSearchQuery("");
                 }}
-                className="px-5 py-2 rounded-full bg-sky text-white text-xs font-bold hover:bg-sky-bright transition-colors cursor-pointer bubble-shadow-sm"
+                className="px-5 py-2 rounded-full bg-sky-deep text-white text-xs font-bold hover:bg-sky-dark transition-colors cursor-pointer bubble-shadow-sm"
               >
                 Reset Filters
               </button>

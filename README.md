@@ -18,6 +18,7 @@ MyPath/
 │   │   ├── routes/           # API routes (auth, careers, majors, scholarships, …)
 │   │   ├── middleware/       # Auth & admin guards
 │   │   └── seeds/            # Database schema + seed script
+│   │       └── data/         # Source .xlsx workbooks the seed reads
 │   ├── middleware/           # Cross-cutting security middleware (rate limiting)
 │   ├── utils/                # Scholarship URL risk checking
 │   └── package.json          # Node.js backend dependencies & scripts
@@ -63,7 +64,19 @@ The database starts empty. With the containers running, seed it once from anothe
 ```bash
 docker compose -f docker-compose.dev.yml exec backend npm run seed
 ```
-> This creates every table and loads sample records. Re-running it **wipes and reloads** all data.
+> This creates every table and loads data. Re-running it **wipes and reloads** all data.
+
+Scholarship, exchange and internship records are read from the Excel workbooks in
+[`backend/src/seeds/data/`](backend/src/seeds/data/) — edit a spreadsheet and re-seed to
+change the data, no code change needed. To see what a workbook would produce without
+touching the database:
+
+```bash
+docker compose -f docker-compose.dev.yml exec backend npm run seed:preview
+```
+
+If that directory has no readable workbook, the seed stops before deleting anything.
+See the [data README](backend/src/seeds/data/README.md) for the column mapping.
 
 #### 4. Run Containers in the Background (Detached Mode)
 ```bash
@@ -100,6 +113,29 @@ docker compose -f docker-compose.dev.yml down
 - **Frontend App**: [http://localhost:3000](http://localhost:3000)
 - **Backend API**: [http://localhost:5000](http://localhost:5000)
 - **PostgreSQL**: `localhost:5432` (user `mypath`, database `mypath`)
+
+---
+
+## API documentation
+
+- [`backend/docs/API.md`](backend/docs/API.md) — endpoint reference, auth model, DMIL fields, and the current known-issues list.
+- [`backend/openapi.yaml`](backend/openapi.yaml) — OpenAPI 3.1 contract. Import it into Postman, Insomnia or Swagger UI.
+
+## Backend tests
+
+```bash
+docker compose -f docker-compose.dev.yml exec backend npm test
+```
+
+API tests run against their own `mypath_test` database and refuse to run against any database whose name does not end in `_test`, so development data is never touched.
+
+They assert *correct* behaviour, so the known issues listed in the API docs currently show up as failures. That is deliberate — each failure is a bug with a reproduction, and fixing one turns its test green.
+
+> After pulling changes that add a backend dependency, rebuild the image — `node_modules` lives in a Docker volume, not the bind mount:
+> ```bash
+> docker compose -f docker-compose.dev.yml build backend
+> docker compose -f docker-compose.dev.yml up -d --force-recreate --renew-anon-volumes backend
+> ```
 
 ---
 
@@ -142,9 +178,10 @@ FRONTEND_URL=http://localhost:3000
 ```
 
 #### Step 4: Create Tables & Seed the Database
-The seed script creates every table before inserting sample data, so run it at least once against a fresh database:
+The seed script creates every table before inserting data, so run it at least once against a fresh database. It reads the opportunity records from the Excel workbooks in `backend/src/seeds/data/`:
 
 ```bash
+npm run seed:preview   # optional — dry run, prints what would be inserted
 npm run seed
 ```
 

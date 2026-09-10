@@ -11,7 +11,9 @@ import {
 /* ── 3 Auto-Changing Full-Screen Hero Images ────────────── */
 const HERO_IMAGES = [
   {
-    src: "https://png.pngtree.com/thumb_back/fh260/background/20240110/pngtree-silhouette-of-graduates-many-happy-students-in-robes-tossing-their-graduation-image_15596799.jpg",
+    // pngtree refuses hotlinked requests (403), so this slide was always blank.
+    // Same Unsplash photo the scholarship cards already use as a fallback.
+    src: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=2000&auto=format&fit=crop&q=80",
     alt: "University graduates celebrating with diploma",
   },
   {
@@ -133,7 +135,7 @@ export default function HeroSlider() {
           <div className="flex flex-wrap items-center gap-3">
             <Link
               href="#start"
-              className="inline-flex items-center gap-1.5 rounded-full bg-sky px-7 py-3 text-sm font-bold text-white hover:bg-sky-bright transition-colors bubble-shadow cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-full bg-sky-deep px-7 py-3 text-sm font-bold text-white hover:bg-sky-dark transition-colors bubble-shadow cursor-pointer"
             >
               Start exploring
               <span aria-hidden="true">→</span>
@@ -179,7 +181,7 @@ export default function HeroSlider() {
                 {/* Action Link with Arrow */}
                 <Link
                   href={item.href}
-                  className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-sky-deep hover:text-sky transition-colors group cursor-pointer"
+                  className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-sky-deep hover:text-blue-ink transition-colors group cursor-pointer"
                 >
                   {item.linkText}
                   <span

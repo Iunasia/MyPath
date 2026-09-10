@@ -3,9 +3,11 @@ import { Nunito } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 import { SavedProvider } from "./context/SavedContext";
+import { CompareProvider } from "./context/CompareContext";
 import SmoothScroll from "./components/SmoothScroll";
 import ScrollToTop from "./components/ScrollToTop";
 import SavedToast from "./components/SavedToast";
+import CompareTray from "./components/CompareTray";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -30,8 +32,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <SmoothScroll>
           <AuthProvider>
             <SavedProvider>
-              {children}
-              <SavedToast />
+              <CompareProvider>
+                {children}
+                <SavedToast />
+                <CompareTray />
+              </CompareProvider>
             </SavedProvider>
           </AuthProvider>
         </SmoothScroll>
