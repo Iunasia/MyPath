@@ -36,15 +36,29 @@ const findByName = <T extends { name?: string; title?: string }>(
   name: string
 ): T | undefined => {
   const target = normalize(name);
-  return (
-    list.find(item => normalize(item.name ?? item.title ?? "") === target) ??
-    // Fall back to a containment match so "Computer Science" still finds
-    // "Computer Science (Software Engineering)".
-    list.find(item => {
-      const candidate = normalize(item.name ?? item.title ?? "");
-      return candidate.includes(target) || target.includes(candidate);
-    })
-  );
+  if (!target) return undefined;
+
+  const exact = list.find(item => normalize(item.name ?? item.title ?? "") === target);
+  if (exact) return exact;
+
+  // Fall back to a containment match so "Computer Science" still finds
+  // "Computer Science (Software Engineering)". When several contain it, take
+  // the closest in length: "University of Cambodia" is inside both "The
+  // University of Cambodia" and "Paññāsāstra University of Cambodia", and
+  // taking the first in the list linked students to the wrong university.
+  let best: T | undefined;
+  let bestGap = Infinity;
+  for (const item of list) {
+    const candidate = normalize(item.name ?? item.title ?? "");
+    if (!candidate || !(candidate.includes(target) || target.includes(candidate))) continue;
+
+    const gap = Math.abs(candidate.length - target.length);
+    if (gap < bestGap) {
+      best = item;
+      bestGap = gap;
+    }
+  }
+  return best;
 };
 
 /* ------------------------------------------------------------------ */
