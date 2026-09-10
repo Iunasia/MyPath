@@ -31,6 +31,12 @@ const Major = {
     return res.rows[0] as Major | undefined;
   },
 
+  /** Several at once, for Compare. Row order is not guaranteed — callers reorder. */
+  getByIds: async (ids: number[]): Promise<Major[]> => {
+    const res = await pool.query('SELECT * FROM majors WHERE id = ANY($1::int[])', [ids]);
+    return res.rows as Major[];
+  },
+
   create: async (data: Omit<Major, 'id'>): Promise<Major> => {
     const res = await pool.query(
       `INSERT INTO majors (name, field, description, duration, degree_type, subjects, personality_fit, job_market_demand, related_careers, universities, related_scholarships, source, source_url)

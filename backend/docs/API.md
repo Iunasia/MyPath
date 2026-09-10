@@ -173,6 +173,69 @@ records.
 
 ---
 
+### Compare
+
+#### `GET /compare?type={type}&ids={ids}`
+2–4 items of one type, side by side. Public. `type` is `scholarship`,
+`university`, `major` or `career`; `ids` is comma-separated (`?ids=3,7,12`).
+Items come back in the order given, so the columns stay where the student put
+them.
+
+```json
+{
+  "type": "scholarship",
+  "items": [
+    { "id": 1, "title": "Techo Digital Talent Scholarship 2026", "subtitle": "AUPP / MPTC", "infoCheck": { … } },
+    { "id": 26, "title": "60% Media & Communications Scholarship", "subtitle": "College of Media & Communications, …", "infoCheck": { … } }
+  ],
+  "rows": [
+    {
+      "key": "deadline", "label": "Deadline", "group": "Applying", "kind": "deadline",
+      "values": [{ "date": "2026-09-18T10:00:00.000Z", "note": null }, { "date": "2026-09-07T…", "note": null }],
+      "differs": true,
+      "missing": []
+    },
+    …
+  ],
+  "notes": [
+    { "itemId": 26, "level": "warning", "text": "60% Media & Communications Scholarship closed on 7 Sep 2026." },
+    { "itemId": 26, "level": "warning", "text": "60% Media & Communications Scholarship: Link points to a social media post rather than an official application page." }
+  ]
+}
+```
+
+Each row is one field, with a value per item. The table can be drawn without
+knowing the type:
+
+| Row field | Meaning |
+|---|---|
+| `group` | Section heading — e.g. Overview, Award, Applying, Trust for scholarships |
+| `kind` | How to render `values`: `text` and `url` → string or `null`; `number`; `list` → string array; `date` → ISO string or `null`; `deadline` → `{ date, note }` |
+| `differs` | At least two items say different things (ignoring case, spacing and list order). Highlight these rows. |
+| `missing` | Ids of the items that leave this blank. Show "Not stated", not an empty cell — an option that doesn't say is information. An empty `safety_warnings` list isn't counted. |
+| `common` | List rows only: values every item shares, e.g. the skills two careers have in common |
+
+`notes` are the prompts to show above the table — warnings first:
+
+| Note | When |
+|---|---|
+| ⚠️ closed on … | A scholarship's deadline has passed |
+| ⚠️ *reason* | A scholarship's Information Check is risky (flagged, social-media source, …) |
+| ℹ️ gives its deadline as "…" | The deadline is prose, like "Not announced" |
+| ℹ️ doesn't list … | One item leaves out something that matters (deadline, eligibility, documents, tuition, salary, skills, …) |
+| ℹ️ Neither of these lists … | None of them do — `itemId` is `null` |
+
+| Code | Meaning |
+|---|---|
+| `400` | Unknown `type`; fewer than 2 or more than 4 distinct ids; an id that isn't a positive integer |
+| `404` | Some ids don't exist — `missing` lists them |
+
+Which items a student has picked is up to the frontend (the "compare tray");
+nothing is stored server-side. The typed client is `fetchComparison(type, ids)`
+in `frontend/app/lib/api.ts`.
+
+---
+
 ### Saved items
 
 A student's saved list, across all four content types. Signed-out visitors keep

@@ -30,6 +30,12 @@ const Career = {
     return res.rows[0] as Career | undefined;
   },
 
+  /** Several at once, for Compare. Row order is not guaranteed — callers reorder. */
+  getByIds: async (ids: number[]): Promise<Career[]> => {
+    const res = await pool.query('SELECT * FROM careers WHERE id = ANY($1::int[])', [ids]);
+    return res.rows as Career[];
+  },
+
   create: async (data: Omit<Career, 'id'>): Promise<Career> => {
     const res = await pool.query(
       `INSERT INTO careers (title, category, description, responsibilities, average_salary, growth_outlook, education_required, personality_fit, required_skills, related_majors, source, source_url)
