@@ -1,6 +1,14 @@
 import Link from "next/link";
 import Footer from "./components/Footer";
 import HeroSlider from "./components/HeroSlider";
+import ScholarshipCard from "./components/ScholarshipCard";
+import { getScholarships } from "./lib/api.server";
+import {
+  deadlineState,
+  sortByDeadline,
+  toScholarshipViews,
+  type ScholarshipView,
+} from "./lib/adapters";
 import {
   Compass,
   Search,
@@ -86,12 +94,58 @@ const TRUST_ITEMS = [
 
 /* ── Page ──────────────────────────────────────────────── */
 
-export default function Home() {
+/** Rendered per request: "Closing soon" is live data. */
+export const dynamic = "force-dynamic";
+
+/** The three open scholarships closing soonest — none if the API is down. */
+async function getClosingSoon(): Promise<ScholarshipView[]> {
+  try {
+    return sortByDeadline(toScholarshipViews(await getScholarships()))
+      .filter((s) => deadlineState(s.deadlineAt).kind === "open")
+      .slice(0, 3);
+  } catch {
+    return [];
+  }
+}
+
+export default async function Home() {
+  const closingSoon = await getClosingSoon();
+
   return (
     <div className="flex flex-col min-h-screen bg-white">
 
       {/* ── Hero Slider (EduBlock Style with Left Slide Animation) ── */}
       <HeroSlider />
+
+      {/* ── Closing soon — real listings, so the home page shows the
+          product rather than only describing it ──────────────────── */}
+      {closingSoon.length > 0 && (
+        <section className="pt-16 lg:pt-20 bg-white">
+          <div className="max-w-6xl mx-auto px-6 lg:px-8">
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-8">
+              <div>
+                <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-blue-ink tracking-tight">
+                  Closing soon
+                </h2>
+                <p className="mt-2 text-gray-body font-medium">
+                  Open scholarships with the nearest deadlines.
+                </p>
+              </div>
+              <Link
+                href="/scholarships"
+                className="inline-flex items-center gap-1.5 text-sm font-bold text-sky-deep hover:text-blue-ink shrink-0"
+              >
+                All scholarships <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {closingSoon.map((scholarship) => (
+                <ScholarshipCard key={scholarship.id} scholarship={scholarship} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── DMIL Bubble Path ─────────────────────────────── */}
       <section id="how-it-works" className="py-20 lg:py-28 bg-white">

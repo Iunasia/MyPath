@@ -19,6 +19,8 @@ export interface ScholarshipView extends Scholarship {
   deadlineNote: string | null;
   /** The raw deadline instant — for sorting and the closed state. */
   deadlineAt: string | null;
+  /** False when `image` is only the generic fallback photo. */
+  hasImage: boolean;
 }
 
 /* ------------------------------------------------------------------ */
@@ -71,15 +73,22 @@ export const formatDeadline = (iso: string | null, note: string | null): string 
     year: "numeric"
   }).format(date);
 
-  const time = new Intl.DateTimeFormat("en-GB", {
+  // Built from 24-hour parts: Node and browsers disagree on how en-GB writes
+  // midnight in 12-hour time ("12:00 am" vs "0:00 am"). Comparing against the
+  // string broke the midnight check in the browser, and a server-rendered
+  // page then disagreed with the client (a hydration mismatch).
+  const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: PHNOM_PENH,
-    hour: "numeric",
+    hour: "2-digit",
     minute: "2-digit",
-    hour12: true
-  }).format(date);
+    hourCycle: "h23"
+  }).formatToParts(date);
+  const hour = Number(parts.find(p => p.type === "hour")?.value ?? 0);
+  const minute = parts.find(p => p.type === "minute")?.value ?? "00";
 
-  // Midnight is the importer's "no time given" case — don't show 12:00 am.
-  return time === "12:00 am" ? day : `${day}, ${time}`;
+  // Midnight is the importer's "no time given" case — show the date alone.
+  if (hour === 0 && minute === "00") return day;
+  return `${day}, ${hour % 12 || 12}:${minute} ${hour < 12 ? "am" : "pm"}`;
 };
 
 export const formatLastVerified = (iso: string | null): string => {
@@ -260,7 +269,8 @@ export const toScholarshipView = (row: ApiScholarship): ScholarshipView => ({
   infoCheck: row.infoCheck,
   coverageText: row.coverage,
   deadlineNote: row.deadline_note,
-  deadlineAt: row.deadline
+  deadlineAt: row.deadline,
+  hasImage: toImage(row) !== FALLBACK_IMAGE
 });
 
 export const toScholarshipViews = (rows: ApiScholarship[]): ScholarshipView[] =>
