@@ -174,19 +174,6 @@ export default function Header({ variant = "default", activeNav, className = "" 
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          <Link
-            href="/saved"
-            className={`w-9 h-9 rounded-full border transition-colors flex items-center justify-center ${
-              activeNav === "saved"
-                ? "bg-sky-deep text-white border-sky-deep"
-                : "bg-sitomo text-sky-deep border-sky/20 hover:bg-sky-deep hover:text-white"
-            }`}
-            aria-label="Saved items"
-            title="Saved items"
-          >
-            <Bookmark className="w-4 h-4" />
-          </Link>
-
           {/* Nothing until the session check finishes, so a signed-in student
               never sees "Sign in" flash up. */}
           {!loading &&
