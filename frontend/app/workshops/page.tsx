@@ -32,7 +32,8 @@ import {
 
 /**
  * Category styling strictly using the brand palette:
- * sitomo (#D8EFEF), momo (#FCEBE6), powder (#E2F1F1), sky (#7AB3B7), sky-deep (#4F868A)
+ * Brand tokens only (see globals.css): hard-coded hexes here bypassed the
+ * darker teal the palette moved to, and failed contrast on white.
  */
 const getCategoryStyle = (category: string) => {
   switch (category) {
@@ -47,12 +48,27 @@ const getCategoryStyle = (category: string) => {
   }
 };
 
+/**
+ * Their dates are free text ("30 September 2026", "Maximum capacity reached
+ * upon RSVP"). Parse what we can and treat the rest as undated rather than
+ * finished. Reads the clock, so it stays out of the component body.
+ */
+const isFinished = (ws: WorkshopItem): boolean => {
+  const match = `${ws.deadline} ${ws.date}`.match(/([0-9]{1,2})[ ]+([A-Za-z]+)[ ]+([0-9]{4})/);
+  if (!match) return false;
+  const closes = Date.parse(`${match[1]} ${match[2]} ${match[3]} 23:59`);
+  return !Number.isNaN(closes) && closes < Date.now();
+};
+
+/** Past sessions stay listed, but after the ones people can still join. */
+const byFinishedLast = (rows: WorkshopItem[]): WorkshopItem[] =>
+  [...rows].sort((a, b) => Number(isFinished(a)) - Number(isFinished(b)));
+
 export default function WorkshopsPage() {
   const [selectedWorkshop, setSelectedWorkshop] = useState<WorkshopItem | null>(null);
   const [selectedMentor, setSelectedMentor] = useState<MentorItem | null>(null);
   const [showAllMentorsModal, setShowAllMentorsModal] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
-  const [registeredSuccess, setRegisteredSuccess] = useState(false);
   const [inquirySubmitted, setInquirySubmitted] = useState(false);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -65,31 +81,22 @@ export default function WorkshopsPage() {
   };
 
   // Form states
-  const [regName, setRegName] = useState("");
-  const [regEmail, setRegEmail] = useState("");
   const [inquiryOrg, setInquiryOrg] = useState("");
   const [inquiryMsg, setInquiryMsg] = useState("");
 
-  const handleRegisterWorkshop = (e: React.FormEvent) => {
-    e.preventDefault();
-    setRegisteredSuccess(true);
-    setTimeout(() => {
-      setRegisteredSuccess(false);
-      setSelectedWorkshop(null);
-      setRegName("");
-      setRegEmail("");
-    }, 2000);
-  };
-
+  /**
+   * Hands the message to the sender's own email app. The form used to show
+   * "Message received!" on a timer and send nothing anywhere, so an enquiry
+   * from a university simply vanished.
+   */
   const handleSendInquiry = (e: React.FormEvent) => {
     e.preventDefault();
+    const subject = `Promote with Domner — ${inquiryOrg}`;
+    const body = `${inquiryMsg}\n\n— ${inquiryOrg}`;
+    window.location.href = `mailto:${PROMOTE_CONTACT.email}?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`;
     setInquirySubmitted(true);
-    setTimeout(() => {
-      setInquirySubmitted(false);
-      setShowContactModal(false);
-      setInquiryOrg("");
-      setInquiryMsg("");
-    }, 2000);
   };
 
   return (
@@ -100,7 +107,7 @@ export default function WorkshopsPage() {
         <main className="w-full pb-16 flex flex-col gap-10 sm:gap-12 flex-1">
           {/* ── Hero Title Section ───────────────────────────── */}
           <section className="text-left pt-2 sm:pt-4">
-            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#5B9DA2] tracking-tight leading-[1.15] mb-2.5">
+            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-sky-deep tracking-tight leading-[1.15] mb-2.5">
               Our Services
             </h1>
             <p className="text-xs sm:text-sm lg:text-base text-gray-soft font-medium leading-relaxed max-w-xl">
@@ -162,11 +169,17 @@ export default function WorkshopsPage() {
                 ref={scrollContainerRef}
                 className="flex gap-4 sm:gap-5 overflow-x-auto pb-5 pt-1.5 scroll-smooth snap-x snap-mandatory pr-4 sm:pr-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
               >
-                {WORKSHOPS_DATA.map((ws) => (
-                  <div
+                {byFinishedLast(WORKSHOPS_DATA).map((ws) => (
+                  // A button, not a div: the card opens a dialog, and a div
+                  // with onClick cannot be reached or fired from a keyboard.
+                  <button
                     key={ws.id}
+                    type="button"
                     onClick={() => setSelectedWorkshop(ws)}
-                    className="w-[260px] sm:w-[280px] md:w-[300px] shrink-0 snap-start group flex flex-col justify-between rounded-2xl p-3.5 sm:p-4 bg-white border border-sky/20 bubble-shadow-sm hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+                    aria-haspopup="dialog"
+                    className={`w-[260px] sm:w-[280px] md:w-[300px] shrink-0 snap-start group flex flex-col justify-between text-left rounded-2xl p-3.5 sm:p-4 bg-white border border-sky/20 bubble-shadow-sm hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1 transition-all duration-300 cursor-pointer ${
+                      isFinished(ws) ? "opacity-70" : ""
+                    }`}
                   >
                     <div>
                       {/* Top Row: Category Pill (Brand colors only) */}
@@ -218,13 +231,20 @@ export default function WorkshopsPage() {
                       </div>
                     </div>
 
-                    {/* Bottom Action Row: Details button right-aligned */}
-                    <div className="mt-3 pt-2.5 border-t border-sky/10 flex items-center justify-end">
-                      <span className="inline-flex items-center justify-center px-3.5 py-1 rounded-xl border border-sky text-sky-deep group-hover:bg-sky group-hover:text-white text-xs font-bold transition-colors shadow-2xs">
+                    {/* Bottom Action Row: finished state on the left */}
+                    <div className="mt-3 pt-2.5 border-t border-sky/10 flex items-center justify-between gap-2">
+                      {isFinished(ws) ? (
+                        <span className="rounded-full bg-blue-ink/85 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white">
+                          Finished
+                        </span>
+                      ) : (
+                        <span />
+                      )}
+                      <span className="inline-flex items-center justify-center px-3.5 py-1 rounded-xl border border-sky text-sky-deep group-hover:bg-sky-deep group-hover:text-white text-xs font-bold transition-colors shadow-2xs">
                         Details →
                       </span>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
@@ -353,7 +373,7 @@ export default function WorkshopsPage() {
               {/* Filled Contact Us Button */}
               <button
                 onClick={() => setShowContactModal(true)}
-                className="w-full py-3 sm:py-3.5 rounded-full bg-[#7AB3B7] hover:bg-sky-deep text-white text-xs sm:text-sm font-bold transition-all text-center shadow-xs cursor-pointer"
+                className="w-full py-3 sm:py-3.5 rounded-full bg-sky-deep hover:bg-sky-dark text-white text-xs sm:text-sm font-bold transition-all text-center shadow-xs cursor-pointer"
               >
                 Contact Us
               </button>
@@ -369,7 +389,6 @@ export default function WorkshopsPage() {
             <button
               onClick={() => {
                 setSelectedWorkshop(null);
-                setRegisteredSuccess(false);
               }}
               className="absolute top-5 right-5 w-8 h-8 rounded-full bg-sitomo/50 flex items-center justify-center text-blue-ink hover:bg-sitomo cursor-pointer z-10"
             >
@@ -403,6 +422,36 @@ export default function WorkshopsPage() {
                 className="w-full h-full object-cover"
               />
             </div>
+
+            {/* Sign-up. The modal used to offer no way to register at all,
+                behind a handler nothing called. */}
+            {selectedWorkshop.applicationLink ? (
+              <a
+                href={selectedWorkshop.applicationLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`mb-4 w-full inline-flex items-center justify-center gap-2 py-3 rounded-full font-bold text-xs sm:text-sm transition-colors ${
+                  isFinished(selectedWorkshop)
+                    ? "bg-sitomo text-sky-deep border border-sky/30 hover:bg-powder"
+                    : "bg-sky-deep text-white hover:bg-sky-dark"
+                }`}
+              >
+                {isFinished(selectedWorkshop)
+                  ? "View the organiser's page"
+                  : "Register on the organiser's site"}
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            ) : (
+              <p className="mb-4 rounded-2xl bg-momo border border-momo px-4 py-3 text-xs font-medium text-blue-ink">
+                No sign-up link yet — ask {selectedWorkshop.organization} directly.
+              </p>
+            )}
+
+            {isFinished(selectedWorkshop) && (
+              <p className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-medium text-rose-800">
+                This one has already taken place. It stays here for reference.
+              </p>
+            )}
 
             {/* Key Schedule & Venue Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-2xl bg-powder border border-sky/15 text-xs mb-4">
@@ -475,7 +524,7 @@ export default function WorkshopsPage() {
                   href={selectedWorkshop.applicationLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full sm:flex-1 py-3 px-5 rounded-full bg-sky hover:bg-sky-bright text-white font-bold text-xs sm:text-sm transition-colors text-center shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full sm:flex-1 py-3 px-5 rounded-full bg-sky-deep hover:bg-sky-dark text-white font-bold text-xs sm:text-sm transition-colors text-center shadow-xs flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <span>Apply / Register Here</span>
                   <ExternalLink className="w-4 h-4" />
@@ -623,7 +672,7 @@ export default function WorkshopsPage() {
                 href={PROMOTE_CONTACT.telegramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full bg-[#7AB3B7] hover:bg-sky-deep text-white font-bold text-xs sm:text-sm transition-all shadow-sm"
+                className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full bg-sky-deep hover:bg-sky-dark text-white font-bold text-xs sm:text-sm transition-all shadow-sm"
               >
                 <Send className="w-4 h-4" />
                 Connect on Telegram
@@ -661,8 +710,12 @@ export default function WorkshopsPage() {
             </p>
 
             {inquirySubmitted ? (
-              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-center text-emerald-800 font-bold text-sm">
-                Message received! Our team will contact you shortly.
+              <div className="p-4 rounded-2xl bg-sitomo border border-sky/20 text-center text-blue-ink text-sm font-medium">
+                <p className="font-bold mb-1">Your email app should have opened</p>
+                <p>
+                  The message is addressed to {PROMOTE_CONTACT.email}. If nothing opened,
+                  write to us there or on Telegram.
+                </p>
               </div>
             ) : (
               <form onSubmit={handleSendInquiry} className="space-y-3">
@@ -684,7 +737,7 @@ export default function WorkshopsPage() {
                 />
                 <button
                   type="submit"
-                  className="w-full py-2.5 rounded-full bg-sky hover:bg-sky-bright text-white font-bold text-xs sm:text-sm transition-colors cursor-pointer shadow-xs"
+                  className="w-full py-2.5 rounded-full bg-sky-deep hover:bg-sky-dark text-white font-bold text-xs sm:text-sm transition-colors cursor-pointer shadow-xs"
                 >
                   Send Inquiry
                 </button>
