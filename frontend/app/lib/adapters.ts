@@ -7,7 +7,7 @@
  * as they were and there is one file to fix when the API moves.
  */
 import type { ApiInfoCheck, ApiScholarship } from "./api";
-import { SCHOLARSHIPS_DATA, type Scholarship } from "@/app/data/scholarships";
+import type { Scholarship } from "@/app/data/scholarships";
 
 /** The view model is the existing page shape plus the DMIL verdict. */
 export interface ScholarshipView extends Scholarship {
@@ -19,8 +19,6 @@ export interface ScholarshipView extends Scholarship {
   deadlineNote: string | null;
   /** The raw deadline instant — for sorting and the closed state. */
   deadlineAt: string | null;
-  /** False when `image` is only the generic fallback photo. */
-  hasImage: boolean;
 }
 
 /* ------------------------------------------------------------------ */
@@ -186,19 +184,50 @@ const toCoveragePercent = (amount: string): number | undefined => {
 
 /**
  * The spreadsheet's Image column holds links to Facebook *posts*, not image
- * files — 17 of 26 rows. Using them as an `<img>` src renders a broken image
- * on every card, so a URL is only accepted when it points at a real file.
+ * files — every row — so a URL is only accepted when it points at a real file.
  *
- * Curated artwork keeps coming from the static dataset, matched by title. That
- * file is no longer the source of truth for scholarship *data*; it survives as
- * a presentation asset until the sheet carries real image links.
+ * Otherwise the card shows a photo of the subject from
+ * public/images/scholarships (photographers credited in CREDITS.md there).
+ * Those are stored in the repo because hotlinked stock photos have 404'd on us
+ * twice, blanking every card at once.
+ *
+ * Specific subjects come first: "Media Arts and Studies" is media, not arts,
+ * and "Mathematics – Data Science" is data, not science.
  */
-const CURATED_IMAGES = new Map(
-  SCHOLARSHIPS_DATA.map(s => [s.title.trim().toLowerCase(), s.image])
-);
+const SUBJECT_PHOTOS: Array<[RegExp, string]> = [
+  [/financial need|need-based|community service|social impact/i, "campus"],
+  [/architect|interior design|civil engineer/i, "architecture"],
+  [/account|finance|financial|audit|banking/i, "accounting"],
+  [/data science|mathematic|statistic|analytic/i, "data"],
+  [/media|communication|journalis|film|broadcast/i, "media"],
+  [/\bai\b|artificial intelligence|cyber|comput|software|\bit\b|ict|digital|web|network/i, "technology"],
+  [/engineer|mechanic|electric|technolog/i, "engineering"],
+  [/law|legal|public policy|diplomacy|international relation|political/i, "law"],
+  [/art|design|drama|music|creative|visual/i, "arts"],
+  [/sport|athletic|physical education/i, "sport"],
+  [/tourism|hospitality|hotel/i, "tourism"],
+  [/biolog|chemis|physic|science|medic|health|pharmac|nursing|agricultur/i, "science"],
+  [/business|management|economic|marketing|entrepreneur|commerce/i, "business"],
+  [/japanese|english|language|literature|linguist|humanities|education|social science/i, "language"]
+];
 
-const FALLBACK_IMAGE =
-  "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1200&auto=format&fit=crop&q=80";
+/** No subject to go on — an entrance or merit award, or a whole-college offer. */
+const GENERIC_PHOTO = /exam|entrance|merit|excellence|genius|award/i;
+
+const subjectPhoto = (row: ApiScholarship): string => {
+  const find = (text: string) => SUBJECT_PHOTOS.find(([pattern]) => pattern.test(text))?.[1];
+
+  // The first field listed is the award's main subject. Matching the whole
+  // list first made every business degree that mentions IT a computer photo,
+  // and ITC ("Engineering, Technology, Architecture") an architecture one.
+  const firstField = (row.field_of_study ?? "").split(/[;,/]/)[0]?.trim();
+  const name =
+    (firstField && find(firstField)) ??
+    find(`${row.field_of_study ?? ""} ${row.title}`) ??
+    (GENERIC_PHOTO.test(row.title) ? "graduation" : "campus");
+
+  return `/images/scholarships/${name}.jpg`;
+};
 
 const IMAGE_FILE = /\.(jpe?g|png|webp|gif|avif)(\?|$)/i;
 
@@ -222,22 +251,8 @@ const usableImage = (url: string): boolean => {
   }
 };
 
-const isExpiringHost = (url: string): boolean => {
-  try {
-    return EXPIRING_IMAGE_HOST.test(new URL(url).hostname);
-  } catch {
-    return true;
-  }
-};
-
-const toImage = (row: ApiScholarship): string => {
-  // The curated file holds one of these Facebook links too (the ÆON card).
-  // Curated Unsplash URLs carry no file extension, so only the host is checked.
-  const curated = CURATED_IMAGES.get(row.title.trim().toLowerCase());
-  if (curated && !isExpiringHost(curated)) return curated;
-  if (row.image_url && usableImage(row.image_url)) return row.image_url;
-  return FALLBACK_IMAGE;
-};
+const toImage = (row: ApiScholarship): string =>
+  row.image_url && usableImage(row.image_url) ? row.image_url : subjectPhoto(row);
 
 /* ------------------------------------------------------------------ */
 /* Scholarships                                                        */
@@ -269,8 +284,7 @@ export const toScholarshipView = (row: ApiScholarship): ScholarshipView => ({
   infoCheck: row.infoCheck,
   coverageText: row.coverage,
   deadlineNote: row.deadline_note,
-  deadlineAt: row.deadline,
-  hasImage: toImage(row) !== FALLBACK_IMAGE
+  deadlineAt: row.deadline
 });
 
 export const toScholarshipViews = (rows: ApiScholarship[]): ScholarshipView[] =>

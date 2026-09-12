@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, Award, Calendar, Clock, ShieldCheck } from "lucide-react";
+import { AlertTriangle, Calendar, Clock, ShieldCheck } from "lucide-react";
 import SaveItemButton from "./SaveItemButton";
 import CompareButton from "./CompareButton";
 import { deadlineLabel, deadlineState, type ScholarshipView } from "@/app/lib/adapters";
@@ -26,23 +26,12 @@ export default function ScholarshipCard({ scholarship }: { scholarship: Scholars
       }`}
     >
       <div className="relative h-36 shrink-0 bg-sitomo">
-        {scholarship.hasImage ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={scholarship.image}
-            alt=""
-            className={`w-full h-full object-cover ${closed ? "grayscale" : ""}`}
-          />
-        ) : (
-          // Most listings have no photo of their own; a quiet placeholder
-          // beats the same stock photo repeated down the grid.
-          <div
-            className="w-full h-full bg-gradient-to-br from-sitomo via-powder to-momo flex items-center justify-center"
-            aria-hidden="true"
-          >
-            <Award className="w-12 h-12 text-sky-deep/35" strokeWidth={1.6} />
-          </div>
-        )}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={scholarship.image}
+          alt=""
+          className={`w-full h-full object-cover ${closed ? "grayscale" : ""}`}
+        />
 
         <div className="absolute top-3 left-3 flex flex-col items-start gap-1.5">
           {closed ? (
