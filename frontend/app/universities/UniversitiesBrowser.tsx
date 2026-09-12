@@ -2,9 +2,8 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { MapPin, SlidersHorizontal, Building2, AlertTriangle } from "lucide-react";
+import { MapPin, SlidersHorizontal, Building2, AlertTriangle, Search, X } from "lucide-react";
 import Footer from "@/app/components/Footer";
-import ListHero from "@/app/components/ListHero";
 import SaveItemButton from "@/app/components/SaveItemButton";
 import type { ApiUniversity } from "@/app/lib/api";
 import { toUniversityViews } from "@/app/lib/catalogAdapters";
@@ -64,18 +63,61 @@ export default function UniversitiesBrowser({
       {/* Responsive Viewport Container: 25px on mobile, 80px on desktop */}
       <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
 
-        <ListHero
-          title="Find a university"
-          description="Public, private and international universities in Cambodia, with their programmes, tuition and scholarships."
-          search={{
-            value: searchQuery,
-            onChange: setSearchQuery,
-            placeholder: "Search by name, major or scholarship",
-          }}
-        />
+        {/* ── Hero Banner: Sreynith's design. The photo is served from the
+            repo rather than hotlinked from another site. ───────────────── */}
+        <section className="relative rounded-3xl overflow-hidden mb-10 border border-sky/20 bubble-shadow-sm min-h-[260px] sm:min-h-[300px] md:min-h-[340px] flex items-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/scholarships/campus.jpg"
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/30" />
 
-        {/* ── Filter Controls ─────────────────────────────── */}
+          <div className="relative z-10 p-6 sm:p-10 md:p-14 max-w-2xl w-full">
+            <span className="inline-block px-3.5 py-1 rounded-full bg-white/20 backdrop-blur-xs text-white text-[11px] font-extrabold uppercase tracking-wider mb-3 border border-white/25">
+              Higher Education Directory
+            </span>
+            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-[1.15] mb-6 drop-shadow-sm">
+              Discover Universities
+            </h1>
+
+            <div className="relative max-w-md w-full">
+              <Search
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-soft pointer-events-none"
+                strokeWidth={2.2}
+                aria-hidden="true"
+              />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search for a university..."
+                aria-label="Search for a university"
+                className="w-full pl-12 pr-10 py-3.5 bg-white rounded-full text-sm text-blue-ink placeholder:text-gray-soft focus:outline-none focus:ring-2 focus:ring-sky-deep/40 transition-all bubble-shadow-sm font-medium"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  aria-label="Clear search"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-soft hover:text-blue-ink cursor-pointer"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* ── Section title & filters ─────────────────────── */}
         <section className="mb-8">
+          <h2 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-blue-ink tracking-tight mb-1.5">
+            Have you considered <span className="text-sky-deep">where to study?</span>
+          </h2>
+          <p className="text-sm text-gray-soft font-medium mb-4">
+            Every university in the catalogue, with its programmes, tuition and scholarships.
+          </p>
           <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-sky/15">
             <div className="flex flex-wrap items-center gap-2.5">
               {/* Location Selector */}

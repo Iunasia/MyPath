@@ -63,12 +63,14 @@ export default function MajorsBrowser({
       <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
 
         <ListHero
-          title="Explore majors"
-          description="What you'd study, the skills you'd build, and the careers each major leads to."
+          variant="centred"
+          title="Find the right major for"
+          accent="your future"
+          description="Cambodian academic disciplines, the skills they build, and the careers they lead to."
           search={{
             value: searchQuery,
             onChange: setSearchQuery,
-            placeholder: "Search by major, skill or career",
+            placeholder: "Search by major, skills, or career interest..."
           }}
         />
 

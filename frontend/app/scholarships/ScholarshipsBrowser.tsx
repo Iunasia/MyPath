@@ -12,7 +12,7 @@ import {
 import type { ApiScholarship } from "@/app/lib/api";
 import { deadlineState, sortByDeadline, toScholarshipViews } from "@/app/lib/adapters";
 
-const GRID = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6";
+const GRID = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5";
 
 /** Rows come from the server page, so the list is there on first paint. */
 export default function ScholarshipsBrowser({
@@ -72,12 +72,14 @@ export default function ScholarshipsBrowser({
       <div className="w-full flex-1 px-[25px] py-6 sm:px-8 md:px-10 lg:px-[80px] flex flex-col">
 
         <ListHero
-          title="Find a scholarship"
-          description="Scholarships and tuition waivers for undergraduate study in Cambodia, each with its deadline and a link to the official source."
+          variant="centred"
+          title="Find the right scholarship for"
+          accent="your future"
+          description="Cambodian scholarship programmes and tuition waivers, each with its deadline and a link to the provider's own page."
           search={{
             value: searchQuery,
             onChange: setSearchQuery,
-            placeholder: "Search by name, university or major",
+            placeholder: "Search scholarship name, university, or major...",
           }}
         />
 
@@ -213,19 +215,23 @@ export default function ScholarshipsBrowser({
               Transparency & Verification
             </span>
             <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-blue-ink mb-3">
-              How does Domner verify scholarships?
+              What &ldquo;checked&rdquo; means here
             </h2>
             <p className="text-sm text-gray-body leading-relaxed font-medium mb-6">
-              Every scholarship featured on Domner is verified directly against official ministry notices and university admissions registries in Cambodia.
+              Every listing links to the provider&rsquo;s own page, and every link goes through an
+              automatic check. Someone on the team can also confirm a listing by hand, and the date
+              they did it shows on the page as &ldquo;Last verified&rdquo;. Always read the
+              provider&rsquo;s page before you apply.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 gap-4">
               <div className="p-4 rounded-2xl bg-powder border border-sky/10 flex items-start gap-3">
                 <CheckCircle2 className="w-5 h-5 text-sky-deep shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="text-xs font-bold text-blue-ink">Direct Links</h4>
+                  <h4 className="text-xs font-bold text-blue-ink">The automatic check</h4>
                   <p className="text-[11px] text-gray-soft mt-0.5 leading-normal">
-                    Apply directly on the university or ministry official portal.
+                    Each link is read for the signs of a scam: a fee to apply, a social post in
+                    place of a real site, an odd web address.
                   </p>
                 </div>
               </div>
@@ -233,9 +239,10 @@ export default function ScholarshipsBrowser({
               <div className="p-4 rounded-2xl bg-powder border border-sky/10 flex items-start gap-3">
                 <CheckCircle2 className="w-5 h-5 text-sky-deep shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="text-xs font-bold text-blue-ink">Zero Hidden Fees</h4>
+                  <h4 className="text-xs font-bold text-blue-ink">Checked by a person</h4>
                   <p className="text-[11px] text-gray-soft mt-0.5 leading-normal">
-                    All listed Cambodian government & university grants are verified.
+                    A team member opens the provider&rsquo;s page and confirms the details. Not
+                    every listing has had this yet.
                   </p>
                 </div>
               </div>
@@ -243,9 +250,10 @@ export default function ScholarshipsBrowser({
               <div className="p-4 rounded-2xl bg-powder border border-sky/10 flex items-start gap-3">
                 <CheckCircle2 className="w-5 h-5 text-sky-deep shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="text-xs font-bold text-blue-ink">Updated Deadlines</h4>
+                  <h4 className="text-xs font-bold text-blue-ink">Where deadlines come from</h4>
                   <p className="text-[11px] text-gray-soft mt-0.5 leading-normal">
-                    Current dates verified for the 2026/2027 Cambodian academic year.
+                    The team&rsquo;s spreadsheet. A round whose date has passed is marked Closed
+                    here rather than hidden.
                   </p>
                 </div>
               </div>
