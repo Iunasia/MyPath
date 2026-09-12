@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import {
   Phone,
@@ -16,6 +16,10 @@ import {
   CheckCircle2,
   X,
   Sparkles,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  Trophy,
 } from "lucide-react";
 import Footer from "@/app/components/Footer";
 import {
@@ -26,6 +30,23 @@ import {
   MentorItem,
 } from "@/app/data/workshops";
 
+/**
+ * Category styling strictly using the brand palette:
+ * sitomo (#D8EFEF), momo (#FCEBE6), powder (#E2F1F1), sky (#7AB3B7), sky-deep (#4F868A)
+ */
+const getCategoryStyle = (category: string) => {
+  switch (category) {
+    case "Competition":
+      return "bg-momo text-blue-ink border-momo";
+    case "Leadership Program":
+      return "bg-sitomo text-sky-deep border-sky/30";
+    case "Training":
+      return "bg-powder text-sky-deep border-sky/30";
+    default:
+      return "bg-sitomo text-sky-deep border-sky/20";
+  }
+};
+
 export default function WorkshopsPage() {
   const [selectedWorkshop, setSelectedWorkshop] = useState<WorkshopItem | null>(null);
   const [selectedMentor, setSelectedMentor] = useState<MentorItem | null>(null);
@@ -33,6 +54,15 @@ export default function WorkshopsPage() {
   const [showContactModal, setShowContactModal] = useState(false);
   const [registeredSuccess, setRegisteredSuccess] = useState(false);
   const [inquirySubmitted, setInquirySubmitted] = useState(false);
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: "left" | "right") => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = direction === "left" ? -380 : 380;
+      scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+  };
 
   // Form states
   const [regName, setRegName] = useState("");
@@ -74,95 +104,129 @@ export default function WorkshopsPage() {
               Our Services
             </h1>
             <p className="text-xs sm:text-sm lg:text-base text-gray-soft font-medium leading-relaxed max-w-xl">
-              Empowering your journey with expert-led workshops, personal mentorship, and career opportunities.
+              Empowering your journey with expert-led workshops, personal mentorship, competitions, and verified opportunities.
             </p>
           </section>
 
-          {/* ── Section 1: Workshops ─────────────────────────── */}
+          {/* ── Section 1: Workshops & Opportunities (Single Row Horizontal Scroller) ── */}
           <section>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink tracking-tight">
-                Workshops
-              </h2>
-              <span className="text-xs font-semibold text-sky-deep">
-                {WORKSHOPS_DATA.length} Sessions Available
-              </span>
+              <div>
+                <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink tracking-tight">
+                  Workshops &amp; Opportunities
+                </h2>
+                <p className="text-xs text-gray-soft font-medium mt-0.5 flex items-center gap-1.5">
+                  <span>Swipe or scroll right to explore all verified opportunities</span>
+                  <span className="text-sky-deep font-bold" aria-hidden="true">→</span>
+                </p>
+              </div>
+
+              {/* Header Scroll Navigation Buttons */}
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => scroll("left")}
+                  className="w-9 h-9 rounded-full bg-white border border-sky/25 hover:border-sky text-sky-deep flex items-center justify-center transition-all shadow-xs hover:bg-sitomo/40 cursor-pointer"
+                  aria-label="Scroll left"
+                  title="Scroll left"
+                >
+                  <ChevronLeft className="w-4.5 h-4.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scroll("right")}
+                  className="w-9 h-9 rounded-full bg-white border border-sky/25 hover:border-sky text-sky-deep flex items-center justify-center transition-all shadow-xs hover:bg-sitomo/40 cursor-pointer"
+                  aria-label="Scroll right"
+                  title="Scroll right"
+                >
+                  <ChevronRight className="w-4.5 h-4.5" />
+                </button>
+              </div>
             </div>
 
-            {/* Responsive Workshop Cards: 2 cards per row on mobile matching reference image, 3 on desktop */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3.5 sm:gap-5">
-              {WORKSHOPS_DATA.map((ws) => (
-                <div
-                  key={ws.id}
-                  onClick={() => setSelectedWorkshop(ws)}
-                  className="group flex flex-col rounded-2xl sm:rounded-3xl p-2.5 sm:p-3.5 bg-white border border-sky/20 bubble-shadow-sm hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer"
-                >
-                  {/* Speaker Top Bar */}
-                  <div className="flex items-center gap-2 mb-2 sm:mb-2.5 px-1">
-                    <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-sitomo flex items-center justify-center text-blue-ink overflow-hidden shrink-0 border border-sky/20">
-                      {ws.instructor.avatar ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={ws.instructor.avatar}
-                          alt={ws.instructor.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <UserCircle2 className="w-4 h-4 text-sky-deep" />
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="font-display text-[11px] sm:text-xs font-bold text-blue-ink truncate leading-tight group-hover:text-sky-deep transition-colors">
-                        {ws.instructor.name}
-                      </p>
-                      <p className="text-[9px] sm:text-[10px] text-gray-soft truncate">
-                        {ws.instructor.role}
-                      </p>
-                    </div>
-                  </div>
+            {/* Horizontal Scroller Container */}
+            <div className="relative group/carousel">
+              {/* Floating Right Scroll Button for seamless one-click scrolling */}
+              <button
+                type="button"
+                onClick={() => scroll("right")}
+                className="hidden lg:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white border-2 border-sky/30 text-sky-deep hover:bg-sky hover:text-white shadow-xl items-center justify-center transition-all cursor-pointer hover:scale-105"
+                aria-label="Scroll right"
+                title="Scroll right"
+              >
+                <ChevronRight className="w-5 h-5" strokeWidth={2.5} />
+              </button>
 
-                  {/* Workshop Poster Frame */}
-                  <div className="relative aspect-[4/3] sm:aspect-[16/11] rounded-xl sm:rounded-2xl overflow-hidden bg-slate-900 border border-sky/15 shadow-inner">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={ws.posterImage}
-                      alt={ws.title}
-                      className="w-full h-full object-cover"
-                    />
-
-                    {/* Gradient Overlay for high contrast flyer text */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/20" />
-
-                    {/* Flyer Content Mockup (Matching AUPP Poster from uploaded image) */}
-                    <div className="absolute inset-0 p-2.5 sm:p-3 flex flex-col justify-between text-white">
-                      <div className="flex items-center justify-end">
-                        <span className="bg-white/25 backdrop-blur-xs text-white text-[8px] sm:text-[9px] font-bold px-2 py-0.5 rounded-full border border-white/20">
-                          {ws.price}
+              {/* Scroll Track: Single row, larger width, scrollbar deleted, scroll from right */}
+              <div
+                ref={scrollContainerRef}
+                className="flex gap-4 sm:gap-5 overflow-x-auto pb-5 pt-1.5 scroll-smooth snap-x snap-mandatory pr-4 sm:pr-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+              >
+                {WORKSHOPS_DATA.map((ws) => (
+                  <div
+                    key={ws.id}
+                    onClick={() => setSelectedWorkshop(ws)}
+                    className="w-[260px] sm:w-[280px] md:w-[300px] shrink-0 snap-start group flex flex-col justify-between rounded-2xl p-3.5 sm:p-4 bg-white border border-sky/20 bubble-shadow-sm hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+                  >
+                    <div>
+                      {/* Top Row: Category Pill (Brand colors only) */}
+                      <div className="flex items-center gap-2 mb-2.5">
+                        <span
+                          className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border ${getCategoryStyle(
+                            ws.category
+                          )}`}
+                        >
+                          {ws.category}
                         </span>
                       </div>
 
-                      <div>
-                        <p className="text-[10px] sm:text-xs font-extrabold uppercase tracking-tight text-sitomo leading-snug line-clamp-2 drop-shadow-sm">
-                          {ws.title}
-                        </p>
-                        <p className="text-[8px] sm:text-[10px] text-white/90 font-medium mt-0.5 truncate">
-                          {ws.date} · {ws.time}
-                        </p>
+                      {/* Image Poster Preview */}
+                      <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-slate-900 border border-sky/15 shadow-inner mb-3">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={ws.posterImage}
+                          alt={ws.title}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                        <div className="absolute top-2 right-2">
+                          <span className="bg-sky text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-white/20 shadow-xs">
+                            {ws.price ?? "Free"}
+                          </span>
+                        </div>
+                        <div className="absolute bottom-2 left-2 right-2">
+                          <span className="text-[10px] text-white/95 font-medium truncate block drop-shadow-xs">
+                            📍 {ws.location}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Title (2 lines clamp) */}
+                      <h3 className="font-display text-sm sm:text-base font-bold text-blue-ink group-hover:text-sky-deep transition-colors leading-snug line-clamp-2 min-h-[42px]">
+                        {ws.title}
+                      </h3>
+
+                      {/* Schedule & Deadline */}
+                      <div className="mt-2 space-y-1">
+                        <div className="flex items-center gap-1.5 text-gray-soft text-[10px] sm:text-[11px]">
+                          <Calendar className="w-3 h-3 text-sky-deep shrink-0" />
+                          <span className="truncate">
+                            Deadline: <strong className="text-blue-ink">{ws.deadline}</strong>
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Bottom Tap to RSVP hint */}
-                  <div className="mt-2.5 pt-2 border-t border-sky/10 flex items-center justify-between px-1 text-[10px] sm:text-xs">
-                    <span className="text-emerald-700 font-bold">
-                      {ws.seatsLeft} seats left
-                    </span>
-                    <span className="text-sky-deep font-bold group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
-                      Details →
-                    </span>
+                    {/* Bottom Action Row: Details button right-aligned */}
+                    <div className="mt-3 pt-2.5 border-t border-sky/10 flex items-center justify-end">
+                      <span className="inline-flex items-center justify-center px-3.5 py-1 rounded-xl border border-sky text-sky-deep group-hover:bg-sky group-hover:text-white text-xs font-bold transition-colors shadow-2xs">
+                        Details →
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </section>
 
@@ -242,10 +306,10 @@ export default function WorkshopsPage() {
                   </div>
                   <div>
                     <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink">
-                      Promote With Us
+                      Promote With Domner
                     </h2>
                     <p className="text-xs text-gray-body leading-relaxed mt-1 font-medium">
-                      Want to promote your university, workshop, or educational opportunity?
+                      Want to promote your university, workshop, or educational opportunity on Domner?
                     </p>
                   </div>
                 </div>
@@ -298,24 +362,33 @@ export default function WorkshopsPage() {
         </main>
       </div>
 
-      {/* ── Modal 1: Workshop Detail & Registration ───────── */}
+      {/* ── Modal 1: Workshop & Opportunity Detail Modal ───────── */}
       {selectedWorkshop && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 relative border border-sky/20 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 relative border border-sky/20 shadow-2xl max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => {
                 setSelectedWorkshop(null);
                 setRegisteredSuccess(false);
               }}
-              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-sitomo/50 flex items-center justify-center text-blue-ink hover:bg-sitomo cursor-pointer"
+              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-sitomo/50 flex items-center justify-center text-blue-ink hover:bg-sitomo cursor-pointer z-10"
             >
               <X className="w-4 h-4" />
             </button>
 
-            <div className="mb-4">
-              <span className="inline-block px-3 py-1 rounded-full bg-sitomo text-sky-deep text-[11px] font-bold uppercase tracking-wider mb-2">
-                {selectedWorkshop.institution}
-              </span>
+            <div className="mb-4 pr-8">
+              <div className="flex items-center gap-2 mb-2">
+                <span
+                  className={`text-[11px] font-extrabold px-3 py-1 rounded-full border ${getCategoryStyle(
+                    selectedWorkshop.category
+                  )}`}
+                >
+                  {selectedWorkshop.category}
+                </span>
+                <span className="text-xs font-bold text-gray-soft">
+                  {selectedWorkshop.organization}
+                </span>
+              </div>
               <h3 className="font-display text-xl sm:text-2xl font-bold text-blue-ink">
                 {selectedWorkshop.title}
               </h3>
@@ -331,69 +404,95 @@ export default function WorkshopsPage() {
               />
             </div>
 
-            {/* Key Schedule Information */}
-            <div className="grid grid-cols-2 gap-3 p-3.5 rounded-2xl bg-powder border border-sky/15 text-xs mb-4">
+            {/* Key Schedule & Venue Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-2xl bg-powder border border-sky/15 text-xs mb-4">
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-sky-deep shrink-0" />
-                <span className="font-semibold text-blue-ink">{selectedWorkshop.date}</span>
+                <span className="font-medium text-blue-ink">
+                  Date: <strong className="font-bold">{selectedWorkshop.date}</strong>
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-sky-deep shrink-0" />
-                <span className="font-semibold text-blue-ink">{selectedWorkshop.time}</span>
+                <span className="font-medium text-blue-ink">
+                  Deadline: <strong className="font-bold">{selectedWorkshop.deadline}</strong>
+                </span>
               </div>
-              <div className="flex items-center gap-2 col-span-2">
+              <div className="flex items-center gap-2 col-span-1 sm:col-span-2">
                 <MapPin className="w-4 h-4 text-sky-deep shrink-0" />
-                <span className="font-semibold text-blue-ink">{selectedWorkshop.location}</span>
+                <span className="font-medium text-blue-ink">
+                  Location: <strong className="font-bold">{selectedWorkshop.location}</strong>
+                </span>
+              </div>
+              <div className="flex items-center gap-2 col-span-1 sm:col-span-2">
+                <UserCheck className="w-4 h-4 text-sky-deep shrink-0" />
+                <span className="font-medium text-blue-ink">
+                  Target Role: <strong className="font-bold">{selectedWorkshop.role}</strong>
+                </span>
               </div>
             </div>
 
-            <p className="text-xs sm:text-sm text-gray-body leading-relaxed mb-4 font-medium">
-              {selectedWorkshop.description}
-            </p>
-
-            {/* Highlights */}
-            <div className="space-y-1.5 mb-6">
-              {selectedWorkshop.highlights.map((h, i) => (
-                <div key={i} className="flex items-start gap-2 text-xs text-blue-ink font-medium">
-                  <CheckCircle2 className="w-4 h-4 text-sky-deep shrink-0 mt-0.5" />
-                  <span>{h}</span>
-                </div>
-              ))}
+            {/* Description (Kept in Detail Modal) */}
+            <div className="mb-4">
+              <h4 className="text-xs font-extrabold uppercase tracking-wider text-gray-soft mb-1">
+                Overview &amp; Description
+              </h4>
+              <p className="text-xs sm:text-sm text-gray-body leading-relaxed font-medium">
+                {selectedWorkshop.description}
+              </p>
             </div>
 
-            {/* RSVP Form */}
-            {registeredSuccess ? (
-              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-center text-emerald-800 font-bold text-sm">
-                🎉 Registration confirmed! Check your email for event access.
+            {/* Requirements Box (Brand colors) */}
+            {selectedWorkshop.requirement && (
+              <div className="p-3.5 rounded-2xl bg-sitomo/35 border border-sky/20 mb-4">
+                <h4 className="text-xs font-bold text-sky-deep uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  Requirements &amp; Eligibility
+                </h4>
+                <p className="text-xs text-blue-ink leading-relaxed font-medium whitespace-pre-line">
+                  {selectedWorkshop.requirement}
+                </p>
               </div>
-            ) : (
-              <form onSubmit={handleRegisterWorkshop} className="space-y-3">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  <input
-                    type="text"
-                    required
-                    placeholder="Your Full Name"
-                    value={regName}
-                    onChange={(e) => setRegName(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-sky/25 text-xs text-blue-ink focus:outline-none focus:ring-2 focus:ring-sky"
-                  />
-                  <input
-                    type="email"
-                    required
-                    placeholder="Email Address"
-                    value={regEmail}
-                    onChange={(e) => setRegEmail(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-sky/25 text-xs text-blue-ink focus:outline-none focus:ring-2 focus:ring-sky"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="w-full py-3 rounded-full bg-sky hover:bg-sky-bright text-white font-bold text-sm transition-colors cursor-pointer shadow-sm"
-                >
-                  Reserve My Seat (Free RSVP)
-                </button>
-              </form>
             )}
+
+            {/* Benefits & Prizes Box (Brand colors) */}
+            {selectedWorkshop.benefit && (
+              <div className="p-3.5 rounded-2xl bg-momo/60 border border-momo/80 mb-5">
+                <h4 className="text-xs font-bold text-blue-ink uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                  <Trophy className="w-3.5 h-3.5 text-sky-deep" />
+                  Benefits &amp; Prizes
+                </h4>
+                <p className="text-xs text-blue-ink leading-relaxed font-medium whitespace-pre-line">
+                  {selectedWorkshop.benefit}
+                </p>
+              </div>
+            )}
+
+            {/* Action Buttons: Apply Link & Source Link */}
+            <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-2 border-t border-sky/15">
+              {selectedWorkshop.applicationLink && (
+                <a
+                  href={selectedWorkshop.applicationLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:flex-1 py-3 px-5 rounded-full bg-sky hover:bg-sky-bright text-white font-bold text-xs sm:text-sm transition-colors text-center shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <span>Apply / Register Here</span>
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              )}
+              {selectedWorkshop.source && selectedWorkshop.source.startsWith("http") && (
+                <a
+                  href={selectedWorkshop.source}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto py-3 px-5 rounded-full bg-white border border-sky/30 hover:border-sky text-sky-deep font-bold text-xs sm:text-sm transition-colors text-center flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <span>View Source Post</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -442,6 +541,7 @@ export default function WorkshopsPage() {
                       </p>
                     </div>
                   </div>
+
                   <p className="text-xs text-gray-body leading-relaxed font-medium">
                     {mentor.bio}
                   </p>
@@ -569,7 +669,7 @@ export default function WorkshopsPage() {
                 <input
                   type="text"
                   required
-                  placeholder="University / Organization Name"
+                  placeholder="Institution or Company Name"
                   value={inquiryOrg}
                   onChange={(e) => setInquiryOrg(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-sky/25 text-xs text-blue-ink focus:outline-none focus:ring-2 focus:ring-sky"
@@ -577,46 +677,25 @@ export default function WorkshopsPage() {
                 <textarea
                   required
                   rows={3}
-                  placeholder="Tell us about the event or program you wish to promote..."
+                  placeholder="Tell us about your event or opportunity..."
                   value={inquiryMsg}
                   onChange={(e) => setInquiryMsg(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-sky/25 text-xs text-blue-ink focus:outline-none focus:ring-2 focus:ring-sky resize-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-sky/25 text-xs text-blue-ink focus:outline-none focus:ring-2 focus:ring-sky"
                 />
                 <button
                   type="submit"
-                  className="w-full py-3 rounded-full bg-[#7AB3B7] hover:bg-sky-deep text-white font-bold text-xs sm:text-sm transition-all shadow-sm cursor-pointer"
+                  className="w-full py-2.5 rounded-full bg-sky hover:bg-sky-bright text-white font-bold text-xs sm:text-sm transition-colors cursor-pointer shadow-xs"
                 >
                   Send Inquiry
                 </button>
               </form>
             )}
-
-            <div className="mt-4 pt-3 border-t border-sky/15 flex items-center justify-center gap-4 text-xs font-bold text-gray-soft">
-              <a
-                href={PROMOTE_CONTACT.telegramUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-sky-deep flex items-center gap-1.5"
-              >
-                <Send className="w-3.5 h-3.5 text-sky-deep" />
-                Telegram Support
-              </a>
-              <span>·</span>
-              <a
-                href={`tel:${PROMOTE_CONTACT.phone.replace(/\s+/g, "")}`}
-                className="hover:text-sky-deep flex items-center gap-1.5"
-              >
-                <Phone className="w-3.5 h-3.5 text-sky-deep" />
-                Hotline
-              </a>
-            </div>
           </div>
         </div>
       )}
 
-      {/* Reusable Footer */}
+      {/* ── Reusable Footer Component ────────────────────── */}
       <Footer />
     </div>
   );
 }
-
