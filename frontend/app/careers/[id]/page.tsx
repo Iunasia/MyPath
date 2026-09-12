@@ -8,7 +8,6 @@ import {
   Briefcase,
   GraduationCap,
   Sparkles,
-  TrendingUp,
   Target,
   CheckCircle2,
 } from "lucide-react";
@@ -80,10 +79,6 @@ export default async function CareerDetailPage({ params }: PageProps) {
                   <span className="inline-block px-4 py-1.5 rounded-full bg-sky/20 text-sky-deep text-xs font-extrabold uppercase tracking-wider border border-sky/20">
                     {career.category}
                   </span>
-                  <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold uppercase tracking-wider border border-emerald-200">
-                    <TrendingUp className="w-4 h-4 text-emerald-600" />
-                    Demand: {career.jobMarketDemand}
-                  </span>
                 </div>
 
                 <div className="flex items-center gap-4 mb-4">
@@ -151,7 +146,7 @@ export default async function CareerDetailPage({ params }: PageProps) {
           </section>
 
           {/* 2. Key Specifications Grid */}
-          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 w-full">
+          <section className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full">
             {/* Key Skills */}
             <div className="bg-white rounded-3xl p-6 border border-sky/15 bubble-shadow-sm flex flex-col justify-between">
               <div>
@@ -208,24 +203,6 @@ export default async function CareerDetailPage({ params }: PageProps) {
                     </span>
                   ))}
                 </div>
-              </div>
-            </div>
-
-            {/* Job-Market Demand */}
-            <div className="bg-white rounded-3xl p-6 border border-sky/15 bubble-shadow-sm flex flex-col justify-between">
-              <div>
-                <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-700 mb-4 border border-emerald-200">
-                  <TrendingUp className="w-5 h-5" />
-                </div>
-                <h3 className="font-display text-base font-bold text-blue-ink mb-2">
-                  Job-Market Demand
-                </h3>
-                <span className="inline-block px-3.5 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold">
-                  {career.jobMarketDemand}
-                </span>
-                <p className="text-xs text-gray-soft mt-2 font-medium">
-                  Strong job market outlook and demand across industries.
-                </p>
               </div>
             </div>
           </section>
@@ -321,18 +298,12 @@ export default async function CareerDetailPage({ params }: PageProps) {
               Career profile data is structured based on official educational guidelines, job market demand metrics, and industry skill standards.
             </p>
 
-            <div className="grid sm:grid-cols-2 gap-4 text-xs sm:text-sm text-blue-ink font-medium">
+            <div className="grid sm:grid-cols-1 gap-4 text-xs sm:text-sm text-blue-ink font-medium">
               <div>
                 <span className="text-xs text-gray-soft block">
                   Category:
                 </span>
                 <span className="font-bold">{career.category}</span>
-              </div>
-              <div>
-                <span className="text-xs text-gray-soft block">
-                  Market Demand:
-                </span>
-                <span className="font-bold">{career.jobMarketDemand}</span>
               </div>
             </div>
 

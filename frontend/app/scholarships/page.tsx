@@ -176,19 +176,19 @@ export default function ScholarshipsPage() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
               {filteredScholarships.map((scholarship) => (
                 <Link
                   key={scholarship.id}
                   href={`/scholarships/${scholarship.id}`}
-                  className="group relative aspect-[4/3] min-h-[210px] rounded-3xl rounded-br-[86px] sm:rounded-br-[86px] overflow-hidden cursor-pointer bubble-shadow-sm border border-sky/15 block bg-sitomo/40"
+                  className="group relative aspect-[4/3] min-h-[190px] rounded-3xl rounded-br-[72px] overflow-hidden cursor-pointer bubble-shadow-sm border border-sky/15 hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 block bg-sitomo/40"
                 >
                   {/* Full Card Image */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={scholarship.image}
                     alt={scholarship.title}
-                    className="absolute inset-0 w-full h-full object-cover object-center"
+                    className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
                   />
 
                   {/* Floating Save Button on Image */}
@@ -207,15 +207,15 @@ export default function ScholarshipsPage() {
                   </div>
 
                   {/* Bottom Gradient Overlay for Text */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent flex flex-col justify-end p-4 sm:p-5 z-10">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent flex flex-col justify-end p-3.5 sm:p-4 z-10">
                     {/* Title */}
-                    <h3 className="font-display text-base sm:text-lg md:text-lg lg:text-xl font-extrabold text-white tracking-tight leading-snug drop-shadow-sm mb-2 group-hover:text-sky-bright transition-colors line-clamp-2">
+                    <h3 className="font-display text-sm sm:text-base font-extrabold text-white tracking-tight leading-snug drop-shadow-sm mb-1.5 group-hover:text-sky-bright transition-colors line-clamp-2">
                       {scholarship.title}
                     </h3>
 
                     {/* Dateline (Deadline) */}
-                    <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-white/75 font-medium drop-shadow-xs">
-                      <Calendar className="w-3.5 h-3.5 text-sky-bright shrink-0" />
+                    <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-white/75 font-medium drop-shadow-xs">
+                      <Calendar className="w-3 h-3 text-sky-bright shrink-0" />
                       <span>Deadline: {scholarship.deadline}</span>
                     </div>
                   </div>

@@ -202,7 +202,7 @@ export default function CareersPage() {
                     </div>
 
                     {/* Bottom: View more Button */}
-                    <div className="p-4 pt-1 pb-4">
+                    <div className="p-4 pt-1 pb-4 flex justify-end">
                       <Link
                         href={`/careers/${career.id}`}
                         className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-sky text-sky-deep hover:bg-sky hover:text-white text-xs font-bold transition-colors cursor-pointer"

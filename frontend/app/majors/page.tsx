@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { Search, X } from "lucide-react";
+import { Search, X, ArrowRight } from "lucide-react";
 import { MAJORS_DATA, CATEGORIES } from "@/app/data/majors";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
@@ -130,9 +130,10 @@ export default function MajorsPage() {
             </h2>
             <Link
               href="/majors/all"
-              className="text-xs font-bold text-sky-deep hover:underline"
+              className="group inline-flex items-center gap-1.5 text-xs font-bold text-sky-deep hover:text-sky transition-colors cursor-pointer"
             >
-              View all majors →
+              <span>View all majors</span>
+              <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1 group-active:translate-x-1.5" />
             </Link>
           </div>
 
@@ -194,7 +195,7 @@ export default function MajorsPage() {
                       </div>
 
                       {/* Bottom: View more Button */}
-                      <div className="p-4 pt-1 pb-4">
+                      <div className="p-4 pt-1 pb-4 flex justify-end">
                         <Link
                           href={`/majors/${major.id}`}
                           className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-sky text-sky-deep hover:bg-sky hover:text-white text-xs font-bold transition-colors cursor-pointer"
@@ -211,10 +212,10 @@ export default function MajorsPage() {
                 <div className="mt-10 text-center">
                   <Link
                     href="/majors/all"
-                    className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-white border-2 border-sky/40 text-sky-deep font-bold text-sm hover:bg-sky/10 hover:border-sky transition-all bubble-shadow-sm cursor-pointer"
+                    className="group inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-white border-2 border-sky/40 text-sky-deep font-bold text-sm hover:bg-sky/10 hover:border-sky transition-all bubble-shadow-sm cursor-pointer"
                   >
                     <span>View All Majors</span>
-                    <span aria-hidden="true">→</span>
+                    <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1 group-active:translate-x-1.5" />
                   </Link>
                 </div>
               )}
