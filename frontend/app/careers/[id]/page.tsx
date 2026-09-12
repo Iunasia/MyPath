@@ -15,7 +15,6 @@ import { linkMajors, toCareerView, toMajorViews } from "@/app/lib/catalogAdapter
 import Footer from "@/app/components/Footer";
 import BackLink from "@/app/components/BackLink";
 import SaveItemButton from "@/app/components/SaveItemButton";
-import CompareButton from "@/app/components/CompareButton";
 import ShareButton from "@/app/components/ShareButton";
 
 /**
@@ -117,15 +116,6 @@ export default async function CareerDetailPage({ params }: PageProps) {
                 className="w-full sm:w-auto"
               />
               <div className="flex items-center gap-3">
-                <CompareButton
-                  item={{
-                    type: "career",
-                    apiId: Number(career.id),
-                    title: career.title,
-                    subtitle: career.categoryKey,
-                  }}
-                  className="flex-1 sm:flex-none"
-                />
                 <ShareButton title={career.title} />
               </div>
             </div>

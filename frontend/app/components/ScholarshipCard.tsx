@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { AlertTriangle, Calendar, Clock, ShieldCheck } from "lucide-react";
 import SaveItemButton from "./SaveItemButton";
-import CompareButton from "./CompareButton";
 import { deadlineLabel, deadlineState, type ScholarshipView } from "@/app/lib/adapters";
 
 /**
@@ -51,15 +50,6 @@ export default function ScholarshipCard({ scholarship }: { scholarship: Scholars
         </div>
 
         <div className="absolute top-3 right-3 flex items-center gap-1.5">
-          <CompareButton
-            variant="card-action"
-            item={{
-              type: "scholarship",
-              apiId: scholarship.apiId,
-              title: scholarship.title,
-              subtitle: scholarship.provider,
-            }}
-          />
           <SaveItemButton
             variant="card-action"
             item={{

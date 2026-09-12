@@ -6,7 +6,6 @@ import { MapPin, SlidersHorizontal, Building2, AlertTriangle } from "lucide-reac
 import Footer from "@/app/components/Footer";
 import ListHero from "@/app/components/ListHero";
 import SaveItemButton from "@/app/components/SaveItemButton";
-import CompareButton from "@/app/components/CompareButton";
 import type { ApiUniversity } from "@/app/lib/api";
 import { toUniversityViews } from "@/app/lib/catalogAdapters";
 
@@ -199,15 +198,6 @@ export default function UniversitiesBrowser({
 
                   {/* Compare + Save Buttons on Card Image */}
                   <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-20 flex items-center gap-1">
-                    <CompareButton
-                      variant="card-action"
-                      item={{
-                        type: "university",
-                        apiId: uni.apiId,
-                        title: uni.name,
-                        subtitle: uni.location,
-                      }}
-                    />
                     <SaveItemButton
                       variant="card-action"
                       item={{

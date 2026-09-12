@@ -16,7 +16,6 @@ const majorsRoutes = require('./routes/majors');
 const universitiesRoutes = require('./routes/universities');
 const savedRoutes = require('./routes/saved');
 const verificationRoutes = require('./routes/verificationRequests');
-const compareRoutes = require('./routes/compare');
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
@@ -68,7 +67,6 @@ app.use('/majors', majorsRoutes);
 app.use('/universities', universitiesRoutes);
 app.use('/saved', savedRoutes);
 app.use('/verification-requests', verificationRoutes);
-app.use('/compare', compareRoutes);
 
 /** Unknown route — JSON, so clients never have to parse an HTML error page. */
 app.use((req: Request, res: Response) => {

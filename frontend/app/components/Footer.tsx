@@ -18,7 +18,6 @@ export default function Footer({ className = "" }: FooterProps) {
     {
       heading: "Tools",
       links: [
-        { label: "Compare", href: "#" },
         { label: "Information Check", href: "#" },
         { label: "Deadline Tracker", href: "#" },
         { label: "Saved Opportunities", href: "/saved" },

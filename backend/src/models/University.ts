@@ -38,11 +38,6 @@ const University = {
     return res.rows[0] as University | undefined;
   },
 
-  /** Several at once, for Compare. Row order is not guaranteed — callers reorder. */
-  getByIds: async (ids: number[]): Promise<University[]> => {
-    const res = await pool.query('SELECT * FROM universities WHERE id = ANY($1::int[])', [ids]);
-    return res.rows as University[];
-  },
 
   /** Lookup by the frontend's slug, so /universities/cadt keeps working. */
   getBySlug: async (slug: string): Promise<University | undefined> => {

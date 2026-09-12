@@ -8,7 +8,6 @@ import type { ApiMajor } from "@/app/lib/api";
 import { categoriesOf, plainCategory, toMajorViews } from "@/app/lib/catalogAdapters";
 import Footer from "@/app/components/Footer";
 import ListHero from "@/app/components/ListHero";
-import CompareButton from "@/app/components/CompareButton";
 
 /** Rows come from the server page; adapted here because views carry icons. */
 export default function AllMajorsBrowser({ rows }: { rows: ApiMajor[] }) {
@@ -189,15 +188,6 @@ export default function AllMajorsBrowser({ rows }: { rows: ApiMajor[] }) {
                         >
                           Explore Major
                         </Link>
-                        <CompareButton
-                          variant="icon"
-                          item={{
-                            type: "major",
-                            apiId: Number(major.id),
-                            title: major.name,
-                            subtitle: major.categoryKey,
-                          }}
-                        />
                       </div>
                     </div>
                   </article>

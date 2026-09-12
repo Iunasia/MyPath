@@ -13,7 +13,7 @@ interface ShareButtonProps {
  * Opens the phone's share sheet where there is one, and copies the link
  * otherwise. Replaces header buttons that looked like Share but did nothing.
  */
-/** A round button the same height as the Save and Compare pills beside it. */
+/** A round button the same height as the Save pill beside it. */
 const DEFAULT_CLASS =
   "size-11.5 shrink-0 inline-flex items-center justify-center rounded-full bg-white border border-sky/40 text-sky-deep hover:bg-sitomo/60 hover:border-sky transition-all bubble-shadow-sm cursor-pointer";
 
