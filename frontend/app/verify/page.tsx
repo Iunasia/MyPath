@@ -15,6 +15,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import Footer from "@/app/components/Footer";
+import Header from "@/app/components/Header";
 import { useAuth } from "@/app/context/AuthContext";
 import {
   fetchMyVerificationRequests,
@@ -171,6 +172,7 @@ export default function VerifyPage() {
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
+        <Header backHref="/" backLabel="DOMNER" activeNav="verify" />
 
         <main className="w-full pb-16 flex flex-col gap-10 max-w-4xl mx-auto">
           {/* Intro */}

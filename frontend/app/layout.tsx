@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { ViewTransition } from "react";
 import { Nunito } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
@@ -9,7 +8,6 @@ import SmoothScroll from "./components/SmoothScroll";
 import ScrollToTop from "./components/ScrollToTop";
 import SavedToast from "./components/SavedToast";
 import CompareTray from "./components/CompareTray";
-import SiteHeader from "./components/SiteHeader";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -24,7 +22,11 @@ export const metadata: Metadata = {
     "Domner helps students discover, evaluate, verify, and compare digital information about careers, majors, universities, and scholarships so they can make informed decisions.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html
       lang="en"
@@ -35,13 +37,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <AuthProvider>
             <SavedProvider>
               <CompareProvider>
-                {/* One header for the whole site, mounted once so it stays put
-                    while pages change. Named, so the page crossfade below
-                    leaves it still instead of fading it with the page. */}
-                <ViewTransition name="site-header">
-                  <SiteHeader />
-                </ViewTransition>
-                <ViewTransition>{children}</ViewTransition>
+                {children}
                 <SavedToast />
                 <CompareTray />
               </CompareProvider>

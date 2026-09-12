@@ -7,10 +7,7 @@
   /* Primary Brand Colors */
   --sky: #7AB3B7;            /* Soft teal (Buttons & Selected Tabs) */
   --sky-bright: #8DC4C8;     /* Lighter soft teal for hover states */
-  /* Deep teal — solid buttons and accent text. White on it is 5.6:1, and it
-     reads at 4.8:1 on the powder canvas; --sky is too light for either (2.3:1). */
-  --sky-deep: #3D7074;
-  --sky-dark: #2F5A5D;       /* Hover for solid deep-teal buttons */
+  --sky-deep: #4F868A;       /* Deeper teal for active/accent text */
   --powder: #E2F1F1;         /* Background Light Teal (Overall Canvas) */
   --powder-deep: #D5ECEC;    /* Slightly deeper canvas tint */
 
@@ -25,8 +22,8 @@
   /* Typography & Icons */
   --blue-ink: #2D3A3A;       /* Dark Charcoal Text (Headings & title) */
   --gray-body: #475858;      /* Body copy */
-  --gray-soft: #5A6B6B;      /* Muted text — 4.8:1 on powder, 5.6:1 on white */
-  --gray-faint: #6F8080;     /* Hints and placeholders — 4.1:1 on white, 3.6:1 on powder */
+  --gray-soft: #7A8B8B;      /* Muted Grey Text (Subtitles & Footnotes) */
+  --gray-faint: #91A1A1;     /* Subtle borders & hints */
 }
 
 @theme inline {
@@ -34,7 +31,6 @@
   --color-sky: var(--sky);
   --color-sky-bright: var(--sky-bright);
   --color-sky-deep: var(--sky-deep);
-  --color-sky-dark: var(--sky-dark);
   --color-blue-ink: var(--blue-ink);
   --color-powder: var(--powder);
   --color-powder-deep: var(--powder-deep);
@@ -58,7 +54,7 @@ body {
 }
 
 ::selection {
-  background: var(--sky-deep);
+  background: var(--sky);
   color: #FFFFFF;
 }
 
@@ -167,11 +163,24 @@ body {
 @keyframes heroImageSlideLeft {
   0% {
     opacity: 0;
-    transform: translateX(-80px) scale(1.02);
+    transform: scale(1.05) translateX(-35px);
   }
   100% {
     opacity: 1;
-    transform: translateX(0) scale(1);
+    transform: scale(1) translateX(0);
+  }
+}
+
+@media (max-width: 640px) {
+  @keyframes heroImageSlideLeft {
+    0% {
+      opacity: 0;
+      transform: scale(1.04) translateX(-12px);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) translateX(0);
+    }
   }
 }
 
@@ -183,20 +192,11 @@ body {
   animation: heroImageSlideLeft 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-@keyframes progress {
-  0% {
-    transform: scaleX(0);
-  }
-  100% {
-    transform: scaleX(1);
-  }
-}
-
 
 /* ── Focus + scrollbar ─────────────────────────────────── */
 
 :focus-visible {
-  outline: 3px solid var(--sky-deep);
+  outline: 3px solid var(--sky);
   outline-offset: 2px;
   border-radius: 9999px;
 }
@@ -216,22 +216,4 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--sky-bright);
-}
-
-/* ── Page transitions ─────────────────────────────────── */
-/* A quick crossfade between pages, from the <ViewTransition> in the root
-   layout. The header is named there, so it holds still while pages fade. */
-
-::view-transition-group(*),
-::view-transition-old(*),
-::view-transition-new(*) {
-  animation-duration: 180ms;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-group(*),
-  ::view-transition-old(*),
-  ::view-transition-new(*) {
-    animation: none !important;
-  }
 }

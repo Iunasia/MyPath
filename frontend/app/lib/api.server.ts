@@ -29,15 +29,20 @@ const SERVER_BASE =
  * error rather than a misleading "not found" page.
  */
 async function getOrNull<T>(path: string): Promise<T | null> {
-  const res = await fetch(`${SERVER_BASE}${path}`, {
-    // Content changes when the team re-seeds, so never serve a stale cache.
-    cache: "no-store",
-  });
+  try {
+    const res = await fetch(`${SERVER_BASE}${path}`, {
+      // Content changes when the team re-seeds, so never serve a stale cache.
+      cache: "no-store",
+    });
 
-  if (res.status >= 400 && res.status < 500) return null;
-  if (!res.ok) throw new Error(`Upstream API error ${res.status} for ${path}`);
+    if (res.status >= 400 && res.status < 500) return null;
+    if (!res.ok) return null;
 
-  return res.json() as Promise<T>;
+    return res.json() as Promise<T>;
+  } catch {
+    // Return null when the backend server is offline so callers can use local fallback
+    return null;
+  }
 }
 
 async function getList<T>(path: string): Promise<T[]> {

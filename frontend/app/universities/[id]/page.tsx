@@ -17,16 +17,21 @@ import {
   Award,
   BookOpen,
 } from "lucide-react";
+import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
-import BackLink from "@/app/components/BackLink";
 import SaveItemButton from "@/app/components/SaveItemButton";
-import CompareButton from "@/app/components/CompareButton";
-import { UNIVERSITIES_DATA } from "@/app/data/universities";
-import { getUniversity } from "@/app/lib/api.server";
-import { toUniversityView } from "@/app/lib/catalogAdapters";
+import {
+  UNIVERSITIES_DATA,
+  getUniversityById,
+} from "@/app/data/universities";
 
-/** Rendered per request — see the note on the career detail page. */
-export const dynamic = "force-dynamic";
+/* ── Static Generation for All Universities ──────────────── */
+
+export function generateStaticParams() {
+  return UNIVERSITIES_DATA.map((uni) => ({
+    id: uni.id,
+  }));
+}
 
 /* ── Icon Selector Helper ────────────────────────────────── */
 
@@ -57,24 +62,11 @@ interface PageProps {
 
 export default async function UniversityDetailPage({ params }: PageProps) {
   const { id } = await params;
+  const university = getUniversityById(id);
 
-  // The API decides which universities exist and supplies the core facts.
-  const row = await getUniversity(id);
-  if (!row) {
+  if (!university) {
     notFound();
   }
-
-  const view = toUniversityView(row);
-
-  /**
-   * The designed sections on this page — faculties, campus facilities, degree
-   * levels, admission requirements, the map — have no columns in the database
-   * yet, so they still come from the curated dataset, matched by slug. API
-   * values win wherever both have the field, and every curated-only section is
-   * guarded so a university added via the spreadsheet renders without them.
-   */
-  const curated = UNIVERSITIES_DATA.find((u) => u.id === view.id);
-  const university = { ...curated, ...view };
 
   // Calculate total majors across all faculties
   const totalMajorsCount =
@@ -87,10 +79,16 @@ export default async function UniversityDetailPage({ params }: PageProps) {
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       {/* Full-width responsive container */}
       <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
-        <BackLink href="/universities" label="All universities" className="mb-6" />
+        {/* ── Top Header Component ────────────────────────── */}
+        <Header
+          backHref="/universities"
+          backLabel="Back to Universities"
+          showBackArrow={true}
+          activeNav="universities"
+        />
 
         {/* ── Main Content Container ────────────────────────── */}
-        <main className="w-full pb-16 flex flex-col gap-10">
+        <main className="w-full pb-16 flex flex-col gap-10 mt-4">
           {/* 1. Hero Campus Image Banner */}
           <section className="w-full">
             <div className="relative w-full h-64 sm:h-80 md:h-96 lg:h-[420px] rounded-3xl overflow-hidden mb-6 border border-sky/20 bubble-shadow-sm bg-sitomo/50">
@@ -102,20 +100,11 @@ export default async function UniversityDetailPage({ params }: PageProps) {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
 
-              {/* Floating Compare + Save Buttons on Image Banner */}
-              <div className="absolute top-4 right-4 sm:top-5 sm:right-5 z-20 flex flex-wrap justify-end gap-2">
-                <CompareButton
-                  item={{
-                    type: "university",
-                    apiId: university.apiId,
-                    title: university.name,
-                    subtitle: university.location,
-                  }}
-                />
+              {/* Floating Save Button on Image Banner */}
+              <div className="absolute top-4 right-4 sm:top-5 sm:right-5 z-20">
                 <SaveItemButton
                   item={{
                     id: university.id,
-                    apiId: university.apiId,
                     type: "university",
                     title: university.name,
                     subtitle: university.location,
@@ -320,7 +309,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                             key={mIdx}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sitomo/40 border border-sky/20 text-xs font-semibold text-blue-ink hover:bg-sitomo transition-colors"
                           >
-                            <span className="w-1.5 h-1.5 rounded-full bg-sky-deep shrink-0" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-sky shrink-0" />
                             <span>{major}</span>
                           </span>
                         ))}
@@ -332,8 +321,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
             </section>
           )}
 
-          {/* 4. Degree Levels — curated dataset only */}
-          {university.undergraduate && university.graduate && (
+          {/* 4. Degree Levels: Undergraduate & Graduate */}
           <section className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
             {/* Undergraduate Degree */}
             <div className="flex flex-col">
@@ -375,10 +363,8 @@ export default async function UniversityDetailPage({ params }: PageProps) {
               </div>
             </div>
           </section>
-          )}
 
-          {/* 5. Academic Programs Highlights — curated dataset only */}
-          {university.programs && university.programs.length > 0 && (
+          {/* 5. Academic Programs Highlights */}
           <section>
             <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink mb-6">
               Program Highlights
@@ -408,10 +394,8 @@ export default async function UniversityDetailPage({ params }: PageProps) {
               })}
             </div>
           </section>
-          )}
 
-          {/* 6. Admission Requirements — curated dataset only */}
-          {university.admissionRequirements && (
+          {/* 6. Admission Requirements & Deadline */}
           <section>
             <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink mb-6">
               Admission
@@ -446,10 +430,8 @@ export default async function UniversityDetailPage({ params }: PageProps) {
               </div>
             </div>
           </section>
-          )}
 
-          {/* 7. Campus Facilities — curated dataset only */}
-          {university.facilities && university.facilities.length > 0 && (
+          {/* 7. Campus Facilities */}
           <section>
             <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink mb-6">
               Campus Facilities
@@ -473,7 +455,6 @@ export default async function UniversityDetailPage({ params }: PageProps) {
               ))}
             </div>
           </section>
-          )}
 
           {/* 8. Scholarship Opportunities */}
           <section>
@@ -513,8 +494,8 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                   </div>
                 ))}
               </div>
-            ) : university.scholarship ? (
-              /* Fallback single scholarship banner — curated dataset only */
+            ) : (
+              /* Fallback single scholarship banner */
               <div className="bg-white rounded-3xl p-5 sm:p-6 border border-sky/15 bubble-shadow-sm max-w-3xl flex flex-col sm:flex-row items-center gap-5 sm:gap-6">
                 <div className="w-full sm:w-44 h-32 rounded-2xl overflow-hidden shrink-0 border border-sky/15">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -535,7 +516,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                   </div>
                 </div>
               </div>
-            ) : null}
+            )}
           </section>
 
           {/* 9. Location & Campus Branches */}

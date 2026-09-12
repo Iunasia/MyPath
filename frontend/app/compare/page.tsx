@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle, ArrowLeft, Info, Plus } from "lucide-react";
 import Footer from "@/app/components/Footer";
+import Header from "@/app/components/Header";
 import { getComparison } from "@/app/lib/api.server";
 import { plainCategory } from "@/app/lib/catalogAdapters";
 import type { ApiCompareItem, ApiCompareRow, CompareType } from "@/app/lib/api";
@@ -398,6 +399,7 @@ export default async function ComparePage({ searchParams }: { searchParams: Sear
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
+        <Header backHref="/" backLabel="DOMNER" activeNav="compare" />
         <main className="w-full pb-24 flex flex-col gap-6">
           {type && ids ? (
             <Comparison type={type} ids={ids} onlyDifferences={onlyDifferences} />

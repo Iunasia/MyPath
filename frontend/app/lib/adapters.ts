@@ -266,6 +266,26 @@ export const toScholarshipView = (row: ApiScholarship): ScholarshipView => ({
 export const toScholarshipViews = (rows: ApiScholarship[]): ScholarshipView[] =>
   rows.map(toScholarshipView);
 
+/** Offline fallback from curated dataset when API server is unreachable */
+export const mockScholarshipViews = (): ScholarshipView[] =>
+  SCHOLARSHIPS_DATA.map((s, idx) => ({
+    ...s,
+    apiId: idx + 1,
+    infoCheck: {
+      isRisky: false,
+      reasons: [],
+      source: s.officialSource,
+      sourceUrl: s.officialSource,
+      sourceType: "official",
+      verifiedStatus: s.isVerified ? "verified" : "unverified",
+      lastVerified: s.lastVerified,
+      summary: "Official source verified.",
+    },
+    coverageText: s.coverage,
+    deadlineNote: null,
+    deadlineAt: s.deadline ? new Date(s.deadline).toISOString() : null,
+  }));
+
 const DEADLINE_RANK = { open: 0, unknown: 1, closed: 2 } as const;
 
 /**
