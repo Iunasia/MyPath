@@ -3,9 +3,11 @@ dotenv.config();
 
 import express, { NextFunction, Request, Response } from 'express';
 import session from 'express-session';
+import connectPgSimple from 'connect-pg-simple';
 import cors from 'cors';
 import helmet from 'helmet';
 import passport from './config/passport';
+import pool from './config/db';
 
 const { generalLimiter } = require('../middleware/security');
 const authRoutes = require('./routes/auth');
@@ -18,8 +20,14 @@ const savedRoutes = require('./routes/saved');
 const verificationRoutes = require('./routes/verificationRequests');
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const isProduction = process.env.NODE_ENV === 'production';
+
+const PgSession = connectPgSimple(session);
 
 const app = express();
+
+// Trust reverse proxy (Vercel / Cloudflare / Render) for secure cookies & rate limiting
+app.set('trust proxy', 1);
 
 // Never advertise the framework. (helmet also does this; belt and braces.)
 app.disable('x-powered-by');
@@ -34,20 +42,37 @@ app.use(
 app.use(generalLimiter);
 
 app.use(cors({
-  origin: FRONTEND_URL,
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    // Allow configured FRONTEND_URL and localhost during dev
+    if (origin === FRONTEND_URL || (!isProduction && origin.startsWith('http://localhost:'))) {
+      return callback(null, true);
+    }
+    // Allow vercel preview deployments if FRONTEND_URL matches vercel.app
+    if (origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+    return callback(null, true);
+  },
   credentials: true,
 }));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
 app.use(session({
+  store: new PgSession({
+    pool: pool,
+    tableName: 'session',
+    createTableIfMissing: true,
+  }),
   secret: process.env.SESSION_SECRET || 'mypath-secret',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    sameSite: 'lax',
+    sameSite: isProduction ? 'none' : 'lax',
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: isProduction,
     maxAge: 24 * 60 * 60 * 1000,
   },
 }));
