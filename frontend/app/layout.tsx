@@ -4,11 +4,9 @@ import { Nunito } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 import { SavedProvider } from "./context/SavedContext";
-import { CompareProvider } from "./context/CompareContext";
 import SmoothScroll from "./components/SmoothScroll";
 import ScrollToTop from "./components/ScrollToTop";
 import SavedToast from "./components/SavedToast";
-import CompareTray from "./components/CompareTray";
 import SiteHeader from "./components/SiteHeader";
 
 const nunito = Nunito({
@@ -34,17 +32,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <SmoothScroll>
           <AuthProvider>
             <SavedProvider>
-              <CompareProvider>
-                {/* One header for the whole site, mounted once so it stays put
-                    while pages change. Named, so the page crossfade below
-                    leaves it still instead of fading it with the page. */}
-                <ViewTransition name="site-header">
-                  <SiteHeader />
-                </ViewTransition>
-                <ViewTransition>{children}</ViewTransition>
-                <SavedToast />
-                <CompareTray />
-              </CompareProvider>
+              {/* One header for the whole site, mounted once so it stays put
+                  while pages change. Named, so the page crossfade below
+                  leaves it still instead of fading it with the page. */}
+              <ViewTransition name="site-header">
+                <SiteHeader />
+              </ViewTransition>
+              <ViewTransition>{children}</ViewTransition>
+              <SavedToast />
             </SavedProvider>
           </AuthProvider>
         </SmoothScroll>

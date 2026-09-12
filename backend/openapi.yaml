@@ -38,8 +38,6 @@ tags:
     description: Scholarship listings and DMIL information checks
   - name: Catalog
     description: Careers, majors and universities
-  - name: Compare
-    description: 2–4 items of one type side by side, with prompts about what to check
   - name: Verification
     description: "Student requests to verify a scholarship — the DMIL loop"
   - name: Saved
@@ -590,43 +588,6 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '404': { $ref: '#/components/responses/NotFound' }
 
-  /compare:
-    get:
-      tags: [Compare]
-      summary: Compare 2–4 items of one type side by side
-      description: |
-        Items come back in the order of `ids`. Each row is one field with a value
-        per item, plus whether the items differ and which ones leave it blank.
-        `notes` are prompts to show above the table — a closed deadline, a risky
-        source, information none of the options give. Warnings come first.
-      security: []
-      parameters:
-        - name: type
-          in: query
-          required: true
-          schema: { type: string, enum: [scholarship, university, major, career] }
-        - name: ids
-          in: query
-          required: true
-          description: 2–4 distinct ids, comma-separated. `?ids=1&ids=2` also works.
-          schema: { type: string, examples: ['1,2,26'] }
-      responses:
-        '200':
-          description: The comparison
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/Comparison' }
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '404':
-          description: Some ids don't exist
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error: { type: string }
-                  missing: { type: array, items: { type: integer } }
-
 components:
   securitySchemes:
     sessionCookie:
@@ -916,67 +877,6 @@ components:
           description: Scholarship names this university lists.
         source: { type: string }
         source_url: { type: string }
-
-    Comparison:
-      type: object
-      description: |
-        2–4 items of one type, side by side. Each row is one field, with one
-        value per item in `items` order, so a table can be drawn without
-        knowing the type.
-      properties:
-        type: { type: string, enum: [scholarship, university, major, career] }
-        items:
-          type: array
-          items:
-            type: object
-            properties:
-              id: { type: integer }
-              title: { type: string }
-              subtitle: { type: [string, 'null'] }
-              infoCheck:
-                $ref: '#/components/schemas/InfoCheck'
-                description: Scholarships only.
-        rows:
-          type: array
-          items:
-            type: object
-            properties:
-              key: { type: string, examples: [deadline] }
-              label: { type: string, examples: [Deadline] }
-              group: { type: string, examples: [Applying] }
-              kind:
-                type: string
-                enum: [text, list, number, date, url, deadline]
-                description: |
-                  Shape of `values`: text and url → string or null; number;
-                  list → string array; date → ISO string or null;
-                  deadline → `{ date, note }`.
-              values:
-                type: array
-                description: One per item, in `items` order.
-                items: {}
-              differs:
-                type: boolean
-                description: At least two items say different things, ignoring case, spacing and list order.
-              missing:
-                type: array
-                items: { type: integer }
-                description: Ids of the items that leave this field blank.
-              common:
-                type: array
-                items: { type: string }
-                description: List rows only — values every item shares.
-        notes:
-          type: array
-          description: Prompts to show above the table. Warnings first.
-          items:
-            type: object
-            properties:
-              itemId:
-                type: [integer, 'null']
-                description: The item it's about; null when it applies to all.
-              level: { type: string, enum: [warning, info] }
-              text: { type: string }
 
 security:
   - sessionCookie: []

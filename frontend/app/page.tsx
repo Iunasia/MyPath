@@ -73,7 +73,7 @@ const DMIL_DESCRIPTIONS = [
   "Find universities, scholarships, and programs from multiple sources.",
   "Assess source credibility, check for conflicts, and judge relevance.",
   "Confirm information against official sources and check freshness.",
-  "Place opportunities side by side to see real differences.",
+  "Weigh what each option offers against the others before you commit.",
   "Save, categorize, and track deadlines for your shortlisted options.",
   "Make a confident, evidence-based decision about your future.",
 ];

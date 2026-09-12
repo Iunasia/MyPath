@@ -27,7 +27,6 @@ type NavKey =
   | "universities"
   | "scholarships"
   | "workshops"
-  | "compare"
   | "verify"
   | "saved";
 
@@ -47,7 +46,6 @@ const NAV_LINKS: Array<{ key: NavKey; href: string; label: string; icon: LucideI
   { key: "universities", href: "/universities", label: "Universities", icon: GraduationCap },
   { key: "scholarships", href: "/scholarships", label: "Scholarships", icon: Coins },
   { key: "workshops", href: "/workshops", label: "Workshops", icon: Users },
-  { key: "compare", href: "/compare", label: "Compare", icon: Scale },
 ];
 
 /**

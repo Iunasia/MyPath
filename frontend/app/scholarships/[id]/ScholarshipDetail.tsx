@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 import Footer from "@/app/components/Footer";
 import SaveItemButton from "@/app/components/SaveItemButton";
-import CompareButton from "@/app/components/CompareButton";
 import ReportOutdatedButton from "@/app/components/ReportOutdatedButton";
 import ShareButton from "@/app/components/ShareButton";
 import BackLink from "@/app/components/BackLink";
@@ -245,15 +244,6 @@ export default function ScholarshipDetail({
                   />
 
                   <div className="flex items-center gap-3">
-                    <CompareButton
-                      item={{
-                        type: "scholarship",
-                        apiId: scholarship.apiId,
-                        title: scholarship.title,
-                        subtitle: scholarship.provider,
-                      }}
-                      className="flex-1 sm:flex-none"
-                    />
                     <ShareButton title={scholarship.title} />
                   </div>
                 </div>

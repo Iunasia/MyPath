@@ -20,7 +20,6 @@ import {
 import Footer from "@/app/components/Footer";
 import BackLink from "@/app/components/BackLink";
 import SaveItemButton from "@/app/components/SaveItemButton";
-import CompareButton from "@/app/components/CompareButton";
 import { UNIVERSITIES_DATA } from "@/app/data/universities";
 import { getUniversity } from "@/app/lib/api.server";
 import { toUniversityView } from "@/app/lib/catalogAdapters";
@@ -104,14 +103,6 @@ export default async function UniversityDetailPage({ params }: PageProps) {
 
               {/* Floating Compare + Save Buttons on Image Banner */}
               <div className="absolute top-4 right-4 sm:top-5 sm:right-5 z-20 flex flex-wrap justify-end gap-2">
-                <CompareButton
-                  item={{
-                    type: "university",
-                    apiId: university.apiId,
-                    title: university.name,
-                    subtitle: university.location,
-                  }}
-                />
                 <SaveItemButton
                   item={{
                     id: university.id,

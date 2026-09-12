@@ -56,11 +56,6 @@ const Scholarship = {
     return res.rows[0] as Scholarship | undefined;
   },
 
-  /** Several at once, for Compare. Row order is not guaranteed — callers reorder. */
-  getByIds: async (ids: number[]): Promise<Scholarship[]> => {
-    const res = await pool.query('SELECT * FROM scholarships WHERE id = ANY($1::int[])', [ids]);
-    return res.rows as Scholarship[];
-  },
 
   create: async (data: Omit<Scholarship, 'id' | 'last_verified_by'>): Promise<Scholarship> => {
     const res = await pool.query(

@@ -24,7 +24,6 @@ import { toScholarshipViews } from "@/app/lib/adapters";
 import Footer from "@/app/components/Footer";
 import BackLink from "@/app/components/BackLink";
 import SaveItemButton from "@/app/components/SaveItemButton";
-import CompareButton from "@/app/components/CompareButton";
 import ShareButton from "@/app/components/ShareButton";
 
 /** Rendered per request — see the note on the career detail page. */
@@ -174,15 +173,6 @@ export default async function MajorDetailPage({ params }: PageProps) {
                 className="w-full sm:w-auto"
               />
               <div className="flex items-center gap-3">
-                <CompareButton
-                  item={{
-                    type: "major",
-                    apiId: Number(major.id),
-                    title: major.name,
-                    subtitle: major.categoryKey,
-                  }}
-                  className="flex-1 sm:flex-none"
-                />
                 <ShareButton title={major.name} />
               </div>
             </div>
