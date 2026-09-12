@@ -166,19 +166,6 @@ export default function Header({ variant = "default", activeNav, className = "" 
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          <Link
-            href="/saved"
-            className={`w-9 h-9 rounded-full border transition-colors flex items-center justify-center ${
-              activeNav === "saved"
-                ? "bg-sky-deep text-white border-sky-deep"
-                : "bg-sitomo text-sky-deep border-sky/20 hover:bg-sky-deep hover:text-white"
-            }`}
-            aria-label="Saved items"
-            title="Saved items"
-          >
-            <Bookmark className="w-4 h-4" />
-          </Link>
-
           {/* Nothing until the session check finishes, so a signed-in student
               never sees "Sign in" flash up. */}
           {!loading &&
@@ -295,10 +282,6 @@ export default function Header({ variant = "default", activeNav, className = "" 
               <span className="flex-1">Is this scholarship real?</span>
               <UnreadBadge count={unread} />
             </Link>
-            <Link href="/saved" className={mobileLink(activeNav === "saved")} onClick={() => setMenuOpen(false)}>
-              <Bookmark className="w-4 h-4 text-sky-deep" />
-              Saved items
-            </Link>
           </div>
 
           {!loading && (
@@ -308,6 +291,10 @@ export default function Header({ variant = "default", activeNav, className = "" 
                   <p className="px-3.5 pb-1 text-xs text-gray-soft font-medium truncate">
                     Signed in as <span className="font-bold text-blue-ink">{user.name}</span>
                   </p>
+                  <Link href="/saved" className={mobileLink(activeNav === "saved")} onClick={() => setMenuOpen(false)}>
+                    <Bookmark className="w-4 h-4 text-sky-deep" />
+                    Saved items
+                  </Link>
                   {isAdmin && (
                     <Link href="/admin" className={mobileLink(false)} onClick={() => setMenuOpen(false)}>
                       <LayoutDashboard className="w-4 h-4 text-sky-deep" />
