@@ -14,13 +14,22 @@ import {
   Bookmark,
   ShieldCheck,
   Scale,
+  Users,
   LogOut,
   LayoutDashboard,
   ChevronDown,
   type LucideIcon,
 } from "lucide-react";
 
-type NavKey = "careers" | "majors" | "universities" | "scholarships" | "compare" | "verify" | "saved";
+type NavKey =
+  | "careers"
+  | "majors"
+  | "universities"
+  | "scholarships"
+  | "workshops"
+  | "compare"
+  | "verify"
+  | "saved";
 
 export interface HeaderProps {
   /**
@@ -37,6 +46,7 @@ const NAV_LINKS: Array<{ key: NavKey; href: string; label: string; icon: LucideI
   { key: "majors", href: "/majors", label: "Majors", icon: BookOpen },
   { key: "universities", href: "/universities", label: "Universities", icon: GraduationCap },
   { key: "scholarships", href: "/scholarships", label: "Scholarships", icon: Coins },
+  { key: "workshops", href: "/workshops", label: "Workshops", icon: Users },
   { key: "compare", href: "/compare", label: "Compare", icon: Scale },
 ];
 

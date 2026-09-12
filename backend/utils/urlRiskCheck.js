@@ -59,37 +59,70 @@ function checkUrlStructure(rawUrl) {
   return { valid: true, hostname: parsed.hostname, protocol: parsed.protocol, reasons };
 }
 
+function getReachabilityCandidates(rawUrl) {
+  const candidates = [rawUrl];
+
+  try {
+    const parsed = new URL(rawUrl);
+    if (parsed.hostname.startsWith('www.')) {
+      const fallback = new URL(rawUrl);
+      fallback.hostname = parsed.hostname.replace(/^www\./, '');
+      candidates.push(fallback.toString());
+    }
+  } catch {
+    // Ignore malformed URLs here and let the caller handle the error.
+  }
+
+  return [...new Set(candidates)];
+}
+
 // Confirms the URL actually resolves (HEAD request, short timeout).
-function checkUrlReachable(rawUrl, timeoutMs = 5000) {
-  return new Promise((resolve) => {
+async function checkUrlReachable(rawUrl, timeoutMs = 5000) {
+  const candidates = getReachabilityCandidates(rawUrl);
+  let lastReason = 'Malformed URL.';
+
+  for (const candidate of candidates) {
     let parsed;
     try {
-      parsed = new URL(rawUrl);
+      parsed = new URL(candidate);
     } catch {
-      return resolve({ reachable: false, reason: 'Malformed URL.' });
+      continue;
     }
 
     const lib = parsed.protocol === 'https:' ? https : http;
-    const req = lib.request(
-      rawUrl,
-      { method: 'HEAD', timeout: timeoutMs },
-      (res) => {
-        resolve({ reachable: true, statusCode: res.statusCode });
-        res.destroy();
-      }
-    );
+    const result = await new Promise((resolve) => {
+      const req = lib.request(
+        candidate,
+        { method: 'HEAD', timeout: timeoutMs },
+        (res) => {
+          resolve({ reachable: true, statusCode: res.statusCode });
+          res.destroy();
+        }
+      );
 
-    req.on('timeout', () => {
-      req.destroy();
-      resolve({ reachable: false, reason: 'Request timed out — site may be slow or unreachable.' });
+      req.on('timeout', () => {
+        req.destroy();
+        resolve({ reachable: false, reason: 'Request timed out — site may be slow or unreachable.' });
+      });
+
+      req.on('error', (err) => {
+        const hostMismatch = /Hostname\/IP does not match certificate|ERR_TLS_CERT_ALTNAME_INVALID|CERT_HAS_EXPIRED|CERT_UNTRUSTED/i.test(err.message || '');
+        if (hostMismatch && candidate !== rawUrl) {
+          resolve({ reachable: false, reason: `Certificate mismatch on fallback host (${candidate})` });
+          return;
+        }
+
+        resolve({ reachable: false, reason: `Could not connect: ${err.message}` });
+      });
+
+      req.end();
     });
 
-    req.on('error', (err) => {
-      resolve({ reachable: false, reason: `Could not connect: ${err.message}` });
-    });
+    if (result.reachable) return result;
+    lastReason = result.reason;
+  }
 
-    req.end();
-  });
+  return { reachable: false, reason: lastReason };
 }
 
 // Checks Google Safe Browsing if a key is configured. Skips (returns null) if not.

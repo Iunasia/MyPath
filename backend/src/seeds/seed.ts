@@ -62,7 +62,7 @@ const seed = async () => {
   await ensureUser({
     name: 'Demo Student',
     email: 'student@test.com',
-    password: 'password123',
+    password: 'demo-user-2025',
     role: 'student'
   });
 

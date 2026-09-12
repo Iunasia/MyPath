@@ -9,6 +9,7 @@ const SECTIONS: Record<string, NonNullable<HeaderProps["activeNav"]>> = {
   universities: "universities",
   scholarships: "scholarships",
   compare: "compare",
+  workshops: "workshops",
   verify: "verify",
   saved: "saved",
 };

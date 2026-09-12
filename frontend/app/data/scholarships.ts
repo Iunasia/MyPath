@@ -371,7 +371,7 @@ export const SCHOLARSHIPS_DATA: Scholarship[] = [
       "Receive scholarship award letter and finalize course selection",
     ],
     officialSource: "https://www.puc.edu.kh/",
-    image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1200&auto=format&fit=crop&q=80",
+    image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&auto=format&fit=crop&q=80",
     isVerified: true,
     lastVerified: "August 2026",
   },
