@@ -6,12 +6,17 @@ interface Career {
   title: string;
   category: string;
   description: string;
-  average_salary: string;
-  growth_outlook: string;
+  /** One-line summary of the day-to-day work. */
+  responsibilities: string | null;
+  /** Not supplied by the current source sheet. */
+  average_salary: string | null;
+  growth_outlook: string | null;
+  education_required: string | null;
+  personality_fit: string | null;
   required_skills: string[];
   related_majors: string[];
-  source: string;
-  source_url: string;
+  source: string | null;
+  source_url: string | null;
 }
 
 const Career = {
@@ -25,11 +30,30 @@ const Career = {
     return res.rows[0] as Career | undefined;
   },
 
+  /** Several at once, for Compare. Row order is not guaranteed — callers reorder. */
+  getByIds: async (ids: number[]): Promise<Career[]> => {
+    const res = await pool.query('SELECT * FROM careers WHERE id = ANY($1::int[])', [ids]);
+    return res.rows as Career[];
+  },
+
   create: async (data: Omit<Career, 'id'>): Promise<Career> => {
     const res = await pool.query(
-      `INSERT INTO careers (title, category, description, average_salary, growth_outlook, required_skills, related_majors, source, source_url)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
-      [data.title, data.category, data.description, data.average_salary, data.growth_outlook, data.required_skills, data.related_majors, data.source, data.source_url]
+      `INSERT INTO careers (title, category, description, responsibilities, average_salary, growth_outlook, education_required, personality_fit, required_skills, related_majors, source, source_url)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
+      [
+        data.title,
+        data.category,
+        data.description,
+        data.responsibilities ?? null,
+        data.average_salary ?? null,
+        data.growth_outlook ?? null,
+        data.education_required ?? null,
+        data.personality_fit ?? null,
+        data.required_skills ?? [],
+        data.related_majors ?? [],
+        data.source ?? null,
+        data.source_url ?? null
+      ]
     );
     return res.rows[0] as Career;
   }

@@ -1,11 +1,19 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { Search, X } from "lucide-react";
-import { MAJORS_DATA, CATEGORIES } from "@/app/data/majors";
-import Header from "@/app/components/Header";
+import { AlertTriangle, Loader2, GraduationCap } from "lucide-react";
+import { CATEGORIES } from "@/app/data/majors";
+import { fetchMajors } from "@/app/lib/api";
+import {
+  categoriesOf,
+  plainCategory,
+  toMajorViews,
+  type MajorView,
+} from "@/app/lib/catalogAdapters";
 import Footer from "@/app/components/Footer";
+import ListHero from "@/app/components/ListHero";
+import CompareButton from "@/app/components/CompareButton";
 
 /* ── Page Component ────────────────────────────────────── */
 
@@ -13,66 +21,78 @@ export default function MajorsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
+  const [majors, setMajors] = useState<MajorView[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetchMajors()
+      .then((rows) => {
+        if (!cancelled) setMajors(toMajorViews(rows));
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) {
+          setLoadError(err instanceof Error ? err.message : "Could not load majors");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Derived from the data, so a new spreadsheet category becomes a filter.
+  const categories = useMemo(() => {
+    return categoriesOf(majors).map((category) => {
+      const styling = CATEGORIES.find(
+        (c) => plainCategory(c.id) === plainCategory(category)
+      );
+      return {
+        id: category,
+        name: plainCategory(category),
+        icon: styling?.icon ?? GraduationCap,
+        bg: styling?.bg ?? "bg-sitomo",
+        iconColor: styling?.iconColor ?? "text-sky-deep",
+      };
+    });
+  }, [majors]);
+
   // Filter logic
   const filteredMajors = useMemo(() => {
-    return MAJORS_DATA.filter((major) => {
+    return majors.filter((major) => {
       const matchesCategory = selectedCategory
         ? major.category === selectedCategory
         : true;
+      const q = searchQuery.toLowerCase().trim();
       const matchesSearch =
-        searchQuery.trim() === "" ||
-        major.name.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
-        major.tags.some((tag) =>
-          tag.toLowerCase().includes(searchQuery.toLowerCase().trim())
-        ) ||
-        major.skillsDeveloped.some((skill) =>
-          skill.toLowerCase().includes(searchQuery.toLowerCase().trim())
-        );
+        q === "" ||
+        major.name.toLowerCase().includes(q) ||
+        major.description.toLowerCase().includes(q) ||
+        major.tags.some((tag) => tag.toLowerCase().includes(q)) ||
+        major.subjects.some((subject) => subject.toLowerCase().includes(q)) ||
+        major.relatedCareersText.some((career) => career.toLowerCase().includes(q));
       return matchesCategory && matchesSearch;
     });
-  }, [searchQuery, selectedCategory]);
+  }, [majors, searchQuery, selectedCategory]);
 
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
-        {/* ── Top Header Component ────────────────────────── */}
-        <Header backHref="/" backLabel="DOMNER" activeNav="majors" />
 
-        {/* ── Hero Search Section ───────────────────────────── */}
-        <section className="mb-10 text-center max-w-3xl mx-auto w-full pt-4 sm:pt-6">
- 
-          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight leading-[1.15] mb-4">
-            Find the right Major for{" "}
-            <span className="text-sky-deep  decoration-sky/40 underline-offset-4">
-              your future
-            </span>
-          </h1>
-          <p className="text-xs sm:text-sm lg:text-base text-gray-soft mb-8 max-w-xl mx-auto font-medium">
-            Explore verified Cambodian academic disciplines, skill roadmaps, and career pathways.
-          </p>
-
-          {/* Search Input Bar */}
-          <div className="relative max-w-xl mx-auto">
-            <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none z-10">
-              <Search className="h-5 w-5 text-black" strokeWidth={2.2} />
-            </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by major, skills, or career interest..."
-              className="w-full pl-12 pr-10 py-3.5 sm:py-4 bg-white rounded-full text-sm text-blue-ink placeholder:text-gray-faint focus:outline-none focus:ring-2 focus:ring-sky focus:bg-white transition-all bubble-shadow-sm font-medium border border-sky/20"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-black hover:opacity-70 cursor-pointer z-10"
-              >
-                <X className="h-4 w-4 text-black" />
-              </button>
-            )}
-          </div>
-        </section>
+        <ListHero
+          title="Explore majors"
+          description="What you'd study, the skills you'd build, and the careers each major leads to."
+          search={{
+            value: searchQuery,
+            onChange: setSearchQuery,
+            placeholder: "Search by major, skill or career",
+          }}
+        />
 
         {/* ── Browse by Interest (6 Categories on Desktop) ──── */}
         <section className="mb-12">
@@ -92,7 +112,7 @@ export default function MajorsPage() {
 
           {/* Stays in one row on desktop (md:grid-cols-6) and 3 columns on mobile */}
           <div className="grid grid-cols-3 md:grid-cols-6 gap-3 lg:gap-4">
-            {CATEGORIES.map((cat) => {
+            {categories.map((cat) => {
               const Icon = cat.icon;
               const isSelected = selectedCategory === cat.id;
 
@@ -111,7 +131,7 @@ export default function MajorsPage() {
                   <div
                     className={`w-12 h-12 sm:w-13 sm:h-13 rounded-full ${cat.bg} flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform shadow-2xs`}
                   >
-                    <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-black" strokeWidth={2.2} />
+                    <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${cat.iconColor}`} strokeWidth={2.2} />
                   </div>
                   <span className="font-display text-xs sm:text-sm font-bold text-blue-ink leading-tight">
                     {cat.name}
@@ -136,7 +156,26 @@ export default function MajorsPage() {
             </Link>
           </div>
 
-          {filteredMajors.length === 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center gap-3 py-20 text-gray-soft">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span className="text-sm font-semibold">Loading majors…</span>
+            </div>
+          ) : loadError ? (
+            <div className="bg-white rounded-3xl p-10 text-center border border-sky/15 bubble-shadow-sm mt-4 max-w-lg mx-auto">
+              <AlertTriangle className="w-12 h-12 text-momo mx-auto mb-3" />
+              <p className="font-bold text-blue-ink text-base">Couldn&apos;t load majors</p>
+              <p className="text-xs sm:text-sm text-gray-soft mt-1.5">
+                {loadError}. Check that the API is running, then try again.
+              </p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-5 inline-flex items-center px-5 py-2.5 rounded-full bg-sky-deep text-white text-xs sm:text-sm font-bold hover:bg-sky-dark transition-colors cursor-pointer"
+              >
+                Retry
+              </button>
+            </div>
+          ) : filteredMajors.length === 0 ? (
             <div className="bg-white rounded-3xl p-10 text-center border border-sky/15 bubble-shadow-sm mt-4 max-w-lg mx-auto">
               <p className="font-bold text-blue-ink text-base">No majors found</p>
               <p className="text-xs sm:text-sm text-gray-soft mt-1.5">
@@ -147,7 +186,7 @@ export default function MajorsPage() {
                   setSelectedCategory(null);
                   setSearchQuery("");
                 }}
-                className="mt-5 inline-flex items-center px-5 py-2.5 rounded-full bg-sky text-white text-xs sm:text-sm font-bold hover:bg-sky-bright transition-colors cursor-pointer"
+                className="mt-5 inline-flex items-center px-5 py-2.5 rounded-full bg-sky-deep text-white text-xs sm:text-sm font-bold hover:bg-sky-dark transition-colors cursor-pointer"
               >
                 Clear all filters
               </button>
@@ -155,59 +194,80 @@ export default function MajorsPage() {
           ) : (
             /* Responsive Grid: 1 col on mobile, 2 cols on tablet, 3 cols on desktop (Top 6 Majors) */
             <>
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
-                {filteredMajors.slice(0, 8).map((major) => {
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
+                {filteredMajors.slice(0, 6).map((major) => {
+                  const Icon = major.icon;
+
                   return (
                     <article
                       key={major.id}
-                      className="bg-white rounded-2xl border border-sky/20 overflow-hidden shadow-xs hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group cursor-pointer h-full"
+                      className="bg-white rounded-3xl p-6 lg:p-7 border border-sky/15 bubble-shadow-sm hover:border-sky/35 bubble-shadow-hover transition-all flex flex-col justify-between"
                     >
                       <div>
-                        {/* Top Image */}
-                        <Link href={`/majors/${major.id}`} className="block w-full h-[140px] overflow-hidden bg-sky/5">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={major.heroImage}
-                            alt={major.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            loading="lazy"
-                          />
-                        </Link>
-
-                        {/* Card Content: Title & Important Text */}
-                        <div className="p-4 pb-2">
-                          <Link href={`/majors/${major.id}`}>
-                            <h3 className="font-display text-base font-bold text-blue-ink hover:text-sky-deep transition-colors leading-snug line-clamp-2 min-h-[44px]">
-                              {major.name}
-                            </h3>
-                          </Link>
-
-                          <div className="mt-2 space-y-1">
-                            <p className="text-xs text-gray-soft font-medium line-clamp-1">
-                              {major.category} • {major.duration}
-                            </p>
-                            <p className="text-xs font-semibold text-blue-ink">
-                              Market Demand: <span className="font-bold text-sky-deep">{major.jobMarketDemand}</span>
-                            </p>
+                        {/* Top Row: Icon + Optional Badge */}
+                        <div className="flex items-center justify-between mb-4">
+                          <div
+                            className={`w-12 h-12 rounded-2xl ${major.iconBg} flex items-center justify-center`}
+                          >
+                            <Icon className={`w-6 h-6 ${major.iconColor}`} strokeWidth={2.2} />
                           </div>
+
+                          {/* Was a curated badge; now the real demand signal
+                              from the spreadsheet. */}
+                          {major.jobMarketDemand !== "Not stated" && (
+                            <span className="text-xs font-bold px-3 py-1 rounded-full bg-momo text-blue-ink">
+                              {major.jobMarketDemand}
+                            </span>
+                          )}
                         </div>
+
+                        {/* Title & Description */}
+                        <h3 className="font-display text-lg lg:text-xl font-bold text-blue-ink mb-2">
+                          {major.name}
+                        </h3>
+                        <p className="text-xs sm:text-sm text-gray-body leading-relaxed mb-4 font-medium">
+                          {major.description}
+                        </p>
                       </div>
 
-                      {/* Bottom: View more Button */}
-                      <div className="p-4 pt-1 pb-4">
-                        <Link
-                          href={`/majors/${major.id}`}
-                          className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-sky text-sky-deep hover:bg-sky hover:text-white text-xs font-bold transition-colors cursor-pointer"
-                        >
-                          View more
-                        </Link>
+                      <div>
+                        {/* Tags */}
+                        <div className="flex flex-wrap gap-1.5 mb-5">
+                          {major.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="bg-sitomo/70 text-blue-ink text-xs font-semibold px-3 py-1 rounded-full border border-sky/10"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex items-center gap-2">
+                          <Link
+                            href={`/majors/${major.id}`}
+                            className="flex-1 rounded-full border-2 border-sky/50 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-sky-deep hover:bg-sky/10 hover:border-sky transition-colors text-center cursor-pointer block"
+                          >
+                            Explore Major
+                          </Link>
+                          <CompareButton
+                            variant="icon"
+                            item={{
+                              type: "major",
+                              apiId: Number(major.id),
+                              title: major.name,
+                              subtitle: major.categoryKey,
+                            }}
+                          />
+                        </div>
                       </div>
                     </article>
                   );
                 })}
               </div>
 
-              {filteredMajors.length > 8 && (
+              {filteredMajors.length > 6 && (
                 <div className="mt-10 text-center">
                   <Link
                     href="/majors/all"

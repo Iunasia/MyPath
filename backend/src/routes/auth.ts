@@ -4,6 +4,7 @@ import User from '../models/User';
 import { isGuest } from '../middleware/auth';
 
 const router = require('express').Router();
+const { authLimiter } = require('../../middleware/security');
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
@@ -13,10 +14,18 @@ router.get('/register', isGuest, (_req: Request, res: Response) => {
 });
 
 // POST /register
-router.post('/register', isGuest, async (req: Request, res: Response) => {
+router.post('/register', authLimiter, isGuest, async (req: Request, res: Response) => {
   try {
-    const { name, email, password, role } = req.body;
-    const user = await User.create({ name, email, password, role: role || 'student' });
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'Name, email and password are all required.' });
+    }
+
+    // `role` is deliberately NOT read from the request body — accepting it
+    // would let anyone register themselves as an admin. Roles are granted
+    // server-side only.
+    const user = await User.create({ name, email, password, role: 'student' });
 
     const session = req.session as any;
     session.userId = user.id;
@@ -35,11 +44,18 @@ router.get('/login', isGuest, (_req: Request, res: Response) => {
 });
 
 // POST /login
-router.post('/login', isGuest, async (req: Request, res: Response) => {
+router.post('/login', authLimiter, isGuest, async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required.' });
+    }
+
     const user = await User.findByEmail(email);
 
+    // One message for both "no such user" and "wrong password" — separate
+    // wording would let an attacker enumerate registered accounts.
     if (!user || !user.password || !(await User.comparePassword(password, user.password))) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
@@ -49,7 +65,11 @@ router.post('/login', isGuest, async (req: Request, res: Response) => {
     session.userName = user.name;
     session.userRole = user.role;
 
-    res.status(200).json({ message: 'Login successful', user });
+    // findByEmail returns the whole row, bcrypt hash included. Strip it before
+    // it ever reaches the client.
+    const { password: _passwordHash, ...safeUser } = user;
+
+    res.status(200).json({ message: 'Login successful', user: safeUser });
   } catch (err) {
     res.status(500).json({ error: 'Login error.' });
   }

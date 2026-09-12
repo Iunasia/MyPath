@@ -1,10 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
-  Bookmark,
-  Share2,
-  ExternalLink,
-  ShieldCheck,
+  ArrowRight,
+  Info,
   Briefcase,
   GraduationCap,
   Sparkles,
@@ -12,18 +10,19 @@ import {
   Target,
   CheckCircle2,
 } from "lucide-react";
-import { CAREERS_DATA } from "@/app/data/careers";
-import Header from "@/app/components/Header";
+import { getCareer, getMajors } from "@/app/lib/api.server";
+import { linkMajors, toCareerView, toMajorViews } from "@/app/lib/catalogAdapters";
 import Footer from "@/app/components/Footer";
+import BackLink from "@/app/components/BackLink";
 import SaveItemButton from "@/app/components/SaveItemButton";
+import CompareButton from "@/app/components/CompareButton";
+import ShareButton from "@/app/components/ShareButton";
 
-/* ── Static Generation for all Careers ─────────────────── */
-
-export function generateStaticParams() {
-  return CAREERS_DATA.map((career) => ({
-    id: career.id,
-  }));
-}
+/**
+ * Rendered per request. Prerendering would need the API up at build time, and
+ * content changes whenever the team re-seeds.
+ */
+export const dynamic = "force-dynamic";
 
 /* ── Career Detail Page ────────────────────────────────── */
 
@@ -33,11 +32,20 @@ interface PageProps {
 
 export default async function CareerDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const career = CAREERS_DATA.find((c) => c.id === id);
 
-  if (!career) {
+  // Majors are fetched too, so "Majors That Lead Here" can link by real id —
+  // the spreadsheet stores the relationship as a plain name.
+  const [row, majorRows] = await Promise.all([getCareer(id), getMajors()]);
+
+  if (!row) {
     notFound();
   }
+
+  const career = toCareerView(row);
+  const { links: relatedMajors, unmatched: relatedMajorsUnmatched } = linkMajors(
+    career.relatedMajorsText,
+    toMajorViews(majorRows)
+  );
 
   const Icon = career.icon;
 
@@ -45,107 +53,80 @@ export default async function CareerDetailPage({ params }: PageProps) {
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       <div className="w-full px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
         {/* ── Header ────────────────────────────────────────── */}
-        <Header
-          backHref="/careers"
-          backLabel="Back to Careers"
-          activeNav="careers"
-          actions={
-            <>
-              <button
-                className="p-2.5 rounded-2xl text-blue-ink bg-white border border-sky/15 hover:bg-sitomo/80 transition-colors focus:outline-none cursor-pointer bubble-shadow-sm"
-                aria-label="Save career"
-                title="Save to favorites"
-              >
-                <Bookmark className="w-5 h-5 text-sky-deep" />
-              </button>
-              <button
-                className="p-2.5 rounded-2xl text-blue-ink bg-white border border-sky/15 hover:bg-sitomo/80 transition-colors focus:outline-none cursor-pointer bubble-shadow-sm"
-                aria-label="Share career"
-                title="Share"
-              >
-                <Share2 className="w-5 h-5 text-sky-deep" />
-              </button>
-            </>
-          }
-        />
+        <BackLink href="/careers" label="All careers" className="mb-6" />
 
         {/* ── Main Content ──────────────────────────────────── */}
         <main className="w-full pb-16 flex flex-col gap-10">
-          {/* 1. Hero Section: Content & Image in One Row */}
+          {/* 1. Hero Section */}
           <section className="w-full">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 items-center">
-              {/* Left Column: Content */}
-              <div className="md:col-span-7 flex flex-col">
-                <div className="flex flex-wrap items-center gap-2 mb-3">
-                  <span className="inline-block px-4 py-1.5 rounded-full bg-sky/20 text-sky-deep text-xs font-extrabold uppercase tracking-wider border border-sky/20">
-                    {career.category}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold uppercase tracking-wider border border-emerald-200">
-                    <TrendingUp className="w-4 h-4 text-emerald-600" />
-                    Demand: {career.jobMarketDemand}
-                  </span>
-                </div>
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              <span className="inline-block px-4 py-1.5 rounded-full bg-sky/20 text-sky-deep text-xs font-extrabold uppercase tracking-wider border border-sky/20">
+                {career.categoryKey}
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold uppercase tracking-wider border border-emerald-200">
+                <TrendingUp className="w-4 h-4 text-emerald-600" />
+                Demand: {career.jobMarketDemand}
+              </span>
+            </div>
 
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-14 h-14 rounded-2xl bg-sitomo flex items-center justify-center border border-sky/15 shrink-0">
-                    <Icon className="w-7 h-7 text-sky-deep" strokeWidth={2.2} />
-                  </div>
-                  <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight leading-[1.15]">
-                    {career.title}
-                  </h1>
-                </div>
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-16 h-16 rounded-2xl bg-sitomo flex items-center justify-center border border-sky/15 shrink-0">
+                <Icon className="w-8 h-8 text-sky-deep" strokeWidth={2.2} />
+              </div>
+              <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight leading-[1.15]">
+                {career.title}
+              </h1>
+            </div>
 
-                {/* What You Do Banner */}
-                <div className="p-4 sm:p-5 bg-white rounded-2xl border border-sky/20 bubble-shadow-sm mb-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-sitomo flex items-center justify-center text-sky-deep shrink-0">
-                      <Briefcase className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h2 className="text-xs font-extrabold uppercase tracking-wider text-sky-deep mb-1">
-                        What You Do
-                      </h2>
-                      <p className="text-sm sm:text-base font-bold text-blue-ink leading-snug">
-                        {career.whatYouDo}
-                      </p>
-                    </div>
-                  </div>
+            {/* What You Do Banner */}
+            <div className="p-5 bg-white rounded-2xl border border-sky/20 bubble-shadow-sm mb-6 max-w-4xl">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-sitomo flex items-center justify-center text-sky-deep shrink-0">
+                  <Briefcase className="w-5 h-5" />
                 </div>
-
-                <div className="mb-6">
-                  <h2 className="text-xs font-extrabold uppercase tracking-wider text-gray-soft mb-1.5">
-                    Short Overview
+                <div>
+                  <h2 className="text-xs font-extrabold uppercase tracking-wider text-sky-deep mb-1">
+                    What You Do
                   </h2>
-                  <p className="text-sm sm:text-base text-gray-body leading-relaxed font-medium">
-                    {career.shortOverview}
+                  <p className="text-base sm:text-lg font-bold text-blue-ink leading-snug">
+                    {career.whatYouDo}
                   </p>
                 </div>
-
-                <div>
-                  <SaveItemButton
-                    item={{
-                      id: career.id,
-                      type: "career",
-                      title: career.title,
-                      subtitle: career.category,
-                      image: career.image,
-                      link: `/careers/${career.id}`,
-                    }}
-                    className="w-auto"
-                  />
-                </div>
               </div>
+            </div>
 
-              {/* Right Column: Same Image from Career Card */}
-              <div className="md:col-span-5 w-full">
-                <div className="relative aspect-[4/3] sm:aspect-[16/11] md:aspect-square w-full rounded-3xl overflow-hidden border-2 border-sky/20 shadow-lg shadow-slate-300/40 bg-white">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={career.image}
-                    alt={career.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+            <div className="max-w-4xl mb-6">
+              <h2 className="text-xs font-extrabold uppercase tracking-wider text-gray-soft mb-2">
+                Short Overview
+              </h2>
+              <p className="text-sm sm:text-base lg:text-lg text-gray-body leading-relaxed font-medium">
+                {career.shortOverview}
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3">
+              <SaveItemButton
+                item={{
+                  id: career.id,
+                  type: "career",
+                  title: career.title,
+                  subtitle: career.categoryKey,
+                  link: `/careers/${career.id}`,
+                }}
+                label="Save Career"
+                className="w-full sm:w-auto"
+              />
+              <div className="flex items-center gap-3">
+                <CompareButton
+                  item={{
+                    type: "career",
+                    apiId: Number(career.id),
+                    title: career.title,
+                    subtitle: career.categoryKey,
+                  }}
+                  className="flex-1 sm:flex-none"
+                />
+                <ShareButton title={career.title} />
               </div>
             </div>
           </section>
@@ -240,9 +221,9 @@ export default async function CareerDetailPage({ params }: PageProps) {
               {career.title}.
             </p>
 
-            {career.relatedMajors.length > 0 ? (
+            {relatedMajors.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {career.relatedMajors.map((major) => {
+                {relatedMajors.map((major) => {
                   const MajorIcon = major.icon;
                   return (
                     <Link
@@ -268,9 +249,13 @@ export default async function CareerDetailPage({ params }: PageProps) {
                   );
                 })}
               </div>
-            ) : (
-              <div className="flex flex-wrap gap-2">
-                {career.relatedMajorsText.map((m) => (
+            ) : null}
+
+            {/* Names the spreadsheet lists that have no major record yet —
+                shown as plain chips rather than links that would 404. */}
+            {relatedMajorsUnmatched.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-4">
+                {relatedMajorsUnmatched.map((m) => (
                   <span
                     key={m}
                     className="bg-momo text-blue-ink text-sm font-bold px-4 py-2 rounded-full border border-momo/70"
@@ -303,22 +288,21 @@ export default async function CareerDetailPage({ params }: PageProps) {
             </div>
           </section>
 
-          {/* 5. Verification Card */}
+          {/* 5. Where this comes from. No "verified" badge: career profiles
+              haven't been checked against an official source. */}
           <div className="rounded-3xl bg-momo p-6 sm:p-8 border border-momo w-full">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-sky-deep" />
-                <span className="text-xs sm:text-sm font-bold text-blue-ink uppercase tracking-wider">
-                  Verified Career Profile
-                </span>
-              </div>
-              <span className="inline-flex items-center gap-1 rounded-full bg-sky/20 px-3 py-1 text-xs font-bold text-sky-deep">
-                Verified Source
+            <div className="flex items-center gap-2 mb-3">
+              <Info className="w-5 h-5 text-sky-deep" />
+              <span className="text-xs sm:text-sm font-bold text-blue-ink uppercase tracking-wider">
+                About this information
               </span>
             </div>
 
             <p className="text-xs sm:text-sm text-gray-body mb-4 font-medium">
-              Career profile data is structured based on official educational guidelines, job market demand metrics, and industry skill standards.
+              This profile comes from Domner&apos;s careers dataset, written by our team. It
+              hasn&apos;t been checked against an official source, and the demand level is an
+              estimate rather than official job-market data. Use it as a starting point, and
+              ask people who work in the field.
             </p>
 
             <div className="grid sm:grid-cols-2 gap-4 text-xs sm:text-sm text-blue-ink font-medium">
@@ -326,7 +310,7 @@ export default async function CareerDetailPage({ params }: PageProps) {
                 <span className="text-xs text-gray-soft block">
                   Category:
                 </span>
-                <span className="font-bold">{career.category}</span>
+                <span className="font-bold">{career.categoryKey}</span>
               </div>
               <div>
                 <span className="text-xs text-gray-soft block">
@@ -341,7 +325,7 @@ export default async function CareerDetailPage({ params }: PageProps) {
                 href="/careers"
                 className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-sky-deep hover:underline"
               >
-                Browse All Careers <ExternalLink className="w-3.5 h-3.5" />
+                Browse all careers <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           </div>
