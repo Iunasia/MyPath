@@ -58,13 +58,14 @@ export default function AllMajorsBrowser({ rows }: { rows: ApiMajor[] }) {
         
 
         <ListHero
-          back={{ href: "/majors", label: "Majors" }}
+          back={{ href: "/majors", label: "Major Explorer" }}
           title="All majors"
-          description="Every major in the catalogue. Filter by field, or search by name, skill or subject."
+          accent="& pathways"
+          description="The full catalogue of university majors, what each one covers, and the institutions that teach it."
           search={{
             value: searchQuery,
             onChange: setSearchQuery,
-            placeholder: "Search majors, skills or fields",
+            placeholder: "Search all majors, skills, or fields...",
           }}
         />
 

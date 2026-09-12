@@ -152,7 +152,7 @@ const UNI_MAP: Record<string, UniversityItem> = {
     name: "Paragon International University",
     shortName: "Paragon.U",
     location: "Phnom Penh",
-    image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&auto=format&fit=crop&q=80",
+    image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80",
     websiteUrl: "https://paragoniu.edu.kh",
   },
   AUPP: {
@@ -478,7 +478,7 @@ export const MAJORS_DATA: MajorItem[] = [
     source: "CDRI, University Websites",
     sourceUrl: "https://cdri.org.kh",
     lastVerified: "2026",
-    heroImage: "https://images.unsplash.com/photo-1677442136019-21780efad99a?w=1600&auto=format&fit=crop&q=80",
+    heroImage: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1600&auto=format&fit=crop&q=80",
     whatYouLearn: [
       { title: "Machine Learning", description: "Deep neural networks, backpropagation, and reinforcement learning.", icon: Brain },
       { title: "Computer Vision", description: "Image recognition, object detection, and visual processing models.", icon: Laptop },
@@ -828,7 +828,7 @@ export const MAJORS_DATA: MajorItem[] = [
     source: "MLVT, University Websites",
     sourceUrl: "https://www.mlvt.gov.kh",
     lastVerified: "2026",
-    heroImage: "https://images.unsplash.com/photo-1541888946425-d0fbb186c5f7?w=1600&auto=format&fit=crop&q=80",
+    heroImage: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1600&auto=format&fit=crop&q=80",
     whatYouLearn: [
       { title: "Structural Engineering", description: "Reinforced concrete, steel beam design, and load-bearing static calculations.", icon: Building2 },
       { title: "Construction Materials", description: "Soil mechanics, concrete durability, asphalt chemistry, and quality tests.", icon: Wrench },

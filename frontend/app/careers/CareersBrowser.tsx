@@ -80,12 +80,13 @@ export default function CareersBrowser({
       <div className="w-full px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col flex-1">
 
         <ListHero
-          title="Explore careers"
-          description="What each job involves, the skills and education it needs, and how much demand there is for it."
+          title="Explore career"
+          accent="pathways"
+          description="Top career options with the key skills, the education each needs, the people they suit, and how much demand there is."
           search={{
             value: searchQuery,
             onChange: setSearchQuery,
-            placeholder: "Search careers, skills or education",
+            placeholder: "Search careers, skills, education, or personality...",
           }}
         />
 
