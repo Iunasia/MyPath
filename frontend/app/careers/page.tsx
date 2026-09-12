@@ -163,16 +163,16 @@ export default function CareersPage() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
               {filteredCareers.map((career) => {
                 return (
                   <article
                     key={career.id}
-                    className="bg-white rounded-2xl border border-sky/20 overflow-hidden shadow-xs hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
+                    className="bg-white rounded-2xl border border-sky/20 overflow-hidden shadow-xs hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group cursor-pointer h-full"
                   >
                     <div>
                       {/* Top Image */}
-                      <Link href={`/careers/${career.id}`} className="block w-full aspect-[16/10] overflow-hidden bg-sky/5">
+                      <Link href={`/careers/${career.id}`} className="block w-full h-[140px] overflow-hidden bg-sky/5">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={career.image}
@@ -183,14 +183,14 @@ export default function CareersPage() {
                       </Link>
 
                       {/* Card Content: Title & Important Text */}
-                      <div className="p-4 sm:p-5 pb-2">
+                      <div className="p-4 pb-2">
                         <Link href={`/careers/${career.id}`}>
-                          <h3 className="font-display text-lg sm:text-xl font-bold text-blue-ink hover:text-sky-deep transition-colors leading-snug line-clamp-2">
+                          <h3 className="font-display text-base font-bold text-blue-ink hover:text-sky-deep transition-colors leading-snug line-clamp-2 min-h-[44px]">
                             {career.title}
                           </h3>
                         </Link>
 
-                        <div className="mt-2.5 space-y-1">
+                        <div className="mt-2 space-y-1">
                           <p className="text-xs text-gray-soft font-medium line-clamp-1">
                             {career.category}
                           </p>
@@ -202,7 +202,7 @@ export default function CareersPage() {
                     </div>
 
                     {/* Bottom: View more Button */}
-                    <div className="p-4 sm:p-5 pt-1 pb-4 sm:pb-5">
+                    <div className="p-4 pt-1 pb-4">
                       <Link
                         href={`/careers/${career.id}`}
                         className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-sky text-sky-deep hover:bg-sky hover:text-white text-xs font-bold transition-colors cursor-pointer"

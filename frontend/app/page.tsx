@@ -2,6 +2,7 @@ import Link from "next/link";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import HeroSlider from "./components/HeroSlider";
+import WorkshopIcon from "./components/WorkshopIcon";
 import {
   Compass,
   Search,
@@ -70,34 +71,51 @@ const DMIL_DESCRIPTIONS = [
   "Make a confident, evidence-based decision about your future.",
 ];
 
+const MOBILE_STEP_POSITIONS = [
+  { top: 16, isLeft: true },   // Step 1: Discover (Row 1 Left)
+  { top: 16, isLeft: false },  // Step 2: Search (Row 1 Right)
+  { top: 196, isLeft: true },  // Step 3: Evaluate (Row 2 Left)
+  { top: 376, isLeft: false }, // Step 4: Verify (Row 3 Right)
+  { top: 556, isLeft: true },  // Step 5: Compare (Row 4 Left)
+  { top: 736, isLeft: false }, // Step 6: Organize (Row 5 Right)
+  { top: 916, isLeft: true },  // Step 7: Decide (Row 6 Left)
+];
+
 const EXPLORERS = [
   {
     icon: Briefcase,
     title: "Career Explorer",
     description: "Explore careers based on your interests, skills, and values. See real pathways people take.",
-    chip: "bg-sitomo text-sky-deep",
+    chip: "bg-sitomo text-black",
     href: "/careers",
   },
   {
     icon: BookOpen,
     title: "Major Explorer",
     description: "Discover majors and see how they connect to careers, industries, and further study.",
-    chip: "bg-momo text-blue-ink",
+    chip: "bg-momo text-black",
     href: "/majors",
   },
   {
     icon: GraduationCap,
     title: "University Explorer",
     description: "Search and compare universities by program, location, cost, and student outcomes.",
-    chip: "bg-sitomo text-blue-ink",
+    chip: "bg-sitomo text-black",
     href: "/universities",
   },
   {
     icon: CircleDollarSign,
     title: "Scholarship Explorer",
     description: "Find scholarships and funding opportunities you're actually eligible for.",
-    chip: "bg-momo text-blue-ink",
+    chip: "bg-momo text-black",
     href: "/scholarships",
+  },
+  {
+    icon: WorkshopIcon,
+    title: "Workshops & Mentorship",
+    description: "Attend expert-led masterclasses, connect with personal mentors, and explore university open days.",
+    chip: "bg-sitomo text-black",
+    href: "/workshops",
   },
 ];
 
@@ -131,11 +149,11 @@ export default function Home() {
             </h2>
           </div>
 
-          {/* ── Desktop View: Horizontal 7-Step Row with Curled Dashed Connector ── */}
-          <div className="hidden lg:block relative pt-2">
-            {/* Desktop Curled Dashed Connector Wave */}
+          {/* ── Desktop & Tablet View: Horizontal 7-Step Row with Curled Dashed Connector ── */}
+          <div className="hidden md:block relative pt-2">
+            {/* Curled Dashed Connector Wave */}
             <div
-              className="absolute top-1 left-0 right-0 h-16 pointer-events-none z-0"
+              className="absolute top-1 left-0 right-0 h-12 md:h-14 lg:h-16 pointer-events-none z-0"
               aria-hidden="true"
             >
               <svg
@@ -166,7 +184,7 @@ export default function Home() {
               {DMIL_STEPS.map((step, i) => {
                 // Subtle undulating vertical offsets matching the wave curve
                 const offsetClass =
-                  i % 2 === 1 ? "-translate-y-1.5" : "translate-y-0.5";
+                  i % 2 === 1 ? "-translate-y-1 md:-translate-y-1.5" : "translate-y-0.5";
 
                 return (
                   <div
@@ -174,19 +192,19 @@ export default function Home() {
                     className={`group flex flex-col items-center text-center flex-1 relative z-10 transition-transform ${offsetClass}`}
                   >
                     {/* Step Number Circle (No Icon, Just Step Number) */}
-                    <div className="relative flex items-center justify-center w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-white border-2 border-sky/30 shadow-md shadow-slate-200/60 group-hover:border-sky-deep group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
-                      <span className="font-display font-extrabold text-lg sm:text-xl text-blue-ink group-hover:text-sky-deep transition-colors">
+                    <div className="relative flex items-center justify-center w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-full bg-white border-2 border-sky/30 shadow-md shadow-slate-200/60 group-hover:border-sky-deep group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
+                      <span className="font-display font-extrabold text-sm md:text-base lg:text-xl text-blue-ink group-hover:text-sky-deep transition-colors">
                         {i + 1}
                       </span>
                     </div>
 
                     {/* Step Title */}
-                    <h3 className="font-display text-sm sm:text-base font-bold text-blue-ink mt-4 mb-1.5 group-hover:text-sky-deep transition-colors">
+                    <h3 className="font-display text-xs md:text-sm lg:text-base font-bold text-blue-ink mt-2 md:mt-3 lg:mt-4 mb-1 md:mb-1.5 group-hover:text-sky-deep transition-colors">
                       {step.title}
                     </h3>
 
                     {/* Step Description */}
-                    <p className="text-xs text-gray-body leading-relaxed max-w-[135px] mx-auto font-normal">
+                    <p className="text-[10px] md:text-[11px] lg:text-xs text-gray-body leading-snug md:leading-relaxed max-w-[95px] md:max-w-[115px] lg:max-w-[135px] mx-auto font-normal">
                       {DMIL_DESCRIPTIONS[i]}
                     </p>
                   </div>
@@ -195,27 +213,26 @@ export default function Home() {
             </div>
           </div>
 
-          {/* ── Mobile View: Gently Curved V-Shape Zigzag (Matching Hand-Drawn Sketch) ── */}
-          <div className="lg:hidden relative w-[320px] mx-auto h-[950px] pt-1">
-            {/* SVG Dashed Connecting Lines (Gently Curved V-Shape Zigzag) */}
+          {/* ── Mobile View: DOMNER Winding Road / Journey Switchback (Mobile only, < md) ── */}
+          <div className="md:hidden relative w-[330px] mx-auto h-[1080px] pt-1">
+            {/* SVG Dashed Connecting Line (Winding Switchback Road - Clean of Text) */}
             <div
               className="absolute inset-0 pointer-events-none z-0"
               aria-hidden="true"
             >
               <svg
-                viewBox="0 0 320 950"
+                viewBox="0 0 330 1080"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
                 className="w-full h-full"
               >
                 <path
-                  d="M 72 28
-                     C 148 51, 237 117, 248 163
-                     C 237 209, 148 275, 72 298
-                     C 148 321, 237 387, 248 433
-                     C 237 479, 148 545, 72 568
-                     C 148 591, 237 657, 248 703
-                     C 237 749, 148 815, 72 838"
+                  d="M 66 44 L 264 44
+                     M 264 158 L 264 196 A 28 28 0 0 1 236 224 L 66 224
+                     M 66 338 L 66 376 A 28 28 0 0 0 94 404 L 264 404
+                     M 264 518 L 264 556 A 28 28 0 0 1 236 584 L 66 584
+                     M 66 698 L 66 736 A 28 28 0 0 0 94 764 L 264 764
+                     M 264 878 L 264 916 A 28 28 0 0 1 236 944 L 66 944"
                   stroke="#7AB3B7"
                   strokeWidth="2.5"
                   strokeDasharray="6 6"
@@ -225,19 +242,19 @@ export default function Home() {
               </svg>
             </div>
 
-            {/* 7 Alternating Steps (Positioned along the V-shape / Zigzag Path) */}
+            {/* 7 DOMNER Journey Steps */}
             {DMIL_STEPS.map((step, i) => {
-              const isLeft = i % 2 === 0;
+              const pos = MOBILE_STEP_POSITIONS[i];
 
               return (
                 <div
                   key={`mobile-${step.title}`}
-                  style={{ top: `${i * 135}px` }}
+                  style={{ top: `${pos.top}px` }}
                   className={`absolute ${
-                    isLeft ? "left-1" : "right-1"
-                  } w-[136px] flex flex-col items-center text-center z-10 group`}
+                    pos.isLeft ? "left-0.5" : "right-0.5"
+                  } w-[132px] flex flex-col items-center text-center z-10 group`}
                 >
-                  {/* Step Number Circle (No Icon, Just Step Number) */}
+                  {/* Step Number Circle */}
                   <div className="relative flex items-center justify-center w-14 h-14 rounded-full bg-white border-2 border-sky/35 shadow-md shadow-slate-200/60 group-hover:border-sky-deep group-hover:scale-105 transition-all duration-300 shrink-0">
                     <span className="font-display font-extrabold text-lg text-blue-ink group-hover:text-sky-deep transition-colors">
                       {i + 1}
@@ -250,7 +267,7 @@ export default function Home() {
                   </h3>
 
                   {/* Step Description */}
-                  <p className="text-[11px] text-gray-body leading-relaxed font-normal bg-white/80 rounded px-1">
+                  <p className="text-[11px] text-gray-body leading-relaxed font-normal">
                     {DMIL_DESCRIPTIONS[i]}
                   </p>
                 </div>
@@ -267,10 +284,10 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-14 max-w-2xl mx-auto">
             <h2 className="font-display text-3xl sm:text-4xl lg:text-[2.65rem] font-extrabold text-blue-ink tracking-tight">
-              Four ways to discover your path
+              Five ways to discover your path
             </h2>
             <p className="text-sm sm:text-base text-gray-body mt-3 font-medium">
-              Explore verified pathways and resources to guide your education and career journey.
+              Explore verified pathways, academic disciplines, institutions, scholarships, and expert workshops.
             </p>
           </div>
 
@@ -305,28 +322,28 @@ export default function Home() {
             ))}
           </div>
 
-          {/* ── Tablet & Desktop View: Reference Image Style ── */}
-          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* ── Tablet & Desktop View: Reference Image Style (5 Columns on Desktop, 3 on Tablet) ── */}
+          <div className="hidden sm:grid sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4 md:gap-4.5 lg:gap-5">
             {EXPLORERS.map((e) => (
               <Link
                 key={e.title}
                 href={e.href}
-                className="group flex flex-col items-center text-center rounded-[28px] bg-white p-7 sm:p-8 border border-sky/20 hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer"
+                className="group flex flex-col items-center text-center rounded-2xl md:rounded-[24px] lg:rounded-[28px] bg-white p-4 sm:p-4.5 md:p-5 lg:p-6 border border-sky/20 hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer h-full"
               >
                 {/* Circular Icon Badge (Original Brand Chips: sitomo & momo) */}
                 <div
-                  className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full ${e.chip} border-2 border-sky/15 flex items-center justify-center mb-6 group-hover:scale-105 group-hover:shadow-md transition-all duration-300 shrink-0`}
+                  className={`w-11 h-11 sm:w-12 sm:h-12 md:w-13 md:h-13 lg:w-15 lg:h-15 rounded-full ${e.chip} border-2 border-sky/15 flex items-center justify-center mb-3 sm:mb-3.5 md:mb-4 lg:mb-5 group-hover:scale-105 group-hover:shadow-md transition-all duration-300 shrink-0`}
                 >
-                  <e.icon className="w-7 h-7 sm:w-8 sm:h-8" strokeWidth={2} aria-hidden="true" />
+                  <e.icon className="w-5.5 h-5.5 sm:w-6 sm:h-6 md:w-6.5 md:h-6.5 lg:w-7.5 lg:h-7.5" strokeWidth={2} aria-hidden="true" />
                 </div>
 
                 {/* Title */}
-                <h3 className="font-display text-sm sm:text-base font-extrabold text-blue-ink uppercase tracking-wider group-hover:text-sky-deep transition-colors mb-2.5">
+                <h3 className="font-display text-xs sm:text-xs md:text-sm lg:text-base font-extrabold text-blue-ink uppercase tracking-wider group-hover:text-sky-deep transition-colors mb-1.5 md:mb-2">
                   {e.title}
                 </h3>
 
                 {/* Description */}
-                <p className="text-xs sm:text-sm text-gray-body leading-relaxed font-normal">
+                <p className="text-[11px] sm:text-xs md:text-xs lg:text-sm text-gray-body leading-relaxed font-normal">
                   {e.description}
                 </p>
               </Link>

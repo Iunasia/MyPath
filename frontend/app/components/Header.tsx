@@ -13,15 +13,17 @@ import {
   Coins,
   Bookmark,
   ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
+import WorkshopIcon from "@/app/components/WorkshopIcon";
 
 export interface HeaderProps {
   variant?: "default" | "home";
   backHref?: string;
   backLabel?: string;
   showBackArrow?: boolean;
-  activeNav?: "home" | "careers" | "majors" | "universities" | "scholarships" | "saved" | "admin";
+  activeNav?: "home" | "careers" | "majors" | "universities" | "scholarships" | "workshops" | "saved" | "admin";
   showSaveIcon?: boolean;
   actions?: React.ReactNode;
   className?: string;
@@ -79,6 +81,12 @@ export default function Header({
               className="text-sm font-semibold text-gray-soft hover:text-sky-deep transition-colors"
             >
               Scholarships
+            </Link>
+            <Link
+              href="/workshops"
+              className="text-sm font-semibold text-gray-soft hover:text-sky-deep transition-colors"
+            >
+              Workshops
             </Link>
             {isAdmin && (
               <Link
@@ -216,6 +224,16 @@ export default function Header({
             >
               Scholarships
             </Link>
+            <Link
+              href="/workshops"
+              className={`transition-colors ${
+                activeNav === "workshops"
+                  ? "font-bold text-sky-deep"
+                  : "text-gray-soft hover:text-sky-deep"
+              }`}
+            >
+              Workshops
+            </Link>
             {isAdmin && (
               <Link
                 href="/admin"
@@ -327,6 +345,19 @@ export default function Header({
             >
               <Coins className="w-4 h-4 text-sky-deep" />
               <span>Scholarships</span>
+            </Link>
+
+            <Link
+              href="/workshops"
+              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors ${
+                activeNav === "workshops"
+                  ? "bg-sky/15 text-sky-deep font-bold"
+                  : "text-blue-ink hover:bg-powder"
+              }`}
+              onClick={() => setMenuOpen(false)}
+            >
+              <WorkshopIcon className="w-4 h-4 text-black" />
+              <span>Workshops & Services</span>
             </Link>
 
             {showSaveIcon && (

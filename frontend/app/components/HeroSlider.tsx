@@ -174,7 +174,7 @@ export default function HeroSlider() {
       </div>
 
       {/* ── 3 FEATURE COLUMNS (EduBlock Style with DOMNER Powder Theme — Stays in Row on Mobile) ── */}
-      <div className="relative z-10 w-full bg-powder/80 sm:bg-powder/85 backdrop-blur-md border-t border-sky/20 pt-3.5 pb-4 sm:pt-7 sm:pb-8 px-3 sm:px-6 lg:px-8">
+      <div className="relative z-10 w-full bg-powder/80 sm:bg-powder/85 backdrop-blur-md border-t border-sky/20 pt-3.5 pb-4 sm:pt-4.5 sm:pb-5 md:pt-5 md:pb-6 lg:pt-7 lg:pb-8 px-3 sm:px-5 md:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-3 divide-x divide-sky/25 gap-0">
             {HERO_FEATURES.map((item, idx) => (
@@ -182,32 +182,32 @@ export default function HeroSlider() {
                 key={item.title}
                 className={`group flex flex-col items-start ${
                   idx === 0
-                    ? "pr-2.5 sm:pr-4 md:pr-8"
+                    ? "pr-2.5 sm:pr-3.5 md:pr-5 lg:pr-8"
                     : idx === 1
-                    ? "px-2.5 sm:px-4 md:px-8"
-                    : "pl-2.5 sm:pl-4 md:pl-8"
-                } py-1 sm:py-2 md:py-0`}
+                    ? "px-2.5 sm:px-3.5 md:px-5 lg:px-8"
+                    : "pl-2.5 sm:pl-3.5 md:pl-5 lg:pl-8"
+                } py-1 sm:py-1.5 md:py-0`}
               >
                 {/* Top Line: Icon + Bold Title */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-3 mb-1 sm:mb-2.5">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2.5 md:gap-3 mb-1 sm:mb-2 md:mb-2.5">
                   <item.icon
-                    className="w-4 h-4 sm:w-5 sm:h-5 text-sky-deep shrink-0"
+                    className="w-4 h-4 sm:w-4.5 sm:h-4.5 md:w-5 md:h-5 text-sky-deep shrink-0"
                     strokeWidth={2.4}
                   />
-                  <h3 className="font-display text-xs sm:text-base md:text-lg font-bold text-blue-ink tracking-tight leading-tight">
+                  <h3 className="font-display text-xs sm:text-sm md:text-base lg:text-lg font-bold text-blue-ink tracking-tight leading-tight">
                     {item.title}
                   </h3>
                 </div>
 
                 {/* Subtitle / Description */}
-                <p className="text-[11px] sm:text-xs md:text-sm text-gray-body leading-tight sm:leading-relaxed mb-2 sm:mb-3.5 font-normal line-clamp-2 sm:line-clamp-none">
+                <p className="text-[11px] sm:text-[11px] md:text-xs lg:text-sm text-gray-body leading-tight sm:leading-relaxed mb-2 sm:mb-2.5 md:mb-3 lg:mb-3.5 font-normal line-clamp-2 sm:line-clamp-none">
                   {item.description}
                 </p>
 
                 {/* Action Link (arrow revealed on hover, visible on mobile) */}
                 <Link
                   href={item.href}
-                  className="inline-flex items-center gap-0.5 text-[11px] sm:text-xs md:text-sm font-bold text-sky-deep hover:text-sky transition-colors cursor-pointer mt-auto"
+                  className="inline-flex items-center gap-0.5 text-[11px] sm:text-xs md:text-xs lg:text-sm font-bold text-sky-deep hover:text-sky transition-colors cursor-pointer mt-auto"
                 >
                   <span>{item.linkText}</span>
                   <span
