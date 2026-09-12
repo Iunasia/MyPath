@@ -183,6 +183,15 @@ body {
   animation: heroImageSlideLeft 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+@keyframes progress {
+  0% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
 
 /* ── Focus + scrollbar ─────────────────────────────────── */
 
