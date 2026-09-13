@@ -72,8 +72,8 @@ export default function ScholarshipsBrowser({
       <div className="w-full flex-1 px-[25px] py-6 sm:px-8 md:px-10 lg:px-[80px] flex flex-col">
 
         <ListHero
-          title="Find a scholarship"
-          description="Scholarships and tuition waivers for undergraduate study in Cambodia, each with its deadline and a link to the official source."
+          title="Make your education more affordable"
+          description="Discover scholarships and funding opportunities that can help you reach your goals."
           search={{
             value: searchQuery,
             onChange: setSearchQuery,

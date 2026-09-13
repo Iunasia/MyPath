@@ -9,6 +9,7 @@ import {
   toScholarshipViews,
   type ScholarshipView,
 } from "./lib/adapters";
+import WorkshopIcon from "./components/WorkshopIcon";
 import {
   Compass,
   Search,
@@ -79,10 +80,46 @@ const DMIL_DESCRIPTIONS = [
 ];
 
 const EXPLORERS = [
-  { icon: Briefcase, title: "Career Explorer", description: "Explore careers based on your interests, skills, and values. See real pathways people take.", chip: "bg-sitomo text-sky-deep", border: "border-sky/20", href: "/careers" },
-  { icon: BookOpen, title: "Major Explorer", description: "Discover majors and see how they connect to careers, industries, and further study.", chip: "bg-momo text-blue-ink", border: "border-momo", href: "/majors" },
-  { icon: GraduationCap, title: "University Explorer", description: "Search and compare universities by program, location, cost, and student outcomes.", chip: "bg-sitomo text-blue-ink", border: "border-sitomo", href: "/universities" },
-  { icon: CircleDollarSign, title: "Scholarship Explorer", description: "Find scholarships and funding opportunities you're actually eligible for.", chip: "bg-momo text-blue-ink", border: "border-momo", href: "/scholarships" },
+  {
+    icon: Briefcase,
+    title: "Career Explorer",
+    description: "Explore careers based on your interests and strengths.",
+    chip: "bg-sitomo text-sky-deep",
+    border: "border-sky/20",
+    href: "/careers",
+  },
+  {
+    icon: BookOpen,
+    title: "Major Explorer",
+    description: "Discover majors and where they can lead.",
+    chip: "bg-momo text-blue-ink",
+    border: "border-momo",
+    href: "/majors",
+  },
+  {
+    icon: GraduationCap,
+    title: "University Explorer",
+    description: "Compare universities, programs, and opportunities.",
+    chip: "bg-sitomo text-blue-ink",
+    border: "border-sitomo",
+    href: "/universities",
+  },
+  {
+    icon: CircleDollarSign,
+    title: "Scholarship Explorer",
+    description: "Discover scholarships that match your goals.",
+    chip: "bg-momo text-blue-ink",
+    border: "border-momo",
+    href: "/scholarships",
+  },
+  {
+    icon: WorkshopIcon,
+    title: "Workshops & Mentorship",
+    description: "Join workshops, meet mentors, and grow your network.",
+    chip: "bg-momo text-blue-ink",
+    border: "border-momo",
+    href: "/workshops",
+  },
 ];
 
 const TRUST_ITEMS = [
@@ -201,40 +238,53 @@ export default async function Home() {
 
       <WaveTop fill="#E2F1F1" />
 
-      {/* ── Four Explorers ───────────────────────────────── */}
-      <section className="py-20 lg:py-28 bg-powder">
-        <div className="max-w-5xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <span className="sticker mb-4">
-              <span className="sticker-dot" aria-hidden="true" />
-              Explore with purpose
-            </span>
-            <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-blue-ink tracking-tight mt-4">
-              Four ways to discover your path
+      {/* ── Five Explorers ───────────────────────────────── */}
+      <section id="explorers" className="py-20 lg:py-28 bg-powder scroll-mt-20">
+        <div className="max-w-6xl mx-auto px-6 lg:px-8">
+          <div className="text-center mb-14 max-w-2xl mx-auto">
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-[2.65rem] font-extrabold text-blue-ink tracking-tight">
+              Your next chapter starts here.
             </h2>
+            <p className="text-sm sm:text-base text-gray-body mt-3 font-medium">
+              Explore verified pathways, academic disciplines, institutions, scholarships, and expert workshops.
+            </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-5 lg:gap-6">
+          {/* ── Explorers Grid (1 Col Mobile, 3 Col Tablet, 5 Col Desktop — Centered Reference Image Style) ── */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-4.5 lg:gap-5">
             {EXPLORERS.map((e) => (
               <Link
                 key={e.title}
                 href={e.href}
-                className="group flex items-center gap-5 sm:gap-6 rounded-4xl border-2 border-sky/40 bg-white py-5 px-6 sm:py-6 sm:px-8 bubble-shadow-sm hover:border-sky cursor-pointer"
+                className="group flex flex-col items-center text-center rounded-2xl md:rounded-[24px] lg:rounded-[28px] bg-white p-5 sm:p-4.5 md:p-5 lg:p-6 border border-sky/20 hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer h-full"
               >
-                <span className={`inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full ${e.chip} shrink-0 border-2 border-sky/15`}>
-                  <e.icon className="w-7 h-7 sm:w-8 sm:h-8" strokeWidth={2} aria-hidden="true" />
-                </span>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-display text-lg sm:text-xl font-extrabold text-blue-ink group-hover:text-sky-deep truncate">
-                    {e.title}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-gray-body leading-relaxed line-clamp-2 mt-1 font-medium">
-                    {e.description}
-                  </p>
+                {/* Circular Icon Badge */}
+                <div
+                  className={`w-13 h-13 sm:w-12 sm:h-12 md:w-13 md:h-13 lg:w-15 lg:h-15 rounded-full ${e.chip} border-2 border-sky/15 flex items-center justify-center mb-3 sm:mb-3.5 md:mb-4 lg:mb-5 group-hover:scale-105 group-hover:shadow-md transition-all duration-300 shrink-0`}
+                >
+                  <e.icon className="w-6 h-6 sm:w-6 sm:h-6 md:w-6.5 md:h-6.5 lg:w-7.5 lg:h-7.5" strokeWidth={2} aria-hidden="true" />
                 </div>
-                <span className="text-sky/60 group-hover:text-sky-deep text-xl sm:text-2xl shrink-0 font-bold" aria-hidden="true">
-                  →
-                </span>
+
+                {/* Title with Arrow on Hover (Symmetrically balanced so title stays dead center) */}
+                <h3 className="font-display text-sm sm:text-xs md:text-sm lg:text-base font-extrabold text-blue-ink uppercase tracking-wider group-hover:text-sky-deep transition-colors mb-2 text-center">
+                  <span className="inline-flex items-center justify-center">
+                    <span className="w-3.5 mr-1 invisible select-none shrink-0" aria-hidden="true">
+                      →
+                    </span>
+                    <span>{e.title}</span>
+                    <span
+                      className="w-3.5 ml-1 inline-block transition-all duration-200 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 text-sky-deep font-bold shrink-0 text-left"
+                      aria-hidden="true"
+                    >
+                      →
+                    </span>
+                  </span>
+                </h3>
+
+                {/* Description */}
+                <p className="text-xs sm:text-xs md:text-xs lg:text-sm text-gray-body leading-relaxed font-normal text-center">
+                  {e.description}
+                </p>
               </Link>
             ))}
           </div>

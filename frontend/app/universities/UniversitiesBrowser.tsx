@@ -65,8 +65,8 @@ export default function UniversitiesBrowser({
       <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
 
         <ListHero
-          title="Find a university"
-          description="Public, private and international universities in Cambodia, with their programmes, tuition and scholarships."
+          title="Where will your future take you?"
+          description="Explore universities and find the one that fits you."
           search={{
             value: searchQuery,
             onChange: setSearchQuery,

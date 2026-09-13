@@ -63,8 +63,8 @@ export default function MajorsBrowser({
       <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
 
         <ListHero
-          title="Explore majors"
-          description="What you'd study, the skills you'd build, and the careers each major leads to."
+          title="Your future starts with the right major"
+          description="Explore verified majors in Cambodia, discover the skills you’ll need, and see where each path can take you."
           search={{
             value: searchQuery,
             onChange: setSearchQuery,

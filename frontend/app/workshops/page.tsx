@@ -107,11 +107,11 @@ export default function WorkshopsPage() {
         <main className="w-full pb-16 flex flex-col gap-10 sm:gap-12 flex-1">
           {/* ── Hero Title Section ───────────────────────────── */}
           <section className="text-left pt-2 sm:pt-4">
-            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-sky-deep tracking-tight leading-[1.15] mb-2.5">
-              Our Services
+            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#5B9DA2] tracking-tight leading-[1.15] mb-2.5">
+              Turn your potential into progress
             </h1>
             <p className="text-xs sm:text-sm lg:text-base text-gray-soft font-medium leading-relaxed max-w-xl">
-              Empowering your journey with expert-led workshops, personal mentorship, competitions, and verified opportunities.
+              Learn new skills, meet mentors, join competitions, and explore opportunities made for you.
             </p>
           </section>
 
