@@ -63,20 +63,20 @@ const DMIL_STEPS = [
   { icon: Search, title: "Search", bg: "bg-momo", color: "text-blue-ink" },
   { icon: Scale, title: "Evaluate", bg: "bg-sitomo", color: "text-blue-ink" },
   // Solid, so the connector line doesn't show through; the ring marks it out.
-  { icon: ShieldCheck, title: "Verify", bg: "bg-sitomo", color: "text-blue-ink" },
+  { icon: ShieldCheck, title: "Verify", bg: "bg-sky/25", color: "text-blue-ink" },
   { icon: ArrowLeftRight, title: "Compare", bg: "bg-sitomo", color: "text-sky-deep" },
   { icon: FolderTree, title: "Organize", bg: "bg-momo", color: "text-blue-ink" },
   { icon: CheckCircle2, title: "Decide", bg: "bg-sitomo", color: "text-blue-ink" },
 ];
 
 const DMIL_DESCRIPTIONS = [
-  "Explore careers, majors, and opportunities that match your interests.",
-  "Find universities, scholarships, and programs from multiple sources.",
-  "Assess source credibility, check for conflicts, and judge relevance.",
-  "Confirm information against official sources and check freshness.",
-  "Weigh what each option offers against the others before you commit.",
-  "Save, categorize, and track deadlines for your shortlisted options.",
-  "Make a confident, evidence-based decision about your future.",
+  "Start with what excites you. Explore careers, majors, and opportunities that match your interests.",
+  "Find universities, programs, scholarships, and opportunities from multiple sources.",
+  "Look beyond the headline. Check credibility, relevance, and potential conflicts.",
+  "Trust, but verify. Confirm important details with official and reliable sources.",
+  "Put your options side by side. See the differences that actually matter.",
+  "Keep your best options in one place. Track deadlines, requirements, and next steps.",
+  "Turn information into action. Make a choice you feel confident about.",
 ];
 
 const EXPLORERS = [
@@ -190,9 +190,9 @@ export default async function Home() {
           <div className="text-center mb-14">
 
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-blue-ink tracking-tight mt-4">
-              Not just finding information.
+              Don’t just find answers.
               <br />
-              <span className="text-gray-faint">Understanding it.</span>
+              <span className="text-sky-deep">Know you can trust them.</span>
             </h2>
           </div>
 
