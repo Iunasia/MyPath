@@ -79,6 +79,16 @@ const DMIL_DESCRIPTIONS = [
   "Turn information into action. Make a choice you feel confident about.",
 ];
 
+const MOBILE_STEP_POSITIONS = [
+  { top: 16, isLeft: true },   // Step 1: Discover (Row 1 Left)
+  { top: 16, isLeft: false },  // Step 2: Search (Row 1 Right)
+  { top: 196, isLeft: true },  // Step 3: Evaluate (Row 2 Left)
+  { top: 376, isLeft: false }, // Step 4: Verify (Row 3 Right)
+  { top: 556, isLeft: true },  // Step 5: Compare (Row 4 Left)
+  { top: 736, isLeft: false }, // Step 6: Organize (Row 5 Right)
+  { top: 916, isLeft: true },  // Step 7: Decide (Row 6 Left)
+];
+
 const EXPLORERS = [
   {
     icon: Briefcase,
@@ -184,54 +194,142 @@ export default async function Home() {
         </section>
       )}
 
-      {/* ── DMIL Bubble Path ─────────────────────────────── */}
+      {/* ── DMIL Step Flow (Numbered Steps with Dashed Line, No Icons) ── */}
       <section id="how-it-works" className="py-20 lg:py-28 bg-white">
-        <div className="max-w-5xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-14">
-
-            <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-blue-ink tracking-tight mt-4">
+        <div className="max-w-6xl mx-auto px-6 lg:px-8">
+          {/* Centered Heading matching screenshot style */}
+          <div className="text-center mb-16 max-w-3xl mx-auto">
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-[2.75rem] font-extrabold text-blue-ink tracking-tight">
               Don’t just find answers.
               <br />
               <span className="text-sky-deep">Know you can trust them.</span>
             </h2>
           </div>
 
-          {/* Bubble path — desktop: horizontal, mobile: vertical */}
-          <div className="relative">
-            {/* Desktop connector line — through the bubbles' centres (half of
-                the 4.5rem bubble), from the first bubble to the last: seven
-                equal columns put those centres 1/14 in from each edge. It sat
-                at the middle of the whole row before, cutting through the
-                labels. */}
+          {/* ── Desktop & Tablet View: Horizontal 7-Step Row with Curled Dashed Connector ── */}
+          <div className="hidden md:block relative pt-2">
+            {/* Curled Dashed Connector Wave */}
             <div
-              className="hidden lg:block absolute top-9 h-0.5 bg-sky/40 -translate-y-1/2 rounded-full"
-              style={{ left: "calc(100% / 14)", right: "calc(100% / 14)" }}
+              className="absolute top-1 left-0 right-0 h-12 md:h-14 lg:h-16 pointer-events-none z-0"
               aria-hidden="true"
-            />
-
-            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 lg:gap-0">
-              {DMIL_STEPS.map((step, i) => (
-                <div key={step.title} className="relative z-10 flex flex-col items-center text-center lg:flex-1">
-                  {/* Bubble */}
-                  <div className={`relative flex items-center justify-center w-16 h-16 lg:w-[4.5rem] lg:h-[4.5rem] rounded-full ${step.bg} ${i === 3 ? "ring-4 ring-sky/35 bubble-shadow" : ""}`}>
-                    <step.icon className={`w-7 h-7 lg:w-8 lg:h-8 ${step.color}`} strokeWidth={2.2} aria-hidden="true" />
-                    {i === 3 && (
-                      <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-sky-deep flex items-center justify-center text-[10px] font-bold text-white border-2 border-white">
-                        ★
-                      </span>
-                    )}
-                  </div>
-                  {/* Label */}
-                  <p className="font-display text-sm font-bold text-blue-ink mt-3">{step.title}</p>
-                  <p className="text-xs text-gray-soft mt-1 leading-relaxed max-w-[9rem] hidden lg:block">{DMIL_DESCRIPTIONS[i]}</p>
-
-                  {/* Mobile connector */}
-                  {i < DMIL_STEPS.length - 1 && (
-                    <div className="lg:hidden w-0.5 h-6 bg-sky/20 rounded-full mt-1" />
-                  )}
-                </div>
-              ))}
+            >
+              <svg
+                viewBox="0 0 1000 64"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-full h-full"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M 71 28
+                     C 130 46, 165 46, 214 24
+                     C 265 6, 305 6, 357 30
+                     C 410 48, 450 48, 500 22
+                     C 550 6, 590 6, 643 30
+                     C 695 48, 735 48, 786 24
+                     C 835 6, 870 6, 929 28"
+                  stroke="#7AB3B7"
+                  strokeWidth="2.5"
+                  strokeDasharray="6 6"
+                  strokeLinecap="round"
+                  opacity="0.8"
+                />
+              </svg>
             </div>
+
+            <div className="flex flex-row items-start justify-between">
+              {DMIL_STEPS.map((step, i) => {
+                // Subtle undulating vertical offsets matching the wave curve
+                const offsetClass =
+                  i % 2 === 1 ? "-translate-y-1 md:-translate-y-1.5" : "translate-y-0.5";
+
+                return (
+                  <div
+                    key={`desktop-${step.title}`}
+                    className={`group flex flex-col items-center text-center flex-1 relative z-10 transition-transform ${offsetClass}`}
+                  >
+                    {/* Step Number Circle (No Icon, Just Step Number) */}
+                    <div className="relative flex items-center justify-center w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-full bg-white border-2 border-sky/30 shadow-md shadow-slate-200/60 group-hover:border-sky-deep group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
+                      <span className="font-display font-extrabold text-sm md:text-base lg:text-xl text-blue-ink group-hover:text-sky-deep transition-colors">
+                        {i + 1}
+                      </span>
+                    </div>
+
+                    {/* Step Title */}
+                    <h3 className="font-display text-xs md:text-sm lg:text-base font-bold text-blue-ink mt-2 md:mt-3 lg:mt-4 mb-1 md:mb-1.5 group-hover:text-sky-deep transition-colors">
+                      {step.title}
+                    </h3>
+
+                    {/* Step Description */}
+                    <p className="text-[10px] md:text-[11px] lg:text-xs text-gray-body leading-snug md:leading-relaxed max-w-[95px] md:max-w-[115px] lg:max-w-[135px] mx-auto font-normal">
+                      {DMIL_DESCRIPTIONS[i]}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ── Mobile View: DOMNER Winding Road / Journey Switchback (Mobile only, < md) ── */}
+          <div className="md:hidden relative w-[330px] mx-auto h-[1080px] pt-1">
+            {/* SVG Dashed Connecting Line (Winding Switchback Road - Clean of Text) */}
+            <div
+              className="absolute inset-0 pointer-events-none z-0"
+              aria-hidden="true"
+            >
+              <svg
+                viewBox="0 0 330 1080"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-full h-full"
+              >
+                <path
+                  d="M 66 44 L 264 44
+                     M 264 158 L 264 196 A 28 28 0 0 1 236 224 L 66 224
+                     M 66 338 L 66 376 A 28 28 0 0 0 94 404 L 264 404
+                     M 264 518 L 264 556 A 28 28 0 0 1 236 584 L 66 584
+                     M 66 698 L 66 736 A 28 28 0 0 0 94 764 L 264 764
+                     M 264 878 L 264 916 A 28 28 0 0 1 236 944 L 66 944"
+                  stroke="#7AB3B7"
+                  strokeWidth="2.5"
+                  strokeDasharray="6 6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+
+            {/* 7 DOMNER Journey Steps */}
+            {DMIL_STEPS.map((step, i) => {
+              const pos = MOBILE_STEP_POSITIONS[i];
+
+              return (
+                <div
+                  key={`mobile-${step.title}`}
+                  style={{ top: `${pos.top}px` }}
+                  className={`absolute ${
+                    pos.isLeft ? "left-0.5" : "right-0.5"
+                  } w-[132px] flex flex-col items-center text-center z-10 group`}
+                >
+                  {/* Step Number Circle */}
+                  <div className="relative flex items-center justify-center w-14 h-14 rounded-full bg-white border-2 border-sky/35 shadow-md shadow-slate-200/60 group-hover:border-sky-deep group-hover:scale-105 transition-all duration-300 shrink-0">
+                    <span className="font-display font-extrabold text-lg text-blue-ink group-hover:text-sky-deep transition-colors">
+                      {i + 1}
+                    </span>
+                  </div>
+
+                  {/* Step Title */}
+                  <h3 className="font-display text-sm font-bold text-blue-ink mt-2.5 mb-1 group-hover:text-sky-deep transition-colors">
+                    {step.title}
+                  </h3>
+
+                  {/* Step Description */}
+                  <p className="text-[11px] text-gray-body leading-relaxed font-normal">
+                    {DMIL_DESCRIPTIONS[i]}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
