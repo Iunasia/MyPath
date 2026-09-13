@@ -258,6 +258,85 @@ Optional variables: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK
 
 ---
 
+## ☁️ Deploying to Vercel
+
+The frontend and the backend deploy as **two separate Vercel projects** from this
+one repository, because Vercel builds a single Root Directory per project.
+
+| Project | Root Directory | Framework preset |
+| :--- | :--- | :--- |
+| Frontend | `frontend` | Next.js |
+| Backend | `backend` | Express |
+
+Both presets are detected automatically — neither project needs a
+`vercel.json`. Vercel locates an Express app by looking for `app`, `index` or
+`server` at the root or under `src/`, so it picks up
+[`backend/src/app.ts`](backend/src/app.ts) and calls its default export for
+every request. The whole API becomes one function and Express routes the
+original path itself, so `/auth/me`, `/scholarships` and the rest keep the URLs
+they already have. Moving or renaming that file breaks the deploy.
+
+### 1. Provision a Postgres database
+
+Vercel functions are stateless and short-lived, so the local Docker Postgres
+cannot be used. Any hosted provider works (Neon, Supabase, Vercel Postgres).
+**Use the provider's pooled connection string** — Neon's `-pooler` host, or
+Supabase's port `6543` — otherwise each cold function opens a fresh connection
+and the database hits its connection limit almost immediately.
+
+Then seed it once from your machine:
+
+```bash
+cd backend
+DATABASE_URL='<pooled connection string>' npm run seed
+```
+
+### 2. Set the environment variables
+
+On the **backend** project:
+
+| Variable | Value |
+| :--- | :--- |
+| `NODE_ENV` | `production` |
+| `DATABASE_URL` | the pooled connection string |
+| `SESSION_SECRET` | a long random string — never the dev default |
+| `FRONTEND_URL` | `https://<frontend>.vercel.app` (no trailing slash) |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | from Google Cloud, if using Google sign-in |
+| `GOOGLE_CALLBACK_URL` | `https://<backend>.vercel.app/auth/google/callback` |
+
+On the **frontend** project:
+
+| Variable | Value |
+| :--- | :--- |
+| `NEXT_PUBLIC_API_URL` | `https://<backend>.vercel.app` (no trailing slash) |
+
+Leave `BACKEND_INTERNAL_URL` **unset** on Vercel. It exists only so the frontend
+container can reach the backend container over the Compose network; there is no
+such private network on Vercel, and
+[`api.server.ts`](frontend/app/lib/api.server.ts) already falls back to
+`NEXT_PUBLIC_API_URL` when it is absent.
+
+`NODE_ENV=production` is load-bearing: it is what moves sessions into Postgres
+and marks the session cookie `SameSite=None; Secure`. Without it the deploy
+accepts a login and then immediately reports the user as logged out.
+
+### 3. Register the OAuth redirect URI
+
+In the Google Cloud console, under **APIs & Services → Credentials → your OAuth
+2.0 Client ID**, add to **Authorized redirect URIs**:
+
+```text
+https://<backend>.vercel.app/auth/google/callback
+```
+
+This must be the **backend** origin and must match `GOOGLE_CALLBACK_URL`
+character for character — Google rejects the request on any mismatch, including
+a trailing slash. **Authorized JavaScript origins** can be left empty: the
+frontend starts the flow with a full page navigation to `/auth/google`, not a
+browser-side token request, so that field is never consulted.
+
+---
+
 ## 💡 Troubleshooting & Common Issues
 
 - **Port Conflict (`EADDRINUSE`):**

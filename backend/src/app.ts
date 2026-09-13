@@ -1,3 +1,14 @@
+/**
+ * The Express application.
+ *
+ * This file is also the production entry point: Vercel detects an Express app
+ * by looking for `app`/`index`/`server` at the project root or under `src/`,
+ * and invokes the default export below for every request — no `vercel.json`
+ * and no `api/` folder involved. Renaming or moving this file will therefore
+ * break the deploy, not just the imports.
+ *
+ * `src/server.ts` wraps it in `app.listen()` for local and Docker runs.
+ */
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -6,6 +17,8 @@ import session from 'express-session';
 import cors from 'cors';
 import helmet from 'helmet';
 import passport from './config/passport';
+import connectPgSimple from 'connect-pg-simple';
+import pool from './config/db';
 
 const { generalLimiter } = require('../middleware/security');
 const authRoutes = require('./routes/auth');
@@ -24,6 +37,13 @@ const app = express();
 // Never advertise the framework. (helmet also does this; belt and braces.)
 app.disable('x-powered-by');
 
+const isProduction = process.env.NODE_ENV === 'production';
+
+// Vercel terminates TLS at the edge and forwards plain HTTP to the function.
+// Without this, Express sees an insecure request and silently refuses to send
+// any cookie marked `secure` — which in production is every session cookie.
+app.set('trust proxy', 1);
+
 app.use(
   helmet({
     // The API is read cross-origin by the Next.js frontend, so the default
@@ -40,14 +60,39 @@ app.use(cors({
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+/**
+ * express-session's default MemoryStore keeps sessions inside the process.
+ * That is fine for one long-running server, but the production deploy is
+ * serverless: each request can land on a cold instance, so the session the
+ * OAuth callback just wrote would be gone by the next `GET /auth/me`, and
+ * every login would appear to succeed and then immediately log the user out.
+ * Persist sessions in Postgres instead.
+ *
+ * Development and tests stay on MemoryStore — the suite runs against a
+ * throwaway database that is created and dropped on every run.
+ */
+const sessionStore = isProduction
+  ? new (connectPgSimple(session))({
+      pool,
+      tableName: 'user_sessions',
+      createTableIfMissing: true,
+    })
+  : undefined;
+
 app.use(session({
+  store: sessionStore,
   secret: process.env.SESSION_SECRET || 'mypath-secret',
   resave: false,
   saveUninitialized: false,
+  // Trust X-Forwarded-Proto when deciding whether the connection was secure.
+  proxy: isProduction,
   cookie: {
-    sameSite: 'lax',
+    // In production the frontend and this API sit on different domains, so the
+    // session cookie travels cross-site and must be marked SameSite=None.
+    // Browsers only accept None together with Secure.
+    sameSite: isProduction ? 'none' : 'lax',
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: isProduction,
     maxAge: 24 * 60 * 60 * 1000,
   },
 }));
