@@ -70,13 +70,13 @@ const DMIL_STEPS = [
 ];
 
 const DMIL_DESCRIPTIONS = [
-  "Explore paths that match your interests.",
-  "Find trusted opportunities across Cambodia.",
-  "Check credibility and relevance before deciding.",
-  "Confirm details with official sources.",
-  "Weigh your options side by side.",
-  "Save favorites and track deadlines.",
-  "Make confident, informed choices.",
+  "Start with what excites you and explore matching pathways.",
+  "Find verified universities, majors, and scholarships across Cambodia.",
+  "Look beyond the headline to check credibility and relevance.",
+  "Confirm important details against official and trusted sources.",
+  "Put your top options side by side to see what fits you best.",
+  "Save your favorite paths and track upcoming deadlines easily.",
+  "Turn verified information into confident choices for your future.",
 ];
 
 const MOBILE_STEP_POSITIONS = [
