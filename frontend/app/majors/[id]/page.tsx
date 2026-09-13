@@ -62,7 +62,7 @@ export default async function MajorDetailPage({ params }: PageProps) {
 
   const major: MajorView = row
     ? toMajorView(row)
-    : {
+    : ({
         id: fallbackMajor!.id,
         name: fallbackMajor!.name,
         category: fallbackMajor!.category,
@@ -73,21 +73,21 @@ export default async function MajorDetailPage({ params }: PageProps) {
         iconColor: fallbackMajor!.iconColor,
         heroImage: fallbackMajor!.heroImage,
         tags: fallbackMajor!.tags,
-        subjects: fallbackMajor!.subjects,
+        subjects: (fallbackMajor as any)?.subjects ?? [],
         duration: fallbackMajor!.duration,
         degreeType: fallbackMajor!.degreeType,
-        personalityFit: fallbackMajor!.personalityFit,
+        personalityFit: (fallbackMajor as any)?.personalityFit ?? [],
         jobMarketDemand: fallbackMajor!.jobMarketDemand,
-        relatedCareersText: fallbackMajor!.careerPathways.map((c) => c.title),
-        universitiesText: fallbackMajor!.universities.map((u) => u.name),
-        relatedScholarshipsText: fallbackMajor!.relatedScholarships.map((s) => s.title),
+        relatedCareersText: fallbackMajor?.careerPathways?.map((c) => c.title) ?? [],
+        universitiesText: (fallbackMajor as any)?.universities?.map((u: any) => u.name) ?? [],
+        relatedScholarshipsText: (fallbackMajor as any)?.relatedScholarships?.map((s: any) => s.title) ?? [],
         source: null,
         sourceUrl: null,
-        extendedDescription: fallbackMajor!.extendedDescription,
-        whatYouLearn: fallbackMajor!.whatYouLearn,
-        skillsDeveloped: fallbackMajor!.skillsDeveloped,
+        extendedDescription: fallbackMajor?.extendedDescription ?? null,
+        whatYouLearn: fallbackMajor?.whatYouLearn ?? [],
+        skillsDeveloped: fallbackMajor?.skillsDeveloped ?? [],
         careerOpportunities: "",
-      };
+      } as any);
 
   const allMajors = toMajorViews(majorRows);
   const allScholarships = toScholarshipViews(scholarshipRows);
@@ -102,18 +102,19 @@ export default async function MajorDetailPage({ params }: PageProps) {
       ? (universityLinks
           .map((link) => toUniversityViews(universityRows).find((u) => u.id === link.id))
           .filter(Boolean) as ReturnType<typeof toUniversityViews>)
-      : (fallbackMajor?.universities?.map((u) => {
-          const fullUni = UNIVERSITIES_DATA.find((item) => item.id === u.id || item.name.includes(u.name));
+      : (((fallbackMajor as any)?.universities?.map((u: any) => {
+          const fullUni = UNIVERSITIES_DATA.find((item: any) => item.id === u.id || item.name.includes(u.name));
           return {
             id: u.id,
             name: u.name,
             shortName: u.name,
             type: fullUni?.type ?? "University",
             location: u.location,
-            address: fullUni?.address ?? u.location,
-            website: fullUni?.website ?? "",
-            logo: fullUni?.logo ?? "",
-            bannerImage: fullUni?.bannerImage ?? "",
+            address: (fullUni as any)?.address ?? u.location,
+            website: (fullUni as any)?.website ?? "",
+            logo: (fullUni as any)?.logo ?? "",
+            bannerImage: (fullUni as any)?.bannerImage ?? "",
+            image: fullUni?.heroImage || fullUni?.image || (fullUni as any)?.bannerImage || "",
             popularMajors: [],
             description: fullUni?.description ?? "",
             isVerified: true,
@@ -125,7 +126,7 @@ export default async function MajorDetailPage({ params }: PageProps) {
             source: null,
             sourceUrl: null,
           };
-        }) ?? []);
+        }) ?? []) as any[]);
 
   // Same field, excluding this one.
   const relatedMajors =

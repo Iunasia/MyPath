@@ -49,8 +49,13 @@ export default async function ScholarshipDetailPage({ params }: PageProps<"/scho
       sourceType: "official" as const,
       isRisky: false,
       lastChecked: fallback!.lastVerified,
-    },
-  };
+      reasons: [],
+      source: fallback!.officialSource,
+      sourceUrl: fallback!.officialSource,
+      lastVerified: fallback!.lastVerified,
+      summary: `${fallback!.coverage} scholarship offered by ${fallback!.provider}.`,
+    } as any,
+  } as any;
 
   return <ScholarshipDetail detail={resolvedDetail} all={all ?? []} />;
 }

@@ -73,9 +73,10 @@ export default async function UniversityDetailPage({ params }: PageProps) {
   const university = {
     ...curated,
     ...view,
+    id: view?.id ?? curated?.id ?? id,
     popularMajors: view?.popularMajors ?? curated?.popularMajors ?? [],
-    heroImage: curated?.heroImage || curated?.image || view?.bannerImage,
-    image: curated?.image || view?.bannerImage || "",
+    heroImage: curated?.heroImage || curated?.image || (view as any)?.bannerImage || "",
+    image: curated?.image || (view as any)?.bannerImage || "",
     name: view?.name ?? curated?.name ?? "",
     location: view?.location ?? curated?.location ?? "",
     type: view?.type ?? curated?.type ?? "University",
