@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import {
   Search,
@@ -51,7 +51,7 @@ export default function UniversitiesPage() {
   }, [searchQuery, selectedLocation, selectedType]);
 
   // Reset page on filter change
-  useMemo(() => {
+  useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, selectedLocation, selectedType]);
 

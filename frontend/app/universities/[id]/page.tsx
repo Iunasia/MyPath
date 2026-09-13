@@ -59,28 +59,35 @@ export default async function UniversityDetailPage({ params }: PageProps) {
 
   // The API decides which universities exist and supplies the core facts.
   const row = await getUniversity(id);
-  if (!row) {
+  const view = row ? toUniversityView(row) : null;
+  const curated = UNIVERSITIES_DATA.find(
+    (u) =>
+      u.id.toLowerCase() === id.toLowerCase() ||
+      (view && u.id.toLowerCase() === view.id.toLowerCase())
+  );
+
+  if (!view && !curated) {
     notFound();
   }
 
-  const view = toUniversityView(row);
-
-  /**
-   * The designed sections on this page — faculties, campus facilities, degree
-   * levels, admission requirements, the map — have no columns in the database
-   * yet, so they still come from the curated dataset, matched by slug. API
-   * values win wherever both have the field, and every curated-only section is
-   * guarded so a university added via the spreadsheet renders without them.
-   */
-  const curated = UNIVERSITIES_DATA.find((u) => u.id === view.id);
-  const university = { ...curated, ...view };
+  const university = {
+    ...curated,
+    ...view,
+    popularMajors: view?.popularMajors ?? curated?.popularMajors ?? [],
+    heroImage: curated?.heroImage || curated?.image || view?.bannerImage,
+    image: curated?.image || view?.bannerImage || "",
+    name: view?.name ?? curated?.name ?? "",
+    location: view?.location ?? curated?.location ?? "",
+    type: view?.type ?? curated?.type ?? "University",
+    description: curated?.description ?? view?.description ?? "",
+  };
 
   // Calculate total majors across all faculties
   const totalMajorsCount =
     university.facultiesList?.reduce(
       (acc, fac) => acc + fac.majors.length,
       0
-    ) || university.popularMajors.length;
+    ) || (university.popularMajors ? university.popularMajors.length : 0);
 
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">

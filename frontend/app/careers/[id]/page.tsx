@@ -10,8 +10,9 @@ import {
   Target,
   CheckCircle2,
 } from "lucide-react";
+import { CAREERS_DATA } from "@/app/data/careers";
 import { getCareer, getMajors } from "@/app/lib/api.server";
-import { linkMajors, toCareerView, toMajorViews } from "@/app/lib/catalogAdapters";
+import { linkMajors, toCareerView, toMajorViews, type CareerView } from "@/app/lib/catalogAdapters";
 import Footer from "@/app/components/Footer";
 import BackLink from "@/app/components/BackLink";
 import SaveItemButton from "@/app/components/SaveItemButton";
@@ -32,19 +33,49 @@ interface PageProps {
 export default async function CareerDetailPage({ params }: PageProps) {
   const { id } = await params;
 
-  // Majors are fetched too, so "Majors That Lead Here" can link by real id —
-  // the spreadsheet stores the relationship as a plain name.
+  // Try API first, with fallback to curated data
   const [row, majorRows] = await Promise.all([getCareer(id), getMajors()]);
 
-  if (!row) {
+  const fallbackItem = CAREERS_DATA.find(
+    (c) => c.id.toLowerCase() === id.toLowerCase() || String(c.id) === id
+  );
+
+  if (!row && !fallbackItem) {
     notFound();
   }
 
-  const career = toCareerView(row);
-  const { links: relatedMajors, unmatched: relatedMajorsUnmatched } = linkMajors(
-    career.relatedMajorsText,
-    toMajorViews(majorRows)
-  );
+  const career: CareerView = row
+    ? toCareerView(row)
+    : {
+        id: fallbackItem!.id,
+        title: fallbackItem!.title,
+        category: fallbackItem!.category,
+        categoryKey: fallbackItem!.category,
+        shortOverview: fallbackItem!.shortOverview,
+        description: fallbackItem!.description,
+        whatYouDo: fallbackItem!.whatYouDo,
+        icon: fallbackItem!.icon,
+        relatedMajorsText: fallbackItem!.relatedMajorsText,
+        keySkills: fallbackItem!.keySkills,
+        educationRequired: fallbackItem!.educationRequired,
+        bestFitPersonality: fallbackItem!.bestFitPersonality,
+        jobMarketDemand: fallbackItem!.jobMarketDemand,
+        source: null,
+        sourceUrl: null,
+      };
+
+  const { links: relatedMajors, unmatched: relatedMajorsUnmatched } =
+    majorRows.length > 0
+      ? linkMajors(career.relatedMajorsText, toMajorViews(majorRows))
+      : {
+          links:
+            fallbackItem?.relatedMajors?.map((m) => ({
+              id: m.id,
+              name: m.name,
+              icon: m.icon,
+            })) ?? [],
+          unmatched: [],
+        };
 
   const Icon = career.icon;
 

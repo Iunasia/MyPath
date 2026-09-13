@@ -5,6 +5,9 @@ import {
   Info,
   MapPin,
 } from "lucide-react";
+import { MAJORS_DATA } from "@/app/data/majors";
+import { UNIVERSITIES_DATA } from "@/app/data/universities";
+import { CAREERS_DATA } from "@/app/data/careers";
 import {
   getCareers,
   getMajor,
@@ -19,6 +22,7 @@ import {
   toCareerViews,
   toMajorViews,
   toUniversityViews,
+  type MajorView,
 } from "@/app/lib/catalogAdapters";
 import { toScholarshipViews } from "@/app/lib/adapters";
 import Footer from "@/app/components/Footer";
@@ -48,11 +52,43 @@ export default async function MajorDetailPage({ params }: PageProps) {
     getCareers(),
   ]);
 
-  if (!row) {
+  const fallbackMajor = MAJORS_DATA.find(
+    (m) => m.id.toLowerCase() === id.toLowerCase() || String(m.id) === id
+  );
+
+  if (!row && !fallbackMajor) {
     notFound();
   }
 
-  const major = toMajorView(row);
+  const major: MajorView = row
+    ? toMajorView(row)
+    : {
+        id: fallbackMajor!.id,
+        name: fallbackMajor!.name,
+        category: fallbackMajor!.category,
+        categoryKey: fallbackMajor!.category,
+        description: fallbackMajor!.description,
+        icon: fallbackMajor!.icon,
+        iconBg: fallbackMajor!.iconBg,
+        iconColor: fallbackMajor!.iconColor,
+        heroImage: fallbackMajor!.heroImage,
+        tags: fallbackMajor!.tags,
+        subjects: fallbackMajor!.subjects,
+        duration: fallbackMajor!.duration,
+        degreeType: fallbackMajor!.degreeType,
+        personalityFit: fallbackMajor!.personalityFit,
+        jobMarketDemand: fallbackMajor!.jobMarketDemand,
+        relatedCareersText: fallbackMajor!.careerPathways.map((c) => c.title),
+        universitiesText: fallbackMajor!.universities.map((u) => u.name),
+        relatedScholarshipsText: fallbackMajor!.relatedScholarships.map((s) => s.title),
+        source: null,
+        sourceUrl: null,
+        extendedDescription: fallbackMajor!.extendedDescription,
+        whatYouLearn: fallbackMajor!.whatYouLearn,
+        skillsDeveloped: fallbackMajor!.skillsDeveloped,
+        careerOpportunities: "",
+      };
+
   const allMajors = toMajorViews(majorRows);
   const allScholarships = toScholarshipViews(scholarshipRows);
 
@@ -61,28 +97,90 @@ export default async function MajorDetailPage({ params }: PageProps) {
     major.universitiesText,
     toUniversityViews(universityRows)
   );
-  const offerUniversities = universityLinks.map((link) => {
-    const record = toUniversityViews(universityRows).find((u) => u.id === link.id)!;
-    return record;
-  });
+  const offerUniversities =
+    universityRows.length > 0 && universityLinks.length > 0
+      ? (universityLinks
+          .map((link) => toUniversityViews(universityRows).find((u) => u.id === link.id))
+          .filter(Boolean) as ReturnType<typeof toUniversityViews>)
+      : (fallbackMajor?.universities?.map((u) => {
+          const fullUni = UNIVERSITIES_DATA.find((item) => item.id === u.id || item.name.includes(u.name));
+          return {
+            id: u.id,
+            name: u.name,
+            shortName: u.name,
+            type: fullUni?.type ?? "University",
+            location: u.location,
+            address: fullUni?.address ?? u.location,
+            website: fullUni?.website ?? "",
+            logo: fullUni?.logo ?? "",
+            bannerImage: fullUni?.bannerImage ?? "",
+            popularMajors: [],
+            description: fullUni?.description ?? "",
+            isVerified: true,
+            verificationSource: null,
+            verificationDate: null,
+            isOutdated: false,
+            totalStudents: null,
+            programsCount: null,
+            source: null,
+            sourceUrl: null,
+          };
+        }) ?? []);
 
   // Same field, excluding this one.
-  const relatedMajors = allMajors
-    .filter((m) => m.id !== major.id && m.category === major.category)
-    .slice(0, 3);
+  const relatedMajors =
+    allMajors.length > 0
+      ? allMajors.filter((m) => m.id !== major.id && m.category === major.category).slice(0, 3)
+      : (fallbackMajor?.relatedMajors?.map((rm) => ({
+          id: rm.id,
+          name: rm.name,
+          category: major.category,
+          categoryKey: major.categoryKey,
+          description: "",
+          icon: rm.icon,
+          iconBg: "bg-sitomo",
+          iconColor: "text-sky-deep",
+          heroImage: "",
+          tags: [],
+          subjects: [],
+          duration: null,
+          degreeType: null,
+          personalityFit: [],
+          jobMarketDemand: "",
+          relatedCareersText: [],
+          universitiesText: [],
+          relatedScholarshipsText: [],
+          source: null,
+          sourceUrl: null,
+          extendedDescription: null,
+          whatYouLearn: [],
+          skillsDeveloped: [],
+          careerOpportunities: "",
+        })) ?? []);
 
   // Careers this major leads to, resolved from the names in the sheet.
   const allCareers = toCareerViews(careerRows);
   const { links: careerLinks } = linkCareers(major.relatedCareersText, allCareers);
-  const careerPathways = careerLinks.slice(0, 3).map((link) => {
-    const record = allCareers.find((c) => c.id === link.id);
-    return {
-      id: link.id,
-      title: link.name,
-      description: record?.whatYouDo ?? "",
-      icon: link.icon,
-    };
-  });
+  const careerPathways =
+    careerRows.length > 0 && careerLinks.length > 0
+      ? careerLinks.slice(0, 3).map((link) => {
+          const record = allCareers.find((c) => c.id === link.id);
+          return {
+            id: link.id,
+            title: link.name,
+            description: record?.whatYouDo ?? "",
+            icon: link.icon,
+          };
+        })
+      : (fallbackMajor?.careerPathways?.slice(0, 3).map((cp) => {
+          const matchedCareer = CAREERS_DATA.find((c) => c.title.toLowerCase().includes(cp.title.toLowerCase()));
+          return {
+            id: matchedCareer?.id ?? cp.title.toLowerCase().replace(/[^a-z0-9]/g, "-"),
+            title: cp.title,
+            description: cp.description,
+            icon: cp.icon,
+          };
+        }) ?? []);
 
   const hasDemand = Boolean(major.jobMarketDemand) && major.jobMarketDemand !== "Not stated";
 

@@ -40,7 +40,7 @@ const HERO_FEATURES = [
     description:
       "Keep up with deadlines, announcements, and the latest opportunities for students.",
     linkText: "Stay updated",
-    href: "/majors",
+    href: "/scholarships",
   },
   {
     icon: Building2,
@@ -116,6 +116,7 @@ export default function HeroSlider() {
               }`}
             >
               {/* Image filling 100% of width and height edge-to-edge */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={img.src}
                 alt={img.alt}
@@ -139,7 +140,7 @@ export default function HeroSlider() {
         <div className="max-w-2xl lg:max-w-3xl flex flex-col items-start animate-hero-slide-left bg-white/85 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none p-5 sm:p-0 rounded-3xl sm:rounded-none border border-white/70 sm:border-none shadow-lg sm:shadow-none">
           {/* Headline */}
           <h1 className="font-display text-[1.85rem] sm:text-5xl lg:text-[3.65rem] font-extrabold text-blue-ink leading-[1.18] sm:leading-[1.14] tracking-tight mb-3 sm:mb-6">
-            Figure out your future. 
+            Figure out your future, 
             <br />
             <span className="text-sky-deep">one step at a time.</span>
           </h1>
@@ -155,7 +156,7 @@ export default function HeroSlider() {
               href="#explorers"
               className="group inline-flex items-center gap-1.5 rounded-full border-2 border-sky-deep bg-sky-deep px-6 py-2.5 sm:px-7 sm:py-3 text-xs sm:text-sm font-bold text-white hover:bg-white hover:text-sky-deep hover:border-sky-deep transition-all duration-200 bubble-shadow cursor-pointer"
             >
-              <span>Exploring your path</span>
+              <span>Explore your path</span>
               <span
                 aria-hidden="true"
                 className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-1"
@@ -170,6 +171,23 @@ export default function HeroSlider() {
             >
               See how Domner works
             </Link>
+          </div>
+
+          {/* Slide Indicator Dots */}
+          <div className="flex items-center gap-2 mt-6" aria-label="Hero background slides">
+            {HERO_IMAGES.map((_, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setImageIndex(idx)}
+                aria-label={`Switch to slide ${idx + 1}`}
+                className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                  imageIndex === idx
+                    ? "w-8 bg-sky-deep"
+                    : "w-2 bg-sky-deep/30 hover:bg-sky-deep/60"
+                }`}
+              />
+            ))}
           </div>
         </div>
       </div>
