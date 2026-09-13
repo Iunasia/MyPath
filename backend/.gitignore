@@ -2,4 +2,10 @@ node_modules/
 .env
 .DS_Store
 *.log
+
+# Vercel CLI: local link metadata and any env files it pulls down.
+.vercel
+.env*
+
+# Tracked on purpose, so the negation has to come after the .env* above.
 !.env.example
