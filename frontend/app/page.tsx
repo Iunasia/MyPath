@@ -2,6 +2,8 @@ import Link from "next/link";
 import Footer from "./components/Footer";
 import HeroSlider from "./components/HeroSlider";
 import ScholarshipCard from "./components/ScholarshipCard";
+import InformationCheckDemo from "./components/InformationCheckDemo";
+import InteractiveCTA from "./components/InteractiveCTA";
 import { getScholarships } from "./lib/api.server";
 import {
   deadlineState,
@@ -26,6 +28,10 @@ import {
   Link2,
   Zap,
   Sparkles,
+  ArrowRight,
+  ShieldAlert,
+  Building2,
+  CalendarCheck,
 } from "lucide-react";
 
 /* ── Wave Divider (inline SVG) ─────────────────────────── */
@@ -50,13 +56,6 @@ function WaveBottom({ fill = "#E2F1F1" }: { fill?: string }) {
 }
 
 /* ── Data ──────────────────────────────────────────────── */
-
-const NAV_LINKS = [
-  { label: "Careers", href: "/careers" },
-  { label: "Majors", href: "/majors" },
-  { label: "Universities", href: "/universities" },
-  { label: "Scholarships", href: "/scholarships" },
-];
 
 const DMIL_STEPS = [
   { icon: Compass, title: "Discover", bg: "bg-sitomo", color: "text-sky-deep" },
@@ -392,101 +391,86 @@ export default async function Home() {
       <WaveBottom fill="#FFFFFF" />
 
       {/* ── Information Check ─────────────────────────────── */}
-      <section className="py-20 lg:py-28 bg-white">
-        <div className="max-w-5xl mx-auto px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            <div>
-              <span className="sticker mb-4">
-                <span className="sticker-dot" aria-hidden="true" />
-                The feature that makes DMIL visible
-              </span>
-              <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-blue-ink tracking-tight mt-4 mb-5">
-                Information Check
-              </h2>
-              <p className="text-gray-body leading-relaxed mb-6 font-medium">
-                Every piece of information on Domner comes with a verification card.
-                See where it came from, who provided it, when it was last checked,
-                and whether the source is trustworthy — before you act on it.
-              </p>
-              <ul className="space-y-3 text-sm text-gray-body font-medium">
-                <li className="flex items-start gap-3">
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-sky/15 text-sky-deep text-xs font-bold mt-0.5 shrink-0" aria-hidden="true">✓</span>
-                  Source origin and provider clearly identified
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-sky/15 text-sky-deep text-xs font-bold mt-0.5 shrink-0" aria-hidden="true">✓</span>
-                  Last verification date shown in plain language
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-sky/15 text-sky-deep text-xs font-bold mt-0.5 shrink-0" aria-hidden="true">✓</span>
-                  One-click link to the original source
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-momo text-blue-ink text-xs font-bold mt-0.5 shrink-0" aria-hidden="true">!</span>
-                  Report outdated or incorrect information
-                </li>
-              </ul>
-            </div>
-
-            <div className="rounded-3xl bg-white border border-sky/15 p-6 bubble-shadow relative">
-              {/* Sticker badge */}
-              <div className="absolute -top-3 -right-2 z-10">
-                <span className="sticker bg-sitomo border-sky text-blue-ink">
-                  <span className="sticker-dot" aria-hidden="true" />
-                  Verified
-                </span>
+      <section className="py-20 lg:py-28 bg-white scroll-mt-20" id="verification">
+        <div className="max-w-6xl mx-auto px-6 lg:px-8">
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-14 items-center">
+            {/* Left Content Column */}
+            <div className="lg:col-span-6">
+              <div className="inline-flex items-center gap-2 rounded-full bg-sitomo px-3.5 py-1 text-xs font-bold text-sky-deep border border-sky/20 mb-4">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
+                <span>DMIL Verification Engine</span>
               </div>
+              
+              <h2 className="font-display text-3xl sm:text-4xl lg:text-[2.65rem] font-extrabold text-blue-ink tracking-tight mt-1 mb-4 leading-tight">
+                Information Check. <br />
+                <span className="text-sky-deep">Real data. Zero guesswork.</span>
+              </h2>
 
-              <p className="font-display text-base font-bold text-blue-ink mb-0.5">
-                ABC University Scholarship
-              </p>
-              <p className="text-xs text-gray-faint font-semibold mb-5">
-                Computer Science · Undergraduate
+              <p className="text-gray-body leading-relaxed mb-7 font-medium text-sm sm:text-base">
+                Every scholarship, major, and university on Domner is verified against official ministry (.gov.kh) and accredited institutional (.edu.kh) records before you act.
               </p>
 
-              <div className="rounded-2xl bg-powder border border-sky/10 p-4 mb-4">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-gray-faint mb-3">
-                  Information Check
-                </p>
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <p className="text-xs text-gray-faint font-semibold">Source</p>
-                    <p className="font-bold text-blue-ink">ABC University Official Website</p>
+              {/* 3 Essential Focus Points */}
+              <div className="space-y-4 mb-8">
+                <div className="flex items-start gap-3.5">
+                  <div className="w-8 h-8 rounded-full bg-sitomo flex items-center justify-center text-sky-deep shrink-0 mt-0.5 border border-sky/20">
+                    <Building2 className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-faint font-semibold">Provider</p>
-                    <p className="font-bold text-blue-ink">ABC University</p>
+                    <h4 className="font-display text-sm font-bold text-blue-ink">
+                      Official Institution Matching
+                    </h4>
+                    <p className="text-xs text-gray-body mt-0.5">
+                      Direct, unmediated links to authentic .edu.kh and ministry portals.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3.5">
+                  <div className="w-8 h-8 rounded-full bg-sitomo flex items-center justify-center text-sky-deep shrink-0 mt-0.5 border border-sky/20">
+                    <CalendarCheck className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-faint font-semibold">Last verified</p>
-                    <p className="font-bold text-blue-ink">24 August 2026</p>
+                    <h4 className="font-display text-sm font-bold text-blue-ink">
+                      Audited Live Deadlines
+                    </h4>
+                    <p className="text-xs text-gray-body mt-0.5">
+                      Clear audit timestamps ensure you never apply to closed programs.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3.5">
+                  <div className="w-8 h-8 rounded-full bg-momo flex items-center justify-center text-blue-ink shrink-0 mt-0.5 border border-momo">
+                    <ShieldAlert className="w-4 h-4 text-sky-deep" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-faint font-semibold">Source status</p>
-                    <p className="font-bold text-sky-deep">Verified</p>
+                    <h4 className="font-display text-sm font-bold text-blue-ink">
+                      Scam & Discrepancy Alerts
+                    </h4>
+                    <p className="text-xs text-gray-body mt-0.5">
+                      Immediate warnings on suspicious upfront fee requests or fake flyers.
+                    </p>
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-2xl bg-momo border border-momo p-4 mb-5">
-                <p className="text-sm font-bold text-blue-ink mb-1">
-                  Why should I trust this information?
-                </p>
-                <p className="text-xs text-gray-body leading-relaxed font-medium">
-                  This information comes from the scholarship provider&apos;s official source
-                  and was recently verified.
-                </p>
+              {/* Single Primary Action Button */}
+              <div>
+                <Link
+                  href="/verify"
+                  className="inline-flex items-center gap-2 rounded-full bg-sky-deep px-7 py-3.5 text-sm font-bold text-white hover:bg-sky-dark transition-all bubble-shadow hover:-translate-y-0.5"
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Open Link Verifier Tool</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
               </div>
+            </div>
 
-              <div className="flex gap-3">
-                <a href="#" className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-sky-deep px-4 py-2.5 text-sm font-bold text-white hover:bg-sky-dark transition-colors bubble-shadow-sm">
-                  View original source
-                  <span aria-hidden="true">↗</span>
-                </a>
-                <a href="#" className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-sky/20 px-4 py-2.5 text-sm font-bold text-gray-soft hover:bg-sky/10 transition-colors">
-                  Report
-                </a>
-              </div>
+            {/* Right Card Column - Clean Interactive Showcase Card */}
+            <div className="lg:col-span-6">
+              <InformationCheckDemo />
             </div>
           </div>
         </div>
@@ -521,31 +505,8 @@ export default async function Home() {
 
       <WaveBottom fill="#FFFFFF" />
 
-      {/* ── CTA ───────────────────────────────────────────── */}
-      <section id="start" className="relative overflow-hidden py-20 lg:py-28 bg-gradient-to-b from-sky/15 via-sitomo/40 to-white">
-        {/* Decorative static bubbles */}
-        <div className="absolute top-10 left-[10%] w-20 h-20 rounded-full bg-sky/15" aria-hidden="true" />
-        <div className="absolute bottom-12 right-[12%] w-14 h-14 rounded-full bg-sitomo" aria-hidden="true" />
-        <div className="absolute top-1/2 right-[30%] w-10 h-10 rounded-full bg-momo" aria-hidden="true" />
-
-        <div className="relative max-w-5xl mx-auto px-6 lg:px-8 text-center">
-          <div>
-            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight mb-5">
-              Your future deserves more than
-              <br />
-              <span className="text-sky-deep">a Google search.</span>
-            </h2>
-            <p className="text-lg text-gray-body max-w-xl mx-auto mb-9 font-medium">
-              Join Domner and learn to navigate, evaluate, and verify the information
-              that shapes your education and career decisions.
-            </p>
-            <a href="#" className="inline-flex items-center gap-1.5 rounded-full bg-sky-deep px-8 py-3.5 text-sm font-bold text-white hover:bg-sky-dark transition-colors bubble-shadow">
-              Start exploring for free
-              <span aria-hidden="true">→</span>
-            </a>
-          </div>
-        </div>
-      </section>
+      {/* ── Interactive CTA Launchpad ───────────────────────── */}
+      <InteractiveCTA />
 
       {/* ── Reusable Footer Component ────────────────────── */}
       <Footer />
