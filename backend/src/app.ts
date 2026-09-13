@@ -20,7 +20,7 @@ const savedRoutes = require('./routes/saved');
 const verificationRoutes = require('./routes/verificationRequests');
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
 
 const PgSession = connectPgSimple(session);
 

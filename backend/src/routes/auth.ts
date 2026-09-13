@@ -123,7 +123,12 @@ router.get(
       session.userName = user.name;
       session.userRole = user.role;
     }
-    res.redirect(FRONTEND_URL);
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error on OAuth callback:', err);
+      }
+      res.redirect(FRONTEND_URL);
+    });
   }
 );
 
