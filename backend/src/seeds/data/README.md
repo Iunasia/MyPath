@@ -16,10 +16,13 @@ Current sources:
 `universities.json` is not a spreadsheet: it was extracted from the frontend's
 curated dataset (`frontend/app/data/universities.ts`). Edit the JSON and re-seed.
 
-Re-seeding updates rows in place, matched on title (scholarships, careers) or
-name (majors, universities), so ids stay stable and user data is never touched.
-Renaming a row therefore counts as removing it and adding a new one. See
-[`docs/API.md`](../../../docs/API.md#seeding) for details and `--replace`.
+Re-seeding is **insert-only** by default: rows are matched on title
+(scholarships, careers) or name (majors, universities), and only rows the database
+still lacks are added. Everything already there — including listings edited in the
+admin dashboard — is left untouched, so ids stay stable and user data is never
+touched. Pass `--sync` to let the sheets overwrite and delete again; renaming a row
+then counts as removing it and adding a new one. See
+[`docs/API.md`](../../../docs/API.md#seeding) for `--sync` and `--replace`.
 
 ## How a sheet is read
 
@@ -88,10 +91,12 @@ containing a comma can be written using semicolons.
 ```bash
 npm run seed:preview          # dry run: print what would be inserted
 npm run seed:preview -- --json
-npm run seed                  # create/migrate tables and load the DB
+npm run seed                  # create/migrate tables and fill gaps (insert-only)
+npm run seed -- --sync        # sheets win: overwrite and delete to match the sheets
 ```
 
-`SEED_DATA_DIR=/path/to/sheets` overrides this directory. If no readable
-workbook is found the seed stops **before** deleting anything.
+`SEED_DATA_DIR=/path/to/sheets` overrides this directory. Migrations run before
+the workbooks are read, so the schema is brought up to date even when no readable
+workbook is found.
 
 Excel lock files (`~$*.xlsx`) are ignored.
