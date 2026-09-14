@@ -306,7 +306,14 @@ export const toScholarshipView = (row: any): ScholarshipView => ({
   isVerified: row.verified_status === "verified" || row.is_verified === true || row.isVerified === true,
   lastVerified: formatLastVerified(row.last_verified || row.last_verified_at || row.lastVerified),
 
-  infoCheck: row.infoCheck,
+  infoCheck: row.infoCheck ?? {
+    isRisky: false,
+    verifiedStatus: row.verified_status || "unverified",
+    sourceType: row.source_type || "unknown",
+    source: row.source_url || row.application_link || null,
+    summary: "Information collected from scholarship announcement.",
+    reasons: [],
+  },
   coverageText: typeof row.coverage === "string" ? row.coverage : (Array.isArray(row.benefits) ? row.benefits.join("; ") : ""),
   deadlineNote: row.deadline_note ?? null,
   deadlineAt: row.deadline ?? null
