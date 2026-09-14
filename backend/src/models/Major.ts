@@ -18,11 +18,19 @@ interface Major {
   related_scholarships: string[];
   source: string | null;
   source_url: string | null;
+  archived_at: Date | null;
+  archived_by: number | null;
+  edited_at: Date | null;
+  edited_by: number | null;
 }
 
+/** Server-managed columns an admin must never set through a write endpoint. */
+type Writable = Omit<Major, 'id' | 'archived_at' | 'archived_by' | 'edited_at' | 'edited_by'>;
+
 const Major = {
-  getAll: async (): Promise<Major[]> => {
-    const res = await pool.query('SELECT * FROM majors ORDER BY field ASC, name ASC');
+  getAll: async (options: { includeArchived?: boolean } = {}): Promise<Major[]> => {
+    const where = options.includeArchived ? '' : 'WHERE archived_at IS NULL';
+    const res = await pool.query(`SELECT * FROM majors ${where} ORDER BY field ASC, name ASC`);
     return res.rows as Major[];
   },
 
@@ -31,11 +39,10 @@ const Major = {
     return res.rows[0] as Major | undefined;
   },
 
-
-  create: async (data: Omit<Major, 'id'>): Promise<Major> => {
+  create: async (data: Writable, actorId: number | null = null): Promise<Major> => {
     const res = await pool.query(
-      `INSERT INTO majors (name, field, description, duration, degree_type, subjects, personality_fit, job_market_demand, related_careers, universities, related_scholarships, source, source_url)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *`,
+      `INSERT INTO majors (name, field, description, duration, degree_type, subjects, personality_fit, job_market_demand, related_careers, universities, related_scholarships, source, source_url, edited_at, edited_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW(), $14) RETURNING *`,
       [
         data.name,
         data.field,
@@ -49,10 +56,53 @@ const Major = {
         data.universities ?? [],
         data.related_scholarships ?? [],
         data.source ?? null,
-        data.source_url ?? null
+        data.source_url ?? null,
+        actorId
       ]
     );
     return res.rows[0] as Major;
+  },
+
+  update: async (
+    id: number,
+    fields: Record<string, unknown>,
+    actorId: number | null
+  ): Promise<Major | undefined> => {
+    const columns = Object.keys(fields);
+    const values: unknown[] = columns.map(column => fields[column]);
+    const sets = columns.map((column, i) => `${column} = $${i + 1}`);
+
+    values.push(actorId);
+    const actorIndex = values.length;
+    values.push(id);
+    const idIndex = values.length;
+
+    sets.push('edited_at = NOW()', `edited_by = $${actorIndex}`);
+
+    const res = await pool.query(
+      `UPDATE majors SET ${sets.join(', ')} WHERE id = $${idIndex} RETURNING *`,
+      values
+    );
+    return res.rows[0] as Major | undefined;
+  },
+
+  archive: async (id: number, actorId: number | null): Promise<Major | undefined> => {
+    const res = await pool.query(
+      `UPDATE majors
+       SET archived_at = COALESCE(archived_at, NOW()),
+           archived_by = COALESCE(archived_by, $2)
+       WHERE id = $1 RETURNING *`,
+      [id, actorId]
+    );
+    return res.rows[0] as Major | undefined;
+  },
+
+  restore: async (id: number): Promise<Major | undefined> => {
+    const res = await pool.query(
+      'UPDATE majors SET archived_at = NULL, archived_by = NULL WHERE id = $1 RETURNING *',
+      [id]
+    );
+    return res.rows[0] as Major | undefined;
   }
 };
 
