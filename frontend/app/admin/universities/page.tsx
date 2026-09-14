@@ -2,6 +2,19 @@
 
 import { useState } from "react";
 import {
+  BarChart3,
+  Building2,
+  Download,
+  ExternalLink,
+  FileText,
+  GraduationCap,
+  History,
+  MapPin,
+  Pencil,
+  Plus,
+  RotateCcw,
+} from "lucide-react";
+import {
   archiveUniversity,
   createUniversity,
   exportUniversitiesCsv,
@@ -21,10 +34,14 @@ import {
   btnSecondary,
   Callout,
   ConfirmDialog,
+  EditorForm,
+  EditorShell,
   ErrorBox,
   Field,
+  FormSection,
   HistoryList,
   hostOf,
+  ImagePreview,
   inputClass,
   Loading,
   PageHeader,
@@ -38,6 +55,7 @@ import {
   TokenSelect,
   Toolbar,
   useAdminLoad,
+  validateUrl,
 } from "../ui";
 import { useContentEditor, type ContentResource } from "../useContentEditor";
 
@@ -93,123 +111,266 @@ const formFrom = (u: ApiUniversity): UniversityInput => ({
   scholarships: u.scholarships ?? [],
 });
 
-function UniversityForm({
+const UNIVERSITY_FIELDS: (keyof UniversityInput)[] = [
+  "name", "slug", "short_name", "type", "country", "city",
+  "description", "website", "phone", "image_url", "established",
+  "student_count", "ranking", "tuition_range", "acceptance_rate",
+  "programs", "scholarships",
+];
+
+function validateUniversity(v: UniversityInput): Partial<Record<keyof UniversityInput, string>> {
+  const e: Partial<Record<keyof UniversityInput, string>> = {};
+  if (!v.name?.trim()) e.name = "Add a name";
+  if (!v.description?.trim()) e.description = "Add a short description";
+  if (!v.website?.trim()) e.website = "Add the website";
+  else {
+    const urlErr = validateUrl(v.website, "website");
+    if (urlErr) e.website = urlErr;
+  }
+  return e;
+}
+
+function UniversityEditor({
   initial,
-  submitLabel,
+  isCreate,
   busy,
   error,
   scholarshipOptions,
   onSubmit,
   onCancel,
+  onDirtyChange,
 }: {
   initial: UniversityInput;
-  submitLabel: string;
+  isCreate: boolean;
   busy: boolean;
   error: string;
   scholarshipOptions: string[];
-  onSubmit: (input: UniversityInput) => void;
+  onSubmit: (input: UniversityInput, opts?: { keepCreating?: boolean }) => void;
   onCancel: () => void;
+  onDirtyChange: (dirty: boolean) => void;
 }) {
-  const [form, setForm] = useState<UniversityInput>(initial);
-  const set = (patch: Partial<UniversityInput>) => setForm((f) => ({ ...f, ...patch }));
-
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit({
-          ...form,
-          name: form.name?.trim(),
-          description: form.description?.trim(),
-          website: form.website?.trim(),
-          slug: form.slug?.trim() ? form.slug.trim() : null,
-        });
-      }}
-      className="grid gap-3"
+    <EditorForm<UniversityInput>
+      key={isCreate ? "create" : initial.name}
+      initial={initial}
+      fields={UNIVERSITY_FIELDS}
+      create={isCreate}
+      validate={validateUniversity}
+      onSubmit={onSubmit}
+      onCancel={onCancel}
+      onDirtyChange={onDirtyChange}
+      busy={busy}
+      error={error}
+      submitLabel={isCreate ? "Add university" : "Save changes"}
+      submitAnotherLabel="Save and add another"
     >
-      <Field label="Name" htmlFor="u-name">
-        <input id="u-name" className={inputClass} value={form.name ?? ""} onChange={(e) => set({ name: e.target.value })} required maxLength={250} />
-      </Field>
-      <Field
-        label="Slug"
-        htmlFor="u-slug"
-        hint="The public URL segment, e.g. /universities/cadt. Changing it breaks existing links."
-      >
-        <input id="u-slug" className={inputClass} value={form.slug ?? ""} onChange={(e) => set({ slug: e.target.value })} placeholder="derived from the name if blank" />
-      </Field>
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Short name" htmlFor="u-short">
-          <input id="u-short" className={inputClass} value={form.short_name ?? ""} onChange={(e) => set({ short_name: e.target.value })} />
-        </Field>
-        <Field label="Type" htmlFor="u-type" hint="Public / Private / International">
-          <input id="u-type" className={inputClass} value={form.type ?? ""} onChange={(e) => set({ type: e.target.value })} />
-        </Field>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Country" htmlFor="u-country">
-          <input id="u-country" className={inputClass} value={form.country ?? ""} onChange={(e) => set({ country: e.target.value })} />
-        </Field>
-        <Field label="City" htmlFor="u-city">
-          <input id="u-city" className={inputClass} value={form.city ?? ""} onChange={(e) => set({ city: e.target.value })} />
-        </Field>
-      </div>
-      <Field label="Description" htmlFor="u-description">
-        <textarea id="u-description" className={textareaClass} rows={3} value={form.description ?? ""} onChange={(e) => set({ description: e.target.value })} required />
-      </Field>
-      <Field label="Website" htmlFor="u-website" hint="Used to derive the source.">
-        <input id="u-website" className={inputClass} value={form.website ?? ""} onChange={(e) => set({ website: e.target.value })} required />
-      </Field>
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Phone" htmlFor="u-phone">
-          <input id="u-phone" className={inputClass} value={form.phone ?? ""} onChange={(e) => set({ phone: e.target.value })} />
-        </Field>
-        <Field label="Established" htmlFor="u-established">
-          <input id="u-established" className={inputClass} value={form.established ?? ""} onChange={(e) => set({ established: e.target.value })} />
-        </Field>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Student count" htmlFor="u-students">
-          <input id="u-students" className={inputClass} value={form.student_count ?? ""} onChange={(e) => set({ student_count: e.target.value })} />
-        </Field>
-        <Field label="Ranking" htmlFor="u-ranking">
-          <input
-            id="u-ranking"
-            type="number"
-            className={inputClass}
-            value={form.ranking ?? ""}
-            onChange={(e) => set({ ranking: e.target.value === "" ? null : Number(e.target.value) })}
-          />
-        </Field>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Tuition range" htmlFor="u-tuition">
-          <input id="u-tuition" className={inputClass} value={form.tuition_range ?? ""} onChange={(e) => set({ tuition_range: e.target.value })} />
-        </Field>
-        <Field label="Acceptance rate" htmlFor="u-acceptance">
-          <input id="u-acceptance" className={inputClass} value={form.acceptance_rate ?? ""} onChange={(e) => set({ acceptance_rate: e.target.value })} />
-        </Field>
-      </div>
-      <Field label="Image URL" htmlFor="u-image">
-        <input id="u-image" className={inputClass} value={form.image_url ?? ""} onChange={(e) => set({ image_url: e.target.value })} />
-      </Field>
-      <Field label="Programs" hint="Type and press Enter to add.">
-        <TokenSelect allowCustom inputId="u-programs" value={form.programs ?? []} onChange={(v) => set({ programs: v })} />
-      </Field>
-      <Field label="Scholarships" hint="Pick from the catalogue.">
-        <TokenSelect inputId="u-scholarships" value={form.scholarships ?? []} onChange={(v) => set({ scholarships: v })} options={scholarshipOptions} />
-      </Field>
+      {({ value, set, errors }) => (
+        <>
+          <FormSection
+            title="Institution Identity"
+            id="u-basics"
+            icon={<Building2 className="w-4 h-4" />}
+            empty={[!value.type?.trim(), !value.short_name?.trim()].filter(Boolean).length}
+          >
+            <Field label="University Name" htmlFor="u-name" error={errors.name} required>
+              <input
+                id="u-name"
+                className={inputClass}
+                value={value.name ?? ""}
+                onChange={(e) => set({ name: e.target.value })}
+                required
+                maxLength={250}
+                placeholder="e.g. Cambodia Academy of Digital Technology"
+                autoFocus
+              />
+            </Field>
+            <Field label="Public URL Slug" htmlFor="u-slug" hint="Segment for /universities/:slug (auto-derived if empty)">
+              <input
+                id="u-slug"
+                className={inputClass}
+                value={value.slug ?? ""}
+                onChange={(e) => set({ slug: e.target.value })}
+                placeholder="e.g. cadt"
+              />
+            </Field>
+            <Field label="Short Name / Acronym" htmlFor="u-short">
+              <input
+                id="u-short"
+                className={inputClass}
+                value={value.short_name ?? ""}
+                onChange={(e) => set({ short_name: e.target.value })}
+                placeholder="e.g. CADT"
+              />
+            </Field>
+            <Field label="Institution Type" htmlFor="u-type" hint="Public, Private, or International">
+              <input
+                id="u-type"
+                className={inputClass}
+                value={value.type ?? ""}
+                onChange={(e) => set({ type: e.target.value })}
+                placeholder="e.g. Public, Private, Semi-Public"
+              />
+            </Field>
+          </FormSection>
 
-      {error && <p className="text-xs font-medium text-rose-700">{error}</p>}
+          <FormSection
+            title="Location & Contact"
+            id="u-location"
+            icon={<MapPin className="w-4 h-4" />}
+            empty={0}
+          >
+            <Field label="Country" htmlFor="u-country">
+              <input
+                id="u-country"
+                className={inputClass}
+                value={value.country ?? ""}
+                onChange={(e) => set({ country: e.target.value })}
+                placeholder="e.g. Cambodia"
+              />
+            </Field>
+            <Field label="City / Province" htmlFor="u-city">
+              <input
+                id="u-city"
+                className={inputClass}
+                value={value.city ?? ""}
+                onChange={(e) => set({ city: e.target.value })}
+                placeholder="e.g. Phnom Penh"
+              />
+            </Field>
+            <Field label="Official Website" htmlFor="u-website" error={errors.website} required>
+              <input
+                id="u-website"
+                className={inputClass}
+                value={value.website ?? ""}
+                onChange={(e) => set({ website: e.target.value })}
+                placeholder="https://www.cadt.edu.kh"
+                required
+              />
+            </Field>
+            <Field label="Phone / Hotline" htmlFor="u-phone">
+              <input
+                id="u-phone"
+                className={inputClass}
+                value={value.phone ?? ""}
+                onChange={(e) => set({ phone: e.target.value })}
+                placeholder="e.g. +855 23 999 999"
+              />
+            </Field>
+          </FormSection>
 
-      <div className="flex items-center justify-end gap-2 pt-1">
-        <button type="button" onClick={onCancel} className={btnSecondary}>
-          Cancel
-        </button>
-        <button type="submit" disabled={busy} className={btnPrimary}>
-          {submitLabel}
-        </button>
-      </div>
-    </form>
+          <FormSection
+            title="Overview & Campus Media"
+            id="u-story"
+            icon={<FileText className="w-4 h-4" />}
+            empty={!value.description?.trim() ? 1 : 0}
+          >
+            <Field label="University Description" htmlFor="u-description" className="sm:col-span-2" error={errors.description} required>
+              <textarea
+                id="u-description"
+                className={textareaClass}
+                rows={3}
+                value={value.description ?? ""}
+                onChange={(e) => set({ description: e.target.value })}
+                placeholder="Comprehensive overview of the institution, campus culture, and academic focus…"
+                required
+              />
+            </Field>
+            <div className="sm:col-span-2 flex items-end gap-3">
+              <Field label="Campus Cover Image URL" htmlFor="u-image" className="flex-1 min-w-0" hint="Direct photo link (jpg, png, webp)">
+                <input
+                  id="u-image"
+                  className={inputClass}
+                  value={value.image_url ?? ""}
+                  onChange={(e) => set({ image_url: e.target.value })}
+                  placeholder="https://example.com/campus.jpg"
+                />
+              </Field>
+              <ImagePreview url={value.image_url ?? ""} className="shrink-0 mb-0.5" />
+            </div>
+          </FormSection>
+
+          <FormSection
+            title="Institutional Facts"
+            id="u-facts"
+            icon={<BarChart3 className="w-4 h-4" />}
+            empty={[!value.tuition_range?.trim(), !value.ranking, !value.acceptance_rate?.trim(), !value.student_count?.trim(), !value.established?.trim()].filter(Boolean).length}
+          >
+            <Field label="Established Year" htmlFor="u-established">
+              <input
+                id="u-established"
+                className={inputClass}
+                value={value.established ?? ""}
+                onChange={(e) => set({ established: e.target.value })}
+                placeholder="e.g. 2014"
+              />
+            </Field>
+            <Field label="Student Population" htmlFor="u-students">
+              <input
+                id="u-students"
+                className={inputClass}
+                value={value.student_count ?? ""}
+                onChange={(e) => set({ student_count: e.target.value })}
+                placeholder="e.g. 3,500+"
+              />
+            </Field>
+            <Field label="National Ranking" htmlFor="u-ranking">
+              <input
+                id="u-ranking"
+                type="number"
+                className={inputClass}
+                value={value.ranking ?? ""}
+                onChange={(e) => set({ ranking: e.target.value === "" ? null : Number(e.target.value) })}
+                placeholder="e.g. 1"
+              />
+            </Field>
+            <Field label="Tuition Fee Range" htmlFor="u-tuition">
+              <input
+                id="u-tuition"
+                className={inputClass}
+                value={value.tuition_range ?? ""}
+                onChange={(e) => set({ tuition_range: e.target.value })}
+                placeholder="e.g. $1,200 - $2,500 / year"
+              />
+            </Field>
+            <Field label="Acceptance Rate" htmlFor="u-acceptance">
+              <input
+                id="u-acceptance"
+                className={inputClass}
+                value={value.acceptance_rate ?? ""}
+                onChange={(e) => set({ acceptance_rate: e.target.value })}
+                placeholder="e.g. 65%"
+              />
+            </Field>
+          </FormSection>
+
+          <FormSection
+            title="Programmes & Scholarships"
+            id="u-links"
+            icon={<GraduationCap className="w-4 h-4" />}
+            empty={[value.programs?.length === 0, value.scholarships?.length === 0].filter(Boolean).length}
+          >
+            <Field label="Academic Programmes" hint="Type programme name and press Enter." className="sm:col-span-2">
+              <TokenSelect
+                allowCustom
+                inputId="u-programs"
+                placeholder="Type program name (e.g. Software Engineering) and press Enter…"
+                value={value.programs ?? []}
+                onChange={(v) => set({ programs: v })}
+              />
+            </Field>
+            <Field label="Linked Scholarships" hint="Select matching opportunities from catalogue." className="sm:col-span-2">
+              <TokenSelect
+                inputId="u-scholarships"
+                placeholder="Search scholarships in catalogue…"
+                value={value.scholarships ?? []}
+                onChange={(v) => set({ scholarships: v })}
+                options={scholarshipOptions}
+              />
+            </Field>
+          </FormSection>
+        </>
+      )}
+    </EditorForm>
   );
 }
 
@@ -219,6 +380,9 @@ export default function AdminUniversitiesPage() {
 
   const [type, setType] = useState("All");
   const [query, setQuery] = useState("");
+  const [formDirty, setFormDirty] = useState(false);
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
+  const [createKey, setCreateKey] = useState(0);
 
   if (editor.loading) return <Loading />;
   if (editor.error) return <ErrorBox message={editor.error} onRetry={editor.reload} />;
@@ -243,6 +407,23 @@ export default function AdminUniversitiesPage() {
       (type === "All" || u.type === type) &&
       (!q || u.name.toLowerCase().includes(q) || (u.short_name ?? "").toLowerCase().includes(q))
   );
+
+  const handleCreate = () => {
+    if (formDirty) {
+      setConfirmDiscard(true);
+    } else {
+      setCreateKey((k) => k + 1);
+      editor.startCreate();
+    }
+  };
+
+  const handleBack = () => {
+    if (formDirty) {
+      setConfirmDiscard(true);
+    } else {
+      editor.closeForm();
+    }
+  };
 
   return (
     <>
@@ -279,7 +460,7 @@ export default function AdminUniversitiesPage() {
           <button type="button" onClick={() => editor.doExport("universities.csv")} className={btnSecondary}>
             Export CSV
           </button>
-          <button type="button" onClick={editor.startCreate} className={btnPrimary}>
+          <button type="button" onClick={handleCreate} className={btnPrimary}>
             Add university
           </button>
         </div>
@@ -302,149 +483,151 @@ export default function AdminUniversitiesPage() {
         </div>
       )}
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_400px] items-start">
-        <div className="overflow-x-auto">
-          <table className={tableClass}>
-            <thead>
-              <tr>
-                <th className={thClass}>University</th>
-                <th className={`${thClass} w-28`}>Type</th>
-                <th className={`${thClass} w-16`}>Est.</th>
-                <th className={`${thClass} w-56`}>Tuition</th>
-                <th className={`${thClass} w-24`}>In majors</th>
-                <th className={`${thClass} w-40`}>Website</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visible.map((u) => {
-                const view = views.find((v) => v.apiId === u.id);
-                return (
-                  <tr
-                    key={u.id}
-                    onClick={() => editor.open(u)}
-                    className={`cursor-pointer ${editor.selected?.id === u.id ? "bg-sky/10" : "hover:bg-powder/60"}`}
-                  >
-                    <td className={`${tdClass} max-w-0`}>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            editor.open(u);
-                          }}
-                          className="block max-w-full truncate text-left font-bold text-blue-ink hover:text-sky-deep cursor-pointer"
-                        >
-                          {u.name}
-                        </button>
-                        {u.archived_at && <Tag tone="neutral">Archived</Tag>}
-                      </div>
-                      <p className="text-xs text-gray-soft truncate">{[u.short_name, u.city].filter(Boolean).join(" · ")}</p>
-                    </td>
-                    <td className={tdClass}>{u.type ?? <span className="text-amber-700">Not stated</span>}</td>
-                    <td className={`${tdClass} tabular-nums text-xs`}>{u.established ?? "—"}</td>
-                    <td className={`${tdClass} text-xs`}>
-                      {u.tuition_range ?? <span className="font-bold text-amber-700">Not stated</span>}
-                    </td>
-                    <td className={`${tdClass} tabular-nums text-xs`}>{inMajors.get(view?.id ?? "") ?? 0}</td>
-                    <td className={`${tdClass} tabular-nums text-xs max-w-0 truncate`}>{hostOf(u.website)}</td>
-                  </tr>
-                );
-              })}
-              {visible.length === 0 && (
+      {editor.mode === "create" || (editor.mode === "edit" && editor.selected) ? (
+        <EditorShell
+          backLabel="universities"
+          onBack={handleBack}
+          title={
+            editor.mode === "create"
+              ? "New university"
+              : editor.selected?.name ?? `#${editor.selected?.id}`
+          }
+          id={editor.mode === "edit" ? editor.selected?.id : undefined}
+          tag={
+            editor.mode === "edit" && editor.selected ? (
+              editor.selected.archived_at ? <Tag tone="neutral">Archived</Tag> : <Tag tone="green">Live</Tag>
+            ) : undefined
+          }
+        >
+          <UniversityEditor
+            key={editor.mode === "create" ? `create-${createKey}` : editor.selected!.id}
+            initial={editor.mode === "create" ? emptyForm() : formFrom(editor.selected!)}
+            isCreate={editor.mode === "create"}
+            busy={editor.busy}
+            error={editor.formError}
+            scholarshipOptions={scholarshipOptions}
+            onSubmit={editor.save}
+            onCancel={editor.closeForm}
+            onDirtyChange={setFormDirty}
+          />
+        </EditorShell>
+      ) : (
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_400px] items-start">
+          <div className="overflow-x-auto">
+            <table className={tableClass}>
+              <thead>
                 <tr>
-                  <td colSpan={6} className="px-3 py-8 text-center text-sm text-gray-soft">
-                    Nothing matches.
-                  </td>
+                  <th className={thClass}>University</th>
+                  <th className={`${thClass} w-28`}>Type</th>
+                  <th className={`${thClass} w-16`}>Est.</th>
+                  <th className={`${thClass} w-56`}>Tuition</th>
+                  <th className={`${thClass} w-24`}>In majors</th>
+                  <th className={`${thClass} w-40`}>Website</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {visible.map((u) => {
+                  const view = views.find((v) => v.apiId === u.id);
+                  return (
+                    <tr
+                      key={u.id}
+                      onClick={() => editor.open(u)}
+                      className={`cursor-pointer ${editor.selected?.id === u.id ? "bg-sky/10" : "hover:bg-powder/60"}`}
+                    >
+                      <td className={`${tdClass} max-w-0`}>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              editor.open(u);
+                            }}
+                            className="block max-w-full truncate text-left font-bold text-blue-ink hover:text-sky-deep cursor-pointer"
+                          >
+                            {u.name}
+                          </button>
+                          {u.archived_at && <Tag tone="neutral">Archived</Tag>}
+                        </div>
+                        <p className="text-xs text-gray-soft truncate">{[u.short_name, u.city].filter(Boolean).join(" · ")}</p>
+                      </td>
+                      <td className={tdClass}>{u.type ?? <span className="text-amber-700">Not stated</span>}</td>
+                      <td className={`${tdClass} tabular-nums text-xs`}>{u.established ?? "—"}</td>
+                      <td className={`${tdClass} text-xs`}>
+                        {u.tuition_range ?? <span className="font-bold text-amber-700">Not stated</span>}
+                      </td>
+                      <td className={`${tdClass} tabular-nums text-xs`}>{inMajors.get(view?.id ?? "") ?? 0}</td>
+                      <td className={`${tdClass} tabular-nums text-xs max-w-0 truncate`}>{hostOf(u.website)}</td>
+                    </tr>
+                  );
+                })}
+                {visible.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="px-3 py-8 text-center text-sm text-gray-soft">
+                      Nothing matches.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {editor.selected ? (
+            <aside className="rounded-2xl border border-sky/15 bg-white xl:sticky xl:top-20" aria-label="University detail">
+              <header className="border-b border-sky/15 px-4 pt-4 pb-3">
+                <p className="tabular-nums text-xs text-gray-soft">#{editor.selected.id}</p>
+                <h2 className="mt-0.5 text-base font-extrabold leading-snug">{editor.selected.name}</h2>
+                <p className="mt-0.5 text-xs text-gray-soft">
+                  {[editor.selected.short_name, editor.selected.city].filter(Boolean).join(" · ")}
+                </p>
+              </header>
+              <dl className="grid grid-cols-[110px_minmax(0,1fr)] gap-x-3 gap-y-2 border-b border-sky/15 px-4 py-3 text-sm">
+                <dt className="text-gray-soft">Status</dt>
+                <dd>{editor.selected.archived_at ? <Tag tone="neutral">Archived</Tag> : <Tag tone="green">Live</Tag>}</dd>
+                <dt className="text-gray-soft">Slug</dt>
+                <dd className="min-w-0 break-all text-xs">{editor.selected.slug ?? <span className="text-gray-soft">none</span>}</dd>
+                <dt className="text-gray-soft">Website</dt>
+                <dd className="min-w-0 break-all text-xs">{hostOf(editor.selected.website) || "none"}</dd>
+                <dt className="text-gray-soft">Tuition</dt>
+                <dd>{editor.selected.tuition_range ?? <span className="text-gray-soft">Not stated</span>}</dd>
+              </dl>
+
+              <div className="flex flex-wrap gap-2 px-4 py-3">
+                <button type="button" onClick={editor.startEdit} className={btnPrimary}>
+                  Edit
+                </button>
+                {editor.selected.archived_at ? (
+                  <button type="button" onClick={() => editor.doRestore(editor.selected!)} disabled={editor.busy} className={btnSecondary}>
+                    Restore
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      editor.setArchiveReason("");
+                      editor.setConfirmArchive(editor.selected);
+                    }}
+                    className={btnSecondary}
+                  >
+                    Archive
+                  </button>
+                )}
+                <a href={`/universities/${editor.selected.slug ?? editor.selected.id}`} className={btnGhost}>
+                  Public page
+                </a>
+              </div>
+
+              <details className="border-t border-sky/15" open>
+                <summary className="cursor-pointer px-4 py-2.5 text-xs font-bold text-blue-ink">History</summary>
+                <HistoryList entries={editor.history} />
+              </details>
+            </aside>
+          ) : (
+            <aside className="rounded-2xl border border-dashed border-sky/25 bg-white/60 p-6 text-sm text-gray-soft">
+              Select a university to edit it, or add a new one.
+            </aside>
+          )}
         </div>
-
-        {editor.mode === "create" ? (
-          <aside className="rounded-2xl border border-sky/15 bg-white p-5" aria-label="New university">
-            <h2 className="mb-3 font-display text-sm font-extrabold text-blue-ink">Add a university</h2>
-            <UniversityForm
-              key="create"
-              initial={emptyForm()}
-              submitLabel="Add university"
-              busy={editor.busy}
-              error={editor.formError}
-              scholarshipOptions={scholarshipOptions}
-              onSubmit={editor.save}
-              onCancel={editor.closeForm}
-            />
-          </aside>
-        ) : editor.mode === "edit" && editor.selected ? (
-          <aside className="rounded-2xl border border-sky/15 bg-white p-5" aria-label="Edit university">
-            <h2 className="mb-3 font-display text-sm font-extrabold text-blue-ink">Editing #{editor.selected.id}</h2>
-            <UniversityForm
-              key={editor.selected.id}
-              initial={formFrom(editor.selected)}
-              submitLabel="Save changes"
-              busy={editor.busy}
-              error={editor.formError}
-              scholarshipOptions={scholarshipOptions}
-              onSubmit={editor.save}
-              onCancel={editor.closeForm}
-            />
-          </aside>
-        ) : editor.selected ? (
-          <aside className="rounded-2xl border border-sky/15 bg-white xl:sticky xl:top-20" aria-label="University detail">
-            <header className="border-b border-sky/15 px-4 pt-4 pb-3">
-              <p className="tabular-nums text-xs text-gray-soft">#{editor.selected.id}</p>
-              <h2 className="mt-0.5 text-base font-extrabold leading-snug">{editor.selected.name}</h2>
-              <p className="mt-0.5 text-xs text-gray-soft">
-                {[editor.selected.short_name, editor.selected.city].filter(Boolean).join(" · ")}
-              </p>
-            </header>
-            <dl className="grid grid-cols-[110px_minmax(0,1fr)] gap-x-3 gap-y-2 border-b border-sky/15 px-4 py-3 text-sm">
-              <dt className="text-gray-soft">Status</dt>
-              <dd>{editor.selected.archived_at ? <Tag tone="neutral">Archived</Tag> : <Tag tone="green">Live</Tag>}</dd>
-              <dt className="text-gray-soft">Slug</dt>
-              <dd className="min-w-0 break-all text-xs">{editor.selected.slug ?? <span className="text-gray-soft">none</span>}</dd>
-              <dt className="text-gray-soft">Website</dt>
-              <dd className="min-w-0 break-all text-xs">{hostOf(editor.selected.website) || "none"}</dd>
-              <dt className="text-gray-soft">Tuition</dt>
-              <dd>{editor.selected.tuition_range ?? <span className="text-gray-soft">Not stated</span>}</dd>
-            </dl>
-
-            <div className="flex flex-wrap gap-2 px-4 py-3">
-              <button type="button" onClick={editor.startEdit} className={btnPrimary}>
-                Edit
-              </button>
-              {editor.selected.archived_at ? (
-                <button type="button" onClick={() => editor.doRestore(editor.selected!)} disabled={editor.busy} className={btnSecondary}>
-                  Restore
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => {
-                    editor.setArchiveReason("");
-                    editor.setConfirmArchive(editor.selected);
-                  }}
-                  className={btnSecondary}
-                >
-                  Archive
-                </button>
-              )}
-              <a href={`/universities/${editor.selected.slug ?? editor.selected.id}`} className={btnGhost}>
-                Public page
-              </a>
-            </div>
-
-            <details className="border-t border-sky/15" open>
-              <summary className="cursor-pointer px-4 py-2.5 text-xs font-bold text-blue-ink">History</summary>
-              <HistoryList entries={editor.history} />
-            </details>
-          </aside>
-        ) : (
-          <aside className="rounded-2xl border border-dashed border-sky/25 bg-white/60 p-6 text-sm text-gray-soft">
-            Select a university to edit it, or add a new one.
-          </aside>
-        )}
-      </div>
+      )}
 
       <ConfirmDialog
         open={Boolean(editor.confirmArchive)}
@@ -465,6 +648,19 @@ export default function AdminUniversitiesPage() {
           />
         </Field>
       </ConfirmDialog>
+
+      <ConfirmDialog
+        open={confirmDiscard}
+        title="Discard unsaved changes?"
+        description="You have unsaved edits. If you leave now they will be lost."
+        confirmLabel="Discard"
+        onConfirm={() => {
+          setConfirmDiscard(false);
+          setFormDirty(false);
+          editor.closeForm();
+        }}
+        onCancel={() => setConfirmDiscard(false)}
+      />
 
       {editor.notice && <Toast message={editor.notice} />}
     </>
