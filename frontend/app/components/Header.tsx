@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/app/context/AuthContext";
 import { fetchMyVerificationRequests } from "@/app/lib/api";
+import SignOutButton from "./SignOutButton";
 import {
   Menu,
   X,
@@ -15,10 +16,9 @@ import {
   ShieldCheck,
   Scale,
   Users,
-  LogOut,
+  type LucideIcon,
   LayoutDashboard,
   ChevronDown,
-  type LucideIcon,
 } from "lucide-react";
 
 type NavKey =
@@ -109,16 +109,15 @@ function useDismiss(open: boolean, close: () => void) {
 export default function Header({ variant = "default", activeNav, className = "" }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
-  const { user, loading, logout } = useAuth();
+  const { user, loading } = useAuth();
   // Cosmetic only — the guard on /admin is what actually protects the page.
   const isAdmin = user?.role === "admin";
   const unread = useUnreadAnswers(Boolean(user));
   const accountRef = useDismiss(accountOpen, () => setAccountOpen(false));
 
-  const signOut = async () => {
+  const closeMenus = () => {
     setAccountOpen(false);
     setMenuOpen(false);
-    await logout();
   };
 
   const desktopLink = (active: boolean) =>
@@ -231,15 +230,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
                       Admin dashboard
                     </Link>
                   )}
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={signOut}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 mt-1 rounded-xl text-blue-ink hover:bg-powder border-t border-sky/10 cursor-pointer"
-                  >
-                    <LogOut className="w-4 h-4 text-gray-soft" />
-                    Sign out
-                  </button>
+                  <SignOutButton variant="block" className="mt-1" onClick={closeMenus} />
                 </div>
               )}
             </div>
@@ -309,10 +300,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
                     Admin dashboard
                   </Link>
                 )}
-                <button type="button" onClick={signOut} className={`${mobileLink(false)} w-full cursor-pointer`}>
-                  <LogOut className="w-4 h-4 text-gray-soft" />
-                  Sign out
-                </button>
+                <SignOutButton variant="block" className="mt-1" onClick={closeMenus} />
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-2">
