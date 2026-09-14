@@ -237,9 +237,16 @@ paths:
       summary: List all scholarships
       description: |
         Ordered by `deadline` ascending, with undated entries last, then by
-        title. Each item carries an `infoCheck` object (see the DMIL section in
-        `docs/API.md`).
+        title. Archived listings are hidden; admins may include them with
+        `?includeArchived=1`. Each item carries an `infoCheck` object (see the
+        DMIL section in `docs/API.md`).
       security: []
+      parameters:
+        - name: includeArchived
+          in: query
+          required: false
+          schema: { type: string, enum: ['1'] }
+          description: Admins only. `1` also returns archived (soft-deleted) listings.
       responses:
         '200':
           description: All scholarships
@@ -253,11 +260,66 @@ paths:
                     - type: object
                       properties:
                         infoCheck: { $ref: '#/components/schemas/InfoCheck' }
+    post:
+      tags: [Scholarships]
+      summary: Create a listing (admins only)
+      description: |
+        The intake path for an opportunity found through the review queue.
+        Provenance (`source`, `source_url`, `source_type`, `verified_status`,
+        `safety_warnings`) is derived from `application_link`, so a hand-typed
+        row carries the same DMIL metadata the seed produces.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/ScholarshipInput'
+                - type: object
+                  required: [title, provider, description, application_link]
+      responses:
+        '201':
+          description: The created listing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scholarship: { $ref: '#/components/schemas/Scholarship' }
+                  infoCheck: { $ref: '#/components/schemas/InfoCheck' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409':
+          description: A listing with that title already exists
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /scholarships/export:
+    get:
+      tags: [Scholarships]
+      summary: Export the catalogue as CSV (admins only)
+      description: Spreadsheet-shaped export so the catalogue can still be edited in bulk.
+      parameters:
+        - name: includeArchived
+          in: query
+          required: false
+          schema: { type: string, enum: ['1'] }
+      responses:
+        '200':
+          description: CSV text
+          content:
+            text/csv:
+              schema: { type: string }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
 
   /scholarships/{id}:
     get:
       tags: [Scholarships]
       summary: A single scholarship
+      description: Answers `404` for an archived listing — it is hidden from students.
       security: []
       parameters:
         - $ref: '#/components/parameters/Id'
@@ -273,6 +335,102 @@ paths:
                   scholarship: { $ref: '#/components/schemas/Scholarship' }
                   infoCheck: { $ref: '#/components/schemas/InfoCheck' }
         '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      tags: [Scholarships]
+      summary: Edit a listing (admins only)
+      description: |
+        Partial update of the editable fields. Provenance is recomputed from
+        `application_link` when it changes. Every change is written to the
+        listing's history.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ScholarshipInput' }
+      responses:
+        '200':
+          description: The updated listing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scholarship: { $ref: '#/components/schemas/Scholarship' }
+                  infoCheck: { $ref: '#/components/schemas/InfoCheck' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: A listing with that title already exists
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /scholarships/{id}/archive:
+    post:
+      tags: [Scholarships]
+      summary: Archive a listing (admins only)
+      description: |
+        Soft delete. The listing disappears from the public site but is kept —
+        saved items, verification requests and history stay valid — and can be
+        restored.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: The archived listing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scholarship: { $ref: '#/components/schemas/Scholarship' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /scholarships/{id}/restore:
+    post:
+      tags: [Scholarships]
+      summary: Restore an archived listing (admins only)
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: The restored listing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scholarship: { $ref: '#/components/schemas/Scholarship' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /scholarships/{id}/history:
+    get:
+      tags: [Scholarships]
+      summary: The change history for a listing (admins only)
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ContentAuditEntry' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
 
   /scholarships/{id}/verify:
@@ -489,8 +647,14 @@ paths:
     get:
       tags: [Catalog]
       summary: List all careers
-      description: Ordered by category, then title.
+      description: Ordered by category, then title. Archived rows are hidden; admins may pass `?includeArchived=1`.
       security: []
+      parameters:
+        - name: includeArchived
+          in: query
+          required: false
+          schema: { type: string, enum: ['1'] }
+          description: Admins only. `1` also returns archived (soft-deleted) careers.
       responses:
         '200':
           description: All careers
@@ -499,11 +663,59 @@ paths:
               schema:
                 type: array
                 items: { $ref: '#/components/schemas/Career' }
+    post:
+      tags: [Catalog]
+      summary: Create a career (admins only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/CareerInput'
+                - type: object
+                  required: [title, description]
+      responses:
+        '201':
+          description: The created career
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  career: { $ref: '#/components/schemas/Career' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409':
+          description: A career with that title already exists
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /careers/export:
+    get:
+      tags: [Catalog]
+      summary: Export careers as CSV (admins only)
+      parameters:
+        - name: includeArchived
+          in: query
+          required: false
+          schema: { type: string, enum: ['1'] }
+      responses:
+        '200':
+          description: CSV text
+          content:
+            text/csv:
+              schema: { type: string }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
 
   /careers/{id}:
     get:
       tags: [Catalog]
       summary: A single career
+      description: Answers `404` for an archived career.
       security: []
       parameters:
         - $ref: '#/components/parameters/Id'
@@ -515,13 +727,106 @@ paths:
               schema: { $ref: '#/components/schemas/Career' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      tags: [Catalog]
+      summary: Edit a career (admins only)
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CareerInput' }
+      responses:
+        '200':
+          description: The updated career
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  career: { $ref: '#/components/schemas/Career' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: A career with that title already exists
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /careers/{id}/archive:
+    post:
+      tags: [Catalog]
+      summary: Archive a career (admins only)
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: The archived career
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  career: { $ref: '#/components/schemas/Career' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /careers/{id}/restore:
+    post:
+      tags: [Catalog]
+      summary: Restore an archived career (admins only)
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: The restored career
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  career: { $ref: '#/components/schemas/Career' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /careers/{id}/history:
+    get:
+      tags: [Catalog]
+      summary: The change history for a career (admins only)
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ContentAuditEntry' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
 
   /majors:
     get:
       tags: [Catalog]
       summary: List all majors
-      description: Ordered by field, then name.
+      description: Ordered by field, then name. Archived rows are hidden; admins may pass `?includeArchived=1`.
       security: []
+      parameters:
+        - name: includeArchived
+          in: query
+          required: false
+          schema: { type: string, enum: ['1'] }
+          description: Admins only. `1` also returns archived (soft-deleted) majors.
       responses:
         '200':
           description: All majors
@@ -530,11 +835,59 @@ paths:
               schema:
                 type: array
                 items: { $ref: '#/components/schemas/Major' }
+    post:
+      tags: [Catalog]
+      summary: Create a major (admins only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/MajorInput'
+                - type: object
+                  required: [name, description]
+      responses:
+        '201':
+          description: The created major
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  major: { $ref: '#/components/schemas/Major' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409':
+          description: A major with that name already exists
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /majors/export:
+    get:
+      tags: [Catalog]
+      summary: Export majors as CSV (admins only)
+      parameters:
+        - name: includeArchived
+          in: query
+          required: false
+          schema: { type: string, enum: ['1'] }
+      responses:
+        '200':
+          description: CSV text
+          content:
+            text/csv:
+              schema: { type: string }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
 
   /majors/{id}:
     get:
       tags: [Catalog]
       summary: A single major
+      description: Answers `404` for an archived major.
       security: []
       parameters:
         - $ref: '#/components/parameters/Id'
@@ -546,13 +899,106 @@ paths:
               schema: { $ref: '#/components/schemas/Major' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      tags: [Catalog]
+      summary: Edit a major (admins only)
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MajorInput' }
+      responses:
+        '200':
+          description: The updated major
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  major: { $ref: '#/components/schemas/Major' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: A major with that name already exists
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /majors/{id}/archive:
+    post:
+      tags: [Catalog]
+      summary: Archive a major (admins only)
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: The archived major
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  major: { $ref: '#/components/schemas/Major' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /majors/{id}/restore:
+    post:
+      tags: [Catalog]
+      summary: Restore an archived major (admins only)
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: The restored major
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  major: { $ref: '#/components/schemas/Major' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /majors/{id}/history:
+    get:
+      tags: [Catalog]
+      summary: The change history for a major (admins only)
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ContentAuditEntry' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
 
   /universities:
     get:
       tags: [Catalog]
       summary: List all universities
-      description: Ordered by name.
+      description: Ordered by name. Archived rows are hidden; admins may pass `?includeArchived=1`.
       security: []
+      parameters:
+        - name: includeArchived
+          in: query
+          required: false
+          schema: { type: string, enum: ['1'] }
+          description: Admins only. `1` also returns archived (soft-deleted) universities.
       responses:
         '200':
           description: All universities
@@ -561,6 +1007,56 @@ paths:
               schema:
                 type: array
                 items: { $ref: '#/components/schemas/University' }
+    post:
+      tags: [Catalog]
+      summary: Create a university (admins only)
+      description: |
+        `source`/`source_url` are derived from `website`, and `slug` is derived
+        from the name when left blank.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UniversityInput'
+                - type: object
+                  required: [name, description, website]
+      responses:
+        '201':
+          description: The created university
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  university: { $ref: '#/components/schemas/University' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409':
+          description: A university with that name or slug already exists
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /universities/export:
+    get:
+      tags: [Catalog]
+      summary: Export universities as CSV (admins only)
+      parameters:
+        - name: includeArchived
+          in: query
+          required: false
+          schema: { type: string, enum: ['1'] }
+      responses:
+        '200':
+          description: CSV text
+          content:
+            text/csv:
+              schema: { type: string }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
 
   /universities/{idOrSlug}:
     get:
@@ -568,7 +1064,8 @@ paths:
       summary: A single university, by numeric id or slug
       description: |
         Accepts either form — `/universities/5` or `/universities/cadt` — so the
-        frontend's slug-based links keep working.
+        frontend's slug-based links keep working. Answers `404` for an archived
+        university.
       security: []
       parameters:
         - name: idOrSlug
@@ -586,6 +1083,98 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/University' }
         '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /universities/{id}:
+    patch:
+      tags: [Catalog]
+      summary: Edit a university (admins only)
+      description: |
+        Partial update by numeric id. Provenance is recomputed from `website`.
+        Changing the slug breaks existing public URLs.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UniversityInput' }
+      responses:
+        '200':
+          description: The updated university
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  university: { $ref: '#/components/schemas/University' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: A university with that name or slug already exists
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /universities/{id}/archive:
+    post:
+      tags: [Catalog]
+      summary: Archive a university (admins only)
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: The archived university
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  university: { $ref: '#/components/schemas/University' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /universities/{id}/restore:
+    post:
+      tags: [Catalog]
+      summary: Restore an archived university (admins only)
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: The restored university
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  university: { $ref: '#/components/schemas/University' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /universities/{id}/history:
+    get:
+      tags: [Catalog]
+      summary: The change history for a university (admins only)
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ContentAuditEntry' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
 
 components:
@@ -804,6 +1393,60 @@ components:
           type: [integer, 'null']
           description: The admin who recorded that check. Null when nobody has, or when the date came from the sheet.
         safety_warnings: { type: array, items: { type: string } }
+        archived_at:
+          type: [string, 'null']
+          format: date-time
+          description: Set when an admin archives the listing. Archived rows are hidden from students.
+        archived_by: { type: [integer, 'null'], description: The admin who archived it. }
+        edited_at:
+          type: [string, 'null']
+          format: date-time
+          description: When an admin last changed an editable field in the app.
+        edited_by: { type: [integer, 'null'], description: The admin who made that change. }
+
+    ScholarshipInput:
+      type: object
+      description: |
+        The editable fields of a listing. Server-managed columns — `id`,
+        `last_verified`, `last_verified_by`, `archived_at`, `edited_at` and the
+        derived provenance fields — are ignored if sent.
+      properties:
+        title: { type: string, maxLength: 300 }
+        provider: { type: string, maxLength: 200 }
+        provider_type:
+          type: string
+          enum: [government, university, foundation, company, organisation, unknown]
+        description: { type: string, maxLength: 5000 }
+        amount: { type: [string, 'null'], maxLength: 300 }
+        coverage: { type: [string, 'null'], maxLength: 2000 }
+        eligibility: { type: [string, 'null'], maxLength: 2000 }
+        degree_level: { type: [string, 'null'] }
+        field_of_study: { type: [string, 'null'] }
+        documents: { type: array, items: { type: string } }
+        application_process: { type: [string, 'null'] }
+        deadline: { type: [string, 'null'], format: date-time }
+        deadline_note: { type: [string, 'null'], maxLength: 300 }
+        application_link: { type: string }
+        image_url: { type: [string, 'null'] }
+        country: { type: [string, 'null'] }
+        opportunity_type: { type: string, enum: [scholarship, exchange, internship] }
+
+    ContentAuditEntry:
+      type: object
+      description: One catalogue change — who did it, when, and what moved.
+      properties:
+        id: { type: integer }
+        entity: { type: string, examples: ['scholarship'] }
+        row_id: { type: integer }
+        action: { type: string, enum: [create, update, archive, restore] }
+        actor_id: { type: [integer, 'null'] }
+        actor_name: { type: [string, 'null'] }
+        changes:
+          type: object
+          additionalProperties: true
+          description: "For `update`, an object of `{ field: { from, to } }` for the fields that changed."
+        reason: { type: [string, 'null'] }
+        created_at: { type: string, format: date-time }
 
     Career:
       type: object
@@ -823,6 +1466,10 @@ components:
         related_majors: { type: array, items: { type: string } }
         source: { type: [string, 'null'] }
         source_url: { type: [string, 'null'] }
+        archived_at: { type: [string, 'null'], format: date-time }
+        archived_by: { type: [integer, 'null'] }
+        edited_at: { type: [string, 'null'], format: date-time }
+        edited_by: { type: [integer, 'null'] }
 
     Major:
       type: object
@@ -841,6 +1488,10 @@ components:
         related_scholarships: { type: array, items: { type: string } }
         source: { type: [string, 'null'] }
         source_url: { type: [string, 'null'] }
+        archived_at: { type: [string, 'null'], format: date-time }
+        archived_by: { type: [integer, 'null'] }
+        edited_at: { type: [string, 'null'], format: date-time }
+        edited_by: { type: [integer, 'null'] }
 
     University:
       type: object
@@ -877,6 +1528,65 @@ components:
           description: Scholarship names this university lists.
         source: { type: string }
         source_url: { type: string }
+        archived_at: { type: [string, 'null'], format: date-time }
+        archived_by: { type: [integer, 'null'] }
+        edited_at: { type: [string, 'null'], format: date-time }
+        edited_by: { type: [integer, 'null'] }
+
+    CareerInput:
+      type: object
+      description: Editable career fields. Server-managed columns are ignored if sent.
+      properties:
+        title: { type: string, maxLength: 200 }
+        category: { type: string, maxLength: 160 }
+        description: { type: string, maxLength: 5000 }
+        responsibilities: { type: [string, 'null'], maxLength: 3000 }
+        average_salary: { type: [string, 'null'], maxLength: 200 }
+        growth_outlook: { type: [string, 'null'], maxLength: 200 }
+        education_required: { type: [string, 'null'], maxLength: 300 }
+        personality_fit: { type: [string, 'null'], maxLength: 500 }
+        required_skills: { type: array, items: { type: string } }
+        related_majors: { type: array, items: { type: string } }
+
+    MajorInput:
+      type: object
+      description: Editable major fields. Server-managed columns are ignored if sent.
+      properties:
+        name: { type: string, maxLength: 200 }
+        field: { type: string, maxLength: 160 }
+        description: { type: string, maxLength: 5000 }
+        duration: { type: [string, 'null'], maxLength: 120 }
+        degree_type: { type: [string, 'null'], maxLength: 120 }
+        subjects: { type: array, items: { type: string } }
+        personality_fit: { type: [string, 'null'], maxLength: 500 }
+        job_market_demand: { type: [string, 'null'], maxLength: 300 }
+        related_careers: { type: array, items: { type: string } }
+        universities: { type: array, items: { type: string } }
+        related_scholarships: { type: array, items: { type: string } }
+
+    UniversityInput:
+      type: object
+      description: |
+        Editable university fields. `source`/`source_url` are derived from
+        `website`; `slug` is derived from the name when blank.
+      properties:
+        slug: { type: [string, 'null'], maxLength: 80, examples: ['cadt'] }
+        name: { type: string, maxLength: 250 }
+        short_name: { type: [string, 'null'], maxLength: 80 }
+        country: { type: [string, 'null'], maxLength: 120 }
+        city: { type: [string, 'null'], maxLength: 120 }
+        type: { type: [string, 'null'], maxLength: 60 }
+        ranking: { type: [integer, 'null'] }
+        description: { type: string, maxLength: 5000 }
+        website: { type: string, format: uri }
+        phone: { type: [string, 'null'], maxLength: 60 }
+        established: { type: [string, 'null'], maxLength: 40 }
+        student_count: { type: [string, 'null'], maxLength: 60 }
+        image_url: { type: [string, 'null'], format: uri }
+        tuition_range: { type: [string, 'null'], maxLength: 200 }
+        acceptance_rate: { type: [string, 'null'], maxLength: 60 }
+        programs: { type: array, items: { type: string } }
+        scholarships: { type: array, items: { type: string } }
 
 security:
   - sessionCookie: []

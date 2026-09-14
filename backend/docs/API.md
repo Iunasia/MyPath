@@ -161,6 +161,55 @@ the stamp: a blank "Last verified" cell in the sheet never wipes it, and a
 newer date typed into the sheet wins — without an admin's name, since nobody
 in the app recorded it.
 
+#### `POST /scholarships` 🛡️
+Create a listing by hand — the intake path for an opportunity found through the
+review queue. Required: `title`, `provider`, `description`, `application_link`.
+Everything else is optional and defaulted. Provenance (`source`, `source_url`,
+`source_type`, `verified_status`, `safety_warnings`) is **derived from the link**
+by the server, never taken from the client, so a hand-typed row carries the same
+DMIL metadata the seed would have produced.
+
+`201` → `{ scholarship, infoCheck }`. `400` for a missing/invalid field,
+`409` when a listing with that title already exists.
+
+#### `PATCH /scholarships/{id}` 🛡️
+Edit the fields that make a listing accurate. Any subset of the editable fields
+(`title`, `provider`, `provider_type`, `description`, `amount`, `coverage`,
+`eligibility`, `degree_level`, `field_of_study`, `documents`,
+`application_process`, `deadline`, `deadline_note`, `application_link`,
+`image_url`, `country`, `opportunity_type`). Provenance is recomputed when
+`application_link` changes. Every change is written to the listing's
+[history](#get-scholarshipsidhistory-️).
+
+`200` → `{ scholarship, infoCheck }`. `400` for an invalid value or an empty
+body, `404` for an unknown id, `409` on a duplicate title.
+
+#### `POST /scholarships/{id}/archive` 🛡️
+**Soft delete.** The listing disappears from the public site (`GET
+/scholarships` omits it, `GET /scholarships/{id}` answers `404`) but is kept:
+saved items, verification requests and history stay valid, and it can be
+restored. `200` → `{ scholarship }`. Archiving is idempotent. An optional
+`{ "reason": "..." }` is stored on the history entry.
+
+#### `POST /scholarships/{id}/restore` 🛡️
+Undo an archive. `200` → `{ scholarship }`.
+
+#### `GET /scholarships/{id}/history` 🛡️
+The change log for one listing, newest first: `{ id, entity, row_id, action,
+actor_id, actor_name, changes, reason, created_at }`. For an `update`, `changes`
+holds only the fields that actually moved, as `{ from, to }`.
+
+#### `GET /scholarships/export` 🛡️
+The catalogue as CSV (`text/csv`, attachment). Add `?includeArchived=1` to
+include archived rows. This is the bulk-editing path now that the database —
+not the spreadsheets — owns the content.
+
+### Admin listing visibility
+
+`GET /scholarships` hides archived rows. An admin may pass
+`?includeArchived=1` to see them; the parameter is ignored for everyone else, so
+students never see an archived listing.
+
 ---
 
 ### Catalog
@@ -183,6 +232,36 @@ Careers and majors refer to each other — and majors to universities and
 scholarships — **by name** (`related_majors: ["Computer Science"]`), because
 that's how the spreadsheets are written. The frontend resolves those names to
 records.
+
+#### Catalog writes 🛡️
+
+Careers, majors and universities each expose the same write surface as
+scholarships:
+
+| Operation | Endpoints |
+|---|---|
+| Create | `POST /careers`, `POST /majors`, `POST /universities` |
+| Edit | `PATCH /careers/{id}`, `PATCH /majors/{id}`, `PATCH /universities/{id}` |
+| Archive / restore | `POST /{entity}/{id}/archive`, `POST /{entity}/{id}/restore` |
+| History | `GET /{entity}/{id}/history` |
+| Export | `GET /careers/export`, `GET /majors/export`, `GET /universities/export` |
+
+Archiving is a **soft delete**: the record disappears from the public list, its
+detail endpoint answers `404`, and admins can still see it with
+`?includeArchived=1`. Every change is recorded in `content_audit` under the
+entity `career`, `major` or `university`.
+
+Required on create: a career needs `title` and `description`; a major needs
+`name` and `description`; a university needs `name`, `description` and
+`website`. Everything else is optional and defaulted. A university's
+`source`/`source_url` are derived from `website`, and its `slug` is derived from
+the name when left blank — changing a slug changes the public URL. A duplicate
+natural key (`title` / `name`) answers `409`.
+
+Relationships are edited by **picking existing records**, which store the chosen
+record's name; a name that no longer resolves shows as "unmatched" rather than a
+dead link. Renaming a record does not rewrite the references that point at its
+old name (see [Not built yet](#not-built-yet)).
 
 ---
 
@@ -464,18 +543,23 @@ docker compose -f docker-compose.dev.yml exec backend npm run seed
 | Scholarships, careers, majors | The `.xlsx` workbooks in [`src/seeds/data/`](../src/seeds/data/) — see the README there for the column mapping |
 | Universities | [`src/seeds/data/universities.json`](../src/seeds/data/universities.json), extracted from the frontend's curated dataset |
 
-**Re-seeding is safe.** Content is upserted on its natural key — scholarship
-`title`, career `title`, major `name`, university `name` — so an edited row is
-updated in place and keeps its id. User accounts, saved items and verification
-requests are never touched, and a student's saved scholarship keeps pointing at
-the same scholarship. A row removed from a sheet is removed from the database.
+**The database owns the catalogue.** `npm run seed` defaults to **insert-only**:
+it inserts rows the sheets have that the database still lacks, and leaves
+everything else untouched — so an admin's edits in the app are never overwritten,
+and a row removed from a sheet is *not* deleted. Content is matched on its natural
+key — scholarship `title`, career `title`, major `name`, university `name` — so
+ids stay stable and a student's saved scholarship keeps pointing at the same
+record. User accounts, saved items and verification requests are never touched.
 
-Two consequences worth knowing:
+`npm run seed -- --sync` restores the old sheet-authoritative behaviour: every
+column is refreshed from the sheet and rows missing from it are deleted. Use it
+only when the sheet really is the source of truth.
 
-- **Renaming a row in a sheet** is treated as deleting the old one and adding a
-  new one, so it gets a new id and anyone who had saved it loses that save.
-- **`npm run seed -- --replace`** wipes *everything*, accounts included, then
-  loads fresh. Use it for a clean slate, never on a database with real users.
+`npm run seed -- --replace` wipes *everything*, accounts included, then loads
+fresh. Use it for a clean slate, never on a database with real users.
+
+Under `--sync`, renaming a row in a sheet is treated as deleting the old one and
+adding a new one, so it gets a new id and anyone who had saved it loses that save.
 
 The seed also creates two accounts if their emails aren't registered yet:
 
@@ -561,10 +645,13 @@ so the two save lists had drifted apart. Use `POST /saved/scholarship/{id}` and
 
 ## Not built yet
 
-- **Content editing in the app** — the admin dashboard shows every catalogue
-  table and can mark a scholarship checked, but there are no endpoints to
-  create, edit or delete scholarships, universities, careers or majors. Content
-  changes still go through the spreadsheets and a re-seed.
+- **Cascade renames** — catalogue relationships are stored as names, so renaming
+  a record can orphan the references that pointed at the old name (the admin
+  screens flag the unmatched ones). Automatically rewriting those references on
+  rename is not built. Content editing itself now covers all four types —
+  scholarships, careers, majors and universities each have `POST` / `PATCH` /
+  `/archive` / `/restore` / `/history` / `/export`, with every change recorded in
+  `content_audit`.
 - **The `reports` table** — unused. "Report outdated information" on a
   scholarship page sends a verification request with `scholarshipId`, so
   reports land in the same admin queue and get an answer; the table can be
