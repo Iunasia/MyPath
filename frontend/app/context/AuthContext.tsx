@@ -31,16 +31,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
+    // 1. Instant hydration from localStorage so navbar renders user/sign-in instantly
+    try {
+      const cached = localStorage.getItem("domner_user");
+      if (cached) {
+        setUser(JSON.parse(cached));
+      }
+    } catch {
+      localStorage.removeItem("domner_user");
+    } finally {
+      setLoading(false);
+    }
+
+    // 2. Validate session in background with backend
     getCurrentUser()
-      .then((data) => setUser(data.user))
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false));
+      .then((data) => {
+        setUser(data.user);
+        try {
+          localStorage.setItem("domner_user", JSON.stringify(data.user));
+        } catch {}
+      })
+      .catch(() => {
+        setUser(null);
+        try {
+          localStorage.removeItem("domner_user");
+        } catch {}
+      });
   }, []);
 
   const login = useCallback(
     async (email: string, password: string) => {
       const data = await loginUser(email, password);
-      if (data.user) setUser(data.user);
+      if (data.user) {
+        setUser(data.user);
+        try {
+          localStorage.setItem("domner_user", JSON.stringify(data.user));
+        } catch {}
+      }
       router.push("/");
     },
     [router]
@@ -49,7 +76,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = useCallback(
     async (name: string, email: string, password: string) => {
       const data = await registerUser(name, email, password);
-      if (data.user) setUser(data.user);
+      if (data.user) {
+        setUser(data.user);
+        try {
+          localStorage.setItem("domner_user", JSON.stringify(data.user));
+        } catch {}
+      }
       router.push("/");
     },
     [router]
@@ -58,11 +90,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(async () => {
     setIsLoggingOut(true);
     try {
+      localStorage.removeItem("domner_user");
+    } catch {}
+    setUser(null);
+    try {
       await logoutUser();
     } catch {
       // Ignore API failure on logout; ensure state clears
     }
-    setUser(null);
     router.push("/");
     // Smooth timing for the progress bar and exit transition
     setTimeout(() => {
