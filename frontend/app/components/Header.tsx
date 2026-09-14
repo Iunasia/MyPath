@@ -174,84 +174,83 @@ export default function Header({ variant = "default", activeNav, className = "" 
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          {/* Nothing until the session check finishes, so a signed-in student
-              never sees "Sign in" flash up. */}
-          {!loading &&
-            (user ? (
-              <div ref={accountRef} className="relative hidden sm:block">
-                <button
-                  type="button"
-                  onClick={() => setAccountOpen((open) => !open)}
-                  aria-expanded={accountOpen}
-                  aria-haspopup="menu"
-                  aria-label="Your account"
-                  className="flex items-center gap-1 rounded-full p-0.5 pr-1.5 hover:bg-sitomo transition-colors cursor-pointer"
-                >
-                  <span className="w-8 h-8 rounded-full bg-sky-deep text-white text-sm font-bold flex items-center justify-center">
-                    {user.name.trim().charAt(0).toUpperCase() || "?"}
-                  </span>
-                  <ChevronDown className="w-3.5 h-3.5 text-gray-soft" aria-hidden="true" />
-                </button>
-
-                {accountOpen && (
-                  <div
-                    role="menu"
-                    className="absolute right-0 top-full mt-3 w-64 bg-white rounded-2xl border border-sky/15 bubble-shadow p-2 text-sm font-semibold"
-                  >
-                    <div className="px-3 py-2.5 mb-1 border-b border-sky/10">
-                      <p className="font-bold text-blue-ink truncate">{user.name}</p>
-                      <p className="text-xs text-gray-soft font-medium truncate">{user.email}</p>
-                    </div>
-                    <Link
-                      href="/verify"
-                      role="menuitem"
-                      onClick={() => setAccountOpen(false)}
-                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-blue-ink hover:bg-powder"
-                    >
-                      <ShieldCheck className="w-4 h-4 text-sky-deep" />
-                      <span className="flex-1">My check requests</span>
-                      <UnreadBadge count={unread} />
-                    </Link>
-                    <Link
-                      href="/saved"
-                      role="menuitem"
-                      onClick={() => setAccountOpen(false)}
-                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-blue-ink hover:bg-powder"
-                    >
-                      <Bookmark className="w-4 h-4 text-sky-deep" />
-                      Saved items
-                    </Link>
-                    {isAdmin && (
-                      <Link
-                        href="/admin"
-                        role="menuitem"
-                        onClick={() => setAccountOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-blue-ink hover:bg-powder"
-                      >
-                        <LayoutDashboard className="w-4 h-4 text-sky-deep" />
-                        Admin dashboard
-                      </Link>
-                    )}
-                    <button
-                      type="button"
-                      role="menuitem"
-                      onClick={signOut}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 mt-1 rounded-xl text-blue-ink hover:bg-powder border-t border-sky/10 cursor-pointer"
-                    >
-                      <LogOut className="w-4 h-4 text-gray-soft" />
-                      Sign out
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <Link
-                href="/auth/signin"
-                className="hidden sm:inline-flex items-center rounded-full bg-sky-deep px-5 py-2 text-sm font-bold text-white hover:bg-sky-dark transition-colors"
+          {loading ? (
+            <div className="hidden sm:inline-flex items-center h-[38px] w-[88px] rounded-full bg-sky/15 animate-pulse" />
+          ) : user ? (
+            <div ref={accountRef} className="relative hidden sm:block">
+              <button
+                type="button"
+                onClick={() => setAccountOpen((open) => !open)}
+                aria-expanded={accountOpen}
+                aria-haspopup="menu"
+                aria-label="Your account"
+                className="flex items-center gap-1 rounded-full p-0.5 pr-1.5 hover:bg-sitomo transition-colors cursor-pointer"
               >
-                Sign in
-              </Link>
-            ))}
+                <span className="w-8 h-8 rounded-full bg-sky-deep text-white text-sm font-bold flex items-center justify-center">
+                  {user.name.trim().charAt(0).toUpperCase() || "?"}
+                </span>
+                <ChevronDown className="w-3.5 h-3.5 text-gray-soft" aria-hidden="true" />
+              </button>
+
+              {accountOpen && (
+                <div
+                  role="menu"
+                  className="absolute right-0 top-full mt-3 w-64 bg-white rounded-2xl border border-sky/15 bubble-shadow p-2 text-sm font-semibold"
+                >
+                  <div className="px-3 py-2.5 mb-1 border-b border-sky/10">
+                    <p className="font-bold text-blue-ink truncate">{user.name}</p>
+                    <p className="text-xs text-gray-soft font-medium truncate">{user.email}</p>
+                  </div>
+                  <Link
+                    href="/verify"
+                    role="menuitem"
+                    onClick={() => setAccountOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-blue-ink hover:bg-powder"
+                  >
+                    <ShieldCheck className="w-4 h-4 text-sky-deep" />
+                    <span className="flex-1">My check requests</span>
+                    <UnreadBadge count={unread} />
+                  </Link>
+                  <Link
+                    href="/saved"
+                    role="menuitem"
+                    onClick={() => setAccountOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-blue-ink hover:bg-powder"
+                  >
+                    <Bookmark className="w-4 h-4 text-sky-deep" />
+                    Saved items
+                  </Link>
+                  {isAdmin && (
+                    <Link
+                      href="/admin"
+                      role="menuitem"
+                      onClick={() => setAccountOpen(false)}
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-blue-ink hover:bg-powder"
+                    >
+                      <LayoutDashboard className="w-4 h-4 text-sky-deep" />
+                      Admin dashboard
+                    </Link>
+                  )}
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={signOut}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 mt-1 rounded-xl text-blue-ink hover:bg-powder border-t border-sky/10 cursor-pointer"
+                  >
+                    <LogOut className="w-4 h-4 text-gray-soft" />
+                    Sign out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link
+              href="/auth/signin"
+              className="hidden sm:inline-flex items-center rounded-full bg-sky-deep px-5 py-2 text-sm font-bold text-white hover:bg-sky-dark transition-colors"
+            >
+              Sign in
+            </Link>
+          )}
 
           <button
             type="button"
@@ -296,44 +295,44 @@ export default function Header({ variant = "default", activeNav, className = "" 
             </Link>
           </div>
 
-          {!loading && (
-            <div className="mt-2 pt-3 border-t border-sky/10">
-              {user ? (
-                <div className="flex flex-col gap-1">
-                  <p className="px-3.5 pb-1 text-xs text-gray-soft font-medium truncate">
-                    Signed in as <span className="font-bold text-blue-ink">{user.name}</span>
-                  </p>
-                  {isAdmin && (
-                    <Link href="/admin" className={mobileLink(false)} onClick={() => setMenuOpen(false)}>
-                      <LayoutDashboard className="w-4 h-4 text-sky-deep" />
-                      Admin dashboard
-                    </Link>
-                  )}
-                  <button type="button" onClick={signOut} className={`${mobileLink(false)} w-full cursor-pointer`}>
-                    <LogOut className="w-4 h-4 text-gray-soft" />
-                    Sign out
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-2">
-                  <Link
-                    href="/auth/signin"
-                    onClick={() => setMenuOpen(false)}
-                    className="text-center rounded-full border border-sky/30 px-4 py-2.5 font-bold text-sky-deep hover:bg-sitomo transition-colors"
-                  >
-                    Sign in
+          <div className="mt-2 pt-3 border-t border-sky/10">
+            {loading ? (
+              <div className="h-10 w-full rounded-full bg-sky/15 animate-pulse" />
+            ) : user ? (
+              <div className="flex flex-col gap-1">
+                <p className="px-3.5 pb-1 text-xs text-gray-soft font-medium truncate">
+                  Signed in as <span className="font-bold text-blue-ink">{user.name}</span>
+                </p>
+                {isAdmin && (
+                  <Link href="/admin" className={mobileLink(false)} onClick={() => setMenuOpen(false)}>
+                    <LayoutDashboard className="w-4 h-4 text-sky-deep" />
+                    Admin dashboard
                   </Link>
-                  <Link
-                    href="/auth/signup"
-                    onClick={() => setMenuOpen(false)}
-                    className="text-center rounded-full bg-sky-deep px-4 py-2.5 font-bold text-white hover:bg-sky-dark transition-colors"
-                  >
-                    Create account
-                  </Link>
-                </div>
-              )}
-            </div>
-          )}
+                )}
+                <button type="button" onClick={signOut} className={`${mobileLink(false)} w-full cursor-pointer`}>
+                  <LogOut className="w-4 h-4 text-gray-soft" />
+                  Sign out
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  href="/auth/signin"
+                  onClick={() => setMenuOpen(false)}
+                  className="text-center rounded-full border border-sky/30 px-4 py-2.5 font-bold text-sky-deep hover:bg-sitomo transition-colors"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  href="/auth/signup"
+                  onClick={() => setMenuOpen(false)}
+                  className="text-center rounded-full bg-sky-deep px-4 py-2.5 font-bold text-white hover:bg-sky-dark transition-colors"
+                >
+                  Create account
+                </Link>
+              </div>
+            )}
+          </div>
         </nav>
       )}
     </div>
