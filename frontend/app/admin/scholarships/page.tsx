@@ -3,8 +3,14 @@
 import { Suspense, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ExternalLink, Loader2, ShieldCheck } from "lucide-react";
-import { fetchScholarships, markScholarshipChecked, type ApiScholarship } from "@/app/lib/api";
+import { ExternalLink, Loader2, Plus, ShieldCheck, Trash2 } from "lucide-react";
+import {
+  fetchScholarships,
+  markScholarshipChecked,
+  removeScholarship,
+  type ApiScholarship,
+} from "@/app/lib/api";
+import AddScholarshipForm from "./AddScholarshipForm";
 import {
   daysFromToday,
   ErrorBox,
@@ -79,13 +85,28 @@ function DeadlineCell({ s }: { s: ApiScholarship }) {
 function Detail({
   s,
   onChecked,
+  onRemoved,
 }: {
   s: ApiScholarship;
   onChecked: (updated: ApiScholarship) => void;
+  onRemoved: (id: number) => void;
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [confirmingRemove, setConfirmingRemove] = useState(false);
   const checkedToday = s.last_verified ? daysFromToday(s.last_verified) === 0 : false;
+
+  const remove = async () => {
+    setBusy(true);
+    setError("");
+    try {
+      await removeScholarship(s.id);
+      onRemoved(s.id);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not remove");
+      setBusy(false);
+    }
+  };
 
   const markChecked = async () => {
     setBusy(true);
@@ -127,6 +148,8 @@ function Detail({
           <span className="font-mono text-xs break-all">{hostOf(s.source_url) || "none"}</span>{" "}
           <Tag>{SOURCE_LABEL[s.source_type] ?? s.source_type}</Tag>
         </dd>
+        <dt className="text-gray-soft">Added</dt>
+        <dd>{s.origin === "admin" ? <Tag tone="accent">In the app</Tag> : <Tag>From the sheet</Tag>}</dd>
         <dt className="text-gray-soft">Checked</dt>
         <dd>
           {s.last_verified ? (
@@ -174,6 +197,46 @@ function Detail({
       </div>
       {error && <p className="px-4 pb-2 text-xs text-rose-700 font-medium">{error}</p>}
 
+      <div className="px-4 py-3 border-t border-sky/20">
+        {confirmingRemove ? (
+          <div className="rounded-md bg-rose-50 px-3 py-2.5">
+            <p className="text-xs text-rose-800">
+              Remove this listing? Students who saved it will lose it
+              {s.origin === "sheet" ? ", and re-seeding won't bring it back" : ""}.
+            </p>
+            <div className="flex gap-2 mt-2">
+              <button
+                type="button"
+                onClick={remove}
+                disabled={busy}
+                className="inline-flex items-center gap-1.5 rounded-md bg-rose-700 px-3 py-1.5 text-xs font-bold text-white hover:opacity-90 disabled:opacity-50 cursor-pointer disabled:cursor-default"
+              >
+                {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                Remove
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmingRemove(false)}
+                disabled={busy}
+                className="rounded-md border border-rose-200 bg-white px-3 py-1.5 text-xs font-bold text-gray-body cursor-pointer"
+              >
+                Keep it
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setConfirmingRemove(true)}
+            disabled={busy}
+            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-50 cursor-pointer"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            Remove listing
+          </button>
+        )}
+      </div>
+
       <p className="px-4 py-3 border-t border-sky/20 text-xs text-gray-soft">
         Open the provider&apos;s own page and confirm the deadline and award before marking it checked. Students
         see the date as &ldquo;Last verified&rdquo;.
@@ -188,6 +251,7 @@ function ScholarshipsAdmin() {
   const [filter, setFilter] = useState<Filter>(isFilter(requested) ? requested : "all");
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [adding, setAdding] = useState(false);
   const { data, setData, error, loading, reload } = useAdminLoad(fetchScholarships);
 
   const scholarships = useMemo(() => data ?? [], [data]);
@@ -209,12 +273,39 @@ function ScholarshipsAdmin() {
   const onChecked = (updated: ApiScholarship) =>
     setData((prev) => prev?.map((s) => (s.id === updated.id ? updated : s)) ?? prev);
 
+  const onCreated = (created: ApiScholarship) => {
+    setData((prev) => (prev ? [created, ...prev] : [created]));
+    setAdding(false);
+    // Show it even if the current filter or search would hide it.
+    setFilter("all");
+    setQuery("");
+    setSelectedId(created.id);
+  };
+
+  const onRemoved = (id: number) => {
+    setData((prev) => prev?.filter((s) => s.id !== id) ?? prev);
+    setSelectedId(null);
+  };
+
   return (
     <>
       <PageHeader
         title="Scholarships"
-        aside="Read-only listing data · edit the scholarship sheet and re-seed to change it"
+        aside={
+          !adding && (
+            <button
+              type="button"
+              onClick={() => setAdding(true)}
+              className="inline-flex items-center gap-1.5 rounded-md bg-sky-deep px-3 py-1.5 text-xs font-bold text-white hover:opacity-90 cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Add scholarship
+            </button>
+          )
+        }
       />
+
+      {adding && <AddScholarshipForm onCreated={onCreated} onCancel={() => setAdding(false)} />}
 
       <div className="flex flex-wrap items-center gap-3 mb-4">
         <input
@@ -288,7 +379,7 @@ function ScholarshipsAdmin() {
           </table>
         </div>
 
-        {selected && <Detail key={selected.id} s={selected} onChecked={onChecked} />}
+        {selected && <Detail key={selected.id} s={selected} onChecked={onChecked} onRemoved={onRemoved} />}
       </div>
     </>
   );

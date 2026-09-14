@@ -161,6 +161,52 @@ the stamp: a blank "Last verified" cell in the sheet never wipes it, and a
 newer date typed into the sheet wins — without an admin's name, since nobody
 in the app recorded it.
 
+#### `POST /scholarships` 🛡️
+Adds a listing by hand.
+```json
+{
+  "title": "CADT Merit Scholarship",
+  "provider": "Cambodia Academy of Digital Technology",
+  "description": "Full tuition for top applicants.",
+  "amount": "100% tuition",
+  "application_link": "https://cadt.edu.kh/scholarship",
+  "deadline": "2026-11-30",
+  "documents": "National ID\nHigh school transcript"
+}
+```
+`title`, `provider`, `description`, `amount` and `application_link` are
+required. Optional fields are `coverage`, `eligibility`, `degree_level`,
+`field_of_study`, `documents` (an array, or one per line), `application_process`,
+`deadline` (`YYYY-MM-DD`, read as Phnom Penh time), `deadline_note` (used only
+without a `deadline`), `image_url`, `country` (default `Cambodia`) and
+`opportunity_type` (`scholarship`, `exchange` or `internship`).
+
+`provider_type`, `source`, `source_type`, `verified_status` and
+`safety_warnings` are derived from the link with the same rules the importer
+uses. A link that fails those checks is **still accepted**: whether to list it
+is the admin's call, and students see the warnings. `201` →
+`{ scholarship, infoCheck }`. `400` for a missing or invalid field, `409` when
+the title is already taken.
+
+#### `DELETE /scholarships/{id}` 🛡️
+Removes a listing. `204` on success, `400` for a malformed id, `404` for an
+unknown one. Every student's save of it is removed too. Verification requests
+about it are kept, with `scholarship_id` set to `null`.
+
+#### Listings added or removed in the app survive re-seeding
+Each scholarship has an `origin`: `sheet` when imported, `admin` when added
+through `POST /scholarships`.
+
+- **Added in the app:** `npm run seed` never deletes these for being missing
+  from the sheet. If the sheet later lists the same title, the sheet takes the
+  listing over (`origin` becomes `sheet`).
+- **Removed in the app:** an imported listing's title goes into
+  `removed_scholarships`, and the seeder skips it from then on (reported as
+  "skipped (removed by an admin)"). To bring it back, add it again in the app,
+  which clears the entry.
+
+`npm run seed -- --replace` wipes everything, including both of these.
+
 ---
 
 ### Catalog

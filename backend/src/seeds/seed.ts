@@ -89,7 +89,8 @@ const seed = async () => {
 
   for (const s of summaries) {
     console.log(
-      `   ${s.table.padEnd(14)} ${s.inserted} added, ${s.updated} updated, ${s.deleted} removed`
+      `   ${s.table.padEnd(14)} ${s.inserted} added, ${s.updated} updated, ${s.deleted} removed` +
+        (s.skipped ? `, ${s.skipped} skipped (removed by an admin)` : '')
     );
   }
 

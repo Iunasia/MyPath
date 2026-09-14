@@ -32,7 +32,17 @@ interface Scholarship {
   /** The admin who did that check. Set in the app, never by the sheets. */
   last_verified_by: number | null;
   safety_warnings: string[];
+  /** 'sheet' when imported by the seeder, 'admin' when added in the app. */
+  origin: 'sheet' | 'admin';
+  /** The admin who added it in the app; null for imported rows. */
+  created_by: number | null;
 }
+
+/** What an admin supplies; the provenance fields are derived from the link. */
+export type AdminScholarshipInput = Omit<
+  Scholarship,
+  'id' | 'last_verified' | 'last_verified_by' | 'origin' | 'created_by'
+>;
 
 // Interface for the reports table
 interface Report {
@@ -57,7 +67,74 @@ const Scholarship = {
   },
 
 
-  create: async (data: Omit<Scholarship, 'id' | 'last_verified_by'>): Promise<Scholarship> => {
+  getByTitle: async (title: string): Promise<Scholarship | undefined> => {
+    const res = await pool.query('SELECT * FROM scholarships WHERE title = $1', [title]);
+    return res.rows[0] as Scholarship | undefined;
+  },
+
+  /**
+   * An admin adds a listing in the app. Marked `origin = 'admin'` so a re-seed
+   * leaves it alone, and clears any earlier removal of the same title so the
+   * seeder stops skipping it.
+   */
+  addByAdmin: async (data: AdminScholarshipInput, adminId: number): Promise<Scholarship> => {
+    const columns = [...Object.keys(data), 'origin', 'created_by'];
+    const values = [...Object.values(data), 'admin', adminId];
+    const placeholders = columns.map((_, i) => `$${i + 1}`).join(', ');
+
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      const res = await client.query(
+        `INSERT INTO scholarships (${columns.join(', ')}) VALUES (${placeholders}) RETURNING *`,
+        values
+      );
+      await client.query('DELETE FROM removed_scholarships WHERE title = $1', [data.title]);
+      await client.query('COMMIT');
+      return res.rows[0] as Scholarship;
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+  },
+
+  /**
+   * An admin takes a listing down. Students' saves of it go too (`saved_items`
+   * has no foreign key to cascade), reports cascade, and verification requests
+   * keep their history with `scholarship_id` set to NULL. An imported listing
+   * is remembered by title so the next re-seed does not bring it back.
+   */
+  remove: async (id: number, adminId: number): Promise<Scholarship | undefined> => {
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      const res = await client.query('DELETE FROM scholarships WHERE id = $1 RETURNING *', [id]);
+      const removed = res.rows[0] as Scholarship | undefined;
+
+      if (removed) {
+        await client.query("DELETE FROM saved_items WHERE item_type = 'scholarship' AND item_id = $1", [id]);
+        if (removed.origin === 'sheet') {
+          await client.query(
+            `INSERT INTO removed_scholarships (title, removed_by) VALUES ($1, $2)
+             ON CONFLICT (title) DO UPDATE SET removed_by = EXCLUDED.removed_by, removed_at = NOW()`,
+            [removed.title, adminId]
+          );
+        }
+      }
+
+      await client.query('COMMIT');
+      return removed;
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+  },
+
+  create: async (data: Omit<Scholarship, 'id' | 'last_verified_by' | 'origin' | 'created_by'>): Promise<Scholarship> => {
     const res = await pool.query(
       `INSERT INTO scholarships (title, provider, provider_type, description, amount, coverage, eligibility, degree_level, field_of_study, documents, application_process, deadline, deadline_note, application_link, image_url, country, opportunity_type, source, source_url, source_type, verified_status, last_verified, safety_warnings)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23) RETURNING *`,

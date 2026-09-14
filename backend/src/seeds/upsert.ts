@@ -15,6 +15,8 @@ export interface UpsertSummary {
   inserted: number;
   updated: number;
   deleted: number;
+  /** Sheet rows left out because an admin removed that listing in the app. */
+  skipped: number;
 }
 
 type Row = Record<string, unknown>;
@@ -36,6 +38,22 @@ const LAST_VERIFIED_BY =
   'last_verified_by = CASE WHEN EXCLUDED.last_verified > scholarships.last_verified THEN NULL ELSE scholarships.last_verified_by END';
 
 /**
+ * Admins add and remove scholarships in the app, and a re-seed must respect
+ * both: titles they removed are not re-inserted, and rows they added are not
+ * deleted for being absent from the sheet. If the sheet later lists a title an
+ * admin added, the sheet takes it over from then on.
+ */
+const loadRemovedTitles = async (pool: Pool, table: ContentTable): Promise<Set<string>> => {
+  if (table !== 'scholarships') return new Set();
+  const { rows } = await pool.query('SELECT title FROM removed_scholarships');
+  return new Set(rows.map((r: { title: string }) => r.title));
+};
+
+const DELETE_SCOPE: Partial<Record<ContentTable, string>> = {
+  scholarships: "AND origin = 'sheet'"
+};
+
+/**
  * Insert-or-update every row, then delete records whose natural key no longer
  * appears in the sheet. `xmax = 0` is Postgres's way of saying "this row was
  * inserted, not updated", which is how the counts are split.
@@ -46,11 +64,17 @@ export const upsertTable = async (
   rows: Row[]
 ): Promise<UpsertSummary> => {
   const key = NATURAL_KEY[table];
-  const summary: UpsertSummary = { table, inserted: 0, updated: 0, deleted: 0 };
+  const summary: UpsertSummary = { table, inserted: 0, updated: 0, deleted: 0, skipped: 0 };
+  const removed = await loadRemovedTitles(pool, table);
 
   const keys: unknown[] = [];
 
   for (const row of rows) {
+    if (removed.has(row[key] as string)) {
+      summary.skipped++;
+      continue;
+    }
+
     const columns = Object.keys(row);
     const placeholders = columns.map((_, i) => `$${i + 1}`).join(', ');
     // Every column except the key is refreshed from the sheet, apart from the
@@ -59,6 +83,7 @@ export const upsertTable = async (
       .filter(column => column !== key)
       .map(column => `${column} = ${PRESERVED[table]?.[column] ?? `EXCLUDED.${column}`}`);
     if (table === 'scholarships' && columns.includes('last_verified')) updates.push(LAST_VERIFIED_BY);
+    if (table === 'scholarships') updates.push("origin = 'sheet'");
 
     const res = await pool.query(
       `INSERT INTO ${table} (${columns.join(', ')})
@@ -76,7 +101,7 @@ export const upsertTable = async (
 
   if (keys.length > 0) {
     const res = await pool.query(
-      `DELETE FROM ${table} WHERE ${key} <> ALL($1::text[])`,
+      `DELETE FROM ${table} WHERE ${key} <> ALL($1::text[]) ${DELETE_SCOPE[table] ?? ''}`,
       [keys]
     );
     summary.deleted = res.rowCount ?? 0;

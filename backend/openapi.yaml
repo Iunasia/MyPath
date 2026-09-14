@@ -253,8 +253,57 @@ paths:
                     - type: object
                       properties:
                         infoCheck: { $ref: '#/components/schemas/InfoCheck' }
+    post:
+      tags: [Scholarships]
+      summary: Add a scholarship (admins only)
+      description: |
+        Creates a listing with `origin: admin`, which a re-seed never deletes.
+        `provider_type`, `source`, `source_type`, `verified_status` and
+        `safety_warnings` are derived from the link exactly as the importer
+        does. A link that fails those checks is still accepted; its warnings
+        are returned in `infoCheck`. Adding a title that an admin previously
+        removed lets the seeder import it again.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ScholarshipInput' }
+      responses:
+        '201':
+          description: The new scholarship
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scholarship: { $ref: '#/components/schemas/Scholarship' }
+                  infoCheck: { $ref: '#/components/schemas/InfoCheck' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409':
+          description: A scholarship with this title already exists
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
 
   /scholarships/{id}:
+    delete:
+      tags: [Scholarships]
+      summary: Remove a scholarship (admins only)
+      description: |
+        Deletes the listing and every student's save of it. Verification
+        requests about it are kept, with `scholarship_id` set to null. An
+        imported listing is remembered by title so a re-seed does not bring it
+        back.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204': { description: Removed }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
     get:
       tags: [Scholarships]
       summary: A single scholarship
@@ -804,6 +853,44 @@ components:
           type: [integer, 'null']
           description: The admin who recorded that check. Null when nobody has, or when the date came from the sheet.
         safety_warnings: { type: array, items: { type: string } }
+        origin:
+          type: string
+          enum: [sheet, admin]
+          description: "`sheet` when imported by the seeder; `admin` when added in the app, which a re-seed never deletes."
+        created_by:
+          type: [integer, 'null']
+          description: The admin who added it in the app. Null for imported listings.
+
+    ScholarshipInput:
+      type: object
+      required: [title, provider, description, amount, application_link]
+      properties:
+        title: { type: string, maxLength: 300, description: Must be unique. }
+        provider: { type: string, maxLength: 300 }
+        description: { type: string, maxLength: 5000 }
+        amount: { type: string, maxLength: 300, examples: ['100% tuition'] }
+        application_link: { type: string, format: uri, description: A full http(s) URL. }
+        coverage: { type: string, maxLength: 5000, default: See official site }
+        eligibility: { type: string, maxLength: 5000, default: See official site }
+        degree_level: { type: string, maxLength: 300 }
+        field_of_study: { type: string, maxLength: 300 }
+        documents:
+          description: An array, or one document per line.
+          oneOf:
+            - { type: array, items: { type: string } }
+            - { type: string }
+        application_process: { type: string, maxLength: 5000 }
+        deadline:
+          type: string
+          format: date
+          description: A calendar date, read as Cambodian local time (UTC+7).
+        deadline_note:
+          type: string
+          maxLength: 300
+          description: Used only when there is no `deadline`, e.g. "Rolling".
+        image_url: { type: string, format: uri }
+        country: { type: string, maxLength: 300, default: Cambodia }
+        opportunity_type: { type: string, enum: [scholarship, exchange, internship], default: scholarship }
 
     Career:
       type: object

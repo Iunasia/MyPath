@@ -46,6 +46,10 @@ export interface ApiScholarship {
   /** The admin who last checked it; null when nobody has, or the date came from the sheet. */
   last_verified_by: number | null;
   safety_warnings: string[];
+  /** 'sheet' when imported by the seeder; 'admin' when added in the app (kept across re-seeds). */
+  origin: "sheet" | "admin";
+  /** The admin who added it in the app; null for imported listings. */
+  created_by: number | null;
   infoCheck: ApiInfoCheck;
 }
 
@@ -262,3 +266,32 @@ export const markScholarshipChecked = (id: number) =>
     `/scholarships/${id}/verify`,
     {}
   );
+
+/** What an admin fills in; the source and safety fields are derived server-side from the link. */
+export interface ScholarshipInput {
+  title: string;
+  provider: string;
+  description: string;
+  amount: string;
+  application_link: string;
+  coverage?: string;
+  eligibility?: string;
+  degree_level?: string;
+  field_of_study?: string;
+  /** One document per line. */
+  documents?: string;
+  application_process?: string;
+  /** YYYY-MM-DD, read as Phnom Penh time. */
+  deadline?: string;
+  deadline_note?: string;
+  image_url?: string;
+  country?: string;
+  opportunity_type?: "scholarship" | "exchange" | "internship";
+}
+
+/** Admin only. Kept across re-seeds. */
+export const createScholarship = (input: ScholarshipInput) =>
+  sendJson<{ scholarship: ApiScholarship; infoCheck: ApiInfoCheck }>("POST", "/scholarships", input);
+
+/** Admin only. Also removes students' saves of it; an imported listing stays gone after a re-seed. */
+export const removeScholarship = (id: number) => send("DELETE", `/scholarships/${id}`);

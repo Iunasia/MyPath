@@ -184,7 +184,7 @@ export default function NeedsAttentionPage() {
                   ))}
                 </ul>
                 <p className="px-4 py-2.5 text-xs text-gray-soft bg-powder/50 border-t border-sky/10">
-                  Update the date or remove the row in the scholarship sheet, then re-seed.
+                  Update the date in the scholarship sheet and re-seed, or remove the listing under Scholarships.
                 </p>
               </>
             ) : (

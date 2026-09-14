@@ -43,7 +43,19 @@ const TABLES: string[] = [
     verified_status TEXT NOT NULL,
     last_verified TIMESTAMPTZ,
     last_verified_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
-    safety_warnings TEXT[] NOT NULL DEFAULT '{}'
+    safety_warnings TEXT[] NOT NULL DEFAULT '{}',
+    origin TEXT NOT NULL DEFAULT 'sheet' CHECK (origin IN ('sheet', 'admin')),
+    created_by INTEGER REFERENCES users(id) ON DELETE SET NULL
+  )`,
+  /**
+   * Titles an admin removed from the catalogue. The seeder skips these, so a
+   * re-seed does not bring back a listing someone took down on purpose. Adding
+   * a scholarship with the same title in the app clears the entry.
+   */
+  `CREATE TABLE IF NOT EXISTS removed_scholarships (
+    title TEXT PRIMARY KEY,
+    removed_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    removed_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`,
   `CREATE TABLE IF NOT EXISTS careers (
     id SERIAL PRIMARY KEY,
@@ -160,6 +172,10 @@ const ADD_COLUMNS: Array<[string, string]> = [
   ['scholarships', 'last_verified TIMESTAMPTZ'],
   // Who did the last human check. Set in the app, never by the sheets.
   ['scholarships', 'last_verified_by INTEGER REFERENCES users(id) ON DELETE SET NULL'],
+  // 'admin' rows were added in the app, so the seeder must not delete them for
+  // being absent from the sheet. A CHECK is added separately, below.
+  ['scholarships', "origin TEXT NOT NULL DEFAULT 'sheet'"],
+  ['scholarships', 'created_by INTEGER REFERENCES users(id) ON DELETE SET NULL'],
   ['careers', 'responsibilities TEXT'],
   ['careers', 'education_required TEXT'],
   ['careers', 'personality_fit TEXT'],
@@ -192,7 +208,11 @@ const ADD_CONSTRAINTS: string[] = [
   `CREATE UNIQUE INDEX IF NOT EXISTS scholarships_title_key ON scholarships (title)`,
   `CREATE UNIQUE INDEX IF NOT EXISTS careers_title_key ON careers (title)`,
   `CREATE UNIQUE INDEX IF NOT EXISTS majors_name_key ON majors (name)`,
-  `CREATE UNIQUE INDEX IF NOT EXISTS universities_name_key ON universities (name)`
+  `CREATE UNIQUE INDEX IF NOT EXISTS universities_name_key ON universities (name)`,
+  `DO $$ BEGIN
+     ALTER TABLE scholarships ADD CONSTRAINT scholarships_origin_check CHECK (origin IN ('sheet', 'admin'));
+   EXCEPTION WHEN duplicate_object THEN NULL;
+   END $$`
 ];
 
 /** Columns the source spreadsheets do not supply: relaxed rather than faked. */
@@ -215,6 +235,7 @@ export const TABLE_NAMES = [
   'saved_items',
   'reports',
   'verification_requests',
+  'removed_scholarships',
   'scholarships',
   'universities',
   'majors',
