@@ -25,6 +25,8 @@ export interface ContentResource<T extends EditableRow, TInput> {
   restore: (id: number) => Promise<T>;
   history: (id: number) => Promise<ApiAuditEntry[]>;
   exportCsv: (includeArchived: boolean) => Promise<Blob>;
+  /** Optional verify / mark-checked action, e.g. for scholarships. */
+  verify?: (id: number) => Promise<T>;
 }
 
 /**
@@ -34,12 +36,14 @@ export interface ContentResource<T extends EditableRow, TInput> {
  */
 export function useContentEditor<T extends EditableRow, TInput>({
   resource,
+  initialMode = "view",
 }: {
   resource: ContentResource<T, TInput>;
+  initialMode?: EditorMode;
 }) {
   const [includeArchived, setIncludeArchived] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [mode, setMode] = useState<EditorMode>("view");
+  const [mode, setMode] = useState<EditorMode>(initialMode);
   const [busy, setBusy] = useState(false);
   const [formError, setFormError] = useState("");
   const [notice, setNotice] = useState("");
@@ -111,16 +115,20 @@ export function useContentEditor<T extends EditableRow, TInput>({
     setMode("view");
   }, []);
 
-  const save = async (input: TInput) => {
+  const save = async (input: TInput, opts?: { keepCreating?: boolean }) => {
     setBusy(true);
     setFormError("");
     try {
       if (mode === "create") {
         const created = await resource.create(input);
         await reload();
-        setSelectedId(created.id);
-        setMode("view");
-        setNotice("Added");
+        if (opts?.keepCreating) {
+          setNotice("Added — ready for the next");
+        } else {
+          setSelectedId(created.id);
+          setMode("view");
+          setNotice("Added");
+        }
       } else if (selected) {
         const updated = await resource.update(selected.id, input);
         applyUpdate(updated);
@@ -158,6 +166,19 @@ export function useContentEditor<T extends EditableRow, TInput>({
       setNotice("Restored");
     } catch (err) {
       setNotice(err instanceof Error ? err.message : "Could not restore");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const doVerify = async (id: number) => {
+    if (!resource.verify) return;
+    setBusy(true);
+    try {
+      applyUpdate(await resource.verify(id));
+      setNotice("Marked as checked");
+    } catch (err) {
+      setNotice(err instanceof Error ? err.message : "Could not save");
     } finally {
       setBusy(false);
     }
@@ -204,6 +225,7 @@ export function useContentEditor<T extends EditableRow, TInput>({
     save,
     doArchive,
     doRestore,
+    doVerify,
     doExport
   };
 }
