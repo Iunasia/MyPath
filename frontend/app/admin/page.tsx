@@ -106,7 +106,7 @@ export default function NeedsAttentionPage() {
     .filter((d): d is string => Boolean(d))
     .sort()
     .at(-1);
-  const flagged = scholarships.filter((s) => s.infoCheck.isRisky);
+  const flagged = scholarships.filter((s) => s.infoCheck?.isRisky);
   const undated = scholarships.filter((s) => !s.deadline);
 
   const today = new Intl.DateTimeFormat("en-GB", {
