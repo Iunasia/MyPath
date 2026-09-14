@@ -46,7 +46,45 @@ export interface ApiScholarship {
   /** The admin who last checked it; null when nobody has, or the date came from the sheet. */
   last_verified_by: number | null;
   safety_warnings: string[];
+  /** Soft delete: hidden from students, still visible and restorable in admin. */
+  archived_at: string | null;
+  archived_by: number | null;
+  edited_at: string | null;
+  edited_by: number | null;
   infoCheck: ApiInfoCheck;
+}
+
+/** The editable fields an admin can write. Provenance is derived by the server. */
+export interface ScholarshipInput {
+  title?: string;
+  provider?: string;
+  provider_type?: string;
+  description?: string;
+  amount?: string | null;
+  coverage?: string | null;
+  eligibility?: string | null;
+  degree_level?: string | null;
+  field_of_study?: string | null;
+  documents?: string[];
+  application_process?: string | null;
+  deadline?: string | null;
+  deadline_note?: string | null;
+  application_link?: string;
+  image_url?: string | null;
+  country?: string | null;
+  opportunity_type?: string;
+}
+
+export interface ApiAuditEntry {
+  id: number;
+  entity: string;
+  row_id: number;
+  action: "create" | "update" | "archive" | "restore";
+  actor_id: number | null;
+  actor_name?: string | null;
+  changes: Record<string, { from?: unknown; to?: unknown }>;
+  reason: string | null;
+  created_at: string;
 }
 
 export interface ApiCareer {
@@ -63,6 +101,10 @@ export interface ApiCareer {
   related_majors: string[];
   source: string | null;
   source_url: string | null;
+  archived_at: string | null;
+  archived_by: number | null;
+  edited_at: string | null;
+  edited_by: number | null;
 }
 
 export interface ApiMajor {
@@ -80,6 +122,10 @@ export interface ApiMajor {
   related_scholarships: string[];
   source: string | null;
   source_url: string | null;
+  archived_at: string | null;
+  archived_by: number | null;
+  edited_at: string | null;
+  edited_by: number | null;
 }
 
 export interface ApiUniversity {
@@ -103,6 +149,58 @@ export interface ApiUniversity {
   scholarships: string[];
   source: string;
   source_url: string;
+  archived_at: string | null;
+  archived_by: number | null;
+  edited_at: string | null;
+  edited_by: number | null;
+}
+
+/** Editable fields for the catalogue write endpoints. */
+export interface CareerInput {
+  title?: string;
+  category?: string;
+  description?: string;
+  responsibilities?: string | null;
+  average_salary?: string | null;
+  growth_outlook?: string | null;
+  education_required?: string | null;
+  personality_fit?: string | null;
+  required_skills?: string[];
+  related_majors?: string[];
+}
+
+export interface MajorInput {
+  name?: string;
+  field?: string;
+  description?: string;
+  duration?: string | null;
+  degree_type?: string | null;
+  subjects?: string[];
+  personality_fit?: string | null;
+  job_market_demand?: string | null;
+  related_careers?: string[];
+  universities?: string[];
+  related_scholarships?: string[];
+}
+
+export interface UniversityInput {
+  slug?: string | null;
+  name?: string;
+  short_name?: string | null;
+  country?: string | null;
+  city?: string | null;
+  type?: string | null;
+  ranking?: number | null;
+  description?: string;
+  website?: string;
+  phone?: string | null;
+  established?: string | null;
+  student_count?: string | null;
+  image_url?: string | null;
+  tuition_range?: string | null;
+  acceptance_rate?: string | null;
+  programs?: string[];
+  scholarships?: string[];
 }
 
 export type SavedItemType = "scholarship" | "major" | "career" | "university";
@@ -168,22 +266,103 @@ async function get<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export const fetchScholarships = () => get<ApiScholarship[]>("/scholarships");
+export const fetchScholarships = (options: { includeArchived?: boolean } = {}) =>
+  get<ApiScholarship[]>(`/scholarships${options.includeArchived ? "?includeArchived=1" : ""}`);
 
 export const fetchScholarship = (id: number | string) =>
   get<{ title: string; scholarship: ApiScholarship; infoCheck: ApiInfoCheck }>(
     `/scholarships/${id}`
   );
 
-export const fetchCareers = () => get<ApiCareer[]>("/careers");
+/* ------------------------------------------------------------------ */
+/* Catalogue editing — admins only                                     */
+/* ------------------------------------------------------------------ */
+
+export const createScholarship = (input: ScholarshipInput) =>
+  sendJson<{ scholarship: ApiScholarship; infoCheck: ApiInfoCheck }>("POST", "/scholarships", input);
+
+export const updateScholarship = (id: number, input: ScholarshipInput) =>
+  sendJson<{ scholarship: ApiScholarship; infoCheck: ApiInfoCheck }>("PATCH", `/scholarships/${id}`, input);
+
+export const archiveScholarship = (id: number, reason?: string) =>
+  sendJson<{ scholarship: ApiScholarship }>("POST", `/scholarships/${id}/archive`, reason ? { reason } : {});
+
+export const restoreScholarship = (id: number) =>
+  sendJson<{ scholarship: ApiScholarship }>("POST", `/scholarships/${id}/restore`, {});
+
+export const fetchScholarshipHistory = (id: number) => get<ApiAuditEntry[]>(`/scholarships/${id}/history`);
+
+/** Download a CSV export as a blob, so the caller can trigger a download. */
+export const exportCsv = async (path: string): Promise<Blob> => {
+  const res = await fetch(`${API_BASE}${path}`, { credentials: "include" });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new ApiError(res.status, body.error || `Request failed (${res.status})`);
+  }
+  return res.blob();
+};
+
+const exportPath = (base: string, includeArchived: boolean) =>
+  `${base}/export?includeArchived=${includeArchived ? 1 : 0}`;
+
+export const exportScholarshipsCsv = (includeArchived = false) =>
+  exportCsv(exportPath("/scholarships", includeArchived));
+export const exportCareersCsv = (includeArchived = false) =>
+  exportCsv(exportPath("/careers", includeArchived));
+export const exportMajorsCsv = (includeArchived = false) =>
+  exportCsv(exportPath("/majors", includeArchived));
+export const exportUniversitiesCsv = (includeArchived = false) =>
+  exportCsv(exportPath("/universities", includeArchived));
+
+const listPath = (base: string, options: { includeArchived?: boolean } = {}) =>
+  `${base}${options.includeArchived ? "?includeArchived=1" : ""}`;
+
+export const fetchCareers = (options: { includeArchived?: boolean } = {}) =>
+  get<ApiCareer[]>(listPath("/careers", options));
 export const fetchCareer = (id: number | string) => get<ApiCareer>(`/careers/${id}`);
 
-export const fetchMajors = () => get<ApiMajor[]>("/majors");
+export const fetchMajors = (options: { includeArchived?: boolean } = {}) =>
+  get<ApiMajor[]>(listPath("/majors", options));
 export const fetchMajor = (id: number | string) => get<ApiMajor>(`/majors/${id}`);
 
-export const fetchUniversities = () => get<ApiUniversity[]>("/universities");
-export const fetchUniversity = (id: number | string) =>
-  get<ApiUniversity>(`/universities/${id}`);
+export const fetchUniversities = (options: { includeArchived?: boolean } = {}) =>
+  get<ApiUniversity[]>(listPath("/universities", options));
+export const fetchUniversity = (id: number | string) => get<ApiUniversity>(`/universities/${id}`);
+
+/* ------------------------------------------------------------------ */
+/* Catalogue editing — admins only                                     */
+/* ------------------------------------------------------------------ */
+
+export const createCareer = (input: CareerInput) =>
+  sendJson<{ career: ApiCareer }>("POST", "/careers", input);
+export const updateCareer = (id: number, input: CareerInput) =>
+  sendJson<{ career: ApiCareer }>("PATCH", `/careers/${id}`, input);
+export const archiveCareer = (id: number, reason?: string) =>
+  sendJson<{ career: ApiCareer }>("POST", `/careers/${id}/archive`, reason ? { reason } : {});
+export const restoreCareer = (id: number) =>
+  sendJson<{ career: ApiCareer }>("POST", `/careers/${id}/restore`, {});
+export const fetchCareerHistory = (id: number) => get<ApiAuditEntry[]>(`/careers/${id}/history`);
+
+export const createMajor = (input: MajorInput) =>
+  sendJson<{ major: ApiMajor }>("POST", "/majors", input);
+export const updateMajor = (id: number, input: MajorInput) =>
+  sendJson<{ major: ApiMajor }>("PATCH", `/majors/${id}`, input);
+export const archiveMajor = (id: number, reason?: string) =>
+  sendJson<{ major: ApiMajor }>("POST", `/majors/${id}/archive`, reason ? { reason } : {});
+export const restoreMajor = (id: number) =>
+  sendJson<{ major: ApiMajor }>("POST", `/majors/${id}/restore`, {});
+export const fetchMajorHistory = (id: number) => get<ApiAuditEntry[]>(`/majors/${id}/history`);
+
+export const createUniversity = (input: UniversityInput) =>
+  sendJson<{ university: ApiUniversity }>("POST", "/universities", input);
+export const updateUniversity = (id: number, input: UniversityInput) =>
+  sendJson<{ university: ApiUniversity }>("PATCH", `/universities/${id}`, input);
+export const archiveUniversity = (id: number, reason?: string) =>
+  sendJson<{ university: ApiUniversity }>("POST", `/universities/${id}/archive`, reason ? { reason } : {});
+export const restoreUniversity = (id: number) =>
+  sendJson<{ university: ApiUniversity }>("POST", `/universities/${id}/restore`, {});
+export const fetchUniversityHistory = (id: number) =>
+  get<ApiAuditEntry[]>(`/universities/${id}/history`);
 
 /* ------------------------------------------------------------------ */
 /* Saved items — all require a session                                 */
