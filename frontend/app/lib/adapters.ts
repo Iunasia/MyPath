@@ -30,8 +30,9 @@ export interface ScholarshipView extends Scholarship {
  * semicolons and newlines — never on commas, which appear inside a single
  * requirement ("Grade A, B, or C").
  */
-const toBullets = (text: string | null | undefined): string[] => {
-  if (!text?.trim()) return [];
+const toBullets = (text: string | string[] | null | undefined): string[] => {
+  if (Array.isArray(text)) return text.map(s => String(s).trim()).filter(Boolean);
+  if (typeof text !== "string" || !text.trim()) return [];
   return text
     .split(/[;\n]+/)
     .map(part => part.trim().replace(/^[-•*]\s*/, ""))
@@ -39,8 +40,9 @@ const toBullets = (text: string | null | undefined): string[] => {
 };
 
 /** Comma-separated list cells (majors, fields) — commas are the separator here. */
-const toList = (text: string | null | undefined): string[] => {
-  if (!text?.trim()) return [];
+const toList = (text: string | string[] | null | undefined): string[] => {
+  if (Array.isArray(text)) return text.map(s => String(s).trim()).filter(Boolean);
+  if (typeof text !== "string" || !text.trim()) return [];
   return text
     .split(/[;,\n]+/)
     .map(part => part.trim())
@@ -58,11 +60,14 @@ const PHNOM_PENH = "Asia/Phnom_Penh";
  * must be displayed in Phnom Penh — not the viewer's timezone, which would
  * show a student abroad the wrong day.
  */
-export const formatDeadline = (iso: string | null, note: string | null): string => {
-  if (!iso) return note?.trim() || "Not announced";
+export const formatDeadline = (iso: string | null | undefined, note: string | null | undefined): string => {
+  if (!iso || typeof iso !== "string") return note?.trim() || "Not announced";
 
   const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return note?.trim() || "Not announced";
+  if (Number.isNaN(date.getTime())) {
+    // If it's already human readable (e.g. "15 May 2026"), return it directly
+    return iso.trim() || note?.trim() || "Not announced";
+  }
 
   const day = new Intl.DateTimeFormat("en-GB", {
     timeZone: PHNOM_PENH,
@@ -89,10 +94,12 @@ export const formatDeadline = (iso: string | null, note: string | null): string 
   return `${day}, ${hour % 12 || 12}:${minute} ${hour < 12 ? "am" : "pm"}`;
 };
 
-export const formatLastVerified = (iso: string | null): string => {
-  if (!iso) return "Not yet verified";
+export const formatLastVerified = (iso: string | null | undefined): string => {
+  if (!iso || typeof iso !== "string") return "Not yet verified";
   const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "Not yet verified";
+  if (Number.isNaN(date.getTime())) {
+    return iso.trim() || "Not yet verified";
+  }
   return new Intl.DateTimeFormat("en-GB", {
     timeZone: PHNOM_PENH,
     day: "numeric",
@@ -145,7 +152,7 @@ export const deadlineLabel = (state: DeadlineState): string =>
 /* ------------------------------------------------------------------ */
 
 /** `provider_type` (6 values) collapsed onto the page's 3 filter categories. */
-const toCategory = (providerType: string): Scholarship["category"] => {
+const toCategory = (providerType?: string | null): Scholarship["category"] => {
   switch (providerType) {
     case "government":
       return "Government";
@@ -161,8 +168,8 @@ const toCategory = (providerType: string): Scholarship["category"] => {
  * The page filters on four fixed coverage bands, but the source is free text.
  * Bucket conservatively: only claim "100%" when the text actually says so.
  */
-const toCoverageBand = (amount: string, coverage: string): Scholarship["coverage"] => {
-  const text = `${amount} ${coverage}`.toLowerCase();
+const toCoverageBand = (amount?: string | null, coverage?: string | null): Scholarship["coverage"] => {
+  const text = `${amount ?? ""} ${coverage ?? ""}`.toLowerCase();
   const mentionsStipend = /stipend|allowance|living|accommodation|laptop|insurance/.test(text);
   const isFull = /100\s*%|full tuition|full scholarship|fully funded/.test(text);
 
@@ -172,7 +179,8 @@ const toCoverageBand = (amount: string, coverage: string): Scholarship["coverage
   return "Partial Tuition (20% - 75%)";
 };
 
-const toCoveragePercent = (amount: string): number | undefined => {
+const toCoveragePercent = (amount?: string | null): number | undefined => {
+  if (!amount) return undefined;
   const match = amount.match(/(\d{1,3})\s*%/);
   if (match) return Number(match[1]);
   return /full tuition|fully funded/i.test(amount) ? 100 : undefined;
@@ -214,17 +222,25 @@ const SUBJECT_PHOTOS: Array<[RegExp, string]> = [
 /** No subject to go on — an entrance or merit award, or a whole-college offer. */
 const GENERIC_PHOTO = /exam|entrance|merit|excellence|genius|award/i;
 
-const subjectPhoto = (row: ApiScholarship): string => {
+const subjectPhoto = (row: any): string => {
   const find = (text: string) => SUBJECT_PHOTOS.find(([pattern]) => pattern.test(text))?.[1];
 
   // The first field listed is the award's main subject. Matching the whole
   // list first made every business degree that mentions IT a computer photo,
   // and ITC ("Engineering, Technology, Architecture") an architecture one.
-  const firstField = (row.field_of_study ?? "").split(/[;,/]/)[0]?.trim();
+  const field = Array.isArray(row.field_of_study)
+    ? row.field_of_study.join(" ")
+    : typeof row.field_of_study === "string"
+      ? row.field_of_study
+      : Array.isArray(row.targetMajors)
+        ? row.targetMajors.join(" ")
+        : "";
+  const firstField = field.split(/[;,/]/)[0]?.trim() || "";
+  const title = typeof row.title === "string" ? row.title : "";
   const name =
     (firstField && find(firstField)) ??
-    find(`${row.field_of_study ?? ""} ${row.title}`) ??
-    (GENERIC_PHOTO.test(row.title) ? "graduation" : "campus");
+    find(`${field} ${title}`) ??
+    (GENERIC_PHOTO.test(title) ? "graduation" : "campus");
 
   return `/images/scholarships/${name}.jpg`;
 };
@@ -251,40 +267,49 @@ const usableImage = (url: string): boolean => {
   }
 };
 
-const toImage = (row: ApiScholarship): string =>
-  row.image_url && usableImage(row.image_url) ? row.image_url : subjectPhoto(row);
+const toImage = (row: any): string => {
+  if (row.image && typeof row.image === "string") return row.image;
+  if (row.image_url && usableImage(row.image_url)) return row.image_url;
+  return subjectPhoto(row);
+};
 
 /* ------------------------------------------------------------------ */
 /* Scholarships                                                        */
 /* ------------------------------------------------------------------ */
 
-export const toScholarshipView = (row: ApiScholarship): ScholarshipView => ({
+export const toScholarshipView = (row: any): ScholarshipView => ({
   // The page keys on string ids; the backend's integer id becomes the URL.
-  id: String(row.id),
-  apiId: row.id,
-  title: row.title,
-  provider: row.provider,
-  degreeLevel: row.degree_level || "Bachelor",
-  category: toCategory(row.provider_type),
-  coverage: toCoverageBand(row.amount, row.coverage),
-  coveragePercent: toCoveragePercent(row.amount),
-  targetMajors: toList(row.field_of_study),
+  id: String(row.slug || row.id),
+  apiId: typeof row.id === "number" ? row.id : 0,
+  title: row.title ?? "",
+  provider: row.provider ?? "",
+  degreeLevel: row.degree_level || row.degreeLevel || "Bachelor",
+  category: toCategory(row.provider_type || row.category),
+  coverage: toCoverageBand(row.amount, typeof row.coverage === "string" ? row.coverage : ""),
+  coveragePercent: typeof row.coveragePercent === "number" ? row.coveragePercent : toCoveragePercent(row.amount || row.coverage),
+  targetMajors: toList(row.field_of_study || row.target_majors || row.targetMajors),
   eligibility: toBullets(row.eligibility),
-  benefits: toBullets(row.coverage),
-  requiredDocuments: row.documents ?? [],
+  benefits: toBullets(row.benefits || row.coverage),
+  requiredDocuments: Array.isArray(row.documents)
+    ? row.documents
+    : Array.isArray(row.requirements)
+      ? row.requirements
+      : Array.isArray(row.requiredDocuments)
+        ? row.requiredDocuments
+        : toBullets(row.documents || row.requirements || row.requiredDocuments),
   deadline: formatDeadline(row.deadline, row.deadline_note),
-  applicationProcess: toBullets(row.application_process),
-  officialSource: row.source_url || row.application_link || "",
+  applicationProcess: toBullets(row.application_process || row.applicationProcess),
+  officialSource: row.source_url || row.application_link || row.officialSource || "",
   image: toImage(row),
   // Kept for components that still read the boolean; `infoCheck` is richer and
   // is what the verification UI should use — it can express "flagged".
-  isVerified: row.verified_status === "verified",
-  lastVerified: formatLastVerified(row.last_verified),
+  isVerified: row.verified_status === "verified" || row.is_verified === true || row.isVerified === true,
+  lastVerified: formatLastVerified(row.last_verified || row.last_verified_at || row.lastVerified),
 
   infoCheck: row.infoCheck,
-  coverageText: row.coverage,
-  deadlineNote: row.deadline_note,
-  deadlineAt: row.deadline
+  coverageText: typeof row.coverage === "string" ? row.coverage : (Array.isArray(row.benefits) ? row.benefits.join("; ") : ""),
+  deadlineNote: row.deadline_note ?? null,
+  deadlineAt: row.deadline ?? null
 });
 
 export const toScholarshipViews = (rows: ApiScholarship[]): ScholarshipView[] =>
