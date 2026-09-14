@@ -10,3 +10,4 @@ dist/
 
 # Templates are safe to commit — the real .env files stay ignored above.
 !.env.example
+!.env.prod.example
