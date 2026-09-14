@@ -3,13 +3,24 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Use SSL only if explicitly enabled or required by remote connection string
+const url = process.env.DATABASE_URL || '';
+const isInternalDb =
+  url.includes('@db:') ||
+  url.includes('@localhost:') ||
+  url.includes('@127.0.0.1:');
+
+// Use SSL only if external and explicitly requested
 const useSsl =
-  process.env.DATABASE_SSL === 'true' ||
-  (process.env.DATABASE_URL?.includes('sslmode=require') ?? false);
+  !isInternalDb &&
+  (process.env.DATABASE_SSL === 'true' || url.includes('sslmode=require'));
+
+// Remove ssl query parameters if connecting to internal Docker database
+const connectionString = isInternalDb
+  ? url.replace(/[?&]sslmode=[^&]+/g, '').replace(/[?&]ssl=[^&]+/g, '')
+  : url;
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString,
   ssl: useSsl ? { rejectUnauthorized: false } : false,
 });
 
