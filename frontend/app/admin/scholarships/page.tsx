@@ -87,7 +87,7 @@ const matches = (s: ApiScholarship, filter: Filter) => {
     case "undated":
       return days === null;
     case "flagged":
-      return s.infoCheck.isRisky;
+      return Boolean(s.infoCheck?.isRisky);
     case "unchecked":
       return !s.last_verified;
     default:
@@ -559,7 +559,7 @@ function ScholarshipsAdmin() {
             editor.mode === "edit" && editor.selected ? (
               editor.selected.archived_at ? (
                 <Tag tone="neutral">Archived</Tag>
-              ) : editor.selected.infoCheck.isRisky ? (
+              ) : editor.selected.infoCheck?.isRisky ? (
                 <Tag tone="red">Flagged</Tag>
               ) : (
                 <Tag tone="green">Auto-checked</Tag>
@@ -638,7 +638,7 @@ function ScholarshipsAdmin() {
                     <td className={tdClass}>
                       {s.archived_at ? (
                         <Tag tone="neutral">Archived</Tag>
-                      ) : s.infoCheck.isRisky ? (
+                      ) : s.infoCheck?.isRisky ? (
                         <Tag tone="red">Flagged</Tag>
                       ) : (
                         <Tag tone="green">Auto-checked</Tag>
@@ -688,7 +688,7 @@ function ScholarshipsAdmin() {
                 <dd>
                   {editor.selected.archived_at ? (
                     <Tag tone="neutral">Archived</Tag>
-                  ) : editor.selected.infoCheck.isRisky ? (
+                  ) : editor.selected.infoCheck?.isRisky ? (
                     <Tag tone="red">Flagged</Tag>
                   ) : (
                     <Tag tone="green">Auto-checked</Tag>
@@ -703,9 +703,9 @@ function ScholarshipsAdmin() {
                 <dd>{editor.selected.last_verified ? <VerificationMark date={editor.selected.last_verified} /> : <VerificationMark pending />}</dd>
               </dl>
 
-              {editor.selected.infoCheck.reasons.length > 0 && (
+              {(editor.selected.infoCheck?.reasons?.length ?? 0) > 0 && (
                 <ul className="mx-4 mt-3 space-y-1 rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-800">
-                  {editor.selected.infoCheck.reasons.map((reason) => (
+                  {editor.selected.infoCheck?.reasons?.map((reason) => (
                     <li key={reason}>{reason}</li>
                   ))}
                 </ul>
