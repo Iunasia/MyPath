@@ -3,11 +3,14 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const isProduction = process.env.NODE_ENV === 'production';
+// Use SSL only if explicitly enabled or required by remote connection string
+const useSsl =
+  process.env.DATABASE_SSL === 'true' ||
+  (process.env.DATABASE_URL?.includes('sslmode=require') ?? false);
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: isProduction ? { rejectUnauthorized: false } : false,
+  ssl: useSsl ? { rejectUnauthorized: false } : false,
 });
 
 pool.on('connect', () => {
