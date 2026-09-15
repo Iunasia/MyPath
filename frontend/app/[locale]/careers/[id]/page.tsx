@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import { Link } from "@/src/i18n";
 import {
   ArrowRight,
   Info,

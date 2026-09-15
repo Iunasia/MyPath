@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getLocale } from "next-intl/server";
 import { type Locale } from "@/src/i18n/routing";
 import { getScholarship, getScholarships } from "@/app/lib/api.server";
 import { getScholarshipsTranslated } from "@/app/data/scholarships";
+import type { ScholarshipDetailData } from "@/app/lib/api";
 import ScholarshipDetail from "./ScholarshipDetail";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +14,6 @@ interface PageProps {
 
 export default async function ScholarshipDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const t = await getTranslations("scholarshipDetail");
   const locale = (await getLocale()) as Locale;
   const [detail, all] = await Promise.all([getScholarship(id), getScholarships()]);
 
@@ -24,8 +24,8 @@ export default async function ScholarshipDetailPage({ params }: PageProps) {
 
   if (!detail && !fallback) notFound();
 
-  const resolvedDetail = detail
-    ? ({
+  const resolvedDetail: ScholarshipDetailData = detail
+    ? {
         ...detail,
         scholarship: {
           ...detail.scholarship,
@@ -37,17 +37,18 @@ export default async function ScholarshipDetailPage({ params }: PageProps) {
           eligibility: fallback?.eligibility ?? detail.scholarship.eligibility,
           benefits: fallback?.benefits,
           documents: fallback?.requiredDocuments ?? detail.scholarship.documents,
-          application_process: fallback?.applicationProcess ?? detail.scholarship.application_process,
+          application_process:
+            fallback?.applicationProcess ?? detail.scholarship.application_process,
           target_majors: fallback?.targetMajors,
         },
-      } as any)
-    : ({
-        title: fallback!.title,
+      }
+    : {
         scholarship: {
           id: 1,
           slug: fallback!.id,
           title: fallback!.title,
           provider: fallback!.provider,
+          provider_type: "",
           coverage: fallback!.coverage,
           degree_level: fallback!.degreeLevel,
           deadline: fallback!.deadline,
@@ -57,26 +58,47 @@ export default async function ScholarshipDetailPage({ params }: PageProps) {
           description: `${fallback!.coverage} scholarship offered by ${fallback!.provider}.`,
           eligibility: fallback!.eligibility,
           benefits: fallback!.benefits,
-          requirements: fallback!.requiredDocuments,
+          documents: fallback!.requiredDocuments,
           application_process: fallback!.applicationProcess,
           target_majors: fallback!.targetMajors,
-          last_verified_at: fallback!.lastVerified,
-          is_verified: fallback!.isVerified,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        } as any,
+          amount: "",
+          field_of_study: fallback!.targetMajors.join(", "),
+          deadline_note: null,
+          application_link: fallback!.officialSource,
+          country: "Cambodia",
+          opportunity_type: "scholarship",
+          source: fallback!.officialSource,
+          source_type: fallback!.isVerified ? "official" : "unknown",
+          verified_status: fallback!.isVerified ? "verified" : "unverified",
+          last_verified: fallback!.lastVerified,
+          last_verified_by: null,
+          safety_warnings: [],
+          archived_at: null,
+          archived_by: null,
+          edited_at: null,
+          edited_by: null,
+          infoCheck: {
+            verifiedStatus: fallback!.isVerified ? "verified" : "unverified",
+            sourceType: "official",
+            isRisky: false,
+            lastVerified: fallback!.lastVerified,
+            reasons: [],
+            source: fallback!.officialSource,
+            sourceUrl: fallback!.officialSource,
+            summary: `${fallback!.coverage} scholarship offered by ${fallback!.provider}.`,
+          },
+        },
         infoCheck: {
-          verifiedStatus: fallback!.isVerified ? ("verified" as const) : ("unverified" as const),
-          sourceType: "official" as const,
+          verifiedStatus: fallback!.isVerified ? "verified" : "unverified",
+          sourceType: "official",
           isRisky: false,
-          lastChecked: fallback!.lastVerified,
+          lastVerified: fallback!.lastVerified,
           reasons: [],
           source: fallback!.officialSource,
           sourceUrl: fallback!.officialSource,
-          lastVerified: fallback!.lastVerified,
           summary: `${fallback!.coverage} scholarship offered by ${fallback!.provider}.`,
-        } as any,
-      } as any);
+        },
+      };
 
   return <ScholarshipDetail detail={resolvedDetail} all={all ?? []} />;
 }

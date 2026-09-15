@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import Link from "next/link";
+import { Link } from "@/src/i18n";
 import { useLocale, useTranslations } from "next-intl";
 import {
   Building2,
@@ -21,7 +21,7 @@ import SaveItemButton from "@/app/components/SaveItemButton";
 import ReportOutdatedButton from "@/app/components/ReportOutdatedButton";
 import ShareButton from "@/app/components/ShareButton";
 import BackLink from "@/app/components/BackLink";
-import type { ApiInfoCheck, ApiScholarship } from "@/app/lib/api";
+import type { ApiScholarship, ScholarshipDetailData } from "@/app/lib/api";
 import {
   deadlineLabel,
   deadlineState,
@@ -43,7 +43,7 @@ export default function ScholarshipDetail({
   detail,
   all,
 }: {
-  detail: { scholarship: ApiScholarship; infoCheck: ApiInfoCheck };
+  detail: ScholarshipDetailData;
   all: ApiScholarship[];
 }) {
   const t = useTranslations("scholarshipDetail");

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, FormEvent } from "react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
 import {
   ShieldCheck,
@@ -16,6 +15,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import Footer from "@/app/components/Footer";
+import { Button, EmptyState } from "@/app/components/ui";
 import { useAuth } from "@/app/context/AuthContext";
 import {
   fetchMyVerificationRequests,
@@ -31,12 +31,12 @@ function AutoCheckPanel({ check }: { check: ApiLinkCheck }) {
   const risk = RISK[check.level];
 
   return (
-    <div className={`rounded-3xl border p-5 sm:p-6 ${risk.cls}`}>
+    <div className={`rounded-3xl border p-5 sm:p-6 ${risk.cls}`} aria-live="polite">
       <div className="flex items-center gap-2 mb-3">
         {check.level === "low" ? (
-          <ShieldCheck className="w-5 h-5 shrink-0" />
+          <ShieldCheck className="w-5 h-5 shrink-0" aria-hidden="true" />
         ) : (
-          <ShieldAlert className="w-5 h-5 shrink-0" />
+          <ShieldAlert className="w-5 h-5 shrink-0" aria-hidden="true" />
         )}
         <span className="font-display font-extrabold text-sm sm:text-base">
           {t("autoCheckLabel", { risk: risk.label })}
@@ -47,7 +47,7 @@ function AutoCheckPanel({ check }: { check: ApiLinkCheck }) {
         <ul className="space-y-2 mb-3">
           {check.findings.map((finding, i) => (
             <li key={i} className="flex items-start gap-2 text-xs sm:text-sm font-medium">
-              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
               <span>{finding}</span>
             </li>
           ))}
@@ -58,7 +58,7 @@ function AutoCheckPanel({ check }: { check: ApiLinkCheck }) {
         <ul className="space-y-1.5">
           {check.passed.map((item, i) => (
             <li key={i} className="flex items-start gap-2 text-xs sm:text-sm font-medium opacity-80">
-              <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+              <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
               <span>{item}</span>
             </li>
           ))}
@@ -90,6 +90,9 @@ const STATUS: Record<string, { label: string; icon: typeof Clock }> = {
   reviewing: { label: "Being checked", icon: Search },
   resolved: { label: "Answered", icon: CheckCircle2 },
 };
+
+const INPUT_CLS =
+  "w-full px-4 py-3 rounded-2xl border border-sky/25 text-sm bg-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-sky/40 focus:border-sky transition-[border-color,box-shadow] font-medium";
 
 const formatDate = (iso: string) =>
   new Intl.DateTimeFormat("en-GB", {
@@ -135,7 +138,6 @@ export default function VerifyPage() {
       }
       await loadRequests();
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authLoading, user]);
 
   async function handleSubmit(e: FormEvent) {
@@ -166,7 +168,7 @@ export default function VerifyPage() {
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
 
-        <main className="w-full pb-16 flex flex-col gap-10 max-w-4xl mx-auto">
+        <div className="w-full pb-16 flex flex-col gap-10 max-w-4xl mx-auto">
           <section className="text-center pt-4">
             <span className="inline-block px-3 py-1 rounded-full bg-sitomo text-sky-deep text-[11px] font-extrabold uppercase tracking-wider mb-3">
               {t("informationCheck")}
@@ -182,7 +184,7 @@ export default function VerifyPage() {
           <section className="bg-white rounded-3xl rounded-br-[86px] p-6 sm:p-8 border border-sky/15 bubble-shadow-sm">
             {authLoading ? (
               <div className="flex items-center justify-center gap-3 py-8 text-gray-soft">
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
                 <span className="text-sm font-semibold">{tCommon("loading")}</span>
               </div>
             ) : !user ? (
@@ -191,12 +193,9 @@ export default function VerifyPage() {
                 <p className="text-sm text-gray-body font-medium mb-5">
                   {t("signInToSendDesc")}
                 </p>
-                <Link
-                  href="/auth/signin?next=/verify"
-                  className="inline-flex items-center rounded-full bg-sky-deep px-6 py-2.5 text-sm font-bold text-white hover:bg-sky-dark transition-colors"
-                >
+                <Button href="/auth/signin?next=/verify" size="md">
                   {tCommon("signIn")}
-                </Link>
+                </Button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -206,11 +205,13 @@ export default function VerifyPage() {
                   </label>
                   <input
                     id="url"
-                    type="text"
+                    name="url"
+                    type="url"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     placeholder={t("linkPlaceholder")}
-                    className="w-full px-4 py-3 rounded-2xl border border-sky/25 text-sm focus:outline-none focus:ring-2 focus:ring-sky/40 focus:border-sky transition-all font-medium"
+                    autoComplete="url"
+                    className={INPUT_CLS}
                   />
                 </div>
 
@@ -220,12 +221,13 @@ export default function VerifyPage() {
                   </label>
                   <input
                     id="title"
+                    name="title"
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     maxLength={300}
                     placeholder={t("titlePlaceholder")}
-                    className="w-full px-4 py-3 rounded-2xl border border-sky/25 text-sm focus:outline-none focus:ring-2 focus:ring-sky/40 focus:border-sky transition-all font-medium"
+                    className={INPUT_CLS}
                   />
                 </div>
 
@@ -235,12 +237,13 @@ export default function VerifyPage() {
                   </label>
                   <textarea
                     id="note"
+                    name="note"
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
                     maxLength={2000}
                     rows={3}
                     placeholder={t("notePlaceholder")}
-                    className="w-full px-4 py-3 rounded-2xl border border-sky/25 text-sm focus:outline-none focus:ring-2 focus:ring-sky/40 focus:border-sky transition-all font-medium resize-none"
+                    className={`${INPUT_CLS} resize-none`}
                   />
                   <p className="text-[11px] text-gray-soft mt-1.5 font-medium">
                     {t("tip")}
@@ -248,28 +251,19 @@ export default function VerifyPage() {
                 </div>
 
                 {error && (
-                  <div className="rounded-2xl bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700 font-medium">
+                  <div className="rounded-2xl bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700 font-medium" role="alert">
                     {error}
                   </div>
                 )}
 
-                <button
+                <Button
                   type="submit"
-                  disabled={submitting || (!url.trim() && !title.trim())}
-                  className="inline-flex items-center gap-2 rounded-full bg-sky-deep px-6 py-3 text-sm font-bold text-white hover:bg-sky-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  loading={submitting}
+                  disabled={(!url.trim() && !title.trim()) || submitting}
                 >
-                  {submitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      {t("checking")}
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4" />
-                      {t("checkThisScholarship")}
-                    </>
-                  )}
-                </button>
+                  <Send className="w-4 h-4" aria-hidden="true" />
+                  {submitting ? t("checking") : t("checkThisScholarship")}
+                </Button>
               </form>
             )}
           </section>
@@ -291,15 +285,15 @@ export default function VerifyPage() {
 
               {loadingRequests ? (
                 <div className="flex items-center gap-3 py-8 text-gray-soft">
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
                   <span className="text-sm font-semibold">{tCommon("loading")}</span>
                 </div>
               ) : requests.length === 0 ? (
-                <div className="bg-white rounded-3xl p-8 text-center border border-sky/15 bubble-shadow-sm">
-                  <p className="text-sm text-gray-soft font-medium">
-                    {t("noRequestsYet")}
-                  </p>
-                </div>
+                <EmptyState
+                  icon={Search}
+                  title={t("noRequestsYet")}
+                  description={t("answersAppearHere")}
+                />
               ) : (
                 <div className="space-y-4">
                   {requests.map((request) => {
@@ -317,7 +311,7 @@ export default function VerifyPage() {
                             {request.submitted_title}
                           </h3>
                           <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider text-gray-soft shrink-0">
-                            <StatusIcon className="w-3.5 h-3.5" />
+                            <StatusIcon className="w-3.5 h-3.5" aria-hidden="true" />
                             {status.label}
                           </span>
                         </div>
@@ -333,7 +327,7 @@ export default function VerifyPage() {
                             rel="noopener noreferrer nofollow"
                             className="inline-flex items-center gap-1.5 text-xs font-bold text-sky-deep hover:underline mb-3 break-all"
                           >
-                            <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                            <ExternalLink className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
                             <span className="truncate max-w-full">{request.submitted_url}</span>
                           </a>
                         )}
@@ -342,9 +336,9 @@ export default function VerifyPage() {
                           <div className={`rounded-2xl border px-4 py-3 mb-3 ${verdict.cls}`}>
                             <div className="flex items-center gap-2 mb-1">
                               {request.verdict === "legitimate" ? (
-                                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                                <CheckCircle2 className="w-4 h-4 shrink-0" aria-hidden="true" />
                               ) : (
-                                <XCircle className="w-4 h-4 shrink-0" />
+                                <XCircle className="w-4 h-4 shrink-0" aria-hidden="true" />
                               )}
                               <span className="font-extrabold text-sm">{verdict.label}</span>
                             </div>
@@ -379,7 +373,7 @@ export default function VerifyPage() {
               {t("howToSpotFakeDesc")}
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
               {[
                 t("tip1"),
                 t("tip2"),
@@ -390,18 +384,18 @@ export default function VerifyPage() {
                 t("tip7"),
                 t("tip8"),
               ].map((tip) => (
-                <div key={tip} className="flex items-start gap-2.5">
-                  <AlertTriangle className="w-4 h-4 text-momo shrink-0 mt-0.5" />
+                <li key={tip} className="flex items-start gap-2.5">
+                  <AlertTriangle className="w-4 h-4 text-sky-deep shrink-0 mt-0.5" aria-hidden="true" />
                   <p className="text-xs sm:text-sm text-gray-body font-medium">{tip}</p>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
 
             <p className="text-xs text-gray-body font-medium mt-5 pt-4 border-t border-sky/15">
               <strong>{t("bestHabit")}</strong> {t("bestHabitDesc")}
             </p>
           </section>
-        </main>
+        </div>
       </div>
 
       <Footer />

@@ -1,18 +1,21 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import Link from "next/link";
+import { Suspense, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import {
-  Search,
-  Coins,
-  Calendar,
-  CheckCircle2,
-  SlidersHorizontal,
-  X,
-} from "lucide-react";
+import { Coins, Calendar, CheckCircle2 } from "lucide-react";
+import { Link, usePathname, useRouter } from "@/src/i18n";
 import Footer from "@/app/components/Footer";
 import SaveItemButton from "@/app/components/SaveItemButton";
+import {
+  Badge,
+  Button,
+  EmptyState,
+  FilterPill,
+  FilterSelect,
+  SearchInput,
+  type SelectOption,
+} from "@/app/components/ui";
 import {
   SCHOLARSHIP_CATEGORIES,
   COVERAGE_FILTERS,
@@ -22,7 +25,7 @@ import {
 import enScholarships from "@/app/data-translations/en/scholarships.json";
 import kmScholarships from "@/app/data-translations/km/scholarships.json";
 
-export default function ScholarshipsPage() {
+function ScholarshipsInner() {
   const t = useTranslations("scholarships");
   const tCommon = useTranslations("common");
   const locale = useLocale();
@@ -39,9 +42,26 @@ export default function ScholarshipsPage() {
     [scholarshipsData]
   );
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("All Categories");
-  const [selectedCoverage, setSelectedCoverage] = useState<string>("All Coverage");
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const searchQuery = searchParams.get("q") ?? "";
+  const selectedCategory = searchParams.get("category") ?? "All Categories";
+  const selectedCoverage = searchParams.get("coverage") ?? "All Coverage";
+
+  const updateUrl = (patch: { q?: string | null; category?: string | null; coverage?: string | null }) => {
+    const params = new URLSearchParams(searchParams.toString());
+    for (const [key, value] of Object.entries(patch)) {
+      if (value && value !== "All Categories" && value !== "All Coverage") {
+        params.set(key, value);
+      } else {
+        params.delete(key);
+      }
+    }
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  };
 
   const filteredScholarships = useMemo(() => {
     return scholarships.filter((item) => {
@@ -62,16 +82,11 @@ export default function ScholarshipsPage() {
     });
   }, [searchQuery, selectedCategory, selectedCoverage, scholarships]);
 
-  const hasActiveFilters =
-    selectedCategory !== "All Categories" ||
-    selectedCoverage !== "All Coverage" ||
-    searchQuery !== "";
+  const hasActiveFilters = searchQuery !== "" || selectedCategory !== "All Categories" || selectedCoverage !== "All Coverage";
 
-  const resetFilters = () => {
-    setSearchQuery("");
-    setSelectedCategory("All Categories");
-    setSelectedCoverage("All Coverage");
-  };
+  const resetFilters = () => updateUrl({ q: null, category: null, coverage: null });
+
+  const coverageOptions: SelectOption[] = COVERAGE_FILTERS.map((cov) => ({ value: cov, label: cov }));
 
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
@@ -87,44 +102,24 @@ export default function ScholarshipsPage() {
             {t("heroSubtitle")}
           </p>
 
-          <div className="relative max-w-xl mx-auto mb-6">
-            <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none">
-              <Search className="w-5 h-5 text-black" strokeWidth={2.2} />
-            </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t("searchPlaceholder")}
-              className="w-full pl-12 pr-10 py-3.5 bg-white rounded-full border border-sky/25 text-sm text-blue-ink placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-sky focus:border-sky transition-all bubble-shadow-sm font-medium"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-black hover:opacity-70 cursor-pointer"
-              >
-                <X className="h-4 w-4 text-black" />
-              </button>
-            )}
-          </div>
+          <SearchInput
+            name="q"
+            value={searchQuery}
+            onChange={(value) => updateUrl({ q: value || null, category: selectedCategory, coverage: selectedCoverage })}
+            placeholder={t("searchPlaceholder")}
+            ariaLabel={t("searchPlaceholder")}
+            className="max-w-xl mx-auto mb-6"
+          />
 
-          <div className="flex flex-wrap items-center justify-center gap-2 max-w-2xl mx-auto">
-            {SCHOLARSHIP_CATEGORIES.map((cat) => {
-              const isSelected = selectedCategory === cat;
-              return (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                    isSelected
-                      ? "bg-[#33666A] text-white bubble-shadow-sm"
-                      : "bg-white text-blue-ink border border-sky/25 hover:border-sky bubble-shadow-sm"
-                  }`}
-                >
-                  {cat}
-                </button>
-              );
-            })}
+          <div role="group" aria-label={t("filterCategoryLabel")} className="flex flex-wrap items-center justify-center gap-2 max-w-2xl mx-auto">
+            {SCHOLARSHIP_CATEGORIES.map((cat) => (
+              <FilterPill
+                key={cat}
+                label={cat}
+                selected={selectedCategory === cat}
+                onClick={() => updateUrl({ q: searchQuery, category: cat, coverage: selectedCoverage })}
+              />
+            ))}
           </div>
         </section>
 
@@ -132,29 +127,23 @@ export default function ScholarshipsPage() {
           <div className="flex flex-col gap-4 pb-4 border-b border-sky/15">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-2.5">
-                <div className="relative">
-                  <select
-                    value={selectedCoverage}
-                    onChange={(e) => setSelectedCoverage(e.target.value)}
-                    className="appearance-none bg-white border border-sky/25 text-blue-ink text-xs font-bold pl-8 pr-8 py-2 rounded-full cursor-pointer hover:border-sky transition-colors focus:outline-none focus:ring-2 focus:ring-sky/30 bubble-shadow-sm"
-                  >
-                    {COVERAGE_FILTERS.map((cov) => (
-                      <option key={cov} value={cov}>
-                        {cov}
-                      </option>
-                    ))}
-                  </select>
-                  <Coins className="w-3.5 h-3.5 text-sky-deep absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  <SlidersHorizontal className="w-3 h-3 text-gray-soft absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
+                <FilterSelect
+                  name="coverage"
+                  value={selectedCoverage}
+                  onChange={(value) => updateUrl({ q: searchQuery, category: selectedCategory, coverage: value })}
+                  options={coverageOptions}
+                  ariaLabel={t("filterCoverageLabel")}
+                />
 
                 {hasActiveFilters && (
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="xs"
                     onClick={resetFilters}
-                    className="text-xs font-bold text-sky-deep hover:underline px-2 py-1 cursor-pointer"
+                    className="px-2"
                   >
                     {tCommon("resetFilters")}
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>
@@ -163,71 +152,71 @@ export default function ScholarshipsPage() {
 
         <section className="flex-1 pb-16">
           {filteredScholarships.length === 0 ? (
-            <div className="bg-white rounded-3xl p-10 text-center border border-sky/15 bubble-shadow-sm max-w-lg mx-auto mt-6">
-              <Coins className="w-12 h-12 text-sky-deep mx-auto mb-3 opacity-60" />
-              <p className="font-bold text-blue-ink text-base">
-                {t("noScholarshipsMatch")}
-              </p>
-              <p className="text-xs sm:text-sm text-gray-soft mt-1.5 font-medium">
-                {t("noScholarshipsHint")}
-              </p>
-              <button
-                onClick={resetFilters}
-                className="mt-5 inline-flex items-center px-5 py-2.5 rounded-full bg-sky text-white text-xs sm:text-sm font-bold hover:bg-sky-bright transition-colors cursor-pointer bubble-shadow-sm"
-              >
-                {tCommon("clearAllFilters")}
-              </button>
-            </div>
+            <EmptyState
+              icon={Coins}
+              title={t("noScholarshipsMatch")}
+              description={t("noScholarshipsHint")}
+              action={
+                <Button variant="primary" size="md" onClick={resetFilters}>
+                  {tCommon("clearAllFilters")}
+                </Button>
+              }
+            />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+            <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
               {filteredScholarships.map((scholarship) => (
-                <Link
-                  key={scholarship.id}
-                  href={`/scholarships/${scholarship.id}`}
-                  className="group relative aspect-[4/3] min-h-[190px] rounded-3xl rounded-br-[72px] overflow-hidden cursor-pointer bubble-shadow-sm border border-sky/15 hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 block bg-sitomo/40"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={scholarship.image}
-                    alt={scholarship.title}
-                    className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
-                  />
-
-                  <div className="absolute top-3 right-3 z-20">
-                    <SaveItemButton
-                      variant="card-action"
-                      item={{
-                        id: scholarship.id,
-                        type: "scholarship",
-                        title: scholarship.title,
-                        subtitle: scholarship.provider,
-                        image: scholarship.image,
-                        link: `/scholarships/${scholarship.id}`,
-                      }}
+                <li key={scholarship.id} className="h-full">
+                  <Link
+                    href={`/scholarships/${scholarship.id}`}
+                    className="group relative aspect-[4/3] min-h-[190px] rounded-3xl rounded-br-[72px] overflow-hidden cursor-pointer bubble-shadow-sm border border-sky/15 hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-[transform,box-shadow,border-color] duration-300 block bg-sitomo/40"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={scholarship.image}
+                      alt={scholarship.title}
+                      width={600}
+                      height={450}
+                      decoding="async"
+                      loading="lazy"
+                      className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
                     />
-                  </div>
 
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent flex flex-col justify-end p-3.5 sm:p-4 z-10">
-                    <h3 className="font-display text-sm sm:text-base font-extrabold text-white tracking-tight leading-snug drop-shadow-sm mb-1.5 group-hover:text-sky-bright transition-colors line-clamp-2">
-                      {scholarship.title}
-                    </h3>
-
-                    <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-white/75 font-medium drop-shadow-xs">
-                      <Calendar className="w-3 h-3 text-sky-bright shrink-0" />
-                      <span>{tCommon("deadline")}: {scholarship.deadline}</span>
+                    <div className="absolute top-3 right-3 z-20">
+                      <SaveItemButton
+                        variant="card-action"
+                        item={{
+                          id: scholarship.id,
+                          type: "scholarship",
+                          title: scholarship.title,
+                          subtitle: scholarship.provider,
+                          image: scholarship.image,
+                          link: `/scholarships/${scholarship.id}`,
+                        }}
+                      />
                     </div>
-                  </div>
-                </Link>
+
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent flex flex-col justify-end p-3.5 sm:p-4 z-10">
+                      <h3 className="font-display text-sm sm:text-base font-extrabold text-white tracking-tight leading-snug drop-shadow-sm mb-1.5 group-hover:text-sky-bright transition-colors line-clamp-2">
+                        {scholarship.title}
+                      </h3>
+
+                      <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-white/75 font-medium drop-shadow-xs">
+                        <Calendar className="w-3 h-3 text-sky-bright shrink-0" aria-hidden="true" />
+                        <span>{tCommon("deadline")}: {scholarship.deadline}</span>
+                      </div>
+                    </div>
+                  </Link>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
         </section>
 
         <section className="rounded-3xl rounded-br-[86px] sm:rounded-br-[86px] bg-white border border-sky/15 p-6 sm:p-8 md:p-10 bubble-shadow-sm mb-16">
           <div className="max-w-3xl">
-            <span className="inline-block px-3 py-1 rounded-full bg-sitomo text-sky-deep text-[11px] font-extrabold uppercase tracking-wider mb-3">
+            <Badge tone="teal" className="uppercase tracking-wider mb-3">
               {t("transparencyVerification")}
-            </span>
+            </Badge>
             <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-blue-ink mb-3">
               {t("howDoesDomnerVerify")}
             </h2>
@@ -236,35 +225,21 @@ export default function ScholarshipsPage() {
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 gap-4">
-              <div className="p-4 rounded-2xl bg-powder border border-sky/10 flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-sky-deep shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="text-xs font-bold text-blue-ink">{t("directLinks")}</h4>
-                  <p className="text-[11px] text-gray-soft mt-0.5 leading-normal">
-                    {t("directLinksDesc")}
-                  </p>
+              {[
+                { title: t("directLinks"), desc: t("directLinksDesc") },
+                { title: t("zeroHiddenFees"), desc: t("zeroHiddenFeesDesc") },
+                { title: t("updatedDeadlines"), desc: t("updatedDeadlinesDesc") },
+              ].map((item) => (
+                <div key={item.title} className="p-4 rounded-2xl bg-powder border border-sky/10 flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-sky-deep shrink-0 mt-0.5" aria-hidden="true" />
+                  <div>
+                    <h4 className="text-xs font-bold text-blue-ink">{item.title}</h4>
+                    <p className="text-[11px] text-gray-soft mt-0.5 leading-normal">
+                      {item.desc}
+                    </p>
+                  </div>
                 </div>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-powder border border-sky/10 flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-sky-deep shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="text-xs font-bold text-blue-ink">{t("zeroHiddenFees")}</h4>
-                  <p className="text-[11px] text-gray-soft mt-0.5 leading-normal">
-                    {t("zeroHiddenFeesDesc")}
-                  </p>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-powder border border-sky/10 flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-sky-deep shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="text-xs font-bold text-blue-ink">{t("updatedDeadlines")}</h4>
-                  <p className="text-[11px] text-gray-soft mt-0.5 leading-normal">
-                    {t("updatedDeadlinesDesc")}
-                  </p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </section>
@@ -272,5 +247,13 @@ export default function ScholarshipsPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function ScholarshipsPage() {
+  return (
+    <Suspense fallback={null}>
+      <ScholarshipsInner />
+    </Suspense>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Link from "next/link";
+import { Link } from "@/src/i18n";
 import { useTranslations } from "next-intl";
 import {
   Bookmark,

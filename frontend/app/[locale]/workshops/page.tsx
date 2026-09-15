@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useMemo } from "react";
-import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import {
   Phone,
@@ -10,13 +9,11 @@ import {
   UserCheck,
   Megaphone,
   ArrowRight,
-  UserCircle2,
   Calendar,
   Clock,
   MapPin,
   CheckCircle2,
   X,
-  Sparkles,
   ChevronLeft,
   ChevronRight,
   ExternalLink,
@@ -60,7 +57,6 @@ const byFinishedLast = (rows: WorkshopItem[]): WorkshopItem[] =>
 
 export default function WorkshopsPage() {
   const t = useTranslations("workshops");
-  const tCommon = useTranslations("common");
   const locale = useLocale();
   const workshopsData = locale === "km" ? kmWorkshops : enWorkshops;
 
@@ -197,6 +193,8 @@ export default function WorkshopsPage() {
                         <img
                           src={ws.posterImage}
                           alt={ws.title}
+                          width={600}
+                          height={375}
                           className="w-full h-full object-cover"
                           loading="lazy"
                         />
@@ -208,8 +206,9 @@ export default function WorkshopsPage() {
                         </div>
                         <div className="absolute bottom-2 left-2 right-2">
                           <span className="text-[10px] text-white/95 font-medium truncate block drop-shadow-xs">
-                            📍 {ws.location}
-                          </span>
+                          <MapPin className="w-2 h-2 text-sky-deep shrink-0" aria-hidden="true" />
+                          {ws.location}
+                        </span>
                         </div>
                       </div>
 
@@ -276,6 +275,8 @@ export default function WorkshopsPage() {
                             <img
                               src={mentor.avatar}
                               alt={mentor.name}
+                              width={80}
+                              height={80}
                               className="w-full h-full object-cover"
                             />
                           ) : (
@@ -376,6 +377,7 @@ export default function WorkshopsPage() {
               onClick={() => {
                 setSelectedWorkshop(null);
               }}
+              aria-label={t("close")}
               className="absolute top-5 right-5 w-8 h-8 rounded-full bg-sitomo/50 flex items-center justify-center text-blue-ink hover:bg-sitomo cursor-pointer z-10"
             >
               <X className="w-4 h-4" />
@@ -401,11 +403,13 @@ export default function WorkshopsPage() {
 
             <div className="rounded-2xl overflow-hidden aspect-[16/9] mb-4 bg-slate-900 border border-sky/15">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={selectedWorkshop.posterImage}
-                alt={selectedWorkshop.title}
-                className="w-full h-full object-cover"
-              />
+<img
+                  src={selectedWorkshop.posterImage}
+                  alt={selectedWorkshop.title}
+                  width={800}
+                  height={450}
+                  className="w-full h-full object-cover"
+                />
             </div>
 
             {selectedWorkshop.applicationLink ? (
@@ -530,6 +534,7 @@ export default function WorkshopsPage() {
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 relative border border-sky/20 shadow-2xl max-h-[85vh] overflow-y-auto">
             <button
               onClick={() => setShowAllMentorsModal(false)}
+              aria-label={t("close")}
               className="absolute top-5 right-5 w-8 h-8 rounded-full bg-sitomo/50 flex items-center justify-center text-blue-ink hover:bg-sitomo cursor-pointer"
             >
               <X className="w-4 h-4" />
@@ -599,6 +604,7 @@ export default function WorkshopsPage() {
           <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 relative border border-sky/20 shadow-2xl">
             <button
               onClick={() => setSelectedMentor(null)}
+              aria-label={t("close")}
               className="absolute top-5 right-5 w-8 h-8 rounded-full bg-sitomo/50 flex items-center justify-center text-blue-ink hover:bg-sitomo cursor-pointer"
             >
               <X className="w-4 h-4" />
@@ -669,6 +675,7 @@ export default function WorkshopsPage() {
                 setShowContactModal(false);
                 setInquirySubmitted(false);
               }}
+              aria-label={t("close")}
               className="absolute top-5 right-5 w-8 h-8 rounded-full bg-sitomo/50 flex items-center justify-center text-blue-ink hover:bg-sitomo cursor-pointer"
             >
               <X className="w-4 h-4" />

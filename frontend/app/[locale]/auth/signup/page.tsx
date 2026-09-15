@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import Link from "next/link";
+import { Link } from "@/src/i18n";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/app/context/AuthContext";
 import { User, Mail, Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";

@@ -1,4 +1,4 @@
-import type {Metadata} from 'next';
+import type {Metadata, Viewport} from 'next';
 import {hasLocale} from 'next-intl';
 import {Nunito, Kantumruy_Pro} from 'next/font/google';
 import {notFound} from 'next/navigation';
@@ -19,6 +19,13 @@ const kantumruyPro = Kantumruy_Pro({
   display: 'swap',
   weight: ['400', '500', '600', '700'],
 });
+
+export const viewport: Viewport = {
+  themeColor: [
+    {media: '(prefers-color-scheme: light)', color: '#E2F1F1'},
+    {media: '(prefers-color-scheme: dark)', color: '#0A0D12'},
+  ],
+};
 
 export async function generateStaticParams() {
   return routing.locales.map((locale) => ({locale}));
@@ -58,10 +65,13 @@ export default async function LocaleLayout({
   const messages = (await import(`../../messages/${locale}.json`)).default;
 
   return (
-    <html lang={locale} className={`${nunito.variable} ${kantumruyPro.variable} antialiased`}>
+    <html lang={locale} suppressHydrationWarning className={`${nunito.variable} ${kantumruyPro.variable} antialiased`}>
+      <head />
       <body className="min-h-screen flex flex-col">
         <Providers locale={locale} messages={messages}>
-          {children}
+          <main id="main-content" className="flex-1">
+            {children}
+          </main>
         </Providers>
       </body>
     </html>

@@ -1,19 +1,21 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import Link from "next/link";
+import { Suspense, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import {
-  Search,
-  MapPin,
-  SlidersHorizontal,
-  Building2,
-  X,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { MapPin, Building2 } from "lucide-react";
+import { Link, usePathname, useRouter } from "@/src/i18n";
 import Footer from "@/app/components/Footer";
 import SaveItemButton from "@/app/components/SaveItemButton";
+import {
+  Button,
+  EmptyState,
+  FilterPill,
+  FilterSelect,
+  Pagination,
+  SearchInput,
+  type SelectOption,
+} from "@/app/components/ui";
 import {
   LOCATIONS,
   applyUniversityTranslations,
@@ -22,7 +24,9 @@ import {
 import enUniversities from "@/app/data-translations/en/universities.json";
 import kmUniversities from "@/app/data-translations/km/universities.json";
 
-export default function UniversitiesPage() {
+const ITEMS_PER_PAGE = 10;
+
+function UniversitiesInner() {
   const t = useTranslations("universities");
   const tCommon = useTranslations("common");
   const locale = useLocale();
@@ -46,11 +50,41 @@ export default function UniversitiesPage() {
 
   const allLocations = locations[0] ?? "All Locations";
 
-  const ITEMS_PER_PAGE = 10;
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState(allLocations);
-  const [selectedType, setSelectedType] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const searchQuery = searchParams.get("q") ?? "";
+  const selectedLocation = searchParams.get("location") ?? allLocations;
+  const selectedType = searchParams.get("type");
+  const currentPage = Math.max(1, Number(searchParams.get("page") ?? 1) || 1);
+
+  const updateUrl = (patch: {
+    q?: string | null;
+    location?: string | null;
+    type?: string | null;
+    page?: number;
+  }) => {
+    const params = new URLSearchParams(searchParams.toString());
+    for (const [key, value] of Object.entries(patch)) {
+      if (key === "page") {
+        if (value === 1) params.delete(key);
+        else params.set(key, String(value));
+      } else if (value && value !== allLocations) {
+        params.set(key, value as string);
+      } else {
+        params.delete(key);
+      }
+    }
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  };
+
+  const onFilterChange = (patch: {
+    q?: string | null;
+    location?: string | null;
+    type?: string | null;
+  }) => updateUrl({ ...patch, page: 1 });
 
   const filteredUniversities = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
@@ -76,15 +110,17 @@ export default function UniversitiesPage() {
     });
   }, [searchQuery, selectedLocation, selectedType, allLocations, universities]);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, selectedLocation, selectedType]);
-
   const totalPages = Math.max(1, Math.ceil(filteredUniversities.length / ITEMS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
   const paginatedUniversities = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const start = (safePage - 1) * ITEMS_PER_PAGE;
     return filteredUniversities.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredUniversities, currentPage]);
+  }, [filteredUniversities, safePage]);
+
+  const locationOptions: SelectOption[] = locations.map((loc) => ({ value: loc, label: loc }));
+
+  const hasActiveFilters =
+    searchQuery !== "" || selectedLocation !== allLocations || selectedType !== null;
 
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
@@ -93,7 +129,11 @@ export default function UniversitiesPage() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="https://www.waca.or.jp/en/wp-content/uploads/2021/03/vasily-koloda-8CqDvPuo_kI-unsplash-860x573.jpg"
-            alt="University Graduation and Campus"
+            alt=""
+            role="presentation"
+            width={860}
+            height={573}
+            decoding="async"
             className="absolute inset-0 w-full h-full object-cover object-center"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/30" />
@@ -103,26 +143,14 @@ export default function UniversitiesPage() {
               {t("heroTitle")}
             </h1>
 
-            <div className="relative max-w-md w-full">
-              <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none z-10">
-                <Search className="w-5 h-5 text-black" strokeWidth={2.2} />
-              </div>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={t("searchPlaceholder")}
-                className="w-full pl-12 pr-10 py-3.5 bg-white rounded-full text-sm text-blue-ink placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-sky focus:bg-white transition-all bubble-shadow-sm font-medium"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-black hover:opacity-70 cursor-pointer z-10"
-                >
-                  <X className="h-4 w-4 text-black" />
-                </button>
-              )}
-            </div>
+            <SearchInput
+              name="q"
+              value={searchQuery}
+              onChange={(value) => onFilterChange({ q: value || null, location: selectedLocation, type: selectedType })}
+              placeholder={t("searchPlaceholder")}
+              ariaLabel={t("searchPlaceholder")}
+              className="max-w-md"
+            />
           </div>
         </section>
 
@@ -138,207 +166,160 @@ export default function UniversitiesPage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-              <div className="flex items-center gap-1.5 bg-white/80 p-1 rounded-full border border-sky/20 bubble-shadow-2xs">
+              <div role="group" aria-label={t("filterTypeLabel")} className="flex items-center gap-1.5 bg-white/80 p-1 rounded-full border border-sky/20 bubble-shadow-2xs">
                 {[t("public"), t("private")].map((type) => {
                   const rawType = type === t("public") ? "Public" : "Private";
                   const isSelected = selectedType === rawType;
                   return (
-                    <button
+                    <FilterPill
                       key={rawType}
-                      onClick={() => setSelectedType(isSelected ? null : rawType)}
-                      className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                        isSelected
-                          ? "bg-sky text-white bubble-shadow-sm"
-                          : "text-blue-ink hover:text-sky-deep"
-                      }`}
-                    >
-                      {type}
-                    </button>
+                      label={type}
+                      selected={isSelected}
+                      onClick={() =>
+                        onFilterChange({ q: searchQuery, location: selectedLocation, type: isSelected ? null : rawType })
+                      }
+                    />
                   );
                 })}
               </div>
 
-              <div className="relative">
-                <select
-                  value={selectedLocation}
-                  onChange={(e) => setSelectedLocation(e.target.value)}
-                  className="appearance-none bg-white border border-sky/25 text-blue-ink text-xs font-bold pl-8 pr-8 py-2 rounded-full cursor-pointer hover:border-sky transition-colors focus:outline-none focus:ring-2 focus:ring-sky/30 bubble-shadow-sm"
-                >
-                  {locations.map((loc) => (
-                    <option key={loc} value={loc}>
-                      {loc}
-                    </option>
-                  ))}
-                </select>
-                <MapPin className="w-3.5 h-3.5 text-sky-deep absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <SlidersHorizontal className="w-3 h-3 text-gray-soft absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              </div>
+              <FilterSelect
+                name="location"
+                value={selectedLocation}
+                onChange={(value) => onFilterChange({ q: searchQuery, location: value, type: selectedType })}
+                options={locationOptions}
+                ariaLabel={t("filterLocationLabel")}
+              />
 
-              {(selectedLocation !== allLocations || selectedType !== null || searchQuery) && (
-                <button
-                  onClick={() => {
-                    setSelectedLocation(allLocations);
-                    setSelectedType(null);
-                    setSearchQuery("");
-                  }}
-                  className="text-xs font-bold text-sky-deep hover:underline px-2 py-1 cursor-pointer"
+              {hasActiveFilters && (
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  onClick={() => onFilterChange({ q: null, location: null, type: null })}
                 >
                   {tCommon("reset")}
-                </button>
+                </Button>
               )}
             </div>
           </div>
 
-          <div className="flex items-center justify-between mt-4">
-            <span className="text-xs font-bold text-gray-soft uppercase tracking-wider">
-              {selectedType
-                ? t(`${selectedType.toLowerCase()}Institutions`)
-                : selectedLocation !== allLocations
-                ? t("institutionsIn", { location: selectedLocation })
-                : t("allInstitutions")}
-            </span>
-          </div>
+          <p className="text-xs font-bold text-gray-soft uppercase tracking-wider mt-4">
+            {selectedType
+              ? t(`${selectedType.toLowerCase()}Institutions`)
+              : selectedLocation !== allLocations
+              ? t("institutionsIn", { location: selectedLocation })
+              : t("allInstitutions")}
+          </p>
         </section>
 
         <section className="flex-1 pb-16">
           {filteredUniversities.length === 0 ? (
-            <div className="bg-white rounded-3xl p-10 text-center border border-sky/15 bubble-shadow-sm max-w-lg mx-auto mt-6">
-              <Building2 className="w-12 h-12 text-sky-deep mx-auto mb-3 opacity-60" />
-              <p className="font-bold text-blue-ink text-base">
-                {t("noUniversitiesFound")}
-              </p>
-              <p className="text-xs sm:text-sm text-gray-soft mt-1.5 font-medium">
-                {t("noUniversitiesHint")}
-              </p>
-              <button
-                onClick={() => {
-                  setSelectedLocation(allLocations);
-                  setSelectedType(null);
-                  setSearchQuery("");
-                }}
-                className="mt-5 inline-flex items-center px-5 py-2.5 rounded-full bg-sky text-white text-xs sm:text-sm font-bold hover:bg-sky-bright transition-colors cursor-pointer"
-              >
-                {tCommon("clearAllFilters")}
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4 lg:gap-5">
-              {paginatedUniversities.map((uni) => (
-                <Link
-                  key={uni.id}
-                  href={`/universities/${uni.id}`}
-                  className="group relative aspect-[3/4] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer bubble-shadow-sm border border-sky/15 hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 block"
+            <EmptyState
+              icon={Building2}
+              title={t("noUniversitiesFound")}
+              description={t("noUniversitiesHint")}
+              action={
+                <Button
+                  variant="primary"
+                  size="md"
+                  onClick={() => onFilterChange({ q: null, location: null, type: null })}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={uni.image}
-                    alt={uni.name}
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
-                  />
-
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
-
-                  <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-10">
-                    <span className="bg-black/40 backdrop-blur-xs text-white text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full border border-white/15">
-                      {uni.type}
-                    </span>
-                  </div>
-
-                  <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-20">
-                    <SaveItemButton
-                      variant="card-action"
-                      item={{
-                        id: uni.id,
-                        type: "university",
-                        title: uni.name,
-                        subtitle: uni.location,
-                        image: uni.image,
-                        badge: uni.type,
-                        link: `/universities/${uni.id}`,
-                      }}
+                  {tCommon("clearAllFilters")}
+                </Button>
+              }
+            />
+          ) : (
+            <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4 lg:gap-5">
+              {paginatedUniversities.map((uni) => (
+                <li key={uni.id} className="h-full">
+                  <Link
+                    href={`/universities/${uni.id}`}
+                    className="group relative aspect-[3/4] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer bubble-shadow-sm border border-sky/15 hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-[transform,box-shadow,border-color] duration-300 block h-full"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={uni.image}
+                      alt={uni.name}
+                      width={600}
+                      height={800}
+                      decoding="async"
+                      loading="lazy"
+                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
                     />
-                  </div>
 
-                  <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 flex flex-col justify-end">
-                    <h3 className="font-display font-bold text-white text-xs sm:text-sm leading-snug line-clamp-2 drop-shadow-sm mb-2 group-hover:text-sky-bright transition-colors">
-                      {uni.name}
-                    </h3>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
 
-                    <div className="flex items-center justify-between gap-1 text-white">
-                      <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs text-white/90 font-medium truncate">
-                        <MapPin className="w-3 h-3 text-sitomo shrink-0" />
-                        <span className="truncate">{uni.location}</span>
-                      </span>
-
-                      <span className="bg-white/20 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-full border border-white/20 shrink-0 shadow-2xs">
-                        {uni.shortName}
+                    <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-10">
+                      <span className="bg-black/40 backdrop-blur-xs text-white text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full border border-white/15">
+                        {uni.type}
                       </span>
                     </div>
-                  </div>
-                </Link>
+
+                    <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-20">
+                      <SaveItemButton
+                        variant="card-action"
+                        item={{
+                          id: uni.id,
+                          type: "university",
+                          title: uni.name,
+                          subtitle: uni.location,
+                          image: uni.image,
+                          badge: uni.type,
+                          link: `/universities/${uni.id}`,
+                        }}
+                      />
+                    </div>
+
+                    <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 flex flex-col justify-end">
+                      <h3 className="font-display font-bold text-white text-xs sm:text-sm leading-snug line-clamp-2 drop-shadow-sm mb-2 group-hover:text-sky-bright transition-colors">
+                        {uni.name}
+                      </h3>
+
+                      <div className="flex items-center justify-between gap-1 text-white">
+                        <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs text-white/90 font-medium truncate">
+                          <MapPin className="w-3 h-3 text-sitomo shrink-0" aria-hidden="true" />
+                          <span className="truncate">{uni.location}</span>
+                        </span>
+
+                        <span className="bg-white/20 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-full border border-white/20 shrink-0 shadow-2xs">
+                          {uni.shortName}
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
 
           {totalPages > 1 && (
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-sky/20">
-              <span className="text-xs font-bold text-gray-soft">
-                {tCommon("pageOf", { current: currentPage, total: totalPages })}
-              </span>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCurrentPage((p) => Math.max(1, p - 1));
-                    window.scrollTo({ top: 350, behavior: "smooth" });
-                  }}
-                  disabled={currentPage <= 1}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-sky/30 bg-white text-blue-ink text-xs font-bold hover:bg-sitomo/60 disabled:opacity-40 disabled:cursor-not-allowed transition-all bubble-shadow-sm cursor-pointer"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  <span>{tCommon("prev")}</span>
-                </button>
-
-                <div className="flex items-center gap-1.5">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-                    <button
-                      key={pageNum}
-                      type="button"
-                      onClick={() => {
-                        setCurrentPage(pageNum);
-                        window.scrollTo({ top: 350, behavior: "smooth" });
-                      }}
-                      className={`w-8 h-8 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                        currentPage === pageNum
-                          ? "bg-sky text-white bubble-shadow-sm"
-                          : "bg-white border border-sky/20 text-blue-ink hover:bg-sitomo/60"
-                      }`}
-                    >
-                      {pageNum}
-                    </button>
-                  ))}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCurrentPage((p) => Math.min(totalPages, p + 1));
-                    window.scrollTo({ top: 350, behavior: "smooth" });
-                  }}
-                  disabled={currentPage >= totalPages}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-sky/30 bg-white text-blue-ink text-xs font-bold hover:bg-sitomo/60 disabled:opacity-40 disabled:cursor-not-allowed transition-all bubble-shadow-sm cursor-pointer"
-                >
-                  <span>{tCommon("next")}</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
+            <Pagination
+              currentPage={safePage}
+              totalPages={totalPages}
+              onPageChange={(page) => {
+                updateUrl({ page });
+                window.scrollTo({ top: 350, behavior: "smooth" });
+              }}
+              labels={{
+                prev: tCommon("prev"),
+                next: tCommon("next"),
+                page: tCommon("pageLabel"),
+                pageOf: tCommon("pageOf", { current: safePage, total: totalPages }),
+              }}
+            />
           )}
         </section>
       </div>
 
       <Footer />
     </div>
+  );
+}
+
+export default function UniversitiesPage() {
+  return (
+    <Suspense fallback={null}>
+      <UniversitiesInner />
+    </Suspense>
   );
 }

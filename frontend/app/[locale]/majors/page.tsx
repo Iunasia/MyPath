@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import Link from "next/link";
-import { Search, X, ArrowRight } from "lucide-react";
+import { Suspense, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import { ArrowRight, BookOpen } from "lucide-react";
+import { Link, usePathname, useRouter } from "@/src/i18n";
+import { Button, EmptyState, SearchInput } from "@/app/components/ui";
 import {
   CATEGORIES,
   applyMajorTranslations,
@@ -14,9 +16,7 @@ import enMajors from "@/app/data-translations/en/majors.json";
 import kmMajors from "@/app/data-translations/km/majors.json";
 import Footer from "@/app/components/Footer";
 
-/* ── Page Component ────────────────────────────────────── */
-
-export default function MajorsPage() {
+function MajorsInner() {
   const t = useTranslations("majors");
   const tCommon = useTranslations("common");
   const locale = useLocale();
@@ -40,24 +40,37 @@ export default function MajorsPage() {
     }));
   }, [majorsData]);
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
 
-  // Filter logic
+  const searchQuery = searchParams.get("q") ?? "";
+  const selectedCategory = searchParams.get("category");
+
+  const updateUrl = (patch: { q?: string | null; category?: string | null }) => {
+    const params = new URLSearchParams(searchParams.toString());
+    for (const [key, value] of Object.entries(patch)) {
+      if (value) {
+        params.set(key, value);
+      } else {
+        params.delete(key);
+      }
+    }
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  };
+
   const filteredMajors = useMemo(() => {
     return majors.filter((major) => {
       const matchesCategory = selectedCategory
         ? major.category === selectedCategory
         : true;
+      const q = searchQuery.trim().toLowerCase();
       const matchesSearch =
-        searchQuery.trim() === "" ||
-        major.name.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
-        major.tags.some((tag) =>
-          tag.toLowerCase().includes(searchQuery.toLowerCase().trim())
-        ) ||
-        major.skillsDeveloped.some((skill) =>
-          skill.toLowerCase().includes(searchQuery.toLowerCase().trim())
-        );
+        q === "" ||
+        major.name.toLowerCase().includes(q) ||
+        major.tags.some((tag) => tag.toLowerCase().includes(q)) ||
+        major.skillsDeveloped.some((skill) => skill.toLowerCase().includes(q));
       return matchesCategory && matchesSearch;
     });
   }, [searchQuery, selectedCategory, majors]);
@@ -67,10 +80,9 @@ export default function MajorsPage() {
       <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
         {/* ── Hero Search Section ───────────────────────────── */}
         <section className="mb-10 text-center max-w-3xl mx-auto w-full pt-4 sm:pt-6">
- 
           <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight leading-[1.15] mb-4">
             {t("heroTitle1")}{" "}
-            <span className="text-sky-deep  decoration-sky/40 underline-offset-4">
+            <span className="text-sky-deep decoration-sky/40 underline-offset-4">
               {t("heroTitleHighlight")}
             </span>
           </h1>
@@ -78,47 +90,30 @@ export default function MajorsPage() {
             {t("heroSubtitle")}
           </p>
 
-          {/* Search Input Bar */}
-          <div className="relative max-w-xl mx-auto">
-            <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none">
-              <Search className="w-5 h-5 text-black" strokeWidth={2.2} />
-            </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t("searchPlaceholder")}
-              className="w-full pl-12 pr-10 py-3.5 bg-white rounded-full border border-sky/25 text-sm text-blue-ink placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-sky focus:border-sky transition-all bubble-shadow-sm font-medium"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-black hover:opacity-70 cursor-pointer z-10"
-              >
-                <X className="h-4 w-4 text-black" />
-              </button>
-            )}
-          </div>
+          <SearchInput
+            name="q"
+            value={searchQuery}
+            onChange={(value) => updateUrl({ q: value || null, category: selectedCategory })}
+            placeholder={t("searchPlaceholder")}
+            ariaLabel={t("searchPlaceholder")}
+            className="max-w-xl mx-auto"
+          />
         </section>
 
-        {/* ── Browse by Interest (6 Categories on Desktop) ──── */}
+        {/* ── Browse by Interest ────────────────────────────── */}
         <section className="mb-12">
           <div className="flex items-center justify-between mb-5">
             <h2 className="font-display text-lg sm:text-xl font-bold text-blue-ink tracking-tight">
               {t("browseByInterest")}
             </h2>
             {selectedCategory && (
-              <button
-                onClick={() => setSelectedCategory(null)}
-                className="text-xs font-bold text-sky-deep hover:underline cursor-pointer"
-              >
+              <Button variant="ghost" size="xs" onClick={() => updateUrl({ q: searchQuery, category: null })}>
                 {tCommon("resetFilter")}
-              </button>
+              </Button>
             )}
           </div>
 
-          {/* Stays in one row on desktop (md:grid-cols-6) and 3 columns on mobile */}
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-3 lg:gap-4">
+          <div role="group" aria-label={t("browseByInterest")} className="grid grid-cols-3 md:grid-cols-6 gap-3 lg:gap-4">
             {categories.map((cat) => {
               const Icon = cat.icon;
               const isSelected = selectedCategory === cat.id;
@@ -126,10 +121,15 @@ export default function MajorsPage() {
               return (
                 <button
                   key={cat.id}
+                  type="button"
                   onClick={() =>
-                    setSelectedCategory(isSelected ? null : cat.id)
+                    updateUrl({
+                      q: searchQuery,
+                      category: isSelected ? null : cat.id,
+                    })
                   }
-                  className={`flex flex-col items-center justify-center p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-3xl rounded-br-[36px] sm:rounded-br-[48px] border-2 transition-all text-center group cursor-pointer min-h-[120px] sm:min-h-[135px] ${
+                  aria-pressed={isSelected}
+                  className={`flex flex-col items-center justify-center p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-3xl rounded-br-[36px] sm:rounded-br-[48px] border-2 text-center group cursor-pointer min-h-[120px] sm:min-h-[135px] transition-[transform,box-shadow,border-color,background-color] duration-300 ${
                     isSelected
                       ? "border-sky ring-2 ring-sky/30 bg-sky/5 bubble-shadow"
                       : "border-sky/40 bg-white hover:border-sky bubble-shadow-sm hover:scale-[1.03] hover:shadow-md"
@@ -138,7 +138,7 @@ export default function MajorsPage() {
                   <div
                     className={`w-12 h-12 sm:w-13 sm:h-13 rounded-full ${cat.bg} flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform shadow-2xs`}
                   >
-                    <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-black" strokeWidth={2.2} />
+                    <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-sky-deep" strokeWidth={2.2} aria-hidden="true" />
                   </div>
                   <span className="font-display text-xs sm:text-sm font-bold text-blue-ink leading-tight">
                     {cat.name}
@@ -149,7 +149,7 @@ export default function MajorsPage() {
           </div>
         </section>
 
-        {/* ── Trending Majors (Multi-Column Grid) ───────────── */}
+        {/* ── Featured Majors ──────────────────────────────── */}
         <section className="flex-1 pb-16">
           <div className="flex items-center justify-between mb-5">
             <h2 className="font-display text-lg sm:text-xl font-bold text-blue-ink tracking-tight">
@@ -162,49 +162,45 @@ export default function MajorsPage() {
               className="group inline-flex items-center gap-1.5 text-xs font-bold text-sky-deep hover:text-sky transition-colors cursor-pointer"
             >
               <span>{t("viewAllMajors")}</span>
-              <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1 group-active:translate-x-1.5" />
+              <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true" />
             </Link>
           </div>
 
           {filteredMajors.length === 0 ? (
-            <div className="bg-white rounded-3xl p-10 text-center border border-sky/15 bubble-shadow-sm mt-4 max-w-lg mx-auto">
-              <p className="font-bold text-blue-ink text-base">{t("noMajorsFound")}</p>
-              <p className="text-xs sm:text-sm text-gray-soft mt-1.5">
-                {t("noMajorsHint")}
-              </p>
-              <button
-                onClick={() => {
-                  setSelectedCategory(null);
-                  setSearchQuery("");
-                }}
-                className="mt-5 inline-flex items-center px-5 py-2.5 rounded-full bg-sky text-white text-xs sm:text-sm font-bold hover:bg-sky-bright transition-colors cursor-pointer"
-              >
-                {tCommon("clearAllFilters")}
-              </button>
-            </div>
+            <EmptyState
+              icon={BookOpen}
+              title={t("noMajorsFound")}
+              description={t("noMajorsHint")}
+              action={
+                <Button
+                  variant="primary"
+                  size="md"
+                  onClick={() => updateUrl({ q: null, category: null })}
+                >
+                  {tCommon("clearAllFilters")}
+                </Button>
+              }
+            />
           ) : (
-            /* Responsive Grid: 1 col on mobile, 2 cols on tablet, 3 cols on desktop (Top 6 Majors) */
             <>
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
-                {filteredMajors.slice(0, 8).map((major) => {
-                  return (
-                    <article
-                      key={major.id}
-                      className="bg-white rounded-2xl border border-sky/20 overflow-hidden shadow-xs hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group cursor-pointer h-full"
-                    >
+              <ul className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+                {filteredMajors.slice(0, 8).map((major) => (
+                  <li key={major.id} className="h-full">
+                    <article className="bg-white rounded-2xl border border-sky/20 overflow-hidden shadow-xs hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-[transform,box-shadow,border-color] duration-300 flex flex-col justify-between group cursor-pointer h-full">
                       <div>
-                        {/* Top Image */}
                         <Link href={`/majors/${major.id}`} className="block w-full h-[140px] overflow-hidden bg-sky/5">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={major.heroImage}
                             alt={major.name}
+                            width={640}
+                            height={360}
+                            decoding="async"
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             loading="lazy"
                           />
                         </Link>
 
-                        {/* Card Content: Title & Important Text */}
                         <div className="p-4 pb-2">
                           <Link href={`/majors/${major.id}`}>
                             <h3 className="font-display text-base font-bold text-blue-ink hover:text-sky-deep transition-colors leading-snug line-clamp-2 min-h-[44px]">
@@ -223,7 +219,6 @@ export default function MajorsPage() {
                         </div>
                       </div>
 
-                      {/* Bottom: View more Button */}
                       <div className="p-4 pt-1 pb-4 flex justify-end">
                         <Link
                           href={`/majors/${major.id}`}
@@ -233,19 +228,16 @@ export default function MajorsPage() {
                         </Link>
                       </div>
                     </article>
-                  );
-                })}
-              </div>
+                  </li>
+                ))}
+              </ul>
 
               {filteredMajors.length > 8 && (
                 <div className="mt-10 text-center">
-                  <Link
-                    href="/majors/all"
-                    className="group inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-white border-2 border-sky/40 text-sky-deep font-bold text-sm hover:bg-sky/10 hover:border-sky transition-all bubble-shadow-sm cursor-pointer"
-                  >
+                  <Button href="/majors/all" variant="secondary" size="lg">
                     <span>{t("viewAllMajorsButton")}</span>
-                    <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1 group-active:translate-x-1.5" />
-                  </Link>
+                    <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                  </Button>
                 </div>
               )}
             </>
@@ -253,8 +245,15 @@ export default function MajorsPage() {
         </section>
       </div>
 
-      {/* ── Reusable Footer Component ────────────────────── */}
       <Footer />
     </div>
+  );
+}
+
+export default function MajorsPage() {
+  return (
+    <Suspense fallback={null}>
+      <MajorsInner />
+    </Suspense>
   );
 }

@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import { Link } from "@/src/i18n";
 import {
   ExternalLink,
   Info,
@@ -25,6 +25,7 @@ import {
   toMajorViews,
   toUniversityViews,
   type MajorView,
+  type UniversityView,
 } from "@/app/lib/catalogAdapters";
 import { toScholarshipViews } from "@/app/lib/adapters";
 import Footer from "@/app/components/Footer";
@@ -72,8 +73,6 @@ export default async function MajorDetailPage({ params }: PageProps) {
 
   const apiView = row ? toMajorView(row) : null;
 
-  const rawFallbackMajor = fallbackMajor as unknown as Record<string, unknown>;
-
   const major: MajorView = apiView
     ? {
         ...apiView,
@@ -85,22 +84,19 @@ export default async function MajorDetailPage({ params }: PageProps) {
         tags: (fallbackMajor?.tags ?? apiView.tags) as string[],
         duration: (fallbackMajor?.duration ?? apiView.duration) as string | null,
         degreeType: (fallbackMajor?.degreeType ?? apiView.degreeType) as string | null,
-        personalityFit:
-          (rawFallbackMajor.personalityFit as string[] | undefined) ?? apiView.personalityFit,
+        personalityFit: apiView.personalityFit,
         jobMarketDemand: fallbackMajor?.jobMarketDemand ?? apiView.jobMarketDemand,
         relatedCareersText:
           fallbackMajor?.careerPathways?.map((c) => c.title) ?? apiView.relatedCareersText,
         universitiesText:
-          (rawFallbackMajor.universities as Array<{ name: string }> | undefined)?.map((u) => u.name) ??
-          apiView.universitiesText,
+          fallbackMajor?.offerUniversities?.map((u) => u.name) ?? apiView.universitiesText,
         relatedScholarshipsText:
-          (rawFallbackMajor.relatedScholarships as Array<{ title: string }> | undefined)?.map((s) => s.title) ??
-          apiView.relatedScholarshipsText,
+          fallbackMajor?.relatedOpportunities?.map((o) => o.title) ?? apiView.relatedScholarshipsText,
         whatYouLearn: fallbackMajor?.whatYouLearn ?? apiView.whatYouLearn,
         skillsDeveloped: fallbackMajor?.skillsDeveloped ?? apiView.skillsDeveloped,
         careerOpportunities: fallbackMajor?.careerOpportunities ?? apiView.careerOpportunities,
       }
-    : ({
+    : {
         id: fallbackMajor!.id,
         name: fallbackMajor!.name,
         category: fallbackMajor!.category,
@@ -111,60 +107,57 @@ export default async function MajorDetailPage({ params }: PageProps) {
         iconColor: fallbackMajor!.iconColor,
         heroImage: fallbackMajor!.heroImage,
         tags: fallbackMajor!.tags,
-        subjects: (fallbackMajor as any)?.subjects ?? [],
+        subjects: [],
         duration: fallbackMajor!.duration,
         degreeType: fallbackMajor!.degreeType,
-        personalityFit: (fallbackMajor as any)?.personalityFit ?? [],
+        personalityFit: [],
         jobMarketDemand: fallbackMajor!.jobMarketDemand,
-        relatedCareersText: fallbackMajor?.careerPathways?.map((c) => c.title) ?? [],
-        universitiesText: (fallbackMajor as any)?.universities?.map((u: any) => u.name) ?? [],
-        relatedScholarshipsText: (fallbackMajor as any)?.relatedScholarships?.map((s: any) => s.title) ?? [],
-        source: null,
-        sourceUrl: null,
-        extendedDescription: fallbackMajor?.extendedDescription ?? null,
-        whatYouLearn: fallbackMajor?.whatYouLearn ?? [],
-        skillsDeveloped: fallbackMajor?.skillsDeveloped ?? [],
-        careerOpportunities: "",
-      } as any);
+        relatedCareersText: fallbackMajor!.careerPathways.map((c) => c.title),
+        universitiesText: fallbackMajor!.offerUniversities.map((u) => u.name),
+        relatedScholarshipsText: fallbackMajor!.relatedOpportunities.map((o) => o.title),
+        source: fallbackMajor!.source,
+        sourceUrl: fallbackMajor!.sourceUrl,
+        extendedDescription: fallbackMajor!.extendedDescription ?? null,
+        whatYouLearn: fallbackMajor!.whatYouLearn,
+        skillsDeveloped: fallbackMajor!.skillsDeveloped,
+        careerOpportunities: fallbackMajor!.careerOpportunities,
+      };
 
   const allMajors = toMajorViews(majorRows);
   const allScholarships = toScholarshipViews(scholarshipRows);
 
   // Universities named in the spreadsheet, resolved to real records.
-  const { links: universityLinks, unmatched: universityNames } = linkUniversities(
+  const { links: universityLinks } = linkUniversities(
     major.universitiesText,
     toUniversityViews(universityRows)
   );
-  const offerUniversities =
+  const offerUniversities: UniversityView[] =
     universityRows.length > 0 && universityLinks.length > 0
       ? (universityLinks
           .map((link) => toUniversityViews(universityRows).find((u) => u.id === link.id))
-          .filter(Boolean) as ReturnType<typeof toUniversityViews>)
-      : (((fallbackMajor as any)?.universities?.map((u: any) => {
-          const fullUni = UNIVERSITIES_DATA.find((item: any) => item.id === u.id || item.name.includes(u.name));
+          .filter(Boolean) as UniversityView[])
+      : (fallbackMajor?.offerUniversities?.map((u) => {
+          const fullUni = UNIVERSITIES_DATA.find(
+            (item) => item.name.includes(u.name) || item.shortName === u.shortName
+          );
           return {
-            id: u.id,
+            id: fullUni?.id ?? u.name.toLowerCase().replace(/[^a-z0-9]/g, "-"),
+            apiId: 0,
             name: u.name,
-            shortName: u.name,
-            type: fullUni?.type ?? "University",
+            shortName: u.shortName,
             location: u.location,
-            address: (fullUni as any)?.address ?? u.location,
-            website: (fullUni as any)?.website ?? "",
-            logo: (fullUni as any)?.logo ?? "",
-            bannerImage: (fullUni as any)?.bannerImage ?? "",
-            image: fullUni?.heroImage || fullUni?.image || (fullUni as any)?.bannerImage || "",
-            popularMajors: [],
+            type: fullUni?.type ?? "University",
             description: fullUni?.description ?? "",
-            isVerified: true,
-            verificationSource: null,
-            verificationDate: null,
-            isOutdated: false,
-            totalStudents: null,
-            programsCount: null,
-            source: null,
-            sourceUrl: null,
-          };
-        }) ?? []) as any[]);
+            website: fullUni?.website ?? u.websiteUrl ?? "",
+            phone: null,
+            established: null,
+            studentCount: null,
+            tuitionFee: null,
+            image: fullUni?.heroImage || fullUni?.image || u.image,
+            popularMajors: [],
+            scholarshipsList: [],
+          } as UniversityView;
+        }) ?? []);
 
   // Same field, excluding this one.
   const relatedMajors =
