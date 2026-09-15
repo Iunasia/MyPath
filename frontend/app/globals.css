@@ -49,12 +49,30 @@
   --color-gray-faint: var(--gray-faint);
   --font-display: var(--font-nunito);
   --font-body: var(--font-nunito);
+  --font-khmer: var(--font-kantumruy-pro);
 }
 
 body {
   background: var(--powder);
   color: var(--blue-ink);
   font-family: var(--font-body), system-ui, sans-serif;
+}
+
+/* ── Khmer Font Styling (Kantumruy Pro) ────────────────── */
+html[lang="km"],
+html[lang="km"] body,
+html[lang="km"] button,
+html[lang="km"] input,
+html[lang="km"] select,
+html[lang="km"] textarea,
+html[lang="km"] .font-display,
+html[lang="km"] h1,
+html[lang="km"] h2,
+html[lang="km"] h3,
+html[lang="km"] h4,
+html[lang="km"] h5,
+html[lang="km"] h6 {
+  font-family: var(--font-kantumruy-pro), var(--font-nunito), system-ui, sans-serif !important;
 }
 
 ::selection {

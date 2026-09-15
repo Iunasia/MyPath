@@ -8,6 +8,7 @@
  */
 import type { ApiInfoCheck, ApiScholarship } from "./api";
 import type { Scholarship } from "@/app/data/scholarships";
+import { toKhmerDigits } from "./dataTranslations";
 
 /** The view model is the existing page shape plus the DMIL verdict. */
 export interface ScholarshipView extends Scholarship {
@@ -136,16 +137,14 @@ export const deadlineState = (iso: string | null): DeadlineState => {
   return { kind: "open", daysLeft: Math.round((phnomPenhDay(at) - phnomPenhDay(now)) / 86_400_000) };
 };
 
-export const deadlineLabel = (state: DeadlineState): string =>
-  state.kind === "closed"
-    ? "Closed"
-    : state.kind === "unknown"
-      ? "No date yet"
-      : state.daysLeft === 0
-        ? "Closes today"
-        : state.daysLeft === 1
-          ? "1 day left"
-          : `${state.daysLeft} days left`;
+export const deadlineLabel = (state: DeadlineState, locale: string = "en"): string => {
+  const isKm = locale === "km";
+  if (state.kind === "closed") return isKm ? "បានបិទ" : "Closed";
+  if (state.kind === "unknown") return isKm ? "មិនទាន់មានកាលបរិច្ឆេទ" : "No date yet";
+  if (state.daysLeft === 0) return isKm ? "បិទនៅថ្ងៃនេះ" : "Closes today";
+  if (state.daysLeft === 1) return isKm ? "នៅសល់ ១ ថ្ងៃ" : "1 day left";
+  return isKm ? `នៅសល់ ${toKhmerDigits(state.daysLeft)} ថ្ងៃ` : `${state.daysLeft} days left`;
+};
 
 /* ------------------------------------------------------------------ */
 /* Enums                                                               */
