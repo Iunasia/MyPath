@@ -14,6 +14,7 @@ import {
   FileText,
   Clock,
   ArrowRight,
+  HelpCircle,
 } from "lucide-react";
 import Footer from "@/app/components/Footer";
 import SaveItemButton from "@/app/components/SaveItemButton";
@@ -121,7 +122,7 @@ export default function ScholarshipDetail({
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       {/* Responsive Viewport Container: 25px on mobile, 32px-40px on tablet, 80px on desktop */}
       <div className="w-full flex-1 px-[25px] py-6 sm:px-8 md:px-10 lg:px-[80px] flex flex-col">
-        <BackLink href="/scholarships" label="All scholarships" className="mb-4" />
+        <BackLink href="/scholarships" label="Back" className="mb-4" />
 
         {/* ── Main Content Area (Clean text-focused editorial layout) ── */}
         <main className="w-full pb-16 flex flex-col gap-12 md:gap-16 mt-2 sm:mt-4">
@@ -229,6 +230,14 @@ export default function ScholarshipDetail({
                     <ExternalLink className="w-4 h-4" />
                   </a>
 
+                  <Link
+                    href={`/scholarships/${scholarship.id}/quiz`}
+                    className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 rounded-full border-2 border-sky bg-white text-sky-deep font-bold text-sm hover:bg-sitomo/60 hover:border-sky-deep transition-all bubble-shadow-sm cursor-pointer"
+                  >
+                  
+                    <span>Attempt Quiz</span>
+                  </Link>
+
                   <SaveItemButton
                     item={{
                       id: scholarship.id,
@@ -257,6 +266,12 @@ export default function ScholarshipDetail({
                     src={scholarship.image}
                     alt={scholarship.title}
                     className="w-full h-full object-cover object-center"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (!target.src.includes("/images/scholarships/")) {
+                        target.src = "/images/scholarships/campus.jpg";
+                      }
+                    }}
                   />
                 </div>
               </div>

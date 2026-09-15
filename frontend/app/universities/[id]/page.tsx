@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   MapPin,
@@ -20,9 +21,17 @@ import {
 import Footer from "@/app/components/Footer";
 import BackLink from "@/app/components/BackLink";
 import SaveItemButton from "@/app/components/SaveItemButton";
+import ScholarshipCard from "@/app/components/ScholarshipCard";
 import { UNIVERSITIES_DATA } from "@/app/data/universities";
-import { getUniversity } from "@/app/lib/api.server";
+import { SCHOLARSHIPS_DATA } from "@/app/data/scholarships";
+import { getUniversity, getScholarships } from "@/app/lib/api.server";
 import { toUniversityView } from "@/app/lib/catalogAdapters";
+import {
+  toScholarshipViews,
+  curatedToScholarshipView,
+  getScholarshipsForUniversity,
+  type ScholarshipView,
+} from "@/app/lib/adapters";
 
 /** Rendered per request — see the note on the career detail page. */
 export const dynamic = "force-dynamic";
@@ -58,7 +67,11 @@ export default async function UniversityDetailPage({ params }: PageProps) {
   const { id } = await params;
 
   // The API decides which universities exist and supplies the core facts.
-  const row = await getUniversity(id);
+  const [row, apiScholarships] = await Promise.all([
+    getUniversity(id),
+    getScholarships(),
+  ]);
+
   const view = row ? toUniversityView(row) : null;
   const curated = UNIVERSITIES_DATA.find(
     (u) =>
@@ -77,11 +90,24 @@ export default async function UniversityDetailPage({ params }: PageProps) {
     popularMajors: view?.popularMajors ?? curated?.popularMajors ?? [],
     heroImage: curated?.heroImage || curated?.image || (view as any)?.bannerImage || "",
     image: curated?.image || (view as any)?.bannerImage || "",
-    name: view?.name ?? curated?.name ?? "",
-    location: view?.location ?? curated?.location ?? "",
-    type: view?.type ?? curated?.type ?? "University",
+    name: curated?.name ?? view?.name ?? "",
+    location: curated?.location ?? view?.location ?? "",
+    type: curated?.type ?? view?.type ?? "University",
     description: curated?.description ?? view?.description ?? "",
   };
+
+  // Compile available scholarships from API and curated data
+  const backendViews = toScholarshipViews(apiScholarships || []);
+  const curatedViews = SCHOLARSHIPS_DATA.map(curatedToScholarshipView);
+  const allScholarships: ScholarshipView[] = [...backendViews];
+  for (const cv of curatedViews) {
+    if (!allScholarships.some((s) => s.id === cv.id || s.title.toLowerCase() === cv.title.toLowerCase())) {
+      allScholarships.push(cv);
+    }
+  }
+
+  // Scholarships relating directly to this university
+  const universityScholarships = getScholarshipsForUniversity(university, allScholarships);
 
   // Calculate total majors across all faculties
   const totalMajorsCount =
@@ -94,7 +120,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       {/* Full-width responsive container */}
       <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
-        <BackLink href="/universities" label="All universities" className="mb-6" />
+        <BackLink href="/universities" label="Back" className="mb-6" />
 
         {/* ── Main Content Container ────────────────────────── */}
         <main className="w-full pb-16 flex flex-col gap-10">
@@ -149,11 +175,16 @@ export default async function UniversityDetailPage({ params }: PageProps) {
             <div className="max-w-4xl">
 
               <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight leading-[1.15]">
-                {university.taglinePrefix}{" "}
-                <span className="text-sky-deep">
-                  {university.taglineHighlight}
-                </span>
+                {university.name}
               </h1>
+              {university.taglinePrefix && university.taglineHighlight && (
+                <p className="text-sm sm:text-base lg:text-lg font-bold text-sky-deep mt-2">
+                  {university.taglinePrefix}{" "}
+                  <span className="text-sky-deep">
+                    {university.taglineHighlight}
+                  </span>
+                </p>
+              )}
               <p className="text-sm sm:text-base lg:text-lg text-gray-body leading-relaxed font-medium mt-3">
                 {university.description}
               </p>
@@ -331,50 +362,6 @@ export default async function UniversityDetailPage({ params }: PageProps) {
             </section>
           )}
 
-          {/* 4. Degree Levels — curated dataset only */}
-          {university.undergraduate && university.graduate && (
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
-            {/* Undergraduate Degree */}
-            <div className="flex flex-col">
-              <div className="relative w-full h-56 sm:h-64 lg:h-72 rounded-2xl overflow-hidden mb-3.5 border border-sky/15 bubble-shadow-sm">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={university.undergraduate.image}
-                  alt={university.undergraduate.title}
-                  className="w-full h-full object-cover object-center"
-                />
-              </div>
-              <div className="border-l-4 border-sky pl-3.5 py-1">
-                <h2 className="font-display text-lg sm:text-xl font-bold text-blue-ink">
-                  {university.undergraduate.title}
-                </h2>
-                <p className="text-xs sm:text-sm text-gray-body leading-relaxed font-medium mt-1">
-                  {university.undergraduate.description}
-                </p>
-              </div>
-            </div>
-
-            {/* Graduate Degree */}
-            <div className="flex flex-col">
-              <div className="relative w-full h-56 sm:h-64 lg:h-72 rounded-2xl overflow-hidden mb-3.5 border border-sky/15 bubble-shadow-sm">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={university.graduate.image}
-                  alt={university.graduate.title}
-                  className="w-full h-full object-cover object-center"
-                />
-              </div>
-              <div className="border-l-4 border-sky pl-3.5 py-1">
-                <h2 className="font-display text-lg sm:text-xl font-bold text-blue-ink">
-                  {university.graduate.title}
-                </h2>
-                <p className="text-xs sm:text-sm text-gray-body leading-relaxed font-medium mt-1">
-                  {university.graduate.description}
-                </p>
-              </div>
-            </div>
-          </section>
-          )}
 
           {/* 5. Academic Programs Highlights — curated dataset only */}
           {university.programs && university.programs.length > 0 && (
@@ -450,19 +437,29 @@ export default async function UniversityDetailPage({ params }: PageProps) {
           {/* 7. Campus Facilities — curated dataset only */}
           {university.facilities && university.facilities.length > 0 && (
           <section>
-            <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink mb-6">
-              Campus Facilities
-            </h2>
+            <div className="flex items-center gap-2.5 mb-6">
+              <div className="w-9 h-9 rounded-xl bg-sky/15 flex items-center justify-center text-sky-deep">
+                <Building2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink">
+                  Campus Facilities
+                </h2>
+                <p className="text-xs text-gray-soft font-medium">
+                  State-of-the-art learning spaces, laboratories, and student hubs
+                </p>
+              </div>
+            </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
               {university.facilities.map((fac) => (
                 <div key={fac.name} className="flex flex-col group">
-                  <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-sky/15 bubble-shadow-sm mb-2">
+                  <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-sky/15 bubble-shadow-sm mb-2 bg-sitomo/40">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={fac.image}
                       alt={fac.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
                   <h3 className="text-xs sm:text-sm font-bold text-blue-ink leading-snug">
@@ -476,65 +473,51 @@ export default async function UniversityDetailPage({ params }: PageProps) {
 
           {/* 8. Scholarship Opportunities */}
           <section>
-            <div className="flex items-center gap-2.5 mb-6">
-              <div className="w-9 h-9 rounded-xl bg-sky/15 flex items-center justify-center text-sky-deep">
-                <Award className="w-5 h-5" />
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
+              <div className="flex items-center gap-2.5">
+    
+                <div>
+                  <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink">
+                    Scholarships & Financial Aid
+                  </h2>
+
+                </div>
               </div>
-              <div>
-                <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink">
-                  Scholarships & Financial Aid
-                </h2>
-                <p className="text-xs text-gray-soft font-medium">
-                  Opportunities to fund your university studies
-                </p>
-              </div>
+              <Link
+                href="/scholarships"
+                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-sky-deep hover:text-blue-ink shrink-0 transition-colors"
+              >
+                All scholarships <span aria-hidden="true">→</span>
+              </Link>
             </div>
 
-            {/* List all specific scholarships if available */}
-            {university.scholarshipsList && university.scholarshipsList.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mb-6">
-                {university.scholarshipsList.map((scholarshipName, sIdx) => (
-                  <div
-                    key={sIdx}
-                    className="bg-white rounded-2xl p-4 sm:p-5 border border-sky/20 bubble-shadow-sm flex items-start gap-3.5 hover:border-sky transition-all"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-sitomo/70 flex items-center justify-center text-blue-ink shrink-0 mt-0.5 border border-sky/20">
-                      <Award className="w-5 h-5 text-sky-deep" />
-                    </div>
-                    <div>
-                      <h3 className="text-xs sm:text-sm font-bold text-blue-ink leading-snug">
-                        {scholarshipName}
-                      </h3>
-                      <span className="inline-block mt-2 text-[10px] font-extrabold text-sky-deep bg-powder px-2.5 py-0.5 rounded-full border border-sky/20">
-                        Official Scholarship Program
-                      </span>
-                    </div>
-                  </div>
+            {universityScholarships.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl">
+                {universityScholarships.map((scholarship) => (
+                  <ScholarshipCard
+                    key={scholarship.id}
+                    scholarship={scholarship}
+                    showProvider={false}
+                  />
                 ))}
               </div>
-            ) : university.scholarship ? (
-              /* Fallback single scholarship banner — curated dataset only */
-              <div className="bg-white rounded-3xl p-5 sm:p-6 border border-sky/15 bubble-shadow-sm max-w-3xl flex flex-col sm:flex-row items-center gap-5 sm:gap-6">
-                <div className="w-full sm:w-44 h-32 rounded-2xl overflow-hidden shrink-0 border border-sky/15">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={university.scholarship.image}
-                    alt={university.scholarship.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-
-                <div className="flex-1 min-w-0 flex flex-col justify-center">
-                  <h3 className="font-display text-base sm:text-lg font-bold text-blue-ink mb-2">
-                    {university.scholarship.title}
-                  </h3>
-                  <div className="flex items-center gap-2 text-xs text-rose-600 font-bold bg-rose-50 px-3 py-1 rounded-full border border-rose-100 w-fit">
-                    <Calendar className="w-3.5 h-3.5" />
-                    <span>Deadline: {university.scholarship.deadline}</span>
-                  </div>
-                </div>
+            ) : (
+              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-sky/15 bubble-shadow-sm text-center max-w-xl">
+                <Award className="w-10 h-10 text-sky-deep mx-auto mb-2 opacity-60" />
+                <h3 className="font-display text-base font-bold text-blue-ink mb-1">
+                  No institutional scholarships currently listed
+                </h3>
+                <p className="text-xs text-gray-soft mb-4">
+                  Explore national and foundation scholarships available to students across Cambodia.
+                </p>
+                <Link
+                  href="/scholarships"
+                  className="inline-flex items-center px-4 py-2 rounded-full bg-sky text-white text-xs font-bold hover:bg-sky-bright transition-colors bubble-shadow-sm"
+                >
+                  Browse all scholarships
+                </Link>
               </div>
-            ) : null}
+            )}
           </section>
 
           {/* 9. Location & Campus Branches */}

@@ -161,7 +161,7 @@ export default function MajorsPage() {
                     >
                       <div>
                         {/* Top Image */}
-                        <Link href={`/majors/${major.id}`} className="block w-full h-[140px] overflow-hidden bg-sky/5">
+                        <Link href={`/majors/${major.id}`} className="block w-full h-[165px] overflow-hidden bg-sky/5">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={major.heroImage}
@@ -171,30 +171,30 @@ export default function MajorsPage() {
                           />
                         </Link>
 
-                        {/* Card Content: Title & Important Text */}
-                        <div className="p-4 pb-2">
+                        {/* Card Content: Title */}
+                        <div className="p-4 pb-3">
                           <Link href={`/majors/${major.id}`}>
                             <h3 className="font-display text-base font-bold text-blue-ink hover:text-sky-deep transition-colors leading-snug line-clamp-2 min-h-[44px]">
                               {major.name}
                             </h3>
                           </Link>
-
-                          <div className="mt-2 space-y-1">
-                            <p className="text-xs text-gray-soft font-medium line-clamp-1">
-                              {major.category} • {major.duration}
-                            </p>
-                            <p className="text-xs font-semibold text-blue-ink">
-                              Market Demand: <span className="font-bold text-sky-deep">{major.jobMarketDemand}</span>
-                            </p>
-                          </div>
                         </div>
                       </div>
 
-                      {/* Bottom: View more Button */}
-                      <div className="p-4 pt-1 pb-4 flex justify-end">
+                      {/* Bottom: 2 text lines on left aligned with View more button on right */}
+                      <div className="p-4 pt-3 pb-4 border-t border-sky/10 flex items-center justify-between gap-2">
+                        <div className="space-y-1 min-w-0">
+                          <p className="text-xs text-gray-soft font-medium line-clamp-1">
+                            {major.category} • {major.duration}
+                          </p>
+                          <p className="text-xs font-semibold text-blue-ink line-clamp-1">
+                            Market Demand: <span className="font-bold text-sky-deep">{major.jobMarketDemand}</span>
+                          </p>
+                        </div>
+
                         <Link
                           href={`/majors/${major.id}`}
-                          className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-sky text-sky-deep hover:bg-sky hover:text-white text-xs font-bold transition-colors cursor-pointer"
+                          className="inline-flex items-center justify-center px-3.5 py-1.5 rounded-lg border border-sky text-sky-deep hover:bg-sky hover:text-white text-xs font-bold transition-colors cursor-pointer shrink-0"
                         >
                           View more
                         </Link>

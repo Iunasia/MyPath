@@ -3,7 +3,6 @@ import Link from "next/link";
 import {
   ArrowRight,
   Info,
-  Briefcase,
   GraduationCap,
   Sparkles,
   TrendingUp,
@@ -77,13 +76,12 @@ export default async function CareerDetailPage({ params }: PageProps) {
           unmatched: [],
         };
 
-  const Icon = career.icon;
 
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       <div className="w-full px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
         {/* ── Header ────────────────────────────────────────── */}
-        <BackLink href="/careers" label="All careers" className="mb-6" />
+        <BackLink href="/careers" label="Back" className="mb-6" />
 
         {/* ── Main Content ──────────────────────────────────── */}
         <main className="w-full pb-16 flex flex-col gap-10">
@@ -99,30 +97,10 @@ export default async function CareerDetailPage({ params }: PageProps) {
               </span>
             </div>
 
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-16 h-16 rounded-2xl bg-sitomo flex items-center justify-center border border-sky/15 shrink-0">
-                <Icon className="w-8 h-8 text-sky-deep" strokeWidth={2.2} />
-              </div>
+            <div className="mb-6 pb-6 border-b border-sky/15 max-w-4xl">
               <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight leading-[1.15]">
                 {career.title}
               </h1>
-            </div>
-
-            {/* What You Do Banner */}
-            <div className="p-5 bg-white rounded-2xl border border-sky/20 bubble-shadow-sm mb-6 max-w-4xl">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-sitomo flex items-center justify-center text-sky-deep shrink-0">
-                  <Briefcase className="w-5 h-5" />
-                </div>
-                <div>
-                  <h2 className="text-xs font-extrabold uppercase tracking-wider text-sky-deep mb-1">
-                    What You Do
-                  </h2>
-                  <p className="text-base sm:text-lg font-bold text-blue-ink leading-snug">
-                    {career.whatYouDo}
-                  </p>
-                </div>
-              </div>
             </div>
 
             <div className="max-w-4xl mb-6">

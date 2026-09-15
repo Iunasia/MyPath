@@ -202,7 +202,7 @@ export default async function MajorDetailPage({ params }: PageProps) {
       {/* Full-width responsive container: exactly 25px on mobile, 80px on desktop */}
       <div className="w-full px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
         
-        <BackLink href="/majors" label="Majors" className="mb-6" />
+        <BackLink href="/majors" label="Back" className="mb-6" />
 
         {/* ── Main Content: Full Screen with 80px Desktop Margins ── */}
         <main className="w-full pb-16 flex flex-col gap-10">

@@ -39,7 +39,7 @@ export default function SignInPage() {
         className="absolute top-6 left-6 inline-flex items-center gap-2 text-sm font-semibold text-gray-soft hover:text-blue-ink transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
-        Back to Domner
+        Back
       </Link>
 
       <div className="relative w-full max-w-md">

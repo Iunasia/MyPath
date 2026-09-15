@@ -122,10 +122,6 @@ export default function WorkshopsPage() {
                 <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink tracking-tight">
                   Workshops &amp; Opportunities
                 </h2>
-                <p className="text-xs text-gray-soft font-medium mt-0.5 flex items-center gap-1.5">
-                  <span>Swipe or scroll right to explore all verified opportunities</span>
-                  <span className="text-sky-deep font-bold" aria-hidden="true">→</span>
-                </p>
               </div>
 
               {/* Header Scroll Navigation Buttons */}

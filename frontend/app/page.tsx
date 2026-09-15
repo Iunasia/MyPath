@@ -5,10 +5,12 @@ import ScholarshipCard from "./components/ScholarshipCard";
 import InformationCheckDemo from "./components/InformationCheckDemo";
 import InteractiveCTA from "./components/InteractiveCTA";
 import { getScholarships } from "./lib/api.server";
+import { SCHOLARSHIPS_DATA } from "./data/scholarships";
 import {
   deadlineState,
   sortByDeadline,
   toScholarshipViews,
+  curatedToScholarshipView,
   type ScholarshipView,
 } from "./lib/adapters";
 import WorkshopIcon from "./components/WorkshopIcon";
@@ -143,14 +145,19 @@ const TRUST_ITEMS = [
 /** Rendered per request: "Closing soon" is live data. */
 export const dynamic = "force-dynamic";
 
-/** The three open scholarships closing soonest — none if the API is down. */
+/** The three open scholarships closing soonest — with fallback to curated data when API is offline. */
 async function getClosingSoon(): Promise<ScholarshipView[]> {
   try {
-    return sortByDeadline(toScholarshipViews(await getScholarships()))
-      .filter((s) => deadlineState(s.deadlineAt).kind === "open")
+    const apiRows = await getScholarships();
+    const views =
+      apiRows && apiRows.length > 0
+        ? toScholarshipViews(apiRows)
+        : SCHOLARSHIPS_DATA.map(curatedToScholarshipView);
+    return sortByDeadline(views)
+      .filter((s) => deadlineState(s.deadlineAt).kind !== "closed")
       .slice(0, 3);
   } catch {
-    return [];
+    return SCHOLARSHIPS_DATA.map(curatedToScholarshipView).slice(0, 3);
   }
 }
 

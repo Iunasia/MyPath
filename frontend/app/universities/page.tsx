@@ -219,10 +219,10 @@ export default function UniversitiesPage() {
                   <img
                     src={uni.image}
                     alt={uni.name}
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
 
-                  {/* Dark Gradient Overlay */}
+                  {/* Gradient Overlay for Text Readability */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
 
                   {/* Type Badge on Top */}
@@ -240,9 +240,8 @@ export default function UniversitiesPage() {
                         id: uni.id,
                         type: "university",
                         title: uni.name,
-                        subtitle: uni.location,
+                        subtitle: uni.shortName,
                         image: uni.image,
-                        badge: uni.type,
                         link: `/universities/${uni.id}`,
                       }}
                     />

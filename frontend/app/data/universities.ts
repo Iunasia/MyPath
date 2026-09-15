@@ -82,7 +82,7 @@ export const UNIVERSITIES_DATA: University[] = [
     location: "Phnom Penh",
     type: "Public",
     image: "https://cadt.edu.kh/wp-content/uploads/2024/06/Our-10th-Anniversary-Celebration-scaled.webp",
-    heroImage: "https://images.unsplash.com/photo-1562774053-701939374585?w=1600&auto=format&fit=crop&q=80",
+    heroImage: "https://cadt.edu.kh/wp-content/uploads/2024/06/Our-10th-Anniversary-Celebration-scaled.webp",
     description:
       "Cambodia's national flagship digital higher education institute, specializing in software engineering, artificial intelligence, cybersecurity, and digital entrepreneurship.",
     popularMajors: [
@@ -106,7 +106,6 @@ export const UNIVERSITIES_DATA: University[] = [
     ],
     scholarshipsList: [
       "Techo Digital Talent Scholarship 2026 (100% Tuition + Stipend)",
-      "CADT Female Tech Leaders Fellowship",
       "MPTC Digital Research & Innovation Grant",
     ],
     facultiesList: [
@@ -172,22 +171,22 @@ export const UNIVERSITIES_DATA: University[] = [
     applicationDeadline: "August 31, 2026",
     facilities: [
       {
-        name: "CADT Innovation Center & AI Labs",
-        image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&auto=format&fit=crop&q=80",
+        name: "CADT Innovation Center",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTV9neDn3Aw_ltwxVg-wAaVjPRT3jzIUGXhNAyo_8yqXzq9tMvP1w0nUMnu&s=10",
       },
       {
-        name: "Makerspace & IoT Prototyping Workshop",
-        image: "https://images.unsplash.com/photo-1562774053-701939374585?w=600&auto=format&fit=crop&q=80",
+        name: "Classrooms & Collaborative Learning Spaces",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsoAD40u4IOD-p5Pvz1Z8jR5VGHM4HZsqoGzNq8iAefWP43L4IlY8iABw&s=10",
       },
       {
-        name: "Digital Library & Tech Incubator",
-        image: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=600&auto=format&fit=crop&q=80",
+        name: "Institute of Digital Technology",
+        image: "https://academics-bucket-sj19asxm-prod.s3.ap-southeast-1.amazonaws.com/c52597ae-57ff-48de-9992-7d265b678bd7/feature-image.jpg",
       },
     ],
     scholarship: {
       title: "Techo Digital Talent Scholarship 2026",
-      deadline: "15 Oct, 2026",
-      image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80",
+      deadline: "30 Sep 2026",
+      image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=600&auto=format&fit=crop&q=80",
     },
     mapImage: "https://images.unsplash.com/photo-1524661135-423995f22d0b?w=900&auto=format&fit=crop&q=80",
     mapUrl: "https://maps.app.goo.gl/y2XhNsTKEDqKwhzS1",
@@ -589,8 +588,8 @@ export const UNIVERSITIES_DATA: University[] = [
     shortName: "UC",
     location: "Phnom Penh",
     type: "Private",
-    image: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=600&auto=format&fit=crop&q=80",
-    heroImage: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=1600&auto=format&fit=crop&q=80",
+    image: "https://i.ytimg.com/vi/NeXuXqvOiAg/maxresdefault.jpg",
+    heroImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYaaoB-uTmbGQjFPYj_3zI-PME-y9nI5Ln_YKwxf2tuss2j0qEY1arig1x&s=10",
     description:
       "Private university established in 2003 offering programs across business, law, education, media, technology, social sciences and international relations.",
     popularMajors: [
