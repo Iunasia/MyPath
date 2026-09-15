@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/src/i18n";
 import Header, { type HeaderProps } from "./Header";
 
 const SECTIONS: Record<string, NonNullable<HeaderProps["activeNav"]>> = {

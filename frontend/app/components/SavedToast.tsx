@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { Bookmark, ArrowRight, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useSaved } from "@/app/context/SavedContext";
 
 export default function SavedToast() {
   const { showToast, lastSavedTitle, dismissToast } = useSaved();
+  const t = useTranslations("common");
 
   if (!showToast) return null;
 
@@ -18,14 +20,14 @@ export default function SavedToast() {
           </div>
           <div className="min-w-0">
             <p className="text-xs font-bold text-blue-ink truncate">
-              {lastSavedTitle ? `Saved: ${lastSavedTitle}` : "Item saved!"}
+              {lastSavedTitle ? `${t("saved")}: ${lastSavedTitle}` : t("itemSaved")}
             </p>
             <Link
               href="/saved"
               onClick={dismissToast}
               className="text-[11px] font-extrabold text-sky-deep hover:underline inline-flex items-center gap-1"
             >
-              <span>View in Saved Items</span>
+              <span>{t("viewInSavedItems")}</span>
               <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
@@ -34,7 +36,7 @@ export default function SavedToast() {
         <button
           onClick={dismissToast}
           className="p-1 rounded-full text-gray-soft hover:text-blue-ink hover:bg-sitomo/50 transition-colors shrink-0"
-          aria-label="Dismiss notification"
+          aria-label={t("dismissNotification")}
         >
           <X className="w-4 h-4" />
         </button>

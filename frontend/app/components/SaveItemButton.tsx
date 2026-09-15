@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { Bookmark } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useSaved, SavedItem } from "@/app/context/SavedContext";
 
 interface SaveItemButtonProps {
@@ -17,14 +18,14 @@ export default function SaveItemButton({
   className = "",
   variant = "pill",
   label,
-  savedLabel = "Saved",
+  savedLabel,
 }: SaveItemButtonProps) {
+  const t = useTranslations("saveButton");
   const { isSaved: checkIsSaved, toggleSave } = useSaved();
 
   const isSaved = checkIsSaved(item.id);
 
-  const defaultLabel =
-    label || `Save ${item.type.charAt(0).toUpperCase() + item.type.slice(1)}`;
+  const defaultLabel = label || t("save");
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -39,8 +40,8 @@ export default function SaveItemButton({
         <button
           type="button"
           onClick={handleClick}
-          aria-label={isSaved ? `Unsave ${item.title}` : `Save ${item.title}`}
-          title={isSaved ? "Saved - click to remove" : `Save ${item.title}`}
+          aria-label={isSaved ? `${t("unsave")} ${item.title}` : `${t("save")} ${item.title}`}
+          title={isSaved ? t("savedClickToRemove") : `${t("save")} ${item.title}`}
           className={`p-2 rounded-full backdrop-blur-md transition-all cursor-pointer shadow-sm ${
             isSaved
               ? "bg-sky-deep text-white ring-2 ring-white/50"
@@ -59,8 +60,8 @@ export default function SaveItemButton({
         <button
           type="button"
           onClick={handleClick}
-          aria-label={isSaved ? `Unsave ${item.title}` : `Save ${item.title}`}
-          title={isSaved ? "Saved - click to remove" : `Save ${item.title}`}
+          aria-label={isSaved ? `${t("unsave")} ${item.title}` : `${t("save")} ${item.title}`}
+          title={isSaved ? t("savedClickToRemove") : `${t("save")} ${item.title}`}
           className={`p-2.5 rounded-2xl border transition-all focus:outline-none cursor-pointer bubble-shadow-sm ${
             isSaved
               ? "bg-sitomo border-sky text-sky-deep"
@@ -90,7 +91,7 @@ export default function SaveItemButton({
               isSaved ? "fill-sky-deep text-sky-deep" : "fill-white text-white"
             }`}
           />
-          <span>{isSaved ? savedLabel : defaultLabel}</span>
+          <span>{isSaved ? savedLabel || t("saved") : defaultLabel}</span>
         </button>
       )}
 

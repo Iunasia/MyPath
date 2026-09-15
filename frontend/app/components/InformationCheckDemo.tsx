@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   ShieldCheck,
   ExternalLink,
@@ -14,6 +15,7 @@ import {
 } from "lucide-react";
 
 export default function InformationCheckDemo() {
+  const t = useTranslations("infoCheckDemo");
   const [isScamView, setIsScamView] = useState(false);
 
   return (
@@ -21,7 +23,7 @@ export default function InformationCheckDemo() {
       {/* Subtle Switcher */}
       <div className="flex items-center justify-between gap-2 pb-4 mb-5 border-b border-sky/15">
         <span className="text-xs font-bold text-gray-faint">
-          Interactive Sample
+          {t("interactiveSample")}
         </span>
         <div className="inline-flex p-1 rounded-full bg-powder/80 border border-sky/20">
           <button
@@ -33,7 +35,7 @@ export default function InformationCheckDemo() {
                 : "text-gray-soft hover:text-blue-ink"
             }`}
           >
-            ✓ Verified
+            {t("verified")}
           </button>
           <button
             type="button"
@@ -44,7 +46,7 @@ export default function InformationCheckDemo() {
                 : "text-gray-soft hover:text-rose-600"
             }`}
           >
-            ⚠️ Scam Alert
+            {t("scamAlert")}
           </button>
         </div>
       </div>
@@ -59,16 +61,16 @@ export default function InformationCheckDemo() {
               </div>
               <div>
                 <p className="font-display text-base font-bold text-blue-ink leading-snug">
-                  RUPP STEM Excellence Grant
+                  {t("ruppGrant")}
                 </p>
                 <p className="text-xs text-gray-faint font-medium">
-                  Royal University of Phnom Penh · Undergraduate
+                  {t("ruppProvider")}
                 </p>
               </div>
             </div>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold shadow-xs shrink-0">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
-              Verified
+              {t("verifiedLabel")}
             </span>
           </div>
 
@@ -77,31 +79,31 @@ export default function InformationCheckDemo() {
             <div className="flex items-center justify-between gap-2 mb-2.5 pb-2 border-b border-sky/15 text-[11px] font-bold text-sky-deep">
               <span className="flex items-center gap-1.5 uppercase tracking-wider">
                 <FileCheck2 className="w-3.5 h-3.5" />
-                Information Check
+                {t("informationCheck")}
               </span>
               <span className="text-gray-soft flex items-center gap-1">
                 <CalendarCheck className="w-3 h-3 text-sky-deep" />
-                Audited Aug 2026
+                {t("auditedDate")}
               </span>
             </div>
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div>
-                <p className="text-[11px] text-gray-faint font-semibold uppercase">Source</p>
-                <p className="font-bold text-blue-ink mt-0.5">rupp.edu.kh Official</p>
+                <p className="text-[11px] text-gray-faint font-semibold uppercase">{t("source")}</p>
+                <p className="font-bold text-blue-ink mt-0.5">{t("sourceValue")}</p>
               </div>
               <div>
-                <p className="text-[11px] text-gray-faint font-semibold uppercase">Provider</p>
-                <p className="font-bold text-blue-ink mt-0.5">Faculty of Science & MoEYS</p>
+                <p className="text-[11px] text-gray-faint font-semibold uppercase">{t("provider")}</p>
+                <p className="font-bold text-blue-ink mt-0.5">{t("providerValue")}</p>
               </div>
               <div>
-                <p className="text-[11px] text-gray-faint font-semibold uppercase">Accreditation</p>
-                <p className="font-bold text-blue-ink mt-0.5">MoEYS Recognized (.edu.kh)</p>
+                <p className="text-[11px] text-gray-faint font-semibold uppercase">{t("accreditation")}</p>
+                <p className="font-bold text-blue-ink mt-0.5">{t("accreditationValue")}</p>
               </div>
               <div>
-                <p className="text-[11px] text-gray-faint font-semibold uppercase">Status</p>
+                <p className="text-[11px] text-gray-faint font-semibold uppercase">{t("status")}</p>
                 <p className="font-bold text-emerald-700 flex items-center gap-1 mt-0.5">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  Validated
+                  {t("validated")}
                 </p>
               </div>
             </div>
@@ -111,10 +113,10 @@ export default function InformationCheckDemo() {
           <div className="rounded-2xl bg-momo/80 border border-momo p-3.5 mb-5">
             <p className="text-xs font-bold text-blue-ink flex items-center gap-1.5 mb-0.5">
               <ShieldCheck className="w-4 h-4 text-sky-deep shrink-0" />
-              Why trust this listing?
+              {t("whyTrustListing")}
             </p>
             <p className="text-xs text-gray-body leading-relaxed">
-              Matched to RUPP official domain. Application criteria & deadline are confirmed against MoEYS registries.
+              {t("whyTrustDesc")}
             </p>
           </div>
 
@@ -125,7 +127,7 @@ export default function InformationCheckDemo() {
             rel="noopener noreferrer"
             className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-sky-deep px-4 py-2.5 text-xs sm:text-sm font-bold text-white hover:bg-sky-dark transition-all bubble-shadow-sm"
           >
-            <span>Visit official university portal</span>
+            <span>{t("visitOfficialPortal")}</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
         </div>
@@ -139,16 +141,16 @@ export default function InformationCheckDemo() {
               </div>
               <div>
                 <p className="font-display text-base font-bold text-blue-ink leading-snug">
-                  100% Free Study Abroad + Laptop
+                  {t("scamTitle")}
                 </p>
                 <p className="text-xs text-rose-600 font-medium">
-                  Anonymous Telegram Flyer
+                  {t("scamProvider")}
                 </p>
               </div>
             </div>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold shadow-xs shrink-0">
               <XCircle className="w-3.5 h-3.5 text-rose-600" />
-              Scam Flagged
+              {t("scamFlagged")}
             </span>
           </div>
 
@@ -156,20 +158,20 @@ export default function InformationCheckDemo() {
           <div className="rounded-2xl bg-rose-50 border border-rose-200 p-4 mb-4">
             <div className="flex items-center gap-2 text-rose-800 font-bold text-xs mb-2">
               <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
-              <span>DMIL Scam Warnings Detected</span>
+              <span>{t("dmilScamWarnings")}</span>
             </div>
             <ul className="space-y-1.5 text-xs text-rose-700">
               <li className="flex items-start gap-1.5">
                 <span className="text-rose-500 font-bold">✕</span>
-                <span>Demands $50 upfront registration fee via informal payment</span>
+                <span>{t("scamWarning1")}</span>
               </li>
               <li className="flex items-start gap-1.5">
                 <span className="text-rose-500 font-bold">✕</span>
-                <span>No registered school or ministry affiliation exists</span>
+                <span>{t("scamWarning2")}</span>
               </li>
               <li className="flex items-start gap-1.5">
                 <span className="text-rose-500 font-bold">✕</span>
-                <span>Directs to an anonymous chat bot instead of an official site</span>
+                <span>{t("scamWarning3")}</span>
               </li>
             </ul>
           </div>
@@ -177,10 +179,10 @@ export default function InformationCheckDemo() {
           {/* Protection tip */}
           <div className="rounded-2xl bg-momo/80 border border-momo p-3.5 mb-5">
             <p className="text-xs font-bold text-blue-ink mb-0.5">
-              How Domner protects you:
+              {t("howDomnerProtects")}
             </p>
             <p className="text-xs text-gray-body leading-relaxed">
-              Our automated heuristics flag unverified links before you submit sensitive personal information or money.
+              {t("howDomnerProtectsDesc")}
             </p>
           </div>
 
@@ -189,7 +191,7 @@ export default function InformationCheckDemo() {
             href="/verify"
             className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-rose-600 px-4 py-2.5 text-xs sm:text-sm font-bold text-white hover:bg-rose-700 transition-all shadow-xs"
           >
-            <span>Scan any link on Verifier tool</span>
+            <span>{t("scanOnVerifier")}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   Pencil,
   Newspaper,
@@ -21,34 +22,6 @@ const HERO_IMAGES = [
   {
     src: "https://i.pinimg.com/1200x/73/72/1a/73721ad2e05a651347d74f3cdea0e0bd.jpg",
     alt: "University students on graduation day on campus",
-  },
-];
-
-/* ── 3 Feature Columns (EduBlock Style with DOMNER Colors) ── */
-const HERO_FEATURES = [
-  {
-    icon: Pencil,
-    title: "Your next step starts here.",
-    description:
-      "Explore programs, admission requirements, and opportunities you can trust.",
-    linkText: "Get started",
-    href: "#explorers",
-  },
-  {
-    icon: Newspaper,
-    title: "Don’t miss your opportunity.",
-    description:
-      "Keep up with deadlines, announcements, and the latest opportunities for students.",
-    linkText: "Stay updated",
-    href: "/scholarships",
-  },
-  {
-    icon: Building2,
-    title: "Information you can trust.",
-    description:
-      "See how Domner verifies education information for students across Cambodia.",
-    linkText: "Learn about Domner",
-    href: "#how-it-works",
   },
 ];
 
@@ -73,7 +46,32 @@ function WaveBottom({ fill = "#FFFFFF" }: { fill?: string }) {
 }
 
 export default function HeroSlider() {
+  const t = useTranslations("hero");
   const [imageIndex, setImageIndex] = useState(0);
+
+  const HERO_FEATURES = [
+    {
+      icon: Pencil,
+      title: t("feature1Title"),
+      description: t("feature1Desc"),
+      linkText: t("feature1Link"),
+      href: "#explorers",
+    },
+    {
+      icon: Newspaper,
+      title: t("feature2Title"),
+      description: t("feature2Desc"),
+      linkText: t("feature2Link"),
+      href: "/scholarships",
+    },
+    {
+      icon: Building2,
+      title: t("feature3Title"),
+      description: t("feature3Desc"),
+      linkText: t("feature3Link"),
+      href: "#how-it-works",
+    },
+  ];
 
   // Auto-change background image: 3s on mobile (<768px), 5s on desktop
   useEffect(() => {
@@ -102,7 +100,7 @@ export default function HeroSlider() {
   return (
     <section
       className="relative w-full min-h-[580px] sm:min-h-screen sm:min-h-[100dvh] flex flex-col justify-between overflow-hidden select-none pt-20 sm:pt-28"
-      aria-label="Homepage hero banner"
+      aria-label={t("bannerLabel")}
     >
       {/* ── FULL-SCREEN BACKGROUND IMAGES (Smooth Cross-Fade Without Flash) ── */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
@@ -140,14 +138,14 @@ export default function HeroSlider() {
         <div className="max-w-2xl lg:max-w-3xl flex flex-col items-start animate-hero-slide-left bg-white/85 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none p-5 sm:p-0 rounded-3xl sm:rounded-none border border-white/70 sm:border-none shadow-lg sm:shadow-none">
           {/* Headline */}
           <h1 className="font-display text-[1.85rem] sm:text-5xl lg:text-[3.65rem] font-extrabold text-blue-ink leading-[1.18] sm:leading-[1.14] tracking-tight mb-3 sm:mb-6">
-            Figure out your future, 
+            {t("headline1")}
             <br />
-            <span className="text-sky-deep">one step at a time.</span>
+            <span className="text-sky-deep">{t("headline2")}</span>
           </h1>
 
           {/* Subtitle */}
           <p className="text-sm sm:text-lg text-gray-body leading-relaxed max-w-xl mb-5 sm:mb-8 font-semibold sm:font-medium">
-            Explore careers, universities, majors, and scholarships with confidence. Domner helps you find reliable information, compare your options, and make smarter decisions about your future.
+            {t("subtitle")}
           </p>
 
           {/* Action CTA Buttons */}
@@ -156,7 +154,7 @@ export default function HeroSlider() {
               href="#explorers"
               className="group inline-flex items-center gap-1.5 rounded-full border-2 border-sky-deep bg-sky-deep px-6 py-2.5 sm:px-7 sm:py-3 text-xs sm:text-sm font-bold text-white hover:bg-white hover:text-sky-deep hover:border-sky-deep transition-all duration-200 bubble-shadow cursor-pointer"
             >
-              <span>Explore your path</span>
+              <span>{t("exploreYourPath")}</span>
               <span
                 aria-hidden="true"
                 className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-1"
@@ -169,18 +167,18 @@ export default function HeroSlider() {
               href="#how-it-works"
               className="inline-flex items-center gap-1.5 rounded-full border-2 border-sky/30 bg-white/95 px-6 py-2.5 sm:px-7 sm:py-3 text-xs sm:text-sm font-bold text-blue-ink hover:bg-white hover:border-sky-deep hover:text-sky-deep transition-all duration-200 cursor-pointer shadow-xs"
             >
-              See how Domner works
+              {t("seeHowDomnerWorks")}
             </Link>
           </div>
 
           {/* Slide Indicator Dots */}
-          <div className="flex items-center gap-2 mt-6" aria-label="Hero background slides">
+          <div className="flex items-center gap-2 mt-6" aria-label={t("heroSlidesLabel")}>
             {HERO_IMAGES.map((_, idx) => (
               <button
                 key={idx}
                 type="button"
                 onClick={() => setImageIndex(idx)}
-                aria-label={`Switch to slide ${idx + 1}`}
+                aria-label={t("switchToSlide", { number: idx + 1 })}
                 className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
                   imageIndex === idx
                     ? "w-8 bg-sky-deep"

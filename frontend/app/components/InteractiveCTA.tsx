@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   Briefcase,
   BookOpen,
@@ -26,55 +27,56 @@ interface PathwayOption {
   highlight: string;
 }
 
-const PATHWAYS: PathwayOption[] = [
-  {
-    id: "careers",
-    title: "Career Explorer",
-    subtitle: "Discover high-growth jobs, salaries & required skills in Cambodia",
-    count: "20+ Careers",
-    href: "/careers",
-    icon: Briefcase,
-    color: "text-sky-deep",
-    bg: "bg-sitomo",
-    highlight: "Tech, Finance, Health & Engineering",
-  },
-  {
-    id: "majors",
-    title: "Major Explorer",
-    subtitle: "Find the right academic discipline matching your strengths",
-    count: "20+ Majors",
-    href: "/majors",
-    icon: BookOpen,
-    color: "text-blue-ink",
-    bg: "bg-momo",
-    highlight: "Course syllabus, duration & university links",
-  },
-  {
-    id: "universities",
-    title: "University Directory",
-    subtitle: "Compare accredited public & private institutions in Phnom Penh & provinces",
-    count: "12+ Universities",
-    href: "/universities",
-    icon: GraduationCap,
-    color: "text-sky-deep",
-    bg: "bg-sitomo",
-    highlight: "Accreditation, tuition fees & campus life",
-  },
-  {
-    id: "scholarships",
-    title: "Verified Scholarships",
-    subtitle: "Find verified grants, full tuition awards & closing soon deadlines",
-    count: "26+ Grants",
-    href: "/scholarships",
-    icon: CircleDollarSign,
-    color: "text-blue-ink",
-    bg: "bg-momo",
-    highlight: "Live audited deadlines & 1-click application",
-  },
-];
-
 export default function InteractiveCTA() {
+  const t = useTranslations("interactiveCTA");
   const [activePathway, setActivePathway] = useState<string>("careers");
+
+  const PATHWAYS: PathwayOption[] = [
+    {
+      id: "careers",
+      title: t("careerExplorer"),
+      subtitle: t("careerExplorerSubtitle"),
+      count: t("careerCount"),
+      href: "/careers",
+      icon: Briefcase,
+      color: "text-sky-deep",
+      bg: "bg-sitomo",
+      highlight: t("careerHighlight"),
+    },
+    {
+      id: "majors",
+      title: t("majorExplorer"),
+      subtitle: t("majorExplorerSubtitle"),
+      count: t("majorCount"),
+      href: "/majors",
+      icon: BookOpen,
+      color: "text-blue-ink",
+      bg: "bg-momo",
+      highlight: t("majorHighlight"),
+    },
+    {
+      id: "universities",
+      title: t("universityDirectory"),
+      subtitle: t("universityDirectorySubtitle"),
+      count: t("universityCount"),
+      href: "/universities",
+      icon: GraduationCap,
+      color: "text-sky-deep",
+      bg: "bg-sitomo",
+      highlight: t("universityHighlight"),
+    },
+    {
+      id: "scholarships",
+      title: t("verifiedScholarships"),
+      subtitle: t("verifiedScholarshipsSubtitle"),
+      count: t("scholarshipCount"),
+      href: "/scholarships",
+      icon: CircleDollarSign,
+      color: "text-blue-ink",
+      bg: "bg-momo",
+      highlight: t("scholarshipHighlight"),
+    },
+  ];
 
   return (
     <section id="start" className="relative overflow-hidden py-16 lg:py-24 bg-gradient-to-b from-sky/10 via-sitomo/30 to-white">
@@ -89,18 +91,18 @@ export default function InteractiveCTA() {
           <div className="text-center max-w-2xl mx-auto mb-10">
             <div className="inline-flex items-center gap-2 rounded-full bg-sitomo border border-sky/30 px-4 py-1.5 text-xs font-extrabold text-sky-deep mb-5 bubble-shadow-sm">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Personalized Educational Launchpad</span>
+              <span>{t("badge")}</span>
             </div>
 
             <h2 className="font-display text-3xl sm:text-4xl lg:text-[2.75rem] font-extrabold text-blue-ink tracking-tight mb-4 leading-tight">
-              Your future deserves more than <br />
+              {t("title1")} <br />
               <span className="text-sky-deep underline decoration-sky/40 decoration-wavy decoration-2 underline-offset-6">
-                a random Google search.
+                {t("titleHighlight")}
               </span>
             </h2>
 
             <p className="text-sm sm:text-base text-gray-body font-medium leading-relaxed">
-              Select your goal below to start exploring verified data, or create a free account to track deadlines and save bookmarks.
+              {t("subtitle")}
             </p>
           </div>
 
@@ -147,7 +149,7 @@ export default function InteractiveCTA() {
                       href={p.href}
                       className="inline-flex items-center justify-between w-full rounded-xl bg-powder hover:bg-sky-deep text-blue-ink hover:text-white px-3.5 py-2 text-xs font-bold transition-all"
                     >
-                      <span>Explore Now</span>
+                      <span>{t("exploreNow")}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
                   </div>
@@ -162,7 +164,7 @@ export default function InteractiveCTA() {
               href="/auth/signup"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-sky-deep px-8 py-3.5 text-sm font-extrabold text-white hover:bg-sky-dark transition-all duration-200 bubble-shadow hover:-translate-y-0.5"
             >
-              <span>Create Free Student Account</span>
+              <span>{t("createFreeStudentAccount")}</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
@@ -170,14 +172,14 @@ export default function InteractiveCTA() {
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-white border-2 border-sky/30 px-7 py-3.5 text-sm font-extrabold text-blue-ink hover:bg-sky/10 hover:border-sky transition-all duration-200"
             >
               <ShieldCheck className="w-4 h-4 text-sky-deep" />
-              <span>Test Link Verifier Tool</span>
+              <span>{t("testLinkVerifierTool")}</span>
             </Link>
             <Link
               href="/careers"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-sitomo/80 border border-sky/20 px-6 py-3.5 text-sm font-bold text-sky-deep hover:bg-sitomo transition-all duration-200"
             >
               <Compass className="w-4 h-4" />
-              <span>Browse All Pathways</span>
+              <span>{t("browseAllPathways")}</span>
             </Link>
           </div>
 
@@ -185,15 +187,15 @@ export default function InteractiveCTA() {
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs font-bold text-gray-soft">
             <span className="flex items-center gap-1.5">
               <Check className="w-4 h-4 text-emerald-600" />
-              100% Free for All Students
+              {t("freeForAllStudents")}
             </span>
             <span className="flex items-center gap-1.5">
               <Check className="w-4 h-4 text-emerald-600" />
-              MoEYS & University Authenticated
+              {t("moeysAuthenticated")}
             </span>
             <span className="flex items-center gap-1.5">
               <Check className="w-4 h-4 text-emerald-600" />
-              Zero Commercial Ads or Paywalls
+              {t("zeroAdsOrPaywalls")}
             </span>
           </div>
         </div>

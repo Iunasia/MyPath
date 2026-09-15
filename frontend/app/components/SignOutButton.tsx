@@ -1,6 +1,7 @@
 "use client";
 
 import { LogOut } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@/app/context/AuthContext";
 
 export default function SignOutButton({
@@ -12,6 +13,7 @@ export default function SignOutButton({
   className?: string;
   onClick?: () => void;
 }) {
+  const t = useTranslations("common");
   const { logout } = useAuth();
 
   return (
@@ -26,7 +28,7 @@ export default function SignOutButton({
       } ${className}`}
     >
       <LogOut className="w-3.5 h-3.5" />
-      Sign out
+      {t("signOut")}
     </button>
   );
 }
