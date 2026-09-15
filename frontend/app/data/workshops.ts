@@ -1,3 +1,6 @@
+import { type Locale } from "@/src/i18n/routing";
+import { getDataTranslations } from "@/app/lib/dataTranslations";
+
 export interface WorkshopItem {
   id: string;
   category: "Workshop" | "Competition" | "Leadership Program" | "Training" | string;
@@ -351,3 +354,89 @@ export const PROMOTE_CONTACT: PromoteContact = {
   telegram: "@DomnerTeam",
   telegramUrl: "https://t.me/DomnerTeam",
 };
+
+/* ── i18n Translated Data ──────────────────────────────── */
+
+export interface WorkshopTranslations {
+  category: string;
+  title: string;
+  organization: string;
+  description: string;
+  role: string;
+  requirement: string;
+  benefit: string;
+  location: string;
+  date: string;
+  deadline: string;
+  price: string;
+  format: string;
+  time: string;
+  institution?: string;
+  highlights: string[];
+}
+
+export function mergeWorkshopTranslations(base: WorkshopItem, tr: WorkshopTranslations): WorkshopItem {
+  return {
+    ...base,
+    category: tr.category,
+    title: tr.title,
+    organization: tr.organization,
+    description: tr.description,
+    role: tr.role,
+    requirement: tr.requirement,
+    benefit: tr.benefit,
+    location: tr.location,
+    date: tr.date,
+    deadline: tr.deadline,
+    price: tr.price,
+    format: (tr.format as WorkshopItem["format"]) ?? base.format,
+    time: tr.time,
+    institution: tr.institution ?? base.institution,
+    highlights: tr.highlights,
+  };
+}
+
+export function applyWorkshopTranslations(items: Record<string, WorkshopTranslations>): WorkshopItem[] {
+  return WORKSHOPS_DATA.map((workshop) => {
+    const tr = items[workshop.id];
+    return tr ? mergeWorkshopTranslations(workshop, tr) : workshop;
+  });
+}
+
+export async function getWorkshopsTranslated(locale: Locale): Promise<WorkshopItem[]> {
+  const t = await getDataTranslations<WorkshopTranslations>(locale, "workshops");
+  return applyWorkshopTranslations((t.items ?? {}) as Record<string, WorkshopTranslations>);
+}
+
+export interface MentorTranslations {
+  name: string;
+  role: string;
+  organization: string;
+  specialty: string;
+  bio: string;
+  availableSessions: string;
+}
+
+export function mergeMentorTranslations(base: MentorItem, tr: MentorTranslations): MentorItem {
+  return {
+    ...base,
+    name: tr.name,
+    role: tr.role,
+    organization: tr.organization,
+    specialty: tr.specialty,
+    bio: tr.bio,
+    availableSessions: tr.availableSessions,
+  };
+}
+
+export function applyMentorTranslations(items: Record<string, MentorTranslations>): MentorItem[] {
+  return MENTORS_DATA.map((mentor) => {
+    const tr = items[mentor.id];
+    return tr ? mergeMentorTranslations(mentor, tr) : mentor;
+  });
+}
+
+export async function getMentorsTranslated(locale: Locale): Promise<MentorItem[]> {
+  const t = await getDataTranslations<MentorTranslations>(locale, "workshops");
+  return applyMentorTranslations((t.mentors ?? {}) as Record<string, MentorTranslations>);
+}

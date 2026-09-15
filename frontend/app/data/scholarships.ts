@@ -1,5 +1,8 @@
 /* ── Scholarships Data Model & Directory (Cambodia Only) ───── */
 
+import { type Locale } from "@/src/i18n/routing";
+import { getDataTranslations, getDataCategories } from "@/app/lib/dataTranslations";
+
 export interface Scholarship {
   id: string;
   title: string;
@@ -476,4 +479,55 @@ export function getRelatedScholarships(currentId: string, limit = 3): Scholarshi
   return SCHOLARSHIPS_DATA
     .filter((s) => s.id !== currentId)
     .slice(0, limit);
+}
+
+/* ── i18n Translated Data ──────────────────────────────── */
+
+export interface ScholarshipTranslations {
+  title: string;
+  provider: string;
+  degreeLevel: string;
+  category: Scholarship["category"];
+  coverage: Scholarship["coverage"];
+  targetMajors: string[];
+  eligibility: string[];
+  benefits: string[];
+  requiredDocuments: string[];
+  deadline: string;
+  applicationProcess: string[];
+  officialSource: string;
+}
+
+export function mergeScholarshipTranslations(base: Scholarship, tr: ScholarshipTranslations): Scholarship {
+  return {
+    ...base,
+    title: tr.title,
+    provider: tr.provider,
+    degreeLevel: tr.degreeLevel,
+    category: tr.category,
+    coverage: tr.coverage,
+    targetMajors: tr.targetMajors,
+    eligibility: tr.eligibility,
+    benefits: tr.benefits,
+    requiredDocuments: tr.requiredDocuments,
+    deadline: tr.deadline,
+    applicationProcess: tr.applicationProcess,
+    officialSource: tr.officialSource,
+  };
+}
+
+export function applyScholarshipTranslations(items: Record<string, ScholarshipTranslations>): Scholarship[] {
+  return SCHOLARSHIPS_DATA.map((scholarship) => {
+    const tr = items[scholarship.id];
+    return tr ? mergeScholarshipTranslations(scholarship, tr) : scholarship;
+  });
+}
+
+export async function getScholarshipsTranslated(locale: Locale): Promise<Scholarship[]> {
+  const t = await getDataTranslations<ScholarshipTranslations>(locale, "scholarships");
+  return applyScholarshipTranslations((t.items ?? {}) as Record<string, ScholarshipTranslations>);
+}
+
+export async function getScholarshipCategoriesTranslated(locale: Locale) {
+  return getDataCategories(locale, "scholarships");
 }
