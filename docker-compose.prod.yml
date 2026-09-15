@@ -1,0 +1,60 @@
+name: mypath-prod
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: mypath_db_prod
+    restart: always
+    env_file:
+      - .env.prod
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-mypath}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mypath}
+      POSTGRES_DB: ${POSTGRES_DB:-mypath}
+    volumes:
+      - pgdata_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mypath} -d ${POSTGRES_DB:-mypath}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mypath_backend_prod
+    restart: always
+    ports:
+      - "127.0.0.1:5000:5000"
+    env_file:
+      - .env.prod
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    container_name: mypath_frontend_prod
+    restart: always
+    ports:
+      - "127.0.0.1:3000:3000"
+    env_file:
+      - .env.prod
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - BACKEND_INTERNAL_URL=http://backend:5000
+    depends_on:
+      - backend
+
+volumes:
+  pgdata_prod:
+
