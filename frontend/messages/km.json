@@ -13,6 +13,7 @@
     "pageOf": "ទំព័រ {current} នៃ {total}",
     "prev": "មុន",
     "next": "បន្ទាប់",
+    "pageLabel": "ទំព័រ",
     "backToDomner": "ត្រឡប់ទៅ Domner",
     "domner": "Domner",
     "signIn": "ចូល",
@@ -28,7 +29,9 @@
     "saved": "បានរក្សាទុក",
     "itemSaved": "រក្សាទុករួច!",
     "viewInSavedItems": "មើលក្នុងទំនិញដែលបានរក្សាទុក",
-    "dismissNotification": "បំបិទសារជូនដំណឹង"
+    "dismissNotification": "បំបិទសារជូនដំណឹង",
+    "switchToLightMode": "ប្តូរទៅរបៀបភ្លឺ",
+    "switchToDarkMode": "ប្តូរទៅរបៀបងងឹត"
   },
   "nav": {
     "careers": "អាជីព",
@@ -174,6 +177,7 @@
     "heroSubtitle": "រុករកបញ្ជីពេញលេញនៃជំនាញសាកលវិទ្យាល័យ តម្រូវការប្រព័ន្ធនិទានកម្ម ស្ថាប័នដែលមានសិទ្ធិអនុញ្ញាត និងទស្សនវិស័យអាជីពដែលបានផ្ទៀងផ្ទាត់។",
     "searchPlaceholder": "ស្វែងរកជំនាញ សមត្ថភាព ឬវិស័យទាំងអស់...",
     "allMajors": "ជំនាញទាំងអស់",
+    "filterByCategory": "តម្រងតាមប្រភេទ",
     "noMajorsMatch": "គ្មានជំនាញណាដែលផ្គូរផ្គង់ការស្វែងរករបស់អ្នកទេ",
     "noMajorsMatchHint": "សូមសាកល្បងស្វែងរកសមត្ថភាពផ្សេង ឬកំណត់តម្រងរបស់អ្នកឡើងវិញ។",
     "marketDemand": "តម្រូវការទីផ្សារ៖"
@@ -210,6 +214,8 @@
     "publicInstitutions": "ស្ថាប័នសាធារណៈ",
     "privateInstitutions": "ស្ថាប័នឯកជន",
     "institutionsIn": "ស្ថាប័នក្នុង {location}",
+    "filterTypeLabel": "តម្រងតាមប្រភេទស្ថាប័ន",
+    "filterLocationLabel": "តម្រងតាមទីតាំង",
     "noUniversitiesFound": "រកមិនឃើញសាកលវិទ្យាល័យ",
     "noUniversitiesHint": "សូមសាកល្បងសម្អាតការស្វែងរក ឬជ្រើសរើសតម្រងទីតាំងផ្សេង។"
   },
@@ -250,6 +256,8 @@
     "searchPlaceholder": "ស្វែងរកតាមឈ្មោះ អ្នកផ្តល់ ឬជំនាញ...",
     "allCategories": "វិស័យទាំងអស់",
     "allCoverage": "ការគ្របដណ្តប់ទាំងអស់",
+    "filterCategoryLabel": "តម្រងតាមវិស័យ",
+    "filterCoverageLabel": "តម្រងតាមការគ្របដណ្តប់",
     "noScholarshipsMatch": "គ្មានអាហារូបត្ថម្ភណាដែលផ្គូរផ្គង់តម្រងរបស់អ្នកទេ",
     "noScholarshipsHint": "សូមសាកល្បងសម្អាតពាក្យគន្លឹះស្វែងរក ឬត្រឡប់ទៅវិស័យទាំងអស់វិញ។",
     "transparencyVerification": "ភាពថ្លៃថ្នូរ និងការផ្ទៀងផ្ទាត់",
@@ -324,6 +332,7 @@
     "swipeToExplore": "ឆូត ឬរមូរទៅស្តាំដើម្បីរុករកឱកាសទាំងអស់ដែលបានផ្ទៀងផ្ទាត់",
     "scrollLeft": "រមូរទៅឆ្វេង",
     "scrollRight": "រមូរទៅស្តាំ",
+    "close": "បិទ",
     "free": "ឥតគិតថ្លៃ",
     "deadlinePrefix": "កាលបរិច្ឆេទកំណត់៖",
     "finished": "បានបញ្ចប់",

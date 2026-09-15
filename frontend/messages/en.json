@@ -13,6 +13,7 @@
     "pageOf": "Page {current} of {total}",
     "prev": "Prev",
     "next": "Next",
+    "pageLabel": "Page",
     "backToDomner": "Back to Domner",
     "domner": "Domner",
     "signIn": "Sign in",
@@ -28,7 +29,9 @@
     "saved": "Saved",
     "itemSaved": "Item saved!",
     "viewInSavedItems": "View in Saved Items",
-    "dismissNotification": "Dismiss notification"
+    "dismissNotification": "Dismiss notification",
+    "switchToLightMode": "Switch to light mode",
+    "switchToDarkMode": "Switch to dark mode"
   },
   "nav": {
     "careers": "Careers",
@@ -174,6 +177,7 @@
     "heroSubtitle": "Explore our full catalog of university majors, curriculum requirements, accredited institutions, and verified career trajectories.",
     "searchPlaceholder": "Search all majors, skills, or fields...",
     "allMajors": "All Majors",
+    "filterByCategory": "Filter by category",
     "noMajorsMatch": "No majors match your search",
     "noMajorsMatchHint": "Try searching for a different skill or reset your filters.",
     "marketDemand": "Market Demand:"
@@ -210,8 +214,8 @@
     "publicInstitutions": "Public Institutions",
     "privateInstitutions": "Private Institutions",
     "institutionsIn": "Institutions in {location}",
-    "publicInstitutions": "Public Institutions",
-    "privateInstitutions": "Private Institutions",
+    "filterTypeLabel": "Filter by institution type",
+    "filterLocationLabel": "Filter by location",
     "noUniversitiesFound": "No universities found",
     "noUniversitiesHint": "Try clearing your search or picking a different location filter."
   },
@@ -252,6 +256,8 @@
     "searchPlaceholder": "Search by name, provider, or major...",
     "allCategories": "All Categories",
     "allCoverage": "All Coverage",
+    "filterCategoryLabel": "Filter by category",
+    "filterCoverageLabel": "Filter by coverage",
     "noScholarshipsMatch": "No scholarships match your filters",
     "noScholarshipsHint": "Try clearing your search keyword or switching back to All Categories.",
     "transparencyVerification": "Transparency & Verification",
@@ -326,6 +332,7 @@
     "swipeToExplore": "Swipe or scroll right to explore all verified opportunities",
     "scrollLeft": "Scroll left",
     "scrollRight": "Scroll right",
+    "close": "Close",
     "free": "Free",
     "deadlinePrefix": "Deadline:",
     "finished": "Finished",
