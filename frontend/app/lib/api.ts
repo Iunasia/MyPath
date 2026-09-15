@@ -54,6 +54,23 @@ export interface ApiScholarship {
   infoCheck: ApiInfoCheck;
 }
 
+/**
+ * Detail-page shape: the API row plus the curated spreadsheet fields the page
+ * falls back to when no backend row exists yet. `eligibility` and
+ * `application_process` are widened because the sheet stores bullets.
+ */
+export type ScholarshipDetailData = {
+  scholarship: Omit<ApiScholarship, "eligibility" | "application_process"> & {
+    eligibility: string | string[];
+    application_process: string | string[] | null;
+    category?: string;
+    benefits?: string[];
+    target_majors?: string[];
+    slug?: string;
+  };
+  infoCheck: ApiInfoCheck;
+};
+
 /** The editable fields an admin can write. Provenance is derived by the server. */
 export interface ScholarshipInput {
   title?: string;
