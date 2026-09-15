@@ -6,7 +6,6 @@ import {
   Compass,
   Palette,
   ShieldCheck,
-  Database,
   Brain,
   Layers,
   Coins,
@@ -21,6 +20,8 @@ import {
   LucideIcon,
   Network,
 } from "lucide-react";
+import { type Locale } from "@/src/i18n/routing";
+import { getDataTranslations, getDataCategories } from "@/app/lib/dataTranslations";
 
 /* ── Interfaces ────────────────────────────────────────── */
 
@@ -569,4 +570,59 @@ export const CAREERS_DATA: CareerItem[] = [
     jobMarketDemand: "Growing / Competitive",
   },
 ];
+
+/* ── i18n Translated Data ──────────────────────────────── */
+
+export interface CareerTranslations {
+  title: string;
+  category: string;
+  shortOverview: string;
+  description: string;
+  whatYouDo: string;
+  relatedMajorsText: string[];
+  relatedMajors: { id: string; name: string }[];
+  keySkills: string[];
+  skillsFromMajors: string[];
+  educationRequired: string;
+  bestFitPersonality: string[];
+  jobMarketDemand: string;
+}
+
+export function mergeCareerTranslations(career: CareerItem, tr: CareerTranslations): CareerItem {
+  return {
+    ...career,
+    title: tr.title,
+    category: tr.category,
+    shortOverview: tr.shortOverview,
+    description: tr.description,
+    whatYouDo: tr.whatYouDo,
+    relatedMajorsText: tr.relatedMajorsText,
+    relatedMajors: tr.relatedMajors.map((rm) => ({
+      id: rm.id,
+      name: rm.name,
+      icon: career.relatedMajors.find((b) => b.id === rm.id)?.icon ?? career.icon,
+    })),
+    keySkills: tr.keySkills,
+    skillsFromMajors: tr.skillsFromMajors,
+    educationRequired: tr.educationRequired,
+    bestFitPersonality: tr.bestFitPersonality,
+    jobMarketDemand: tr.jobMarketDemand,
+  };
+}
+
+export function applyCareerTranslations(items: Record<string, CareerTranslations>): CareerItem[] {
+  return CAREERS_DATA.map((career) => {
+    const tr = items[career.id];
+    return tr ? mergeCareerTranslations(career, tr) : career;
+  });
+}
+
+export async function getCareersTranslated(locale: Locale): Promise<CareerItem[]> {
+  const t = await getDataTranslations<CareerTranslations>(locale, "careers");
+  return applyCareerTranslations((t.items ?? {}) as Record<string, CareerTranslations>);
+}
+
+export async function getCareerCategoriesTranslated(locale: Locale) {
+  return getDataCategories(locale, "careers");
+}
 

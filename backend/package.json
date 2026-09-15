@@ -8,8 +8,8 @@
     "dev": "tsx watch src/server.ts",
     "seed": "tsx src/seeds/seed.ts",
     "seed:preview": "tsx src/seeds/preview.ts",
-    "test": "tsx --test --test-concurrency=1 src/tests/*.test.ts",
-    "test:watch": "tsx --test --test-concurrency=1 --watch src/tests/*.test.ts"
+    "test": "tsx --env-file-if-exists=.env.test --test --test-concurrency=1 src/tests/*.test.ts",
+    "test:watch": "tsx --env-file-if-exists=.env.test --test --test-concurrency=1 --watch src/tests/*.test.ts"
   },
   "keywords": [],
   "author": "",

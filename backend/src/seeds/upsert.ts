@@ -2,19 +2,23 @@ import type { Pool } from 'pg';
 import { CONTENT_TABLES, NATURAL_KEY } from './schema';
 
 /**
- * Non-destructive loading of spreadsheet content.
+ * Loading of spreadsheet content.
  *
- * The old seed truncated every table, which deleted user accounts and — worse —
- * reset the id sequences, so a student's saved scholarship silently came to
- * point at a different one. Upserting on a natural key keeps ids stable, leaves
- * user-generated data alone, and still removes rows deleted from the sheet.
+ * The catalogue is now owned by the database — admins edit it in the app — so
+ * the default mode is **insert-only**: a re-seed fills gaps but never
+ * overwrites or deletes a row someone has changed. `mode: 'sync'` restores the
+ * old sheet-authoritative behaviour (update every column, delete rows missing
+ * from the sheet) for teams that still want the sheets to win.
  */
+
+export type UpsertMode = 'insert' | 'sync';
 
 export interface UpsertSummary {
   table: string;
   inserted: number;
   updated: number;
   deleted: number;
+  skipped: number;
 }
 
 type Row = Record<string, unknown>;
@@ -36,18 +40,47 @@ const LAST_VERIFIED_BY =
   'last_verified_by = CASE WHEN EXCLUDED.last_verified > scholarships.last_verified THEN NULL ELSE scholarships.last_verified_by END';
 
 /**
- * Insert-or-update every row, then delete records whose natural key no longer
- * appears in the sheet. `xmax = 0` is Postgres's way of saying "this row was
- * inserted, not updated", which is how the counts are split.
+ * Insert rows that are not present yet. `xmax = 0` is Postgres's way of saying
+ * "this row was inserted, not updated"; with DO NOTHING a conflict returns no
+ * row at all, which is how a skip is detected.
  */
-export const upsertTable = async (
+const insertOnly = async (
   pool: Pool,
   table: ContentTable,
-  rows: Row[]
-): Promise<UpsertSummary> => {
+  rows: Row[],
+  summary: UpsertSummary
+): Promise<void> => {
   const key = NATURAL_KEY[table];
-  const summary: UpsertSummary = { table, inserted: 0, updated: 0, deleted: 0 };
 
+  for (const row of rows) {
+    const columns = Object.keys(row);
+    const placeholders = columns.map((_, i) => `$${i + 1}`).join(', ');
+
+    const res = await pool.query(
+      `INSERT INTO ${table} (${columns.join(', ')})
+       VALUES (${placeholders})
+       ON CONFLICT (${key}) DO NOTHING
+       RETURNING (xmax = 0) AS inserted`,
+      Object.values(row)
+    );
+
+    if (res.rows[0]?.inserted) summary.inserted++;
+    else summary.skipped++;
+  }
+};
+
+/**
+ * The sheet-authoritative path: insert-or-update every row, then delete records
+ * whose natural key no longer appears in the sheet. `xmax = 0` splits the
+ * inserted from the updated counts.
+ */
+const syncAll = async (
+  pool: Pool,
+  table: ContentTable,
+  rows: Row[],
+  summary: UpsertSummary
+): Promise<void> => {
+  const key = NATURAL_KEY[table];
   const keys: unknown[] = [];
 
   for (const row of rows) {
@@ -80,6 +113,21 @@ export const upsertTable = async (
       [keys]
     );
     summary.deleted = res.rowCount ?? 0;
+  }
+};
+
+export const upsertTable = async (
+  pool: Pool,
+  table: ContentTable,
+  rows: Row[],
+  options: { mode?: UpsertMode } = {}
+): Promise<UpsertSummary> => {
+  const summary: UpsertSummary = { table, inserted: 0, updated: 0, deleted: 0, skipped: 0 };
+
+  if ((options.mode ?? 'insert') === 'insert') {
+    await insertOnly(pool, table, rows, summary);
+  } else {
+    await syncAll(pool, table, rows, summary);
   }
 
   return summary;

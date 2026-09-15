@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Link, useRouter } from "@/src/i18n";
 import { ShieldAlert, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@/app/context/AuthContext";
 
 /**
@@ -17,6 +17,7 @@ import { useAuth } from "@/app/context/AuthContext";
 export default function RequireAdmin({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const t = useTranslations("requireAdmin");
 
   const isAdmin = user?.role === "admin";
 
@@ -32,7 +33,7 @@ export default function RequireAdmin({ children }: { children: React.ReactNode }
       <div className="min-h-screen bg-powder flex items-center justify-center">
         <div className="flex items-center gap-3 text-gray-soft">
           <Loader2 className="w-5 h-5 animate-spin" />
-          <span className="text-sm font-semibold">Checking your access…</span>
+          <span className="text-sm font-semibold">{t("checkingAccess")}</span>
         </div>
       </div>
     );
@@ -52,17 +53,16 @@ export default function RequireAdmin({ children }: { children: React.ReactNode }
             <ShieldAlert className="w-6 h-6 text-blue-ink" />
           </span>
           <h1 className="font-display text-xl font-extrabold text-blue-ink mb-2">
-            Admin access only
+            {t("adminAccessOnly")}
           </h1>
           <p className="text-sm text-gray-body font-medium mb-6">
-            You are signed in as <strong>{user.name}</strong>, which is a student
-            account. Managing content requires an administrator.
+            {t("adminAccessDesc", { name: user.name })}
           </p>
           <Link
             href="/"
             className="inline-flex items-center justify-center rounded-full bg-sky-deep px-5 py-2.5 text-sm font-bold text-white hover:bg-sky-dark transition-colors"
           >
-            Back to Domner
+            {t("backToDomner")}
           </Link>
         </div>
       </div>

@@ -64,7 +64,7 @@ The database starts empty. With the containers running, seed it once from anothe
 ```bash
 docker compose -f docker-compose.dev.yml exec backend npm run seed
 ```
-> This creates every table and loads data. Re-running it **wipes and reloads** all data.
+> This creates every table and loads data. Re-running it is **insert-only** by default — it fills gaps and leaves anything edited in the admin dashboard alone. Pass `--sync` to make the sheets overwrite and delete again.
 
 Scholarship, exchange and internship records are read from the Excel workbooks in
 [`backend/src/seeds/data/`](backend/src/seeds/data/) — edit a spreadsheet and re-seed to

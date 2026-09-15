@@ -43,7 +43,11 @@ const TABLES: string[] = [
     verified_status TEXT NOT NULL,
     last_verified TIMESTAMPTZ,
     last_verified_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
-    safety_warnings TEXT[] NOT NULL DEFAULT '{}'
+    safety_warnings TEXT[] NOT NULL DEFAULT '{}',
+    archived_at TIMESTAMPTZ,
+    archived_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    edited_at TIMESTAMPTZ,
+    edited_by INTEGER REFERENCES users(id) ON DELETE SET NULL
   )`,
   `CREATE TABLE IF NOT EXISTS careers (
     id SERIAL PRIMARY KEY,
@@ -58,7 +62,11 @@ const TABLES: string[] = [
     required_skills TEXT[] NOT NULL DEFAULT '{}',
     related_majors TEXT[] NOT NULL DEFAULT '{}',
     source TEXT,
-    source_url TEXT
+    source_url TEXT,
+    archived_at TIMESTAMPTZ,
+    archived_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    edited_at TIMESTAMPTZ,
+    edited_by INTEGER REFERENCES users(id) ON DELETE SET NULL
   )`,
   `CREATE TABLE IF NOT EXISTS majors (
     id SERIAL PRIMARY KEY,
@@ -74,7 +82,11 @@ const TABLES: string[] = [
     universities TEXT[] NOT NULL DEFAULT '{}',
     related_scholarships TEXT[] NOT NULL DEFAULT '{}',
     source TEXT,
-    source_url TEXT
+    source_url TEXT,
+    archived_at TIMESTAMPTZ,
+    archived_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    edited_at TIMESTAMPTZ,
+    edited_by INTEGER REFERENCES users(id) ON DELETE SET NULL
   )`,
   `CREATE TABLE IF NOT EXISTS universities (
     id SERIAL PRIMARY KEY,
@@ -96,7 +108,11 @@ const TABLES: string[] = [
     programs TEXT[] NOT NULL DEFAULT '{}',
     scholarships TEXT[] NOT NULL DEFAULT '{}',
     source TEXT NOT NULL,
-    source_url TEXT NOT NULL
+    source_url TEXT NOT NULL,
+    archived_at TIMESTAMPTZ,
+    archived_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    edited_at TIMESTAMPTZ,
+    edited_by INTEGER REFERENCES users(id) ON DELETE SET NULL
   )`,
   /**
    * Students save majors, careers and universities as well as scholarships,
@@ -142,6 +158,21 @@ const TABLES: string[] = [
     reviewed_at TIMESTAMPTZ,
     read_by_user BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  )`,
+  /**
+   * Who changed which catalogue row, when, and why. Written by every admin
+   * create / update / archive / restore, so the trust layer has a memory of
+   * its own edits — the sheets never had one.
+   */
+  `CREATE TABLE IF NOT EXISTS content_audit (
+    id SERIAL PRIMARY KEY,
+    entity TEXT NOT NULL,
+    row_id INTEGER NOT NULL,
+    action TEXT NOT NULL CHECK (action IN ('create', 'update', 'archive', 'restore')),
+    actor_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    changes JSONB NOT NULL DEFAULT '{}'::jsonb,
+    reason TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`
 ];
 
@@ -160,6 +191,11 @@ const ADD_COLUMNS: Array<[string, string]> = [
   ['scholarships', 'last_verified TIMESTAMPTZ'],
   // Who did the last human check. Set in the app, never by the sheets.
   ['scholarships', 'last_verified_by INTEGER REFERENCES users(id) ON DELETE SET NULL'],
+  // Content is edited in the app now; these track archiving and who last touched it.
+  ['scholarships', 'archived_at TIMESTAMPTZ'],
+  ['scholarships', 'archived_by INTEGER REFERENCES users(id) ON DELETE SET NULL'],
+  ['scholarships', 'edited_at TIMESTAMPTZ'],
+  ['scholarships', 'edited_by INTEGER REFERENCES users(id) ON DELETE SET NULL'],
   ['careers', 'responsibilities TEXT'],
   ['careers', 'education_required TEXT'],
   ['careers', 'personality_fit TEXT'],
@@ -177,7 +213,21 @@ const ADD_COLUMNS: Array<[string, string]> = [
   ['universities', 'established TEXT'],
   ['universities', 'student_count TEXT'],
   ['universities', 'image_url TEXT'],
-  ['universities', "scholarships TEXT[] NOT NULL DEFAULT '{}'"]
+  ['universities', "scholarships TEXT[] NOT NULL DEFAULT '{}'"],
+  // The catalogue is edited in the app, so every content table tracks archiving
+  // and who last touched a row.
+  ['careers', 'archived_at TIMESTAMPTZ'],
+  ['careers', 'archived_by INTEGER REFERENCES users(id) ON DELETE SET NULL'],
+  ['careers', 'edited_at TIMESTAMPTZ'],
+  ['careers', 'edited_by INTEGER REFERENCES users(id) ON DELETE SET NULL'],
+  ['majors', 'archived_at TIMESTAMPTZ'],
+  ['majors', 'archived_by INTEGER REFERENCES users(id) ON DELETE SET NULL'],
+  ['majors', 'edited_at TIMESTAMPTZ'],
+  ['majors', 'edited_by INTEGER REFERENCES users(id) ON DELETE SET NULL'],
+  ['universities', 'archived_at TIMESTAMPTZ'],
+  ['universities', 'archived_by INTEGER REFERENCES users(id) ON DELETE SET NULL'],
+  ['universities', 'edited_at TIMESTAMPTZ'],
+  ['universities', 'edited_by INTEGER REFERENCES users(id) ON DELETE SET NULL']
 ];
 
 /**
@@ -192,7 +242,12 @@ const ADD_CONSTRAINTS: string[] = [
   `CREATE UNIQUE INDEX IF NOT EXISTS scholarships_title_key ON scholarships (title)`,
   `CREATE UNIQUE INDEX IF NOT EXISTS careers_title_key ON careers (title)`,
   `CREATE UNIQUE INDEX IF NOT EXISTS majors_name_key ON majors (name)`,
-  `CREATE UNIQUE INDEX IF NOT EXISTS universities_name_key ON universities (name)`
+  `CREATE UNIQUE INDEX IF NOT EXISTS universities_name_key ON universities (name)`,
+  `CREATE INDEX IF NOT EXISTS scholarships_archived_idx ON scholarships (archived_at)`,
+  `CREATE INDEX IF NOT EXISTS careers_archived_idx ON careers (archived_at)`,
+  `CREATE INDEX IF NOT EXISTS majors_archived_idx ON majors (archived_at)`,
+  `CREATE INDEX IF NOT EXISTS universities_archived_idx ON universities (archived_at)`,
+  `CREATE INDEX IF NOT EXISTS content_audit_target_idx ON content_audit (entity, row_id, created_at DESC)`
 ];
 
 /** Columns the source spreadsheets do not supply: relaxed rather than faked. */
@@ -215,6 +270,7 @@ export const TABLE_NAMES = [
   'saved_items',
   'reports',
   'verification_requests',
+  'content_audit',
   'scholarships',
   'universities',
   'majors',

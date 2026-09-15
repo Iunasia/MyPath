@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/src/i18n";
 import { AlertTriangle, Calendar, Clock, ShieldCheck } from "lucide-react";
 import SaveItemButton from "./SaveItemButton";
 import { deadlineLabel, deadlineState, type ScholarshipView } from "@/app/lib/adapters";

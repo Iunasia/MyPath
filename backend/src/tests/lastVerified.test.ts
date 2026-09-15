@@ -144,10 +144,10 @@ describe('Last verified (MVP #8)', () => {
       await admin.client.post(`/scholarships/${id}/verify`);
       const before = await stampOf(id);
 
-      await upsertTable(pool, 'scholarships', [sheetRow('Kept', null)]);
+      await upsertTable(pool, 'scholarships', [sheetRow('Kept', null)], { mode: 'sync' });
 
       const after = await stampOf(id);
-      assert.ok(after.last_verified, 'a re-seed wiped the admin stamp');
+      assert.ok(after.last_verified, 'a sync re-seed wiped the admin stamp');
       assert.equal(after.last_verified!.getTime(), before.last_verified!.getTime());
       assert.equal(after.last_verified_by, admin.id);
     });
@@ -158,11 +158,34 @@ describe('Last verified (MVP #8)', () => {
       await admin.client.post(`/scholarships/${id}/verify`);
 
       const sheetDate = new Date('2099-01-01T00:00:00Z');
-      await upsertTable(pool, 'scholarships', [sheetRow('Newer', sheetDate)]);
+      await upsertTable(pool, 'scholarships', [sheetRow('Newer', sheetDate)], { mode: 'sync' });
 
       const after = await stampOf(id);
       assert.equal(after.last_verified!.getTime(), sheetDate.getTime());
       assert.equal(after.last_verified_by, null, 'the admin was credited with a date they did not record');
+    });
+  });
+
+  describe('re-seeding in the default (insert-only) mode', () => {
+    it('never overwrites a row an admin edited', async () => {
+      const id = await insertScholarship({ title: 'Hand edited', provider: 'Admin Provider' });
+
+      // The sheet still carries the old provider; the database owns the row now.
+      await upsertTable(pool, 'scholarships', [
+        { ...sheetRow('Hand edited', null), provider: 'Sheet Provider' }
+      ]);
+
+      const { rows } = await pool.query('SELECT provider FROM scholarships WHERE id = $1', [id]);
+      assert.equal(rows[0].provider, 'Admin Provider', 'insert-only mode overwrote an edited row');
+    });
+
+    it('does not delete a row the sheet no longer has', async () => {
+      const id = await insertScholarship({ title: 'Only in the app' });
+
+      await upsertTable(pool, 'scholarships', [sheetRow('Something else', null)]);
+
+      const { rows } = await pool.query('SELECT id FROM scholarships WHERE id = $1', [id]);
+      assert.equal(rows.length, 1, 'insert-only mode deleted an app-owned row');
     });
   });
 });

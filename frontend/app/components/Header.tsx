@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { useTranslations, useLocale } from "next-intl";
+import { Link, usePathname, useRouter } from "@/src/i18n";
 import { useAuth } from "@/app/context/AuthContext";
 import { fetchMyVerificationRequests } from "@/app/lib/api";
+import SignOutButton from "./SignOutButton";
 import {
   Menu,
   X,
@@ -13,13 +15,15 @@ import {
   Coins,
   Bookmark,
   ShieldCheck,
-  Scale,
   Users,
-  LogOut,
+  type LucideIcon,
   LayoutDashboard,
   ChevronDown,
-  type LucideIcon,
+  Globe,
+  Sun,
+  Moon,
 } from "lucide-react";
+import { useTheme } from "@/app/context/ThemeContext";
 
 type NavKey =
   | "careers"
@@ -31,27 +35,11 @@ type NavKey =
   | "saved";
 
 export interface HeaderProps {
-  /**
-   * "home" floats the header over the hero image; everywhere else it sits at
-   * the top of the page and sticks on scroll. What's inside is identical.
-   */
   variant?: "default" | "home";
   activeNav?: NavKey;
   className?: string;
 }
 
-const NAV_LINKS: Array<{ key: NavKey; href: string; label: string; icon: LucideIcon }> = [
-  { key: "careers", href: "/careers", label: "Careers", icon: Compass },
-  { key: "majors", href: "/majors", label: "Majors", icon: BookOpen },
-  { key: "universities", href: "/universities", label: "Universities", icon: GraduationCap },
-  { key: "scholarships", href: "/scholarships", label: "Scholarships", icon: Coins },
-  { key: "workshops", href: "/workshops", label: "Workshops", icon: Users },
-];
-
-/**
- * How many answers to "is this real?" the student hasn't opened yet. Answers
- * land in the inbox on /verify, and without a badge nobody would know to look.
- */
 function useUnreadAnswers(signedIn: boolean): number {
   const [unread, setUnread] = useState(0);
 
@@ -83,7 +71,6 @@ function UnreadBadge({ count }: { count: number }) {
   );
 }
 
-/** Closes a popover on an outside click or Escape. */
 function useDismiss(open: boolean, close: () => void) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -107,31 +94,51 @@ function useDismiss(open: boolean, close: () => void) {
 }
 
 export default function Header({ variant = "default", activeNav, className = "" }: HeaderProps) {
+  const t = useTranslations("nav");
+  const tCommon = useTranslations("common");
+  const locale = useLocale();
+  const pathname = usePathname();
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
-  const { user, loading, logout } = useAuth();
-  // Cosmetic only — the guard on /admin is what actually protects the page.
+  const { user, loading } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const isAdmin = user?.role === "admin";
   const unread = useUnreadAnswers(Boolean(user));
   const accountRef = useDismiss(accountOpen, () => setAccountOpen(false));
 
-  const signOut = async () => {
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const closeMenus = () => {
     setAccountOpen(false);
     setMenuOpen(false);
-    await logout();
   };
+
+  const switchLocale = (newLocale: string) => {
+    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
+    router.replace(pathname, { locale: newLocale });
+  };
+
+  const NAV_LINKS: Array<{ key: NavKey; href: string; label: string; icon: LucideIcon }> = [
+    { key: "careers", href: "/careers", label: t("careers"), icon: Compass },
+    { key: "majors", href: "/majors", label: t("majors"), icon: BookOpen },
+    { key: "universities", href: "/universities", label: t("universities"), icon: GraduationCap },
+    { key: "scholarships", href: "/scholarships", label: t("scholarships"), icon: Coins },
+    { key: "workshops", href: "/workshops", label: t("workshops"), icon: Users },
+  ];
 
   const desktopLink = (active: boolean) =>
     `inline-flex items-center gap-1.5 transition-colors ${
-      active ? "font-bold text-sky-deep" : "text-gray-soft hover:text-blue-ink"
+      active ? "font-bold text-sky-deep" : "text-gray-soft hover:text-blue-ink dark:text-gray-body dark:hover:text-white"
     }`;
   const mobileLink = (active: boolean) =>
     `flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors ${
       active ? "bg-sky/15 text-sky-deep font-bold" : "text-blue-ink hover:bg-powder"
     }`;
 
-  // Rendered once from the root layout (see SiteHeader), outside the pages'
-  // padded containers, so it carries the same side margins itself.
   const position =
     variant === "home"
       ? "fixed top-4 inset-x-[25px] sm:inset-x-10 lg:inset-x-[80px]"
@@ -140,8 +147,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
   return (
     <div className={`${position} z-50 ${className}`}>
       <header className="bg-white/90 backdrop-blur-md rounded-full bubble-shadow-sm border border-sky/15 pl-4 pr-3 sm:pl-5 sm:pr-4 py-2.5 flex items-center justify-between gap-4">
-        {/* The logo is the way home on every page. */}
-        <Link href="/" className="flex items-center gap-2.5 shrink-0" aria-label="Domner home">
+        <Link href="/" className="flex items-center gap-2.5 shrink-0" aria-label={t("home")}>
           <span className="flex items-center justify-center w-8 h-8 rounded-full bg-sky-deep text-white text-sm font-bold font-display">
             D
           </span>
@@ -150,7 +156,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
           </span>
         </Link>
 
-        <nav className="hidden lg:flex items-center gap-5 xl:gap-6 text-sm font-semibold" aria-label="Main">
+        <nav className="hidden lg:flex items-center gap-5 xl:gap-6 text-sm font-semibold" aria-label={t("main")}>
           {NAV_LINKS.map((link) => (
             <Link
               key={link.key}
@@ -165,15 +171,56 @@ export default function Header({ variant = "default", activeNav, className = "" 
             href="/verify"
             className={desktopLink(activeNav === "verify")}
             aria-current={activeNav === "verify" ? "page" : undefined}
-            title="Ask us to check whether a scholarship is real"
+            title={t("askToCheckScholarship")}
           >
             <ShieldCheck className="w-4 h-4" aria-hidden="true" />
-            Verify
+            {t("verify")}
             <UnreadBadge count={unread} />
           </Link>
         </nav>
 
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+          {/* Theme Toggle */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={mounted && theme === "dark" ? tCommon("switchToLightMode") : tCommon("switchToDarkMode")}
+            title={mounted && theme === "dark" ? tCommon("switchToLightMode") : tCommon("switchToDarkMode")}
+            className="p-2 rounded-full text-blue-ink hover:bg-sitomo transition-colors cursor-pointer"
+          >
+            {mounted ? (
+              theme === "dark" ? (
+                <Sun className="w-4.5 h-4.5" aria-hidden="true" />
+              ) : (
+                <Moon className="w-4.5 h-4.5" aria-hidden="true" />
+              )
+            ) : (
+              <span className="w-4.5 h-4.5 block" aria-hidden="true" />
+            )}
+          </button>
+
+          {/* Language Switcher */}
+          <div className="hidden sm:flex items-center bg-white border border-sky/20 rounded-full text-xs font-bold overflow-hidden">
+            <button
+              type="button"
+              onClick={() => switchLocale("en")}
+              className={`px-2.5 py-1.5 transition-colors cursor-pointer ${
+                locale === "en" ? "bg-sky-deep text-white" : "text-gray-soft hover:text-blue-ink"
+              }`}
+            >
+              EN
+            </button>
+            <button
+              type="button"
+              onClick={() => switchLocale("km")}
+              className={`px-2.5 py-1.5 transition-colors cursor-pointer ${
+                locale === "km" ? "bg-sky-deep text-white" : "text-gray-soft hover:text-blue-ink"
+              }`}
+            >
+              KM
+            </button>
+          </div>
+
           {loading ? (
             <div className="hidden sm:inline-flex items-center h-[38px] w-[88px] rounded-full bg-sky/15 animate-pulse" />
           ) : user ? (
@@ -183,7 +230,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
                 onClick={() => setAccountOpen((open) => !open)}
                 aria-expanded={accountOpen}
                 aria-haspopup="menu"
-                aria-label="Your account"
+                aria-label={t("yourAccount")}
                 className="flex items-center gap-1 rounded-full p-0.5 pr-1.5 hover:bg-sitomo transition-colors cursor-pointer"
               >
                 <span className="w-8 h-8 rounded-full bg-sky-deep text-white text-sm font-bold flex items-center justify-center">
@@ -208,7 +255,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
                     className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-blue-ink hover:bg-powder"
                   >
                     <ShieldCheck className="w-4 h-4 text-sky-deep" />
-                    <span className="flex-1">My check requests</span>
+                    <span className="flex-1">{t("myCheckRequests")}</span>
                     <UnreadBadge count={unread} />
                   </Link>
                   <Link
@@ -218,7 +265,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
                     className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-blue-ink hover:bg-powder"
                   >
                     <Bookmark className="w-4 h-4 text-sky-deep" />
-                    Saved items
+                    {t("saved")}
                   </Link>
                   {isAdmin && (
                     <Link
@@ -228,18 +275,10 @@ export default function Header({ variant = "default", activeNav, className = "" 
                       className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-blue-ink hover:bg-powder"
                     >
                       <LayoutDashboard className="w-4 h-4 text-sky-deep" />
-                      Admin dashboard
+                      {t("adminDashboard")}
                     </Link>
                   )}
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={signOut}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 mt-1 rounded-xl text-blue-ink hover:bg-powder border-t border-sky/10 cursor-pointer"
-                  >
-                    <LogOut className="w-4 h-4 text-gray-soft" />
-                    Sign out
-                  </button>
+                  <SignOutButton variant="block" className="mt-1" onClick={closeMenus} />
                 </div>
               )}
             </div>
@@ -248,7 +287,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
               href="/auth/signin"
               className="hidden sm:inline-flex items-center rounded-full bg-sky-deep px-5 py-2 text-sm font-bold text-white hover:bg-sky-dark transition-colors"
             >
-              Sign in
+              {tCommon("signIn")}
             </Link>
           )}
 
@@ -256,7 +295,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
             type="button"
             onClick={() => setMenuOpen((open) => !open)}
             className="lg:hidden relative p-1.5 rounded-full text-blue-ink hover:bg-sitomo transition-colors cursor-pointer"
-            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-label={menuOpen ? t("closeMenu") : t("openMenu")}
             aria-expanded={menuOpen}
           >
             {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -270,7 +309,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
       {menuOpen && (
         <nav
           className="lg:hidden bg-white/95 backdrop-blur-md rounded-3xl p-3 mt-3 bubble-shadow-sm border border-sky/15 text-sm font-semibold"
-          aria-label="Main"
+          aria-label={t("main")}
         >
           <div className="flex flex-col gap-1">
             {NAV_LINKS.map((link) => (
@@ -286,13 +325,38 @@ export default function Header({ variant = "default", activeNav, className = "" 
             ))}
             <Link href="/verify" className={mobileLink(activeNav === "verify")} onClick={() => setMenuOpen(false)}>
               <ShieldCheck className="w-4 h-4 text-sky-deep" />
-              <span className="flex-1">Is this scholarship real?</span>
+              <span className="flex-1">{t("isThisScholarshipReal")}</span>
               <UnreadBadge count={unread} />
             </Link>
             <Link href="/saved" className={mobileLink(activeNav === "saved")} onClick={() => setMenuOpen(false)}>
               <Bookmark className="w-4 h-4 text-sky-deep" />
-              Saved items
+              {t("saved")}
             </Link>
+          </div>
+
+          {/* Mobile Language Switcher */}
+          <div className="mt-2 pt-3 border-t border-sky/10">
+            <div className="flex items-center gap-2 px-3.5 mb-2">
+              <Globe className="w-4 h-4 text-gray-soft" />
+              <button
+                type="button"
+                onClick={() => switchLocale("en")}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  locale === "en" ? "bg-sky-deep text-white" : "text-gray-soft hover:text-blue-ink bg-powder"
+                }`}
+              >
+                English
+              </button>
+              <button
+                type="button"
+                onClick={() => switchLocale("km")}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  locale === "km" ? "bg-sky-deep text-white" : "text-gray-soft hover:text-blue-ink bg-powder"
+                }`}
+              >
+                ខ្មែរ
+              </button>
+            </div>
           </div>
 
           <div className="mt-2 pt-3 border-t border-sky/10">
@@ -301,18 +365,15 @@ export default function Header({ variant = "default", activeNav, className = "" 
             ) : user ? (
               <div className="flex flex-col gap-1">
                 <p className="px-3.5 pb-1 text-xs text-gray-soft font-medium truncate">
-                  Signed in as <span className="font-bold text-blue-ink">{user.name}</span>
+                  {tCommon("signIn")} <span className="font-bold text-blue-ink">{user.name}</span>
                 </p>
                 {isAdmin && (
                   <Link href="/admin" className={mobileLink(false)} onClick={() => setMenuOpen(false)}>
                     <LayoutDashboard className="w-4 h-4 text-sky-deep" />
-                    Admin dashboard
+                    {t("adminDashboard")}
                   </Link>
                 )}
-                <button type="button" onClick={signOut} className={`${mobileLink(false)} w-full cursor-pointer`}>
-                  <LogOut className="w-4 h-4 text-gray-soft" />
-                  Sign out
-                </button>
+                <SignOutButton variant="block" className="mt-1" onClick={closeMenus} />
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-2">
@@ -321,14 +382,14 @@ export default function Header({ variant = "default", activeNav, className = "" 
                   onClick={() => setMenuOpen(false)}
                   className="text-center rounded-full border border-sky/30 px-4 py-2.5 font-bold text-sky-deep hover:bg-sitomo transition-colors"
                 >
-                  Sign in
+                  {tCommon("signIn")}
                 </Link>
                 <Link
                   href="/auth/signup"
                   onClick={() => setMenuOpen(false)}
                   className="text-center rounded-full bg-sky-deep px-4 py-2.5 font-bold text-white hover:bg-sky-dark transition-colors"
                 >
-                  Create account
+                  {tCommon("createAccount")}
                 </Link>
               </div>
             )}

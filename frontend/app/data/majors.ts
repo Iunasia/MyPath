@@ -22,6 +22,8 @@ import {
   Code2,
   LucideIcon,
 } from "lucide-react";
+import { type Locale } from "@/src/i18n/routing";
+import { getDataTranslations } from "@/app/lib/dataTranslations";
 
 /* ── Interfaces ────────────────────────────────────────── */
 
@@ -1265,4 +1267,119 @@ export const MAJORS_DATA: MajorItem[] = [
 
 export function getMajorById(id: string): MajorItem | undefined {
   return MAJORS_DATA.find((m) => m.id === id);
+}
+
+/* ── i18n Translated Data ──────────────────────────────── */
+
+export interface MajorTranslations {
+  name: string;
+  category: string;
+  badge?: { text: string };
+  description: string;
+  extendedDescription?: string;
+  tags: string[];
+  duration: string;
+  degreeType: string;
+  source: string;
+  lastVerified?: string;
+  whatYouLearn: { title: string; description: string }[];
+  skillsDeveloped: string[];
+  careerPathways: { title: string; description: string }[];
+  careerOpportunities: string;
+  jobMarketDemand: string;
+  relatedMajors: { id: string; name: string }[];
+  offerUniversities: (Omit<UniversityItem, "image"> & { id?: string })[];
+  relatedOpportunities: (Omit<OpportunityItem, "image"> & { id?: string })[];
+}
+
+export function mergeMajorTranslations(major: MajorItem, tr: MajorTranslations): MajorItem {
+  const baseWhatYouLearn = major.whatYouLearn.map(
+    (item, i) => ({ ...item, ...(tr.whatYouLearn?.[i] ?? {}) })
+  );
+  const baseCareerPathways = major.careerPathways.map(
+    (item, i) => ({ ...item, ...(tr.careerPathways?.[i] ?? {}) })
+  );
+  const baseRelatedMajors = major.relatedMajors.map(
+    (item, i) => ({ ...item, ...(tr.relatedMajors?.[i] ?? {}) })
+  );
+  const baseOfferUniversities = major.offerUniversities.map(
+    (item, i) => ({ ...item, ...(tr.offerUniversities?.[i] ?? {}) })
+  );
+  const baseRelatedOpportunities = major.relatedOpportunities.map(
+    (item, i) => ({ ...item, ...(tr.relatedOpportunities?.[i] ?? {}) })
+  );
+
+  return {
+    ...major,
+    name: tr.name,
+    category: tr.category,
+    badge: tr.badge?.text
+      ? ({ ...(major.badge ?? {}), ...tr.badge } as NonNullable<MajorItem["badge"]>)
+      : major.badge,
+    description: tr.description,
+    extendedDescription: tr.extendedDescription ?? major.extendedDescription,
+    tags: tr.tags ?? major.tags,
+    duration: tr.duration ?? major.duration,
+    degreeType: tr.degreeType ?? major.degreeType,
+    source: tr.source ?? major.source,
+    lastVerified: tr.lastVerified ?? major.lastVerified,
+    whatYouLearn: tr.whatYouLearn ? baseWhatYouLearn : major.whatYouLearn,
+    skillsDeveloped: tr.skillsDeveloped ?? major.skillsDeveloped,
+    careerPathways: tr.careerPathways ? baseCareerPathways : major.careerPathways,
+    careerOpportunities: tr.careerOpportunities,
+    jobMarketDemand: tr.jobMarketDemand,
+    relatedMajors: tr.relatedMajors ? baseRelatedMajors : major.relatedMajors,
+    offerUniversities: tr.offerUniversities ? baseOfferUniversities : major.offerUniversities,
+    relatedOpportunities: tr.relatedOpportunities ? baseRelatedOpportunities : major.relatedOpportunities,
+  };
+}
+
+export function applyMajorTranslations(items: Record<string, MajorTranslations>): MajorItem[] {
+  return MAJORS_DATA.map((major) => {
+    const tr = items[major.id];
+    return tr ? mergeMajorTranslations(major, tr) : major;
+  });
+}
+
+export async function getMajorsTranslated(locale: Locale): Promise<MajorItem[]> {
+  const t = await getDataTranslations<MajorTranslations>(locale, "majors");
+  return applyMajorTranslations((t.items ?? {}) as Record<string, MajorTranslations>);
+}
+
+export function applyMajorCategoriesTranslations(json: { categories?: { id: string; name: string }[] }): { id: string; name: string }[] {
+  return json.categories ?? CATEGORIES.map((c) => ({ id: c.id, name: c.name }));
+}
+
+export async function getMajorCategoriesTranslated(locale: Locale) {
+  const t = await getDataTranslations(locale, "majors");
+  return applyMajorCategoriesTranslations(t);
+}
+
+export function applyUniMapTranslations(json: {
+  uniMap?: Record<string, { name?: string; shortName?: string; location?: string }>;
+}): Record<string, UniversityItem> {
+  const uniMap = json.uniMap ?? {};
+  const result: Record<string, UniversityItem> = {};
+  for (const key of Object.keys(UNI_MAP)) {
+    const base = UNI_MAP[key];
+    const tr = uniMap[key];
+    if (!tr) {
+      result[key] = base;
+      continue;
+    }
+    result[key] = {
+      ...base,
+      name: tr.name ?? base.name,
+      shortName: tr.shortName ?? base.shortName,
+      location: tr.location ?? base.location,
+    };
+  }
+  return result;
+}
+
+export async function getUniMapTranslated(
+  locale: Locale
+): Promise<Record<string, UniversityItem>> {
+  const t = await getDataTranslations(locale, "majors");
+  return applyUniMapTranslations(t as Parameters<typeof applyUniMapTranslations>[0]);
 }

@@ -1,3 +1,6 @@
+import { type Locale } from "@/src/i18n/routing";
+import { getDataTranslations } from "@/app/lib/dataTranslations";
+
 export interface AcademicProgram {
   title: string;
   shortCode: string;
@@ -1538,4 +1541,125 @@ export const UNIVERSITIES_DATA: University[] = [
 
 export function getUniversityById(id: string): University | undefined {
   return UNIVERSITIES_DATA.find((u) => u.id.toLowerCase() === id.toLowerCase());
+}
+
+/* ── i18n Translated Data ──────────────────────────────── */
+
+export interface UniversityTranslations {
+  name: string;
+  shortName: string;
+  location: string;
+  description: string;
+  popularMajors: string[];
+  tuitionFee?: string;
+  tuitionDetails?: { facultyOrCategory: string; fee: string }[];
+  facultiesList?: { facultyName: string; majors: string[] }[];
+  scholarshipsList?: string[];
+  taglinePrefix: string;
+  taglineHighlight: string;
+  undergraduate: { title: string; description: string };
+  graduate: { title: string; description: string };
+  programs: { title: string; shortCode: string; description: string }[];
+  admissionRequirements: string[];
+  applicationDeadline: string;
+  facilities: { name: string }[];
+  scholarship: { title: string; deadline: string };
+  branches?: { name: string; mapUrl: string }[];
+}
+
+export function mergeUniversityTranslations(base: University, tr: UniversityTranslations): University {
+  const mergedTuitionDetails =
+    tr.tuitionDetails && tr.tuitionDetails.length > 0
+      ? (base.tuitionDetails ?? []).map((detail, i) => ({
+          ...detail,
+          ...(tr.tuitionDetails?.[i] ?? {}),
+        }))
+      : base.tuitionDetails;
+
+  const mergedFacultiesList =
+    tr.facultiesList && tr.facultiesList.length > 0
+      ? (base.facultiesList ?? []).map((group, i) => ({
+          ...group,
+          ...(tr.facultiesList?.[i] ?? {}),
+          majors: tr.facultiesList?.[i]?.majors ?? group.majors,
+        }))
+      : base.facultiesList;
+
+  const mergedScholarshipsList =
+    tr.scholarshipsList && tr.scholarshipsList.length > 0
+      ? (base.scholarshipsList ?? []).map((scholarship, i) => tr.scholarshipsList?.[i] ?? scholarship)
+      : base.scholarshipsList;
+
+  const mergedBranches =
+    tr.branches && tr.branches.length > 0
+      ? (base.branches ?? []).map((branch, i) => ({
+          ...branch,
+          ...(tr.branches?.[i] ?? {}),
+        }))
+      : base.branches;
+
+  const mergedPrograms =
+    tr.programs && tr.programs.length > 0
+      ? base.programs.map((prog, i) => ({
+          ...prog,
+          ...(tr.programs?.[i] ?? {}),
+        }))
+      : base.programs;
+
+  const mergedFacilities =
+    tr.facilities && tr.facilities.length > 0
+      ? base.facilities.map((fac, i) => ({
+          ...fac,
+          ...(tr.facilities?.[i] ?? {}),
+        }))
+      : base.facilities;
+
+  return {
+    ...base,
+    name: tr.name ?? base.name,
+    shortName: tr.shortName ?? base.shortName,
+    location: tr.location ?? base.location,
+    description: tr.description ?? base.description,
+    popularMajors: tr.popularMajors ?? base.popularMajors,
+    tuitionFee: tr.tuitionFee ?? base.tuitionFee,
+    tuitionDetails: mergedTuitionDetails,
+    facultiesList: mergedFacultiesList,
+    scholarshipsList: mergedScholarshipsList,
+    taglinePrefix: tr.taglinePrefix ?? base.taglinePrefix,
+    taglineHighlight: tr.taglineHighlight ?? base.taglineHighlight,
+    undergraduate:
+      tr.undergraduate?.title || tr.undergraduate?.description
+        ? { ...base.undergraduate, ...tr.undergraduate }
+        : base.undergraduate,
+    graduate:
+      tr.graduate?.title || tr.graduate?.description
+        ? { ...base.graduate, ...tr.graduate }
+        : base.graduate,
+    programs: mergedPrograms,
+    admissionRequirements: tr.admissionRequirements ?? base.admissionRequirements,
+    applicationDeadline: tr.applicationDeadline ?? base.applicationDeadline,
+    facilities: mergedFacilities,
+    scholarship:
+      tr.scholarship?.title || tr.scholarship?.deadline
+        ? { ...base.scholarship, ...tr.scholarship }
+        : base.scholarship,
+    branches: mergedBranches,
+  };
+}
+
+export function applyUniversityTranslations(items: Record<string, UniversityTranslations>): University[] {
+  return UNIVERSITIES_DATA.map((university) => {
+    const tr = items[university.id];
+    return tr ? mergeUniversityTranslations(university, tr) : university;
+  });
+}
+
+export async function getUniversitiesTranslated(locale: Locale): Promise<University[]> {
+  const t = await getDataTranslations<UniversityTranslations>(locale, "universities");
+  return applyUniversityTranslations((t.items ?? {}) as Record<string, UniversityTranslations>);
+}
+
+export async function getLocationsTranslated(locale: Locale) {
+  const t = await getDataTranslations(locale, "universities");
+  return (t.locations ?? []) as { id: string; name: string }[];
 }

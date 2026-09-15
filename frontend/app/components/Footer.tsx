@@ -1,36 +1,39 @@
-import Link from "next/link";
+import { Link } from "@/src/i18n";
+import { useTranslations } from "next-intl";
 
 interface FooterProps {
   className?: string;
 }
 
 export default function Footer({ className = "" }: FooterProps) {
+  const t = useTranslations("footer");
+
   const footerSections = [
     {
-      heading: "Explore",
+      heading: t("explore"),
       links: [
-        { label: "Careers", href: "/careers" },
-        { label: "Majors", href: "/majors" },
-        { label: "Universities", href: "/universities" },
-        { label: "Scholarships", href: "/scholarships" },
+        { label: t("careers"), href: "/careers" },
+        { label: t("majors"), href: "/majors" },
+        { label: t("universities"), href: "/universities" },
+        { label: t("scholarships"), href: "/scholarships" },
       ],
     },
     {
-      heading: "Tools",
+      heading: t("tools"),
       links: [
-        { label: "Information Check", href: "#" },
-        { label: "Deadline Tracker", href: "#" },
-        { label: "Saved Opportunities", href: "/saved" },
-        { label: "Admin Portal", href: "/admin" },
+        { label: t("informationCheck"), href: "#" },
+        { label: t("deadlineTracker"), href: "#" },
+        { label: t("savedOpportunities"), href: "/saved" },
+        { label: t("adminPortal"), href: "/admin" },
       ],
     },
     {
-      heading: "About",
+      heading: t("about"),
       links: [
-        { label: "About Domner", href: "#" },
-        { label: "Privacy Policy", href: "#" },
-        { label: "Terms of Use", href: "#" },
-        { label: "Contact", href: "#" },
+        { label: t("aboutDomner"), href: "#" },
+        { label: t("privacyPolicy"), href: "#" },
+        { label: t("termsOfUse"), href: "#" },
+        { label: t("contact"), href: "#" },
       ],
     },
   ];
@@ -50,8 +53,7 @@ export default function Footer({ className = "" }: FooterProps) {
               </span>
             </Link>
             <p className="text-sm text-gray-body leading-relaxed font-medium">
-              A Digital Information Literacy platform helping students make informed
-              decisions about their future.
+              {t("brandDescription")}
             </p>
           </div>
 
@@ -64,12 +66,21 @@ export default function Footer({ className = "" }: FooterProps) {
               <ul className="space-y-2 text-sm text-gray-body font-medium">
                 {col.links.map((l) => (
                   <li key={l.label}>
-                    <Link
-                      href={l.href}
-                      className="hover:text-sky-deep transition-colors"
-                    >
-                      {l.label}
-                    </Link>
+                    {l.href.startsWith("#") || l.href.startsWith("http") ? (
+                      <a
+                        href={l.href}
+                        className="hover:text-sky-deep transition-colors"
+                      >
+                        {l.label}
+                      </a>
+                    ) : (
+                      <Link
+                        href={l.href}
+                        className="hover:text-sky-deep transition-colors"
+                      >
+                        {l.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -80,14 +91,13 @@ export default function Footer({ className = "" }: FooterProps) {
         {/* Bottom Disclaimer */}
         <div className="pt-8 border-t border-sky/10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-gray-faint font-medium">
-            &copy; 2026 Domner. Built to help students navigate digital information responsibly.
+            {t("copyright")}
           </p>
           <p className="text-xs text-gray-faint font-medium">
-            A Digital Information Literacy project.
+            {t("project")}
           </p>
         </div>
       </div>
     </footer>
   );
 }
-

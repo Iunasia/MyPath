@@ -1,7 +1,8 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/src/i18n";
 import Header, { type HeaderProps } from "./Header";
+import { SkipLink } from "./ui";
 
 const SECTIONS: Record<string, NonNullable<HeaderProps["activeNav"]>> = {
   careers: "careers",
@@ -23,7 +24,12 @@ export default function SiteHeader() {
   const pathname = usePathname() ?? "/";
   const section = pathname.split("/")[1] ?? "";
 
-  if (section === "admin" || section === "auth") return null;
+  if (section === "admin" || section === "auth") return <SkipLink />;
 
-  return <Header variant={pathname === "/" ? "home" : "default"} activeNav={SECTIONS[section]} />;
+  return (
+    <>
+      <SkipLink />
+      <Header variant={pathname === "/" ? "home" : "default"} activeNav={SECTIONS[section]} />
+    </>
+  );
 }

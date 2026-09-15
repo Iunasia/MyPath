@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Check, Share2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface ShareButtonProps {
   title: string;
@@ -23,6 +24,7 @@ export default function ShareButton({
   iconClassName = "w-4.5 h-4.5",
 }: ShareButtonProps) {
   const [copied, setCopied] = useState(false);
+  const t = useTranslations("shareButton");
 
   const share = async () => {
     const url = window.location.href;
@@ -44,12 +46,12 @@ export default function ShareButton({
       type="button"
       onClick={share}
       className={className}
-      aria-label={`Share ${title}`}
-      title={copied ? "Link copied" : "Share"}
+      aria-label={t("shareTitle", { title })}
+      title={copied ? t("linkCopied") : t("share")}
     >
       {copied ? <Check className={iconClassName} /> : <Share2 className={iconClassName} />}
       <span className="sr-only" aria-live="polite">
-        {copied ? "Link copied" : ""}
+        {copied ? t("linkCopied") : ""}
       </span>
     </button>
   );
