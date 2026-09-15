@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "lenis/dist/lenis.css";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --white: #FFFFFF;
 
@@ -15,7 +17,7 @@
   --powder-deep: #D5ECEC;    /* Slightly deeper canvas tint */
 
   /* UI Card Elements */
-  --momo: #F8F3E3;           /* Momo Plan Icon Background */
+  --momo: #F8F3E3;           /* Mum Plan Icon Background */
   --sitomo: #E1F2F2;         /* Sitomo Plan Icon Background */
   --lilac: #E1F2F2;
   --mint: #E1F2F2;
@@ -27,6 +29,44 @@
   --gray-body: #475858;      /* Body copy */
   --gray-soft: #5A6B6B;      /* Muted text — 4.8:1 on powder, 5.6:1 on white */
   --gray-faint: #6F8080;     /* Hints and placeholders — 4.1:1 on white, 3.6:1 on powder */
+
+  /* Surfaces */
+  --panel: #FFFFFF;          /* Card / raised surfaces */
+  --panel-raised: #FFFFFF;   /* Dropdowns, modals, sticky bars */
+}
+
+/* ── Dark mode ─────────────────────────────────────────────
+   The canvas, ink, and tinted chips flip via the custom
+   properties above; white card surfaces are remapped below so the
+   entire interface adapts without touching every component. */
+.dark {
+  color-scheme: dark;
+
+  /* Clean Minimalist Obsidian Brand Palette */
+  --sky: #2DD4BF;            /* Clean vibrant cyan-teal */
+  --sky-bright: #5EEAD4;     /* Luminous cyan-teal hover */
+  --sky-deep: #14B8A6;       /* Clean solid accent teal */
+  --sky-dark: #0D9488;       /* Hover state */
+  --powder: #0A0D12;         /* Deep obsidian black canvas */
+  --powder-deep: #0E1318;    /* Slightly raised dark canvas */
+
+  /* UI Card Elements */
+  --momo: #1A1713;           /* Subtle dark amber chip */
+  --sitomo: #0F1F21;         /* Subtle dark cyan chip */
+  --lilac: #131722;          /* Subtle dark slate chip */
+  --mint: #0F1F21;
+  --peach: #1A1713;
+  --sunshine: #1A1713;
+
+  /* Typography & Icons */
+  --blue-ink: #F1F5F9;       /* Crisp off-white (Slate 100) */
+  --gray-body: #94A3B8;      /* Clean readable body copy (Slate 400) */
+  --gray-soft: #64748B;      /* Muted text (Slate 500) */
+  --gray-faint: #475569;     /* Subtle placeholders/hints (Slate 600) */
+
+  /* Surfaces */
+  --panel: #11171E;          /* Clean dark graphite for cards & sections */
+  --panel-raised: #161F28;   /* Elevated panels, dropdowns, floating bars */
 }
 
 @theme inline {
@@ -47,6 +87,8 @@
   --color-gray-body: var(--gray-body);
   --color-gray-soft: var(--gray-soft);
   --color-gray-faint: var(--gray-faint);
+  --color-panel: var(--panel);
+  --color-panel-raised: var(--panel-raised);
   --font-display: var(--font-nunito);
   --font-body: var(--font-nunito);
   --font-khmer: var(--font-kantumruy-pro);
@@ -56,6 +98,140 @@ body {
   background: var(--powder);
   color: var(--blue-ink);
   font-family: var(--font-body), system-ui, sans-serif;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a,
+button {
+  touch-action: manipulation;
+}
+
+/* ── Dark surface remap ───────────────────────────────────
+   `bg-white` cards/inputs become dark panels in dark mode while
+   `text-white` stays true white for buttons and image overlays. */
+.dark .bg-white {
+  background-color: var(--panel);
+}
+.dark .bg-white\/95 {
+  background-color: color-mix(in srgb, var(--panel-raised) 95%, transparent);
+}
+.dark .bg-white\/90 {
+  background-color: color-mix(in srgb, var(--panel-raised) 90%, transparent);
+}
+.dark .bg-white\/85 {
+  background-color: color-mix(in srgb, var(--panel-raised) 85%, transparent);
+}
+.dark .bg-white\/80 {
+  background-color: color-mix(in srgb, var(--panel-raised) 80%, transparent);
+}
+.dark .bg-white\/60 {
+  background-color: color-mix(in srgb, var(--panel-raised) 60%, transparent);
+}
+.dark .bg-white\/25,
+.dark .bg-white\/20 {
+  background-color: color-mix(in srgb, #FFFFFF 22%, transparent);
+}
+
+.dark .shadow-slate-200\/60 {
+  --tw-shadow-color: rgb(0 0 0 / 0.6);
+}
+.dark .hover\:shadow-slate-300\/60:hover {
+  --tw-shadow-color: rgb(0 0 0 / 0.7);
+}
+.dark .hover\:shadow-slate-200\/60:hover {
+  --tw-shadow-color: rgb(0 0 0 / 0.6);
+}
+
+/* Subtle minimalist borders in dark mode */
+.dark .border-sky\/10,
+.dark .border-sky\/15,
+.dark .border-sky\/20,
+.dark .border-sky\/25,
+.dark .border-sky\/30 {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.dark .divide-sky\/15 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-sky\/20 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-sky\/25 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-sky\/30 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Dark mode bubble shadows */
+.dark .bubble-shadow {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.dark .bubble-shadow-sm {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45), 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.dark .bubble-shadow-hover:hover {
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 16px rgba(45, 212, 191, 0.12);
+}
+
+/* ── Dark status colors ─────────────────────────────────── */
+.dark .bg-rose-50 {
+  background-color: rgb(69 33 40 / 0.65);
+}
+.dark .bg-rose-100 {
+  background-color: rgb(69 33 40 / 0.85);
+}
+.dark .bg-rose-500,
+.dark .bg-rose-600,
+.dark .bg-rose-700 {
+  background-color: #B4434E;
+}
+.dark .bg-rose-500:hover,
+.dark .bg-rose-600:hover,
+.dark .bg-rose-700:hover {
+  background-color: #C74F5B;
+}
+.dark .text-rose-500,
+.dark .text-rose-50,
+.dark .text-rose-600,
+.dark .text-rose-700,
+.dark .text-rose-800 {
+  color: #F5C2C7;
+}
+.dark .border-rose-100,
+.dark .border-rose-200 {
+  border-color: rgb(190 18 60 / 0.4);
+}
+.dark .bg-emerald-50 {
+  background-color: rgb(6 78 59 / 0.45);
+}
+.dark .bg-emerald-500,
+.dark .bg-emerald-600 {
+  background-color: #3FA66F;
+}
+.dark .text-emerald-600,
+.dark .text-emerald-700 {
+  color: #7BD3A4;
+}
+.dark .border-emerald-100,
+.dark .border-emerald-200 {
+  border-color: rgb(16 185 129 / 0.35);
+}
+.dark .text-amber-700 {
+  color: #F0B368;
+}
+.dark .bg-amber-50 {
+  background-color: rgb(120 82 10 / 0.4);
+}
+.dark .bg-slate-100 {
+  background-color: rgb(30 41 59 / 0.5);
+}
+.dark .text-slate-700,
+.dark .text-slate-800 {
+  color: #CBD5E1;
+}
+.dark .border-slate-200 {
+  border-color: rgb(100 116 139 / 0.35);
 }
 
 /* ── Khmer Font Styling (Kantumruy Pro) ────────────────── */
@@ -106,7 +282,7 @@ html[lang="km"] h6 {
   gap: 0.5rem;
   border-radius: 9999px;
   border: 2px dashed var(--sky);
-  background: var(--white);
+  background: var(--panel);
   padding: 0.375rem 1rem;
   box-shadow: 0 3px 10px rgba(122, 179, 183, 0.2);
   font-weight: 700;
@@ -155,20 +331,6 @@ html[lang="km"] h6 {
 .sr-delay-4 { transition-delay: 0.4s; }
 .sr-delay-6 { transition-delay: 0.6s; }
 
-@media (prefers-reduced-motion: reduce) {
-  .blob,
-  .bubble-sway {
-    animation: none;
-  }
-  .sr-hidden,
-  .sr-hidden-left,
-  .sr-hidden-right {
-    transition: none;
-    opacity: 1;
-    transform: none;
-  }
-}
-
 /* ── Hero Slide From Left Animations ──────────────────── */
 
 @keyframes heroSlideLeft {
@@ -201,13 +363,25 @@ html[lang="km"] h6 {
   animation: heroImageSlideLeft 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+@keyframes heroProgress {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.animate-hero-progress {
+  animation: heroProgress 6000ms linear forwards;
+}
+
 
 /* ── Focus + scrollbar ─────────────────────────────────── */
 
 :focus-visible {
   outline: 3px solid var(--sky-deep);
   outline-offset: 2px;
-  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar {
@@ -227,6 +401,33 @@ html[lang="km"] h6 {
   background: var(--sky-bright);
 }
 
+/* ── Reduced motion ───────────────────────────────────────
+   Kill decorative animation and carousel/marquee motion for
+   users who ask for less.*/
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .blob,
+  .bubble-sway {
+    animation: none;
+  }
+
+  .sr-hidden,
+  .sr-hidden-left,
+  .sr-hidden-right {
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* ── Page transitions ─────────────────────────────────── */
 /* A quick crossfade between pages, from the <ViewTransition> in the root
    layout. The header is named there, so it holds still while pages fade. */
@@ -243,4 +444,10 @@ html[lang="km"] h6 {
   ::view-transition-new(*) {
     animation: none !important;
   }
+}
+
+/* Kubbel suppression: never show horizontal overflow from oversized grids */
+html,
+body {
+  overflow-x: clip;
 }
