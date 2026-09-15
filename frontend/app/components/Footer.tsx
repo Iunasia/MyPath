@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/src/i18n";
 import { useTranslations } from "next-intl";
 
 interface FooterProps {
@@ -66,12 +66,21 @@ export default function Footer({ className = "" }: FooterProps) {
               <ul className="space-y-2 text-sm text-gray-body font-medium">
                 {col.links.map((l) => (
                   <li key={l.label}>
-                    <Link
-                      href={l.href}
-                      className="hover:text-sky-deep transition-colors"
-                    >
-                      {l.label}
-                    </Link>
+                    {l.href.startsWith("#") || l.href.startsWith("http") ? (
+                      <a
+                        href={l.href}
+                        className="hover:text-sky-deep transition-colors"
+                      >
+                        {l.label}
+                      </a>
+                    ) : (
+                      <Link
+                        href={l.href}
+                        className="hover:text-sky-deep transition-colors"
+                      >
+                        {l.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>

@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
-import { usePathname, useRouter } from "@/src/i18n";
+import { Link, usePathname, useRouter } from "@/src/i18n";
 import { useAuth } from "@/app/context/AuthContext";
 import { fetchMyVerificationRequests } from "@/app/lib/api";
 import SignOutButton from "./SignOutButton";
@@ -16,13 +15,15 @@ import {
   Coins,
   Bookmark,
   ShieldCheck,
-  Scale,
   Users,
   type LucideIcon,
   LayoutDashboard,
   ChevronDown,
   Globe,
+  Sun,
+  Moon,
 } from "lucide-react";
+import { useTheme } from "@/app/context/ThemeContext";
 
 type NavKey =
   | "careers"
@@ -101,17 +102,24 @@ export default function Header({ variant = "default", activeNav, className = "" 
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const { user, loading } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const isAdmin = user?.role === "admin";
   const unread = useUnreadAnswers(Boolean(user));
   const accountRef = useDismiss(accountOpen, () => setAccountOpen(false));
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const closeMenus = () => {
     setAccountOpen(false);
     setMenuOpen(false);
   };
 
-  const switchLocale = (locale: string) => {
-    router.replace(pathname, { locale });
+  const switchLocale = (newLocale: string) => {
+    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
+    router.replace(pathname, { locale: newLocale });
   };
 
   const NAV_LINKS: Array<{ key: NavKey; href: string; label: string; icon: LucideIcon }> = [
@@ -124,7 +132,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
 
   const desktopLink = (active: boolean) =>
     `inline-flex items-center gap-1.5 transition-colors ${
-      active ? "font-bold text-sky-deep" : "text-gray-soft hover:text-blue-ink"
+      active ? "font-bold text-sky-deep" : "text-gray-soft hover:text-blue-ink dark:text-gray-body dark:hover:text-white"
     }`;
   const mobileLink = (active: boolean) =>
     `flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors ${
@@ -171,7 +179,26 @@ export default function Header({ variant = "default", activeNav, className = "" 
           </Link>
         </nav>
 
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+          {/* Theme Toggle */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={mounted && theme === "dark" ? tCommon("switchToLightMode") : tCommon("switchToDarkMode")}
+            title={mounted && theme === "dark" ? tCommon("switchToLightMode") : tCommon("switchToDarkMode")}
+            className="p-2 rounded-full text-blue-ink hover:bg-sitomo transition-colors cursor-pointer"
+          >
+            {mounted ? (
+              theme === "dark" ? (
+                <Sun className="w-4.5 h-4.5" aria-hidden="true" />
+              ) : (
+                <Moon className="w-4.5 h-4.5" aria-hidden="true" />
+              )
+            ) : (
+              <span className="w-4.5 h-4.5 block" aria-hidden="true" />
+            )}
+          </button>
+
           {/* Language Switcher */}
           <div className="hidden sm:flex items-center bg-white border border-sky/20 rounded-full text-xs font-bold overflow-hidden">
             <button

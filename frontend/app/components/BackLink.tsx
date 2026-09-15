@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/src/i18n";
 import { ArrowLeft } from "lucide-react";
 
 interface BackLinkProps {

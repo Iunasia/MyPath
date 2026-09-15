@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { Link } from "@/src/i18n";
 import { useTranslations } from "next-intl";
 import {
   Briefcase,
@@ -14,6 +14,7 @@ import {
   Check,
   Compass,
 } from "lucide-react";
+import { Button } from "./ui";
 
 interface PathwayOption {
   id: string;
@@ -79,18 +80,18 @@ export default function InteractiveCTA() {
   ];
 
   return (
-    <section id="start" className="relative overflow-hidden py-16 lg:py-24 bg-gradient-to-b from-sky/10 via-sitomo/30 to-white">
+    <section id="start" className="relative overflow-hidden py-16 lg:py-24 bg-gradient-to-b from-sky/10 via-powder/40 to-powder">
       {/* Ambient background glow accents */}
       <div className="absolute -top-24 left-1/4 w-96 h-96 rounded-full bg-sky/15 blur-3xl pointer-events-none" aria-hidden="true" />
       <div className="absolute -bottom-24 right-1/4 w-96 h-96 rounded-full bg-momo/60 blur-3xl pointer-events-none" aria-hidden="true" />
 
       <div className="relative max-w-6xl mx-auto px-6 lg:px-8">
-        <div className="rounded-3xl sm:rounded-[36px] bg-gradient-to-b from-white/95 to-white/85 backdrop-blur-md border-2 border-sky/25 p-7 sm:p-12 lg:p-14 bubble-shadow relative overflow-hidden">
-          
+        <div className="rounded-3xl sm:rounded-[36px] bg-gradient-to-b from-panel/90 to-panel/75 backdrop-blur-md border-2 border-sky/25 p-7 sm:p-12 lg:p-14 bubble-shadow relative overflow-hidden">
+
           {/* Top Header Badge */}
           <div className="text-center max-w-2xl mx-auto mb-10">
             <div className="inline-flex items-center gap-2 rounded-full bg-sitomo border border-sky/30 px-4 py-1.5 text-xs font-extrabold text-sky-deep mb-5 bubble-shadow-sm">
-              <Sparkles className="w-3.5 h-3.5" />
+              <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
               <span>{t("badge")}</span>
             </div>
 
@@ -116,7 +117,8 @@ export default function InteractiveCTA() {
                 <div
                   key={p.id}
                   onMouseEnter={() => setActivePathway(p.id)}
-                  className={`group relative flex flex-col justify-between rounded-2xl p-5 border-2 transition-all duration-300 ${
+                  onFocus={() => setActivePathway(p.id)}
+                  className={`group relative flex flex-col justify-between rounded-2xl p-5 border-2 transition-[transform,box-shadow,border-color,background-color] duration-300 ${
                     isSelected
                       ? "bg-white border-sky-deep shadow-lg -translate-y-1"
                       : "bg-white/80 border-sky/20 hover:border-sky/50 hover:bg-white"
@@ -126,7 +128,7 @@ export default function InteractiveCTA() {
                     {/* Top Row: Icon & Count */}
                     <div className="flex items-center justify-between gap-2 mb-3.5">
                       <div className={`w-10 h-10 rounded-xl ${p.bg} flex items-center justify-center ${p.color} border border-sky/20`}>
-                        <Icon className="w-5 h-5" strokeWidth={2.2} />
+                        <Icon className="w-5 h-5" strokeWidth={2.2} aria-hidden="true" />
                       </div>
                       <span className="text-[11px] font-extrabold px-2.5 py-1 rounded-full bg-powder text-blue-ink">
                         {p.count}
@@ -143,14 +145,14 @@ export default function InteractiveCTA() {
 
                   <div className="pt-3 border-t border-sky/10">
                     <p className="text-[11px] font-bold text-gray-faint mb-3">
-                      ✨ {p.highlight}
+                      {p.highlight}
                     </p>
                     <Link
                       href={p.href}
-                      className="inline-flex items-center justify-between w-full rounded-xl bg-powder hover:bg-sky-deep text-blue-ink hover:text-white px-3.5 py-2 text-xs font-bold transition-all"
+                      className="inline-flex items-center justify-between w-full rounded-xl bg-powder hover:bg-sky-deep text-blue-ink hover:text-white px-3.5 py-2 text-xs font-bold transition-colors"
                     >
                       <span>{t("exploreNow")}</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
                     </Link>
                   </div>
                 </div>
@@ -160,41 +162,32 @@ export default function InteractiveCTA() {
 
           {/* Primary Action Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-4 pb-8 border-t border-sky/15 max-w-3xl mx-auto">
-            <Link
-              href="/auth/signup"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-sky-deep px-8 py-3.5 text-sm font-extrabold text-white hover:bg-sky-dark transition-all duration-200 bubble-shadow hover:-translate-y-0.5"
-            >
+            <Button href="/auth/signup" size="lg" className="w-full sm:w-auto">
               <span>{t("createFreeStudentAccount")}</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              href="/verify"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-white border-2 border-sky/30 px-7 py-3.5 text-sm font-extrabold text-blue-ink hover:bg-sky/10 hover:border-sky transition-all duration-200"
-            >
-              <ShieldCheck className="w-4 h-4 text-sky-deep" />
+              <ArrowRight className="w-4 h-4" aria-hidden="true" />
+            </Button>
+            <Button href="/verify" variant="secondary" size="lg" className="w-full sm:w-auto">
+              <ShieldCheck className="w-4 h-4 text-sky-deep" aria-hidden="true" />
               <span>{t("testLinkVerifierTool")}</span>
-            </Link>
-            <Link
-              href="/careers"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-sitomo/80 border border-sky/20 px-6 py-3.5 text-sm font-bold text-sky-deep hover:bg-sitomo transition-all duration-200"
-            >
-              <Compass className="w-4 h-4" />
+            </Button>
+            <Button href="/careers" variant="ghost" size="lg" className="w-full sm:w-auto">
+              <Compass className="w-4 h-4" aria-hidden="true" />
               <span>{t("browseAllPathways")}</span>
-            </Link>
+            </Button>
           </div>
 
           {/* Micro Trust Indicators */}
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs font-bold text-gray-soft">
             <span className="flex items-center gap-1.5">
-              <Check className="w-4 h-4 text-emerald-600" />
+              <Check className="w-4 h-4 text-emerald-600" aria-hidden="true" />
               {t("freeForAllStudents")}
             </span>
             <span className="flex items-center gap-1.5">
-              <Check className="w-4 h-4 text-emerald-600" />
+              <Check className="w-4 h-4 text-emerald-600" aria-hidden="true" />
               {t("moeysAuthenticated")}
             </span>
             <span className="flex items-center gap-1.5">
-              <Check className="w-4 h-4 text-emerald-600" />
+              <Check className="w-4 h-4 text-emerald-600" aria-hidden="true" />
               {t("zeroAdsOrPaywalls")}
             </span>
           </div>

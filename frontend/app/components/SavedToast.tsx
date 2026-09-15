@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/src/i18n";
 import { Bookmark, ArrowRight, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSaved } from "@/app/context/SavedContext";
