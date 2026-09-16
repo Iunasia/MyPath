@@ -460,6 +460,8 @@
       "continueWithGoogle": "Continue with Google",
       "noAccount": "Don't have an account?",
       "signUpForFree": "Sign up for free",
+      "invalidCredentials": "Invalid email or password",
+      "tooManyAttempts": "Too many attempts. Please wait a minute and try again.",
       "loginFailed": "Login failed"
     },
     "signup": {
@@ -482,7 +484,24 @@
       "signIn": "Sign in",
       "passwordsDoNotMatch": "Passwords do not match",
       "passwordTooShort": "Password must be at least 6 characters",
+      "checkYourEmail": "Check your email",
+      "checkYourEmailDesc": "We sent a verification code to {email}. Enter it on the next screen to activate your account.",
       "registrationFailed": "Registration failed"
+    },
+    "verifyEmail": {
+      "title": "Check your email",
+      "subtitle": "We sent a verification code to {email}. Enter it below to activate your account.",
+      "codeLabel": "Verification code",
+      "codePlaceholder": "6-digit code",
+      "codeInvalid": "Please enter the code we emailed you",
+      "verify": "Verify email",
+      "verifying": "Verifying...",
+      "successTitle": "Email verified!",
+      "successDesc": "Redirecting you to sign in…",
+      "error": "That code didn't work. Check it and try again.",
+      "networkError": "Couldn't reach the server. Check your connection and try again.",
+      "resendLink": "Didn't get the code?",
+      "resendLinkAction": "Sign up again"
     }
   },
   "hero": {
