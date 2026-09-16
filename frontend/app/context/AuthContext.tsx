@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import {
   User,
+  AuthApiError,
   loginUser,
   registerUser,
   logoutUser,
@@ -52,16 +53,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // 2. Validate session in background with backend
     getCurrentUser()
       .then((data) => {
-        setUser(data.user);
-        try {
-          localStorage.setItem("domner_user", JSON.stringify(data.user));
-        } catch {}
+        if (data?.user) {
+          setUser(data.user);
+          try {
+            localStorage.setItem("domner_user", JSON.stringify(data.user));
+          } catch {}
+        }
       })
-      .catch(() => {
-        setUser(null);
-        try {
-          localStorage.removeItem("domner_user");
-        } catch {}
+      .catch((err) => {
+        // Only clear user if the server explicitly returned 401 Unauthorized
+        if (err instanceof AuthApiError && err.status === 401) {
+          setUser(null);
+          try {
+            localStorage.removeItem("domner_user");
+          } catch {}
+        } else {
+          // On refresh abort, slow network, or server blip: NEVER log out the cached user!
+          console.warn("Session check aborted or offline; preserving cached user.");
+        }
       });
   }, []);
 
@@ -97,6 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoggingOut(true);
     try {
       localStorage.removeItem("domner_user");
+      localStorage.removeItem("domner_saved_items_cache");
     } catch {}
     setUser(null);
     try {
