@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Link, usePathname, useRouter } from "@/src/i18n";
 import { useAuth } from "@/app/context/AuthContext";
@@ -95,6 +95,8 @@ function useDismiss(open: boolean, close: () => void) {
   return ref;
 }
 
+const subscribeToMount = () => () => {};
+
 export default function Header({ variant = "default", activeNav, className = "" }: HeaderProps) {
   const t = useTranslations("nav");
   const tCommon = useTranslations("common");
@@ -105,14 +107,10 @@ export default function Header({ variant = "default", activeNav, className = "" 
   const [accountOpen, setAccountOpen] = useState(false);
   const { user, loading } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(subscribeToMount, () => true, () => false);
   const isAdmin = user?.role === "admin";
   const unread = useUnreadAnswers(Boolean(user));
   const accountRef = useDismiss(accountOpen, () => setAccountOpen(false));
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const closeMenus = () => {
     setAccountOpen(false);
