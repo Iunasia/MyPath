@@ -598,7 +598,7 @@ function ScholarshipsAdmin() {
                     onClick={() => {
                       editor.open(s);
                     }}
-                    className={`cursor-pointer ${editor.selected?.id === s.id ? "bg-sky/10" : "hover:bg-powder/60"}`}
+                    className={`cursor-pointer transition-colors ${editor.selected?.id === s.id ? "bg-sky/10 dark:bg-sky/15" : "hover:bg-powder/60 dark:hover:bg-white/5"}`}
                   >
                     <td className={`${tdClass} tabular-nums text-xs text-gray-soft`}>{s.id}</td>
                     <td className={`${tdClass} max-w-0`}>

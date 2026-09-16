@@ -158,6 +158,7 @@ export default async function CareerDetailPage({ params }: PageProps) {
               <SaveItemButton
                 item={{
                   id: career.id,
+                  slug: career.id,
                   type: "career",
                   title: career.title,
                   subtitle: career.categoryKey,

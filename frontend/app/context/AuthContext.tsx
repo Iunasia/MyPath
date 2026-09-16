@@ -5,11 +5,18 @@ import { useRouter } from "@/src/i18n";
 import { LogOut } from "lucide-react";
 import {
   User,
+  ProfileUpdateInput,
+  AuthApiError,
+  AuthError,
   loginUser,
   registerUser,
   logoutUser,
   getCurrentUser,
   getGoogleAuthUrl,
+  updateUserProfile,
+  changePassword as changePasswordRequest,
+  uploadAvatar as uploadAvatarRequest,
+  removeAvatarRequest,
 } from "@/app/lib/auth";
 
 interface AuthContextType {
@@ -20,6 +27,10 @@ interface AuthContextType {
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   loginWithGoogle: () => void;
+  updateProfile: (fields: ProfileUpdateInput) => Promise<void>;
+  uploadAvatar: (file: File) => Promise<void>;
+  removeAvatar: () => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -46,16 +57,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // 2. Validate session in background with backend
     getCurrentUser()
       .then((data) => {
-        setUser(data.user);
-        try {
-          localStorage.setItem("domner_user", JSON.stringify(data.user));
-        } catch {}
+        if (data?.user) {
+          setUser(data.user);
+          try {
+            localStorage.setItem("domner_user", JSON.stringify(data.user));
+          } catch {}
+        }
       })
-      .catch(() => {
-        setUser(null);
-        try {
-          localStorage.removeItem("domner_user");
-        } catch {}
+      .catch((err) => {
+        // Only clear user if the server explicitly returned 401 Unauthorized
+        if ((err instanceof AuthApiError || err instanceof AuthError) && err.status === 401) {
+          setUser(null);
+          try {
+            localStorage.removeItem("domner_user");
+          } catch {}
+        } else {
+          // On refresh abort, slow network, or server blip: NEVER log out the cached user!
+          console.warn("Session check aborted or offline; preserving cached user.");
+        }
       });
   }, []);
 
@@ -83,6 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoggingOut(true);
     try {
       localStorage.removeItem("domner_user");
+      localStorage.removeItem("domner_saved_items_cache");
     } catch {}
     setUser(null);
     try {
@@ -101,8 +121,56 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     window.location.href = getGoogleAuthUrl();
   }, []);
 
+  const updateProfile = useCallback(async (fields: ProfileUpdateInput) => {
+    const data = await updateUserProfile(fields);
+    if (data.user) {
+      setUser(data.user);
+      try {
+        localStorage.setItem("domner_user", JSON.stringify(data.user));
+      } catch {}
+    }
+  }, []);
+
+  const uploadAvatar = useCallback(async (file: File) => {
+    const data = await uploadAvatarRequest(file);
+    if (data.user) {
+      setUser(data.user);
+      try {
+        localStorage.setItem("domner_user", JSON.stringify(data.user));
+      } catch {}
+    }
+  }, []);
+
+  const removeAvatar = useCallback(async () => {
+    const data = await removeAvatarRequest();
+    if (data.user) {
+      setUser(data.user);
+      try {
+        localStorage.setItem("domner_user", JSON.stringify(data.user));
+      } catch {}
+    }
+  }, []);
+
+  const changePassword = useCallback(async (currentPassword: string, newPassword: string) => {
+    await changePasswordRequest(currentPassword, newPassword);
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, loading, isLoggingOut, login, register, logout, loginWithGoogle }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        isLoggingOut,
+        login,
+        register,
+        logout,
+        loginWithGoogle,
+        updateProfile,
+        uploadAvatar,
+        removeAvatar,
+        changePassword,
+      }}
+    >
       {children}
 
       {/* Professional Logout Transition Modal */}

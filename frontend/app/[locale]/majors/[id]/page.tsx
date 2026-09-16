@@ -294,6 +294,7 @@ export default async function MajorDetailPage({ params }: PageProps) {
               <SaveItemButton
                 item={{
                   id: major.id,
+                  slug: major.id,
                   type: "major",
                   title: major.name,
                   subtitle: major.categoryKey,

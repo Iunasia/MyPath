@@ -112,6 +112,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                   item={{
                     id: university.id,
                     apiId: university.apiId,
+                    slug: university.id,
                     type: "university",
                     title: university.name,
                     subtitle: university.location,

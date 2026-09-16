@@ -532,7 +532,7 @@ export default function AdminUniversitiesPage() {
                     <tr
                       key={u.id}
                       onClick={() => editor.open(u)}
-                      className={`cursor-pointer ${editor.selected?.id === u.id ? "bg-sky/10" : "hover:bg-powder/60"}`}
+                      className={`cursor-pointer transition-colors ${editor.selected?.id === u.id ? "bg-sky/10 dark:bg-sky/15" : "hover:bg-powder/60 dark:hover:bg-white/5"}`}
                     >
                       <td className={`${tdClass} max-w-0`}>
                         <div className="flex items-center gap-2">
@@ -550,10 +550,10 @@ export default function AdminUniversitiesPage() {
                         </div>
                         <p className="text-xs text-gray-soft truncate">{[u.short_name, u.city].filter(Boolean).join(" · ")}</p>
                       </td>
-                      <td className={tdClass}>{u.type ?? <span className="text-amber-700">Not stated</span>}</td>
+                      <td className={tdClass}>{u.type ?? <span className="text-amber-700 dark:text-amber-400 font-semibold">Not stated</span>}</td>
                       <td className={`${tdClass} tabular-nums text-xs`}>{u.established ?? "—"}</td>
                       <td className={`${tdClass} text-xs`}>
-                        {u.tuition_range ?? <span className="font-bold text-amber-700">Not stated</span>}
+                        {u.tuition_range ?? <span className="font-bold text-amber-700 dark:text-amber-400">Not stated</span>}
                       </td>
                       <td className={`${tdClass} tabular-nums text-xs`}>{inMajors.get(view?.id ?? "") ?? 0}</td>
                       <td className={`${tdClass} tabular-nums text-xs max-w-0 truncate`}>{hostOf(u.website)}</td>

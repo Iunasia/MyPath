@@ -49,7 +49,8 @@
     "myCheckRequests": "My check requests",
     "adminDashboard": "Admin dashboard",
     "isThisScholarshipReal": "Is this scholarship real?",
-    "askToCheckScholarship": "Ask us to check whether a scholarship is real"
+    "askToCheckScholarship": "Ask us to check whether a scholarship is real",
+    "profile": "Profile"
   },
   "footer": {
     "explore": "Explore",
@@ -444,6 +445,53 @@
     "tip8": "They congratulate you for winning something you never applied for.",
     "bestHabit": "Best habit of all:",
     "bestHabitDesc": "find the university's official website yourself and look for the scholarship there. If it only exists in the message you were sent, that's your answer."
+  },
+  "profile": {
+    "heading": "Your Profile",
+    "subheading": "View and update your account information",
+    "signInToView": "Sign in to view your profile",
+    "signInToViewDesc": "You need an account to see and manage your profile information.",
+    "memberSince": "Member since {date}",
+    "role": {
+      "student": "Student",
+      "admin": "Admin"
+    },
+    "signedInWithGoogle": "Signed in with Google",
+    "changePhoto": "Change photo",
+    "removePhoto": "Remove photo",
+    "avatarTypeError": "Please choose a JPEG, PNG, or WebP image.",
+    "avatarSizeError": "Image must be 3MB or smaller.",
+    "editSection": "Edit your details",
+    "nameLabel": "Full name",
+    "namePlaceholder": "Your name",
+    "nameRequired": "Please enter your name.",
+    "bioLabel": "Bio",
+    "bioPlaceholder": "Tell us a little about yourself",
+    "locationLabel": "Location",
+    "locationPlaceholder": "City, country",
+    "websiteLabel": "Website",
+    "websitePlaceholder": "https://example.com",
+    "websiteInvalid": "Enter a full website URL starting with https://",
+    "dateOfBirthLabel": "Date of birth",
+    "genderLabel": "Gender",
+    "genderPlaceholder": "Select...",
+    "gender": {
+      "male": "Male",
+      "female": "Female",
+      "other": "Other",
+      "prefer_not_to_say": "Prefer not to say"
+    },
+    "saveChanges": "Save changes",
+    "saving": "Saving…",
+    "saveSuccess": "Profile updated successfully.",
+    "changePasswordSection": "Change password",
+    "currentPasswordLabel": "Current password",
+    "newPasswordLabel": "New password",
+    "confirmNewPasswordLabel": "Confirm new password",
+    "passwordTooShort": "New password must be at least 6 characters.",
+    "passwordMismatch": "New password and confirmation do not match.",
+    "updatePassword": "Update password",
+    "passwordUpdateSuccess": "Password updated successfully."
   },
   "auth": {
     "signin": {

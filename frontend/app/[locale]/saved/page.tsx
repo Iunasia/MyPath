@@ -23,7 +23,7 @@ type FilterTab = "all" | "scholarship" | "major" | "career" | "university";
 export default function SavedPage() {
   const t = useTranslations("saved");
   const tCommon = useTranslations("common");
-  const { savedItems, unsaveItem, clearAll, isHydrated } = useSaved();
+  const { savedItems, unsaveItem, clearAll, isHydrated, isServerSynced } = useSaved();
   const [selectedTab, setSelectedTab] = useState<FilterTab>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showClearConfirm, setShowClearConfirm] = useState(false);
@@ -102,7 +102,7 @@ export default function SavedPage() {
                 </p>
               </div>
 
-              {savedItems.length > 0 && (
+              {isHydrated && savedItems.length > 0 && (
                 <div className="flex items-center gap-3">
                   {showClearConfirm ? (
                     <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-red-200 bubble-shadow-sm animate-in fade-in">
@@ -167,14 +167,14 @@ export default function SavedPage() {
                         isActive ? "bg-white/25 text-white" : "bg-sitomo text-sky-deep"
                       }`}
                     >
-                      {count}
+                      {isHydrated ? count : 0}
                     </span>
                   </button>
                 );
               })}
             </div>
 
-            {savedItems.length > 0 && (
+            {isHydrated && savedItems.length > 0 && (
               <div className="relative w-full sm:w-72">
                 <Search className="w-4 h-4 text-gray-soft absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
@@ -196,7 +196,7 @@ export default function SavedPage() {
             )}
           </section>
 
-          {!isHydrated ? (
+          {(!isHydrated || (!isServerSynced && savedItems.length === 0)) ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {[1, 2, 3].map((n) => (
                 <div

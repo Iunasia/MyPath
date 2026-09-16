@@ -135,6 +135,20 @@ button {
   background-color: color-mix(in srgb, #FFFFFF 22%, transparent);
 }
 
+.dark .bg-slate-50,
+.dark .bg-slate-50\/80 {
+  background-color: var(--panel-raised);
+}
+
+.dark .border-slate-100 {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.dark .border-slate-200,
+.dark .border-slate-200\/90 {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
 .dark .shadow-slate-200\/60 {
   --tw-shadow-color: rgb(0 0 0 / 0.6);
 }
@@ -230,8 +244,13 @@ button {
 .dark .text-slate-800 {
   color: #CBD5E1;
 }
-.dark .border-slate-200 {
-  border-color: rgb(100 116 139 / 0.35);
+
+/* ── Seamless borderless tables in dark mode ─────────────── */
+.dark table,
+.dark table th,
+.dark table td,
+.dark table tr {
+  border: none !important;
 }
 
 /* ── Khmer Font Styling (Kantumruy Pro) ────────────────── */
