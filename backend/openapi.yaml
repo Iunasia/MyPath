@@ -189,6 +189,98 @@ paths:
                 properties:
                   user: { $ref: '#/components/schemas/User' }
         '401': { $ref: '#/components/responses/Unauthorized' }
+    patch:
+      tags: [Auth]
+      summary: Update the logged-in user's own name
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, maxLength: 100 }
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  user: { $ref: '#/components/schemas/User' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /auth/me/avatar:
+    patch:
+      tags: [Auth]
+      summary: Upload or replace the logged-in user's avatar
+      description: |
+        Accepts a single image (JPEG, PNG, or WebP, 3MB max), re-encodes it
+        server-side, and stores the bytes in Postgres. The response never
+        includes the image bytes — fetch them from GET /auth/avatar/{id}.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [avatar]
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Avatar updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  user: { $ref: '#/components/schemas/User' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    delete:
+      tags: [Auth]
+      summary: Remove the logged-in user's uploaded avatar
+      responses:
+        '200':
+          description: Avatar removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  user: { $ref: '#/components/schemas/User' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /auth/avatar/{id}:
+    get:
+      tags: [Auth]
+      summary: Fetch a user's avatar image
+      description: |
+        Public and unauthenticated — served directly as an <img src> so it
+        is never routed through the JSON API layer or cached in localStorage.
+        Supports conditional GET via If-None-Match.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Image bytes
+          content:
+            image/jpeg:
+              schema: { type: string, format: binary }
+        '304':
+          description: Not modified (ETag matched)
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
 
   /auth/logout:
     get:
@@ -1241,6 +1333,7 @@ components:
         auth_provider: { type: string, enum: [local, google] }
         google_id: { type: [string, 'null'] }
         avatar_url: { type: [string, 'null'] }
+        avatar_updated_at: { type: [string, 'null'], format: date-time }
         created_at: { type: string, format: date-time }
 
     InfoCheck:
