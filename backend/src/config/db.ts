@@ -1,7 +1,14 @@
-import { Pool } from 'pg';
+import { Pool, types } from 'pg';
 import dotenv from 'dotenv';
 
 dotenv.config();
+
+// DATE columns (OID 1082) default to being parsed into a local-timezone JS
+// Date, which then shifts to a different calendar day once serialized back
+// to UTC ISO (e.g. "2000-01-15" -> "2000-01-14T17:00:00.000Z" on a UTC+7
+// server). A date of birth has no time-of-day or timezone component, so keep
+// it as the plain "YYYY-MM-DD" string Postgres already returns.
+types.setTypeParser(1082, (value: string) => value);
 
 const isProduction = process.env.NODE_ENV === 'production';
 const requiresSsl =
