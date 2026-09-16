@@ -65,6 +65,9 @@ app.use(session({
     pool: pool,
     tableName: 'session',
     createTableIfMissing: true,
+    errorLog: (err: any) => {
+      console.warn('⚠️ [Session Store Warning]:', err?.message || err);
+    },
   }),
   secret: process.env.SESSION_SECRET || 'mypath-secret',
   resave: false,
