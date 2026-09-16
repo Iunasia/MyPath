@@ -3,7 +3,7 @@ import passport from 'passport';
 import multer from 'multer';
 import sharp from 'sharp';
 import User from '../models/User';
-import { isAuthenticated, isGuest } from '../middleware/auth';
+import { isAuthenticated, isGuest, getAuthUserId } from '../middleware/auth';
 
 const router = require('express').Router();
 const { authLimiter } = require('../../middleware/security');
@@ -94,15 +94,18 @@ router.post('/login', authLimiter, isGuest, async (req: Request, res: Response) 
 
 // GET /me - Check current session
 router.get('/me', async (req: Request, res: Response) => {
-  const session = req.session as any;
-  if (!session.userId) {
+  const userId = getAuthUserId(req);
+  if (!userId) {
     return res.status(401).json({ error: 'Not authenticated' });
   }
 
+  const session = req.session as any;
+  if (session && !session.userId) session.userId = userId;
+
   try {
-    const user = await User.findById(session.userId);
+    const user = await User.findById(userId);
     if (!user) {
-      session.destroy();
+      session?.destroy?.(() => {});
       return res.status(401).json({ error: 'User not found' });
     }
     res.status(200).json({ user });
@@ -113,6 +116,7 @@ router.get('/me', async (req: Request, res: Response) => {
 
 // PATCH /me - Update the logged-in user's own name
 router.patch('/me', isAuthenticated, async (req: Request, res: Response) => {
+  const userId = getAuthUserId(req)!;
   const session = req.session as any;
   const { name } = req.body;
 
@@ -125,12 +129,12 @@ router.patch('/me', isAuthenticated, async (req: Request, res: Response) => {
   }
 
   try {
-    const user = await User.updateName(session.userId, trimmed);
+    const user = await User.updateName(userId, trimmed);
     if (!user) {
-      session.destroy(() => {});
+      session?.destroy?.(() => {});
       return res.status(401).json({ error: 'User not found' });
     }
-    session.userName = user.name;
+    if (session) session.userName = user.name;
     res.status(200).json({ message: 'Profile updated successfully', user });
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
@@ -153,6 +157,7 @@ router.patch(
     });
   },
   async (req: Request, res: Response) => {
+    const userId = getAuthUserId(req)!;
     const session = req.session as any;
     const file = (req as any).file as Express.Multer.File | undefined;
 
@@ -167,9 +172,9 @@ router.patch(
         .jpeg({ quality: 82 })
         .toBuffer();
 
-      const user = await User.updateAvatar(session.userId, resized, 'image/jpeg');
+      const user = await User.updateAvatar(userId, resized, 'image/jpeg');
       if (!user) {
-        session.destroy(() => {});
+        session?.destroy?.(() => {});
         return res.status(401).json({ error: 'User not found' });
       }
       res.status(200).json({ message: 'Avatar updated successfully', user });
@@ -181,11 +186,12 @@ router.patch(
 
 // DELETE /me/avatar - Remove the logged-in user's uploaded avatar
 router.delete('/me/avatar', isAuthenticated, async (req: Request, res: Response) => {
+  const userId = getAuthUserId(req)!;
   const session = req.session as any;
   try {
-    const user = await User.removeAvatar(session.userId);
+    const user = await User.removeAvatar(userId);
     if (!user) {
-      session.destroy(() => {});
+      session?.destroy?.(() => {});
       return res.status(401).json({ error: 'User not found' });
     }
     res.status(200).json({ message: 'Avatar removed successfully', user });
