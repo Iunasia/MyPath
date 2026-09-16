@@ -17,6 +17,13 @@ interface AuthResponse {
   error?: string;
 }
 
+export class AuthApiError extends Error {
+  constructor(public status: number, message: string) {
+    super(message);
+    this.name = "AuthApiError";
+  }
+}
+
 async function apiFetch<T>(
   path: string,
   options: RequestInit = {}
@@ -30,10 +37,10 @@ async function apiFetch<T>(
     ...options,
   });
 
-  const data = await res.json();
+  const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
-    throw new Error(data.error || "Something went wrong");
+    throw new AuthApiError(res.status, data.error || "Something went wrong");
   }
 
   return data as T;
