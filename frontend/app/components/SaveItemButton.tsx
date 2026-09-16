@@ -44,7 +44,7 @@ export default function SaveItemButton({
           title={isSaved ? t("savedClickToRemove") : `${t("save")} ${item.title}`}
           className={`p-2 rounded-full backdrop-blur-md transition-all cursor-pointer shadow-sm ${
             isSaved
-              ? "bg-sky-deep text-white ring-2 ring-white/50"
+              ? "bg-[#7AB3B7] text-white ring-2 ring-white/50"
               : "bg-white/80 text-blue-ink hover:bg-white hover:text-sky-deep"
           } ${className}`}
         >
@@ -83,7 +83,7 @@ export default function SaveItemButton({
           className={`inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full font-bold text-sm transition-all bubble-shadow-sm cursor-pointer border ${
             isSaved
               ? "bg-sitomo border-sky text-sky-deep"
-              : "bg-sky-deep text-white border-transparent hover:bg-sky-dark"
+              : "bg-[#7AB3B7] text-white border-transparent hover:bg-[#68A1A5]"
           } ${className}`}
         >
           <Bookmark

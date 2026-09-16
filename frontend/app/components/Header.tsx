@@ -294,7 +294,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
           ) : (
             <Link
               href="/auth/signin"
-              className="hidden sm:inline-flex items-center rounded-full bg-sky-deep px-5 py-2 text-sm font-bold text-white hover:bg-sky-dark transition-colors"
+              className="hidden sm:inline-flex items-center rounded-full bg-[#7AB3B7] px-5 py-2 text-sm font-bold text-white hover:bg-[#68A1A5] transition-colors"
             >
               {tCommon("signIn")}
             </Link>
@@ -400,7 +400,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
                 <Link
                   href="/auth/signup"
                   onClick={() => setMenuOpen(false)}
-                  className="text-center rounded-full bg-sky-deep px-4 py-2.5 font-bold text-white hover:bg-sky-dark transition-colors"
+                  className="text-center rounded-full bg-[#7AB3B7] px-4 py-2.5 font-bold text-white hover:bg-[#68A1A5] transition-colors"
                 >
                   {tCommon("createAccount")}
                 </Link>

@@ -157,7 +157,7 @@ export default function SavedPage() {
                     onClick={() => setSelectedTab(tab.id)}
                     className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                       isActive
-                        ? "bg-sky-deep text-white bubble-shadow-sm"
+                        ? "bg-[#7AB3B7] text-white bubble-shadow-sm"
                         : "bg-white text-blue-ink border border-sky/20 hover:border-sky bubble-shadow-sm"
                     }`}
                   >
@@ -220,7 +220,7 @@ export default function SavedPage() {
               <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
                 <Link
                   href="/scholarships"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-sky-deep text-white text-xs sm:text-sm font-bold hover:bg-sky-dark transition-all bubble-shadow-sm cursor-pointer"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#7AB3B7] text-white text-xs sm:text-sm font-bold hover:bg-[#68A1A5] transition-all bubble-shadow-sm cursor-pointer"
                 >
                   <Award className="w-4 h-4" />
                   <span>{t("exploreScholarships")}</span>
@@ -264,7 +264,7 @@ export default function SavedPage() {
                   setSelectedTab("all");
                   setSearchQuery("");
                 }}
-                className="px-5 py-2 rounded-full bg-sky-deep text-white text-xs font-bold hover:bg-sky-dark transition-colors cursor-pointer bubble-shadow-sm"
+                className="px-5 py-2 rounded-full bg-[#7AB3B7] text-white text-xs font-bold hover:bg-[#68A1A5] transition-colors cursor-pointer bubble-shadow-sm"
               >
                 {tCommon("resetFilters")}
               </button>
@@ -278,7 +278,7 @@ export default function SavedPage() {
                 return (
                   <div
                     key={item.id}
-                    className="bg-white rounded-3xl rounded-br-[86px] border border-sky/15 bubble-shadow-sm overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-lg hover:border-sky/40 group"
+                    className="bg-white rounded-3xl rounded-br-[86px] border border-sky/15 bubble-shadow-sm overflow-hidden flex flex-col justify-between hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 group"
                   >
                     <div>
                       {item.image ? (
@@ -287,7 +287,7 @@ export default function SavedPage() {
                           <img
                             src={item.image}
                             alt={item.title}
-                            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                            className="w-full h-full object-cover object-center"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 

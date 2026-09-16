@@ -15,6 +15,7 @@ import {
   FileText,
   Clock,
   ArrowRight,
+  HelpCircle,
 } from "lucide-react";
 import Footer from "@/app/components/Footer";
 import SaveItemButton from "@/app/components/SaveItemButton";
@@ -56,7 +57,7 @@ export default function ScholarshipDetail({
     [detail]
   );
   const related = useMemo(
-    () => relatedScholarships(toScholarshipViews(all), scholarship, 3),
+    () => relatedScholarships(toScholarshipViews(all), scholarship, 4),
     [all, scholarship]
   );
 
@@ -173,11 +174,18 @@ export default function ScholarshipDetail({
                     href={scholarship.officialSource}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-3 rounded-full border border-transparent bg-sky-deep text-white font-bold text-sm hover:bg-sky-dark transition-all bubble-shadow-sm cursor-pointer"
+                    className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-3 rounded-full border border-transparent bg-[#7AB3B7] text-white font-bold text-sm hover:bg-[#68A1A5] transition-all bubble-shadow-sm cursor-pointer"
                   >
                     <span>{deadline.kind === "closed" ? t("viewOfficialPage") : t("applyOnOfficialWebsite")}</span>
                     <ExternalLink className="w-4 h-4" />
                   </a>
+
+                  <Link
+                    href={`/scholarships/${scholarship.id}/quiz`}
+                    className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 rounded-full border-2 border-sky bg-white text-sky-deep font-bold text-sm hover:bg-sitomo/60 hover:border-sky-deep transition-all bubble-shadow-sm cursor-pointer"
+                  >
+                    <span>Attempt Quiz</span>
+                  </Link>
 
                   <SaveItemButton
                     item={{
@@ -206,6 +214,12 @@ export default function ScholarshipDetail({
                     src={scholarship.image}
                     alt={displayTitle}
                     className="w-full h-full object-cover object-center"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (!target.src.includes("/images/scholarships/")) {
+                        target.src = "/images/scholarships/campus.jpg";
+                      }
+                    }}
                   />
                 </div>
               </div>
@@ -366,92 +380,105 @@ export default function ScholarshipDetail({
             </div>
           </section>
 
-          {/* 4. Eligibility & Requirements */}
-          <section className="w-full pt-4">
-            <div className="mb-8 pb-4 border-b border-sky/15">
-              <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-blue-ink mt-1">
-                {t("eligibilityAndRequiredDocuments")}
-              </h2>
-              <p className="text-xs sm:text-sm text-gray-soft font-medium mt-1">
-                {t("eligibilitySubtitle", { provider: displayProvider })}
-              </p>
-            </div>
+          {/* ── 4 & 5. Eligibility, Required Documents & Benefits (Side-by-side, align justify-between) ── */}
+          <section className="w-full pt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 w-full items-stretch">
+              {/* Left Column: Eligibility & Required Documents */}
+              <div className="flex flex-col justify-between">
+                <div>
+                  <div className="mb-6 pb-4 border-b border-sky/15">
+                    <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-blue-ink">
+                      Eligibility & Required Documents
+                    </h2>
+                    <p className="text-xs sm:text-sm text-gray-soft font-medium mt-1">
+                      Academic qualifications and application checklist for {scholarship.provider}
+                    </p>
+                  </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-14">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-sm font-bold text-blue-ink">
-                  <GraduationCap className="w-4 h-4 text-sky-deep" />
-                  <h3>{t("eligibilityRequirements")}</h3>
-                </div>
-                <div className="space-y-3">
-                  {scholarship.eligibility.map((req, i) => (
-                    <div key={i} className="flex items-start gap-3">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                      <p className="text-sm font-medium text-gray-body leading-relaxed">
-                        {req}
-                      </p>
+                  {/* Eligibility Requirements */}
+                  <div className="space-y-3.5 mb-8">
+                    <div className="flex items-center gap-2 text-sm font-bold text-blue-ink">
+                      <GraduationCap className="w-4 h-4 text-sky-deep" />
+                      <h3>Eligibility Requirements</h3>
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-sm font-bold text-blue-ink">
-                  <FileText className="w-4 h-4 text-sky-deep" />
-                  <h3>{t("requiredDocumentsChecklist")}</h3>
-                </div>
-                <div className="space-y-3">
-                  {scholarship.requiredDocuments.map((doc, i) => (
-                    <div key={i} className="flex items-start gap-3">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                      <p className="text-sm font-medium text-gray-body leading-relaxed">
-                        {doc}
-                      </p>
+                    <div className="space-y-3">
+                      {scholarship.eligibility.map((req, i) => (
+                        <div key={i} className="flex items-start gap-3">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                          <p className="text-sm font-medium text-gray-body leading-relaxed">
+                            {req}
+                          </p>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
+
+                  {/* Required Documents Checklist (Below Eligibility Requirements) */}
+                  {scholarship.requiredDocuments && scholarship.requiredDocuments.length > 0 && (
+                    <div className="space-y-3.5 mb-6">
+                      <div className="flex items-center gap-2 text-sm font-bold text-blue-ink">
+                        <FileText className="w-4 h-4 text-sky-deep" />
+                        <h3>{t("requiredDocumentsChecklist")}</h3>
+                      </div>
+                      <div className="space-y-3">
+                        {scholarship.requiredDocuments.map((doc, i) => (
+                          <div key={i} className="flex items-start gap-3">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                            <p className="text-sm font-medium text-gray-body leading-relaxed">
+                              {doc}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Eligible Majors & Programs Bar (pushed to bottom) */}
+                {scholarship.targetMajors && scholarship.targetMajors.length > 0 && (
+                  <div className="mt-6 pt-5 border-t border-sky/15 flex flex-col sm:flex-row sm:items-center gap-3">
+                    <span className="text-xs font-bold text-gray-soft uppercase tracking-wider shrink-0">
+                      Eligible Majors:
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {scholarship.targetMajors.map((m) => (
+                        <span
+                          key={m}
+                          className="px-2.5 py-1 rounded-lg bg-white text-blue-ink text-xs font-semibold border border-sky/15"
+                        >
+                          {m}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Right Column: Benefits & Complete Award Coverage */}
+              <div className="flex flex-col justify-between">
+                <div>
+                  <div className="mb-6 pb-4 border-b border-sky/15">
+                    <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-blue-ink">
+                      Benefits & Complete Award Coverage
+                    </h2>
+                    <p className="text-xs sm:text-sm text-gray-soft font-medium mt-1">
+                      Tuition waiver allowances and academic advantages provided by {scholarship.provider}
+                    </p>
+                  </div>
+
+                  {/* Benefits List */}
+                  <div className="space-y-4">
+                    {scholarship.benefits.map((benefit, i) => (
+                      <div key={i} className="flex items-start gap-3 p-3 rounded-2xl bg-white/80 border border-sky/15 bubble-shadow-sm">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                        <p className="text-sm font-semibold text-blue-ink leading-relaxed">
+                          {benefit}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div className="mt-8 pt-6 border-t border-sky/15 flex flex-col sm:flex-row sm:items-center gap-3">
-              <span className="text-xs font-bold text-gray-soft uppercase tracking-wider shrink-0">
-                {t("eligibleMajors")}
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {scholarship.targetMajors.map((m) => (
-                  <span
-                    key={m}
-                    className="px-2.5 py-1 rounded-lg bg-white text-blue-ink text-xs font-semibold border border-sky/15"
-                  >
-                    {m}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* 5. Benefits & Financial Coverage */}
-          <section className="w-full pt-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-sky/15">
-              <div>
-                <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-blue-ink mt-1">
-                  {t("benefitsAndAwardCoverage")}
-                </h2>
-                <p className="text-xs sm:text-sm text-gray-soft font-medium mt-1">
-                  {t("benefitsSubtitle", { provider: displayProvider })}
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
-              {scholarship.benefits.map((benefit, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                  <p className="text-sm font-medium text-blue-ink leading-relaxed">
-                    {benefit}
-                  </p>
-                </div>
-              ))}
             </div>
           </section>
 
@@ -553,12 +580,12 @@ export default function ScholarshipDetail({
                 </Link>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
                 {related.map((item) => (
                   <Link
                     key={item.id}
                     href={`/scholarships/${item.id}`}
-                    className="group relative aspect-[4/3] min-h-[200px] rounded-3xl rounded-br-[86px] sm:rounded-br-[86px] overflow-hidden cursor-pointer bubble-shadow-sm border border-sky/15 block bg-sitomo/40"
+                    className="group relative aspect-[4/3] min-h-[190px] rounded-3xl rounded-br-[72px] overflow-hidden cursor-pointer bubble-shadow-sm border border-sky/15 hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 block bg-sitomo/40"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -567,11 +594,27 @@ export default function ScholarshipDetail({
                       className="absolute inset-0 w-full h-full object-cover object-center"
                     />
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent flex flex-col justify-end p-4 sm:p-5 z-10">
-                      <h3 className="font-display text-sm sm:text-base font-extrabold text-white tracking-tight leading-snug drop-shadow-sm mb-2 group-hover:text-sky-bright transition-colors line-clamp-2">
+                    {/* Floating Save Button on Image */}
+                    <div className="absolute top-3 right-3 z-20">
+                      <SaveItemButton
+                        variant="card-action"
+                        item={{
+                          id: item.id,
+                          type: "scholarship",
+                          title: item.title,
+                          subtitle: item.provider,
+                          image: item.image,
+                          link: `/scholarships/${item.id}`,
+                        }}
+                      />
+                    </div>
+
+                    {/* Bottom Gradient Overlay for Text */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent flex flex-col justify-end p-3.5 sm:p-4 z-10">
+                      <h3 className="font-display text-sm sm:text-base font-extrabold text-white tracking-tight leading-snug drop-shadow-sm mb-1.5 group-hover:text-sky-bright transition-colors line-clamp-2">
                         {isKm ? translateScholarshipTitle(item.title, item.provider, locale) : item.title}
                       </h3>
-                      <div className="flex items-center gap-1.5 text-[11px] text-white/75 font-medium drop-shadow-xs">
+                      <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-white/75 font-medium drop-shadow-xs">
                         <Calendar className="w-3.5 h-3.5 text-sky-bright shrink-0" />
                         <span>{tCommon("deadline")}: {item.deadline}</span>
                       </div>
