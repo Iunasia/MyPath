@@ -6,6 +6,7 @@ import { Link, usePathname, useRouter } from "@/src/i18n";
 import { useAuth } from "@/app/context/AuthContext";
 import { fetchMyVerificationRequests } from "@/app/lib/api";
 import SignOutButton from "./SignOutButton";
+import Avatar from "./Avatar";
 import {
   Menu,
   X,
@@ -22,6 +23,7 @@ import {
   Globe,
   Sun,
   Moon,
+  UserCircle,
 } from "lucide-react";
 import { useTheme } from "@/app/context/ThemeContext";
 
@@ -233,9 +235,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
                 aria-label={t("yourAccount")}
                 className="flex items-center gap-1 rounded-full p-0.5 pr-1.5 hover:bg-sitomo transition-colors cursor-pointer"
               >
-                <span className="w-8 h-8 rounded-full bg-sky-deep text-white text-sm font-bold flex items-center justify-center">
-                  {user.name.trim().charAt(0).toUpperCase() || "?"}
-                </span>
+                <Avatar user={user} size={32} className="text-sm" />
                 <ChevronDown className="w-3.5 h-3.5 text-gray-soft" aria-hidden="true" />
               </button>
 
@@ -266,6 +266,15 @@ export default function Header({ variant = "default", activeNav, className = "" 
                   >
                     <Bookmark className="w-4 h-4 text-sky-deep" />
                     {t("saved")}
+                  </Link>
+                  <Link
+                    href="/profile"
+                    role="menuitem"
+                    onClick={() => setAccountOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-blue-ink hover:bg-powder"
+                  >
+                    <UserCircle className="w-4 h-4 text-sky-deep" />
+                    {t("profile")}
                   </Link>
                   {isAdmin && (
                     <Link
@@ -367,6 +376,10 @@ export default function Header({ variant = "default", activeNav, className = "" 
                 <p className="px-3.5 pb-1 text-xs text-gray-soft font-medium truncate">
                   {tCommon("signIn")} <span className="font-bold text-blue-ink">{user.name}</span>
                 </p>
+                <Link href="/profile" className={mobileLink(false)} onClick={() => setMenuOpen(false)}>
+                  <UserCircle className="w-4 h-4 text-sky-deep" />
+                  {t("profile")}
+                </Link>
                 {isAdmin && (
                   <Link href="/admin" className={mobileLink(false)} onClick={() => setMenuOpen(false)}>
                     <LayoutDashboard className="w-4 h-4 text-sky-deep" />
