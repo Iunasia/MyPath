@@ -10,6 +10,9 @@ import {
   logoutUser,
   getCurrentUser,
   getGoogleAuthUrl,
+  updateUserProfile,
+  uploadAvatar as uploadAvatarRequest,
+  removeAvatarRequest,
 } from "@/app/lib/auth";
 
 interface AuthContextType {
@@ -20,6 +23,9 @@ interface AuthContextType {
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   loginWithGoogle: () => void;
+  updateProfile: (name: string) => Promise<void>;
+  uploadAvatar: (file: File) => Promise<void>;
+  removeAvatar: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -109,8 +115,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     window.location.href = getGoogleAuthUrl();
   }, []);
 
+  const updateProfile = useCallback(async (name: string) => {
+    const data = await updateUserProfile(name);
+    if (data.user) {
+      setUser(data.user);
+      try {
+        localStorage.setItem("domner_user", JSON.stringify(data.user));
+      } catch {}
+    }
+  }, []);
+
+  const uploadAvatar = useCallback(async (file: File) => {
+    const data = await uploadAvatarRequest(file);
+    if (data.user) {
+      setUser(data.user);
+      try {
+        localStorage.setItem("domner_user", JSON.stringify(data.user));
+      } catch {}
+    }
+  }, []);
+
+  const removeAvatar = useCallback(async () => {
+    const data = await removeAvatarRequest();
+    if (data.user) {
+      setUser(data.user);
+      try {
+        localStorage.setItem("domner_user", JSON.stringify(data.user));
+      } catch {}
+    }
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, loading, isLoggingOut, login, register, logout, loginWithGoogle }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        isLoggingOut,
+        login,
+        register,
+        logout,
+        loginWithGoogle,
+        updateProfile,
+        uploadAvatar,
+        removeAvatar,
+      }}
+    >
       {children}
 
       {/* Professional Logout Transition Modal */}
