@@ -13,6 +13,11 @@ interface User {
   avatar_data: Buffer | null;
   avatar_mime: string | null;
   avatar_updated_at: Date | null;
+  bio: string | null;
+  location: string | null;
+  website: string | null;
+  date_of_birth: string | null;
+  gender: string | null;
   created_at: Date;
 }
 
@@ -32,6 +37,18 @@ interface CreateOAuthUserInput {
   avatarUrl?: string;
 }
 
+interface UpdateProfileInput {
+  name: string;
+  bio: string | null;
+  location: string | null;
+  website: string | null;
+  date_of_birth: string | null;
+  gender: string | null;
+}
+
+const SAFE_COLUMNS = `id, name, email, role, auth_provider, google_id, avatar_url, avatar_updated_at,
+  bio, location, website, date_of_birth, gender, created_at`;
+
 const User = {
   findByEmail: async (email: string): Promise<User | undefined> => {
     const res = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
@@ -39,11 +56,18 @@ const User = {
   },
 
   findById: async (id: number): Promise<SafeUser | undefined> => {
-    const res = await pool.query(
-      'SELECT id, name, email, role, auth_provider, google_id, avatar_url, avatar_updated_at, created_at FROM users WHERE id = $1',
-      [id]
-    );
+    const res = await pool.query(`SELECT ${SAFE_COLUMNS} FROM users WHERE id = $1`, [id]);
     return res.rows[0] as SafeUser | undefined;
+  },
+
+  /**
+   * Like findByEmail, but by id — used only for internal auth checks (e.g.
+   * verifying the current password before a password change). Includes the
+   * password hash, so its result must never reach a response body.
+   */
+  findAuthById: async (id: number): Promise<User | undefined> => {
+    const res = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
+    return res.rows[0] as User | undefined;
   },
 
   findByGoogleId: async (googleId: string): Promise<User | undefined> => {
@@ -58,7 +82,8 @@ const User = {
       hashedPassword = await bcrypt.hash(password, salt);
     }
     const res = await pool.query(
-      'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role, auth_provider, google_id, avatar_url, avatar_updated_at',
+      `INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4)
+       RETURNING ${SAFE_COLUMNS}`,
       [name, email, hashedPassword, role]
     );
     return res.rows[0] as SafeUser;
@@ -68,7 +93,7 @@ const User = {
     const res = await pool.query(
       `INSERT INTO users (name, email, google_id, avatar_url, auth_provider)
        VALUES ($1, $2, $3, $4, 'google')
-       RETURNING id, name, email, role, auth_provider, google_id, avatar_url, avatar_updated_at`,
+       RETURNING ${SAFE_COLUMNS}`,
       [name, email, googleId, avatarUrl || null]
     );
     return res.rows[0] as SafeUser;
@@ -85,19 +110,32 @@ const User = {
     return await bcrypt.compare(inputPassword, storedPassword);
   },
 
-  updateName: async (id: number, name: string): Promise<SafeUser | undefined> => {
+  updateProfile: async (id: number, fields: UpdateProfileInput): Promise<SafeUser | undefined> => {
     const res = await pool.query(
-      `UPDATE users SET name = $1 WHERE id = $2
-       RETURNING id, name, email, role, auth_provider, google_id, avatar_url, avatar_updated_at, created_at`,
-      [name, id]
+      `UPDATE users SET name = $1, bio = $2, location = $3, website = $4, date_of_birth = $5, gender = $6
+       WHERE id = $7
+       RETURNING ${SAFE_COLUMNS}`,
+      [
+        fields.name,
+        fields.bio,
+        fields.location,
+        fields.website,
+        fields.date_of_birth,
+        fields.gender,
+        id,
+      ]
     );
     return res.rows[0] as SafeUser | undefined;
+  },
+
+  updatePassword: async (id: number, hashedPassword: string): Promise<void> => {
+    await pool.query('UPDATE users SET password = $1 WHERE id = $2', [hashedPassword, id]);
   },
 
   updateAvatar: async (id: number, data: Buffer, mime: string): Promise<SafeUser | undefined> => {
     const res = await pool.query(
       `UPDATE users SET avatar_data = $1, avatar_mime = $2, avatar_updated_at = NOW() WHERE id = $3
-       RETURNING id, name, email, role, auth_provider, google_id, avatar_url, avatar_updated_at, created_at`,
+       RETURNING ${SAFE_COLUMNS}`,
       [data, mime, id]
     );
     return res.rows[0] as SafeUser | undefined;
@@ -106,7 +144,7 @@ const User = {
   removeAvatar: async (id: number): Promise<SafeUser | undefined> => {
     const res = await pool.query(
       `UPDATE users SET avatar_data = NULL, avatar_mime = NULL, avatar_updated_at = NOW() WHERE id = $1
-       RETURNING id, name, email, role, auth_provider, google_id, avatar_url, avatar_updated_at, created_at`,
+       RETURNING ${SAFE_COLUMNS}`,
       [id]
     );
     return res.rows[0] as SafeUser | undefined;
