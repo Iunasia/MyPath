@@ -68,7 +68,7 @@ function RequestRow({ request }: { request: ApiVerificationRequest }) {
       {risk ? <Tag tone={risk.tone}>{risk.label}</Tag> : <span />}
       <Link
         href={`/admin/requests#request-${request.id}`}
-        className="rounded-md bg-sky-deep px-3 py-1 text-xs font-bold text-white hover:opacity-90"
+        className="rounded-md bg-[#7AB3B7] px-3 py-1 text-xs font-bold text-white hover:opacity-90"
       >
         Answer
       </Link>

@@ -173,7 +173,7 @@ export default function CareersPage() {
                         <img
                           src={career.image}
                           alt={career.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="w-full h-full object-cover"
                           loading="lazy"
                         />
                       </Link>

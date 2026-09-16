@@ -150,7 +150,7 @@ function Detail({
           type="button"
           onClick={markChecked}
           disabled={busy || checkedToday}
-          className="inline-flex items-center gap-1.5 rounded-md bg-sky-deep px-3 py-1.5 text-xs font-bold text-white hover:opacity-90 disabled:opacity-50 cursor-pointer disabled:cursor-default"
+          className="inline-flex items-center gap-1.5 rounded-md bg-[#7AB3B7] px-3 py-1.5 text-xs font-bold text-white hover:opacity-90 disabled:opacity-50 cursor-pointer disabled:cursor-default"
         >
           {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldCheck className="w-3.5 h-3.5" />}
           {checkedToday ? "Checked today" : "Mark checked by me"}

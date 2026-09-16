@@ -49,6 +49,89 @@ export default function ScholarshipQuizPage() {
     );
   }, [id]);
 
+  // Derive concise institution/scholarship name for heading (e.g., CADT, Paragon.U, PUC, AUPP, etc.)
+  const targetName = useMemo(() => {
+    if (!scholarship) return "your scholarship";
+    const { title = "", provider = "", id = "" } = scholarship;
+
+    const lowerId = id.toLowerCase();
+    const lowerTitle = title.toLowerCase();
+    const lowerProvider = provider.toLowerCase();
+
+    // Specific university / scholarship mappings
+    if (lowerId.includes("cadt") || lowerTitle.includes("cadt") || lowerProvider.includes("cadt") || lowerTitle.includes("techo digital")) {
+      return "CADT";
+    }
+    if (lowerId.includes("dmu") || lowerTitle.includes("dmu") || lowerProvider.includes("de montfort")) {
+      return "DMUC";
+    }
+    if (lowerId.includes("camtech") || lowerTitle.includes("camtech") || lowerProvider.includes("camtech")) {
+      return "CamTech";
+    }
+    if (lowerId.includes("camed") || lowerTitle.includes("camed") || lowerProvider.includes("camed")) {
+      return "CamEd";
+    }
+    if (lowerTitle.includes("uyfc") || lowerProvider.includes("uyfc") || lowerId.includes("uyfc")) {
+      return "UYFC";
+    }
+    if (lowerTitle.includes("paragon") || lowerProvider.includes("paragon") || lowerId.includes("paragon")) {
+      return "Paragon.U";
+    }
+    if (lowerTitle.includes("puc") || lowerProvider.includes("puc") || lowerId.includes("puc") || lowerProvider.includes("paññāsāstra") || lowerProvider.includes("pannasastra")) {
+      return "PUC";
+    }
+    if (lowerTitle.includes("aupp") || lowerProvider.includes("aupp") || lowerId.includes("aupp")) {
+      return "AUPP";
+    }
+    if (lowerTitle.includes("itc") || lowerProvider.includes("itc") || lowerId.includes("itc") || lowerProvider.includes("institute of technology of cambodia")) {
+      return "ITC";
+    }
+    if (lowerTitle.includes("rupp") || lowerProvider.includes("rupp") || lowerId.includes("rupp") || lowerProvider.includes("royal university of phnom penh")) {
+      return "RUPP";
+    }
+    if (lowerTitle.includes("smart") || lowerProvider.includes("smart") || lowerId.includes("smart")) {
+      return "SmartEdu";
+    }
+    if (lowerTitle.includes("mptc") || lowerProvider.includes("mptc") || lowerId.includes("mptc")) {
+      return "MPTC";
+    }
+    if (lowerTitle.includes("rufa") || lowerProvider.includes("rufa") || lowerId.includes("rufa")) {
+      return "RUFA";
+    }
+    if (lowerTitle.includes("rua") || lowerProvider.includes("rua") || lowerId.includes("rua")) {
+      return "RUA";
+    }
+    if (lowerTitle.includes("puthisastra") || lowerProvider.includes("puthisastra") || lowerId.split("-").includes("up")) {
+      return "UP";
+    }
+    if (lowerTitle.includes("num") || lowerProvider.includes("national university of management") || lowerId.includes("num")) {
+      return "NUM";
+    }
+    if (
+      lowerTitle.includes("university of cambodia") ||
+      lowerProvider.includes("university of cambodia") ||
+      lowerProvider.includes("(uc)") ||
+      lowerId.split("-").includes("uc")
+    ) {
+      return "UC";
+    }
+
+    const parenMatch = provider.match(/\(([A-Z0-9.\-_]+)\)/i);
+    if (parenMatch) return parenMatch[1];
+
+    if (provider.includes("/")) {
+      const part = provider.split("/")[0].trim();
+      if (part.length <= 15) return part;
+    }
+
+    const cleanedTitle = title
+      .replace(/\b202\d\b/g, "")
+      .replace(/\b(Scholarship|Fellowship|Grant|Vision\s+\d+)\b/gi, "")
+      .trim();
+
+    return cleanedTitle || provider || "your exam";
+  }, [scholarship]);
+
   // Available subjects: exactly 3 core subjects
   const availableSubjects = useMemo(() => {
     return isCadt ? CADT_TECHO_SUBJECTS : QUIZ_SUBJECTS;
@@ -220,10 +303,10 @@ export default function ScholarshipQuizPage() {
           {/* ── Page Header ───────────────────────────────────── */}
           <div className="text-left mb-8">
             <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-extrabold text-blue-ink tracking-tight mb-2.5">
-              CADT Entrance Exam Readiness Quiz
+              Ready for {targetName}? Let&apos;s test your skills.
             </h1>
             <p className="text-xs sm:text-sm md:text-base text-gray-body font-normal max-w-2xl">
-              Practice official Mathematics, Logical Reasoning & IQ, and English questions for the Techo Digital Talent Scholarship at CADT.
+              Practice Mathematics, Logical Reasoning, IQ, and English questions to see where you stand and prepare with confidence.
             </p>
           </div>
 
@@ -473,7 +556,7 @@ export default function ScholarshipQuizPage() {
                     <button
                       type="button"
                       onClick={() => setSelectedLevel("all")}
-                      className="px-5 py-2 rounded-full bg-sky-deep text-white text-xs font-bold hover:bg-sky-dark transition-all cursor-pointer"
+                      className="px-5 py-2 rounded-full bg-[#7AB3B7] text-white text-xs font-bold hover:bg-[#68A1A5] transition-all cursor-pointer"
                     >
                       View All Questions
                     </button>
@@ -617,7 +700,7 @@ export default function ScholarshipQuizPage() {
                       className={`px-8 py-3.5 rounded-full text-sm font-bold transition-all ${
                         answeredCount === 0
                           ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                          : "bg-sky-deep text-white hover:bg-sky-dark shadow-md shadow-sky-950/20 cursor-pointer"
+                          : "bg-[#7AB3B7] text-white hover:bg-[#68A1A5] shadow-md shadow-sky-950/20 cursor-pointer"
                       }`}
                     >
                       Submit Answer

@@ -10,7 +10,7 @@ import ScholarshipDetail from "./ScholarshipDetail";
  */
 export const dynamic = "force-dynamic";
 
-export default async function ScholarshipDetailPage({ params }: PageProps<"/scholarships/[id]">) {
+export default async function ScholarshipDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const [detail, all] = await Promise.all([getScholarship(id), getScholarships()]);
 

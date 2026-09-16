@@ -154,7 +154,7 @@ export default function HeroSlider() {
           <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
             <Link
               href="#explorers"
-              className="group inline-flex items-center gap-1.5 rounded-full border-2 border-sky-deep bg-sky-deep px-6 py-2.5 sm:px-7 sm:py-3 text-xs sm:text-sm font-bold text-white hover:bg-white hover:text-sky-deep hover:border-sky-deep transition-all duration-200 bubble-shadow cursor-pointer"
+              className="group inline-flex items-center gap-1.5 rounded-full border-2 border-[#7AB3B7] bg-[#7AB3B7] px-6 py-2.5 sm:px-7 sm:py-3 text-xs sm:text-sm font-bold text-white hover:bg-white hover:text-[#7AB3B7] hover:border-[#7AB3B7] transition-all duration-200 bubble-shadow cursor-pointer"
             >
               <span>Explore your path</span>
               <span

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 interface FooterProps {
   className?: string;
@@ -13,13 +14,14 @@ export default function Footer({ className = "" }: FooterProps) {
         { label: "Majors", href: "/majors" },
         { label: "Universities", href: "/universities" },
         { label: "Scholarships", href: "/scholarships" },
+        { label: "Workshops", href: "/workshops" },
+        { label: "Verify", href: "/verify" },
       ],
     },
     {
       heading: "Tools",
       links: [
-        { label: "Information Check", href: "#" },
-        { label: "Deadline Tracker", href: "#" },
+        { label: "Information Check", href: "/verify" },
         { label: "Saved Opportunities", href: "/saved" },
         { label: "Admin Portal", href: "/admin" },
       ],
@@ -27,7 +29,7 @@ export default function Footer({ className = "" }: FooterProps) {
     {
       heading: "About",
       links: [
-        { label: "About Domner", href: "#" },
+        { label: "About Domner", href: "/about" },
         { label: "Privacy Policy", href: "#" },
         { label: "Terms of Use", href: "#" },
         { label: "Contact", href: "#" },
@@ -42,9 +44,15 @@ export default function Footer({ className = "" }: FooterProps) {
           {/* Brand Info */}
           <div>
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <span className="flex items-center justify-center w-7 h-7 rounded-full bg-sky-deep text-white text-xs font-bold font-display">
-                D
-              </span>
+              <div className="relative w-7 h-7 shrink-0 flex items-center justify-center">
+                <Image
+                  src="/images/domner-logo.png"
+                  alt="Domner Logo"
+                  width={28}
+                  height={28}
+                  className="w-full h-full object-contain"
+                />
+              </div>
               <span className="font-display text-base font-bold text-blue-ink">
                 Domner
               </span>

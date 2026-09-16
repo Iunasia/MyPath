@@ -1,10 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import {
-  ExternalLink,
-  Info,
-  MapPin,
-} from "lucide-react";
+import { MapPin } from "lucide-react";
 import { MAJORS_DATA } from "@/app/data/majors";
 import { UNIVERSITIES_DATA } from "@/app/data/universities";
 import { CAREERS_DATA } from "@/app/data/careers";
@@ -79,7 +75,7 @@ export default async function MajorDetailPage({ params }: PageProps) {
         personalityFit: (fallbackMajor as any)?.personalityFit ?? [],
         jobMarketDemand: fallbackMajor!.jobMarketDemand,
         relatedCareersText: fallbackMajor?.careerPathways?.map((c) => c.title) ?? [],
-        universitiesText: (fallbackMajor as any)?.universities?.map((u: any) => u.name) ?? [],
+        universitiesText: fallbackMajor?.offerUniversities?.map((u) => u.shortName || u.name) ?? [],
         relatedScholarshipsText: (fallbackMajor as any)?.relatedScholarships?.map((s: any) => s.title) ?? [],
         source: null,
         sourceUrl: null,
@@ -92,41 +88,112 @@ export default async function MajorDetailPage({ params }: PageProps) {
   const allMajors = toMajorViews(majorRows);
   const allScholarships = toScholarshipViews(scholarshipRows);
 
-  // Universities named in the spreadsheet, resolved to real records.
-  const { links: universityLinks, unmatched: universityNames } = linkUniversities(
+  // ── Universities offering this major ─────────────────────────
+  const universityViews = toUniversityViews(universityRows);
+
+  // 1. Spreadsheet/API links
+  const { links: universityLinks } = linkUniversities(
     major.universitiesText,
-    toUniversityViews(universityRows)
+    universityViews
   );
-  const offerUniversities =
-    universityRows.length > 0 && universityLinks.length > 0
-      ? (universityLinks
-          .map((link) => toUniversityViews(universityRows).find((u) => u.id === link.id))
-          .filter(Boolean) as ReturnType<typeof toUniversityViews>)
-      : (((fallbackMajor as any)?.universities?.map((u: any) => {
-          const fullUni = UNIVERSITIES_DATA.find((item: any) => item.id === u.id || item.name.includes(u.name));
-          return {
-            id: u.id,
-            name: u.name,
-            shortName: u.name,
-            type: fullUni?.type ?? "University",
-            location: u.location,
-            address: (fullUni as any)?.address ?? u.location,
-            website: (fullUni as any)?.website ?? "",
-            logo: (fullUni as any)?.logo ?? "",
-            bannerImage: (fullUni as any)?.bannerImage ?? "",
-            image: fullUni?.heroImage || fullUni?.image || (fullUni as any)?.bannerImage || "",
-            popularMajors: [],
-            description: fullUni?.description ?? "",
-            isVerified: true,
-            verificationSource: null,
-            verificationDate: null,
-            isOutdated: false,
-            totalStudents: null,
-            programsCount: null,
-            source: null,
-            sourceUrl: null,
-          };
-        }) ?? []) as any[]);
+  const fromApiLinks = universityLinks
+    .map((link) => {
+      const u = universityViews.find((v) => v.id === link.id);
+      const curated = UNIVERSITIES_DATA.find((c) => c.id.toLowerCase() === link.id.toLowerCase());
+      if (!u && !curated) return null;
+      return {
+        id: u?.id || curated?.id || link.id,
+        name: u?.name || curated?.name || link.name,
+        shortName: u?.shortName || curated?.shortName || link.name,
+        location: u?.location || curated?.location || "Phnom Penh",
+        type: u?.type || curated?.type || "University",
+        image:
+          curated?.heroImage ||
+          curated?.image ||
+          u?.image ||
+          "https://images.unsplash.com/photo-1562774053-701939374585?w=1200&auto=format&fit=crop&q=80",
+      };
+    })
+    .filter((u): u is NonNullable<typeof u> => Boolean(u));
+
+  // 2. Curated offerUniversities from fallbackMajor
+  const fromFallbackOffer = (fallbackMajor?.offerUniversities ?? [])
+    .map((item) => {
+      const sName = (item.shortName || "").toLowerCase();
+      const fName = (item.name || "").toLowerCase();
+      const matched = UNIVERSITIES_DATA.find(
+        (c) =>
+          c.id.toLowerCase() === sName ||
+          c.shortName.toLowerCase() === sName ||
+          (item.shortName === "Paragon.U" && c.id === "paragon") ||
+          c.name.toLowerCase().includes(fName) ||
+          (fName && fName.includes(c.name.toLowerCase())) ||
+          (sName && c.shortName.toLowerCase().includes(sName))
+      );
+      if (matched) {
+        return {
+          id: matched.id,
+          name: matched.name,
+          shortName: matched.shortName,
+          location: matched.location,
+          type: matched.type,
+          image: matched.heroImage || matched.image || item.image,
+        };
+      }
+      return null;
+    })
+    .filter((u): u is NonNullable<typeof u> => Boolean(u));
+
+  // 3. Reverse lookup from UNIVERSITIES_DATA (universities whose popularMajors, facultiesList, or programs match this major)
+  const majorNameLower = major.name.toLowerCase();
+  const majorWords = majorNameLower
+    .split(/[\s&,/]+/)
+    .filter((w) => w.length > 3 && !["engineering", "studies", "management", "arts"].includes(w));
+
+  const fromCuratedOffer = UNIVERSITIES_DATA.filter((u) => {
+    const checkText = (text: string) => {
+      const tl = text.toLowerCase();
+      if (tl.includes(majorNameLower) || majorNameLower.includes(tl)) return true;
+      if (majorWords.length > 0 && majorWords.every((w) => tl.includes(w))) return true;
+      return false;
+    };
+
+    const inPopular = u.popularMajors.some(checkText);
+    if (inPopular) return true;
+
+    const inFaculty = u.facultiesList?.some(
+      (f) => checkText(f.facultyName) || f.majors.some(checkText)
+    );
+    if (inFaculty) return true;
+
+    const inProgram = u.programs?.some((p) => checkText(p.title) || checkText(p.description));
+    return Boolean(inProgram);
+  }).map((u) => ({
+    id: u.id,
+    name: u.name,
+    shortName: u.shortName,
+    location: u.location,
+    type: u.type,
+    image: u.heroImage || u.image,
+  }));
+
+  // Combine direct matches first, then deduplicate by university id
+  const offerUniversities: Array<{
+    id: string;
+    name: string;
+    shortName: string;
+    location: string;
+    type: string;
+    image: string;
+  }> = [];
+  const seenUniIds = new Set<string>();
+
+  for (const uni of [...fromApiLinks, ...fromFallbackOffer, ...fromCuratedOffer]) {
+    if (uni.id && !seenUniIds.has(uni.id.toLowerCase())) {
+      seenUniIds.add(uni.id.toLowerCase());
+      offerUniversities.push(uni);
+    }
+  }
 
   // Same field, excluding this one.
   const relatedMajors =
@@ -162,26 +229,63 @@ export default async function MajorDetailPage({ params }: PageProps) {
   // Careers this major leads to, resolved from the names in the sheet.
   const allCareers = toCareerViews(careerRows);
   const { links: careerLinks } = linkCareers(major.relatedCareersText, allCareers);
-  const careerPathways =
-    careerRows.length > 0 && careerLinks.length > 0
-      ? careerLinks.slice(0, 3).map((link) => {
-          const record = allCareers.find((c) => c.id === link.id);
-          return {
-            id: link.id,
-            title: link.name,
-            description: record?.whatYouDo ?? "",
-            icon: link.icon,
-          };
-        })
-      : (fallbackMajor?.careerPathways?.slice(0, 3).map((cp) => {
-          const matchedCareer = CAREERS_DATA.find((c) => c.title.toLowerCase().includes(cp.title.toLowerCase()));
-          return {
-            id: matchedCareer?.id ?? cp.title.toLowerCase().replace(/[^a-z0-9]/g, "-"),
-            title: cp.title,
-            description: cp.description,
-            icon: cp.icon,
-          };
-        }) ?? []);
+
+  const fromLinks = careerLinks.map((link) => {
+    const record = allCareers.find((c) => c.id === link.id);
+    return {
+      id: link.id,
+      title: link.name,
+      description: record?.whatYouDo ?? "",
+      icon: link.icon,
+    };
+  });
+
+  const fromFallback = (fallbackMajor?.careerPathways ?? []).map((cp) => {
+    const matchedCareer = CAREERS_DATA.find((c) => c.title.toLowerCase().includes(cp.title.toLowerCase()));
+    return {
+      id: matchedCareer?.id ?? cp.title.toLowerCase().replace(/[^a-z0-9]/g, "-"),
+      title: cp.title,
+      description: cp.description,
+      icon: cp.icon,
+    };
+  });
+
+  // Start with links from the catalog, then fill up with curated fallback so there are at least 3
+  const combinedPathways = [...fromLinks];
+  for (const item of fromFallback) {
+    if (combinedPathways.length >= 3) break;
+    const exists = combinedPathways.some(
+      (p) => p.title.toLowerCase() === item.title.toLowerCase() || p.id === item.id
+    );
+    if (!exists) {
+      combinedPathways.push(item);
+    }
+  }
+
+  // If still fewer than 3, supplement from CAREERS_DATA in matching category
+  if (combinedPathways.length < 3) {
+    const categoryCareers = CAREERS_DATA.filter(
+      (c) =>
+        c.category.toLowerCase().includes(major.categoryKey.toLowerCase()) ||
+        major.category.toLowerCase().includes(c.category.toLowerCase())
+    );
+    for (const c of [...categoryCareers, ...CAREERS_DATA]) {
+      if (combinedPathways.length >= 3) break;
+      const exists = combinedPathways.some(
+        (p) => p.title.toLowerCase() === c.title.toLowerCase() || p.id === c.id
+      );
+      if (!exists) {
+        combinedPathways.push({
+          id: c.id,
+          title: c.title,
+          description: c.whatYouDo || c.shortOverview,
+          icon: c.icon,
+        });
+      }
+    }
+  }
+
+  const careerPathways = combinedPathways.slice(0, 3);
 
   const hasDemand = Boolean(major.jobMarketDemand) && major.jobMarketDemand !== "Not stated";
 
@@ -331,13 +435,23 @@ export default async function MajorDetailPage({ params }: PageProps) {
               Career Pathways
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 max-w-5xl mx-auto w-full">
+            <div
+              className={`gap-8 lg:gap-12 max-w-5xl mx-auto w-full ${
+                careerPathways.length === 1
+                  ? "flex justify-center"
+                  : careerPathways.length === 2
+                  ? "flex flex-col sm:flex-row justify-center items-center sm:items-start"
+                  : "grid grid-cols-1 md:grid-cols-3"
+              }`}
+            >
               {careerPathways.map((career) => {
                 const Icon = career.icon;
                 return (
                   <div
                     key={career.title}
-                    className="flex flex-col items-center text-center px-4"
+                    className={`flex flex-col items-center text-center px-4 ${
+                      careerPathways.length < 3 ? "w-full sm:max-w-xs" : ""
+                    }`}
                   >
                     <div className="w-16 h-16 rounded-full bg-momo text-sky-deep flex items-center justify-center mb-4 border border-momo/80 shadow-2xs">
                       <Icon className="w-8 h-8 text-sky-deep" strokeWidth={2.2} />
@@ -405,59 +519,7 @@ export default async function MajorDetailPage({ params }: PageProps) {
           </section>
           )}
 
-          {/* 6. Universities offering this major */}
-          <section className="w-full">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink tracking-tight">
-                Universities offering this major
-              </h2>
-              <span className="text-xs font-semibold text-gray-soft">
-                {offerUniversities.length} {offerUniversities.length === 1 ? "university" : "universities"}
-              </span>
-            </div>
-
-            {/* 3 cards per row on desktop (lg:grid-cols-3), 2 on tablet, 1 on mobile */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
-              {offerUniversities.map((uni) => (
-                <div
-                  key={uni.name}
-                  className="group relative rounded-3xl overflow-hidden aspect-[16/11] border border-sky/20 bubble-shadow-sm bg-sitomo/40 hover:border-sky hover:shadow-xl transition-all duration-300"
-                >
-                  {/* University Campus Image (Enlarges on Hover) */}
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={uni.image}
-                    alt={uni.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-
-                  {/* Gradient Overlay for high-contrast white text */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10 group-hover:from-black/90 group-hover:via-black/50 transition-all duration-300" />
-
-                  {/* Top Badge: University Acronym */}
-                  <div className="absolute top-3.5 right-3.5">
-                    <span className="bg-white/20 backdrop-blur-xs text-white text-xs font-extrabold px-3 py-1 rounded-full border border-white/25 shadow-2xs">
-                      {uni.shortName}
-                    </span>
-                  </div>
-
-                  {/* Bottom Information */}
-                  <div className="absolute inset-x-0 bottom-0 p-5 flex flex-col justify-end text-white">
-                    <h3 className="font-display text-base sm:text-lg font-bold leading-snug drop-shadow-md mb-2 group-hover:text-sitomo transition-colors line-clamp-2">
-                      {uni.name}
-                    </h3>
-
-                    <div className="flex items-center gap-1.5 text-xs sm:text-sm text-white/90 font-medium">
-                      <MapPin className="w-4 h-4 text-sitomo shrink-0" />
-                      <span>{uni.location}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* 7. Related Opportunities (Full Width Grid) */}
+          {/* 6. Related Opportunities (Full Width Grid) */}
           {relatedOpportunities.length > 0 && (
             <section className="w-full">
               <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink tracking-tight mb-6">
@@ -495,41 +557,81 @@ export default async function MajorDetailPage({ params }: PageProps) {
             </section>
           )}
 
-          {/* 8. Where this comes from. No "verified" badge: majors haven't been
-              checked against an accreditation body, and the card used to say
-              they had. */}
-          <div className="rounded-3xl bg-momo p-6 sm:p-8 border border-momo w-full">
-            <div className="flex items-center gap-2 mb-3">
-              <Info className="w-5 h-5 text-sky-deep" />
-              <span className="text-xs sm:text-sm font-bold text-blue-ink uppercase tracking-wider">
-                About this information
-              </span>
-            </div>
-
-            <p className="text-xs sm:text-sm text-gray-body mb-4 font-medium">
-              This description comes from Domner&apos;s majors dataset. It hasn&apos;t been
-              checked against an accreditation body, so confirm the curriculum and fees on
-              each university&apos;s own page before you decide.
-            </p>
-
-            <div className="text-xs sm:text-sm text-blue-ink font-medium">
-              <span className="text-xs text-gray-soft block">Source</span>
-              <span className="font-bold">{major.source || "Domner majors dataset"}</span>
-            </div>
-
-            {major.sourceUrl && (
-              <div className="mt-4 pt-3 border-t border-blue-ink/10 flex justify-end">
-                <a
-                  href={major.sourceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-sky-deep hover:underline"
-                >
-                  View source <ExternalLink className="w-3.5 h-3.5" />
-                </a>
+          {/* 7. Universities Offering This Major (uses same card style as university page) */}
+          {offerUniversities.length > 0 && (
+            <section className="w-full">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink tracking-tight">
+                  Universities offering this major
+                </h2>
+                <span className="text-xs font-semibold text-gray-soft">
+                  {offerUniversities.length} {offerUniversities.length === 1 ? "university" : "universities"}
+                </span>
               </div>
-            )}
-          </div>
+
+              {/* Exact card style and grid from /universities page */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4 lg:gap-5">
+                {offerUniversities.map((uni) => (
+                  <Link
+                    key={uni.id}
+                    href={`/universities/${uni.id}`}
+                    className="group relative aspect-[3/4] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer bubble-shadow-sm border border-sky/15 hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 block"
+                  >
+                    {/* University Campus Image */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={uni.image}
+                      alt={uni.name}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+
+                    {/* Gradient Overlay for Text Readability */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
+
+                    {/* Type Badge on Top */}
+                    <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-10">
+                      <span className="bg-black/40 backdrop-blur-xs text-white text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full border border-white/15">
+                        {uni.type}
+                      </span>
+                    </div>
+
+                    {/* Save Button on Card Image */}
+                    <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-20">
+                      <SaveItemButton
+                        variant="card-action"
+                        item={{
+                          id: uni.id,
+                          type: "university",
+                          title: uni.name,
+                          subtitle: uni.shortName,
+                          image: uni.image,
+                          link: `/universities/${uni.id}`,
+                        }}
+                      />
+                    </div>
+
+                    {/* Bottom Text Content */}
+                    <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 flex flex-col justify-end">
+                      <h3 className="font-display font-bold text-white text-xs sm:text-sm leading-snug line-clamp-2 drop-shadow-sm mb-2 group-hover:text-sky-bright transition-colors">
+                        {uni.name}
+                      </h3>
+
+                      <div className="flex items-center justify-between gap-1 text-white">
+                        <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs text-white/90 font-medium truncate">
+                          <MapPin className="w-3 h-3 text-sitomo shrink-0" />
+                          <span className="truncate">{uni.location}</span>
+                        </span>
+
+                        <span className="bg-white/20 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-full border border-white/20 shrink-0 shadow-2xs">
+                          {uni.shortName}
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
 
         </main>
       </div>

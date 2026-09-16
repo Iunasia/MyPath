@@ -30,7 +30,7 @@ export default function ScholarshipCard({
     return (
       <Link
         href={`/scholarships/${scholarship.id}`}
-        className={`group flex flex-col bg-white rounded-3xl rounded-br-[72px] overflow-hidden border border-sky/15 bubble-shadow-sm hover:border-sky/40 hover:-translate-y-0.5 transition-all ${
+        className={`group flex flex-col bg-white rounded-3xl rounded-br-[72px] overflow-hidden border border-sky/15 bubble-shadow-sm hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 ${
           closed ? "opacity-80" : ""
         }`}
       >
@@ -130,7 +130,7 @@ export default function ScholarshipCard({
       <img
         src={scholarship.image}
         alt={scholarship.title}
-        className={`absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300 ${
+        className={`absolute inset-0 w-full h-full object-cover object-center ${
           closed ? "grayscale" : ""
         }`}
       />

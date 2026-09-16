@@ -189,7 +189,7 @@ export const UNIVERSITIES_DATA: University[] = [
       image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=600&auto=format&fit=crop&q=80",
     },
     mapImage: "https://images.unsplash.com/photo-1524661135-423995f22d0b?w=900&auto=format&fit=crop&q=80",
-    mapUrl: "https://maps.app.goo.gl/y2XhNsTKEDqKwhzS1",
+    mapUrl: "https://maps.app.goo.gl/6qmMgHgVAiXm1wbA7",
   },
   {
     id: "rupp",

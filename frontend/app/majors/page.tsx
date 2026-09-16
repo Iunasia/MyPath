@@ -34,39 +34,42 @@ export default function MajorsPage() {
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
-        {/* ── Hero Search Section ───────────────────────────── */}
-        <section className="mb-10 text-center max-w-3xl mx-auto w-full pt-4 sm:pt-6">
- 
-          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight leading-[1.15] mb-4">
-            Your future starts with the {" "}
-            <span className="text-sky-deep  decoration-sky/40 underline-offset-4">
-              right major
-            </span>
-          </h1>
-          <p className="text-xs sm:text-sm lg:text-base text-gray-soft mb-8 max-w-xl mx-auto font-medium">
-            Explore verified majors in Cambodia, discover the skills you’ll need, and see where each path can take you.
-          </p>
-
-          {/* Search Input Bar */}
-          <div className="relative max-w-xl mx-auto">
-            <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none">
-              <Search className="w-5 h-5 text-black" strokeWidth={2.2} />
+        {/* ── Hero ────────────────────────────────────────── */}
+        <section className="mb-8 lg:mb-10">
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+            <div className="max-w-xl">
+              <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight leading-[1.15]">
+                Your future starts with the
+                <br />
+                <span className="text-sky-deep">right major</span>
+              </h1>
+              <p className="text-xs sm:text-sm lg:text-base text-gray-soft mt-3 leading-relaxed font-medium">
+                Explore verified majors in Cambodia, discover the skills you’ll need, and see where each path can take you.
+              </p>
             </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by major, career goal, or skill..."
-              className="w-full pl-12 pr-10 py-3.5 bg-white rounded-full border border-sky/25 text-sm text-blue-ink placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-sky focus:border-sky transition-all bubble-shadow-sm font-medium"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-black hover:opacity-70 cursor-pointer z-10"
-              >
-                <X className="h-4 w-4 text-black" />
-              </button>
-            )}
+
+            <div className="w-full lg:max-w-md">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Search className="h-4 w-4 text-black" />
+                </div>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search by major, career goal, or skill..."
+                  className="w-full pl-11 pr-10 py-3.5 bg-white rounded-2xl border border-sky/20 text-sm text-blue-ink placeholder:text-gray-faint focus:outline-none focus:ring-2 focus:ring-sky/40 focus:border-sky transition-all bubble-shadow-sm font-medium"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-black hover:opacity-70 cursor-pointer"
+                  >
+                    <X className="h-4 w-4 text-black" />
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         </section>
 
@@ -166,7 +169,7 @@ export default function MajorsPage() {
                           <img
                             src={major.heroImage}
                             alt={major.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            className="w-full h-full object-cover"
                             loading="lazy"
                           />
                         </Link>

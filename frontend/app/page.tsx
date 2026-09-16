@@ -134,10 +134,34 @@ const EXPLORERS = [
 ];
 
 const TRUST_ITEMS = [
-  { icon: RotateCw, title: "7-Step Process", description: "A structured journey from discovery to informed decision.", bg: "bg-sitomo" },
-  { icon: Link2, title: "Source Verified", description: "Every claim links back to its original, official source.", bg: "bg-momo" },
-  { icon: Zap, title: "Real-Time Checking", description: "Information freshness is always visible and up to date.", bg: "bg-sitomo" },
-  { icon: Sparkles, title: "Always Free", description: "Full access for every student. No paywalls, no hidden costs.", bg: "bg-momo" },
+  {
+    icon: RotateCw,
+    title: "7-Step Process",
+    description: "A structured journey from discovery to informed decision.",
+    border: "border-sky-deep",
+    iconBg: "bg-sky-deep",
+  },
+  {
+    icon: Link2,
+    title: "Source Verified",
+    description: "Every claim links back to its original, official source.",
+    border: "border-sky",
+    iconBg: "bg-sky",
+  },
+  {
+    icon: Zap,
+    title: "Real-Time Checking",
+    description: "Information freshness is always visible and up to date.",
+    border: "border-sky-dark",
+    iconBg: "bg-sky-dark",
+  },
+  {
+    icon: Sparkles,
+    title: "Always Free",
+    description: "Full access for every student. No paywalls, no hidden costs.",
+    border: "border-sky-deep",
+    iconBg: "bg-sky-deep",
+  },
 ];
 
 /* ── Page ──────────────────────────────────────────────── */
@@ -170,35 +194,6 @@ export default async function Home() {
       {/* ── Hero Slider (EduBlock Style with Left Slide Animation) ── */}
       <HeroSlider />
 
-      {/* ── Closing soon — real listings, so the home page shows the
-          product rather than only describing it ──────────────────── */}
-      {closingSoon.length > 0 && (
-        <section className="pt-16 lg:pt-20 bg-white">
-          <div className="max-w-6xl mx-auto px-6 lg:px-8">
-            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-8">
-              <div>
-                <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-blue-ink tracking-tight">
-                  Closing soon
-                </h2>
-                <p className="mt-2 text-gray-body font-medium">
-                  Open scholarships with the nearest deadlines.
-                </p>
-              </div>
-              <Link
-                href="/scholarships"
-                className="inline-flex items-center gap-1.5 text-sm font-bold text-sky-deep hover:text-blue-ink shrink-0"
-              >
-                All scholarships <span aria-hidden="true">→</span>
-              </Link>
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {closingSoon.map((scholarship) => (
-                <ScholarshipCard key={scholarship.id} scholarship={scholarship} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* ── DMIL Step Flow (Numbered Steps with Dashed Line, No Icons) ── */}
       <section id="how-it-works" className="py-20 lg:py-28 bg-white">
@@ -403,10 +398,7 @@ export default async function Home() {
           <div className="grid lg:grid-cols-12 gap-12 lg:gap-14 items-center">
             {/* Left Content Column */}
             <div className="lg:col-span-6">
-              <div className="inline-flex items-center gap-2 rounded-full bg-sitomo px-3.5 py-1 text-xs font-bold text-sky-deep border border-sky/20 mb-4">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
-                <span>DMIL Verification Engine</span>
-              </div>
+
               
               <h2 className="font-display text-3xl sm:text-4xl lg:text-[2.65rem] font-extrabold text-blue-ink tracking-tight mt-1 mb-4 leading-tight">
                 Information Check. <br />
@@ -466,7 +458,7 @@ export default async function Home() {
               <div>
                 <Link
                   href="/verify"
-                  className="inline-flex items-center gap-2 rounded-full bg-sky-deep px-7 py-3.5 text-sm font-bold text-white hover:bg-sky-dark transition-all bubble-shadow hover:-translate-y-0.5"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#7AB3B7] px-7 py-3.5 text-sm font-bold text-white hover:bg-[#68A1A5] transition-all bubble-shadow hover:-translate-y-0.5"
                 >
                   <ShieldCheck className="w-4 h-4" />
                   <span>Open Link Verifier Tool</span>
@@ -487,7 +479,7 @@ export default async function Home() {
 
       {/* ── Trust Tiles ───────────────────────────────────── */}
       <section className="py-20 lg:py-28 bg-powder">
-        <div className="max-w-5xl mx-auto px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-14">
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-blue-ink tracking-tight">
               Built on transparency
@@ -498,12 +490,33 @@ export default async function Home() {
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-2">
             {TRUST_ITEMS.map((item) => (
-              <div key={item.title} className={`rounded-2xl ${item.bg} p-5 border border-white/60`}>
-                <item.icon className="w-7 h-7 text-blue-ink mb-3" strokeWidth={2} aria-hidden="true" />
-                <h3 className="font-display text-sm font-bold text-blue-ink mb-1">{item.title}</h3>
-                <p className="text-xs text-gray-body leading-relaxed font-medium">{item.description}</p>
+              <div key={item.title} className="relative group pt-3 pl-3 pr-2">
+                {/* Offset colored outline behind the card */}
+                <div
+                  className={`absolute top-0 left-0 right-3 bottom-3 rounded-3xl border-2 ${item.border} pointer-events-none transition-transform duration-300 group-hover:-translate-x-1 group-hover:-translate-y-1`}
+                />
+
+                {/* Foreground white card */}
+                <div className="relative z-10 bg-white rounded-3xl p-6 shadow-sm border border-sky/15 flex flex-col justify-center min-h-[160px] transition-shadow duration-300 group-hover:shadow-md">
+                  {/* Floating circular icon badge at top right */}
+                  <div
+                    className={`absolute -top-3 -right-2 sm:-top-3.5 sm:-right-2.5 w-11 h-11 sm:w-12 sm:h-12 rounded-full ${item.iconBg} text-white flex items-center justify-center shadow-md`}
+                  >
+                    <item.icon className="w-5 h-5 sm:w-5.5 sm:h-5.5" strokeWidth={2.2} />
+                  </div>
+
+                  {/* Title & Description */}
+                  <div className="pr-4">
+                    <h3 className="font-display text-sm sm:text-base font-extrabold uppercase tracking-wider text-sky-deep mb-2">
+                      {item.title}
+                    </h3>
+                    <p className="text-xs sm:text-[13px] text-gray-body leading-relaxed font-medium">
+                      {item.description}
+                    </p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -514,6 +527,35 @@ export default async function Home() {
 
       {/* ── Interactive CTA Launchpad ───────────────────────── */}
       <InteractiveCTA />
+
+      {/* ── Closing soon — real listings, nearest deadlines ──── */}
+      {closingSoon.length > 0 && (
+        <section className="pb-20 lg:pb-28 bg-white">
+          <div className="max-w-6xl mx-auto px-6 lg:px-8">
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-8">
+              <div>
+                <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-blue-ink tracking-tight">
+                  Closing soon
+                </h2>
+                <p className="mt-2 text-gray-body font-medium">
+                  Open scholarships with the nearest deadlines.
+                </p>
+              </div>
+              <Link
+                href="/scholarships"
+                className="inline-flex items-center gap-1.5 text-sm font-bold text-sky-deep hover:text-blue-ink shrink-0"
+              >
+                All scholarships <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {closingSoon.map((scholarship) => (
+                <ScholarshipCard key={scholarship.id} scholarship={scholarship} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── Reusable Footer Component ────────────────────── */}
       <Footer />

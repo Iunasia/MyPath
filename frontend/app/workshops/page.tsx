@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useLenis } from "@/app/context/LenisContext";
 import {
   Phone,
   Mail,
@@ -65,11 +66,41 @@ const byFinishedLast = (rows: WorkshopItem[]): WorkshopItem[] =>
   [...rows].sort((a, b) => Number(isFinished(a)) - Number(isFinished(b)));
 
 export default function WorkshopsPage() {
+  const lenis = useLenis();
   const [selectedWorkshop, setSelectedWorkshop] = useState<WorkshopItem | null>(null);
   const [selectedMentor, setSelectedMentor] = useState<MentorItem | null>(null);
   const [showAllMentorsModal, setShowAllMentorsModal] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [inquirySubmitted, setInquirySubmitted] = useState(false);
+
+  const isAnyModalOpen = Boolean(
+    selectedWorkshop || selectedMentor || showAllMentorsModal || showContactModal
+  );
+
+  useEffect(() => {
+    if (!isAnyModalOpen) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    lenis?.stop();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setSelectedWorkshop(null);
+        setSelectedMentor(null);
+        setShowAllMentorsModal(false);
+        setShowContactModal(false);
+        setInquirySubmitted(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      lenis?.start();
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isAnyModalOpen, lenis]);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -173,7 +204,7 @@ export default function WorkshopsPage() {
                     type="button"
                     onClick={() => setSelectedWorkshop(ws)}
                     aria-haspopup="dialog"
-                    className={`w-[260px] sm:w-[280px] md:w-[300px] shrink-0 snap-start group flex flex-col justify-between text-left rounded-2xl p-3.5 sm:p-4 bg-white border border-sky/20 bubble-shadow-sm hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1 transition-all duration-300 cursor-pointer ${
+                    className={`w-[260px] sm:w-[280px] md:w-[300px] shrink-0 snap-start group flex flex-col justify-between text-left rounded-2xl p-3.5 sm:p-4 bg-white border border-sky/20 bubble-shadow-sm hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer ${
                       isFinished(ws) ? "opacity-70" : ""
                     }`}
                   >
@@ -236,7 +267,7 @@ export default function WorkshopsPage() {
                       ) : (
                         <span />
                       )}
-                      <span className="inline-flex items-center justify-center px-3.5 py-1 rounded-xl border border-sky text-sky-deep group-hover:bg-sky-deep group-hover:text-white text-xs font-bold transition-colors shadow-2xs">
+                      <span className="inline-flex items-center justify-center px-3.5 py-1 rounded-xl border border-sky text-sky-deep group-hover:bg-[#7AB3B7] group-hover:text-white text-xs font-bold transition-colors shadow-2xs">
                         Details →
                       </span>
                     </div>
@@ -369,7 +400,7 @@ export default function WorkshopsPage() {
               {/* Filled Contact Us Button */}
               <button
                 onClick={() => setShowContactModal(true)}
-                className="w-full py-3 sm:py-3.5 rounded-full bg-sky-deep hover:bg-sky-dark text-white text-xs sm:text-sm font-bold transition-all text-center shadow-xs cursor-pointer"
+                className="w-full py-3 sm:py-3.5 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white text-xs sm:text-sm font-bold transition-all text-center shadow-xs cursor-pointer"
               >
                 Contact Us
               </button>
@@ -380,8 +411,16 @@ export default function WorkshopsPage() {
 
       {/* ── Modal 1: Workshop & Opportunity Detail Modal ───────── */}
       {selectedWorkshop && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 relative border border-sky/20 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overscroll-contain"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setSelectedWorkshop(null);
+          }}
+        >
+          <div
+            data-lenis-prevent
+            className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 relative border border-sky/20 shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden overscroll-contain"
+          >
             <button
               onClick={() => {
                 setSelectedWorkshop(null);
@@ -429,7 +468,7 @@ export default function WorkshopsPage() {
                 className={`mb-4 w-full inline-flex items-center justify-center gap-2 py-3 rounded-full font-bold text-xs sm:text-sm transition-colors ${
                   isFinished(selectedWorkshop)
                     ? "bg-sitomo text-sky-deep border border-sky/30 hover:bg-powder"
-                    : "bg-sky-deep text-white hover:bg-sky-dark"
+                    : "bg-[#7AB3B7] text-white hover:bg-[#68A1A5]"
                 }`}
               >
                 {isFinished(selectedWorkshop)
@@ -520,7 +559,7 @@ export default function WorkshopsPage() {
                   href={selectedWorkshop.applicationLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full sm:flex-1 py-3 px-5 rounded-full bg-sky-deep hover:bg-sky-dark text-white font-bold text-xs sm:text-sm transition-colors text-center shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full sm:flex-1 py-3 px-5 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white font-bold text-xs sm:text-sm transition-colors text-center shadow-xs flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <span>Apply / Register Here</span>
                   <ExternalLink className="w-4 h-4" />
@@ -544,8 +583,16 @@ export default function WorkshopsPage() {
 
       {/* ── Modal 2: All Mentors Directory ───────────────── */}
       {showAllMentorsModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 relative border border-sky/20 shadow-2xl max-h-[85vh] overflow-y-auto">
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overscroll-contain"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowAllMentorsModal(false);
+          }}
+        >
+          <div
+            data-lenis-prevent
+            className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 relative border border-sky/20 shadow-2xl max-h-[85vh] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden overscroll-contain"
+          >
             <button
               onClick={() => setShowAllMentorsModal(false)}
               className="absolute top-5 right-5 w-8 h-8 rounded-full bg-sitomo/50 flex items-center justify-center text-blue-ink hover:bg-sitomo cursor-pointer"
@@ -613,8 +660,16 @@ export default function WorkshopsPage() {
 
       {/* ── Modal 3: Mentor Booking ──────────────────────── */}
       {selectedMentor && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 relative border border-sky/20 shadow-2xl">
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overscroll-contain"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setSelectedMentor(null);
+          }}
+        >
+          <div
+            data-lenis-prevent
+            className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 relative border border-sky/20 shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden overscroll-contain"
+          >
             <button
               onClick={() => setSelectedMentor(null)}
               className="absolute top-5 right-5 w-8 h-8 rounded-full bg-sitomo/50 flex items-center justify-center text-blue-ink hover:bg-sitomo cursor-pointer"
@@ -668,7 +723,7 @@ export default function WorkshopsPage() {
                 href={PROMOTE_CONTACT.telegramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full bg-sky-deep hover:bg-sky-dark text-white font-bold text-xs sm:text-sm transition-all shadow-sm"
+                className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white font-bold text-xs sm:text-sm transition-all shadow-sm"
               >
                 <Send className="w-4 h-4" />
                 Connect on Telegram
@@ -680,8 +735,19 @@ export default function WorkshopsPage() {
 
       {/* ── Modal 4: Promote With Us Inquiry ─────────────── */}
       {showContactModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 relative border border-sky/20 shadow-2xl">
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overscroll-contain"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowContactModal(false);
+              setInquirySubmitted(false);
+            }
+          }}
+        >
+          <div
+            data-lenis-prevent
+            className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 relative border border-sky/20 shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden overscroll-contain"
+          >
             <button
               onClick={() => {
                 setShowContactModal(false);
@@ -733,7 +799,7 @@ export default function WorkshopsPage() {
                 />
                 <button
                   type="submit"
-                  className="w-full py-2.5 rounded-full bg-sky-deep hover:bg-sky-dark text-white font-bold text-xs sm:text-sm transition-colors cursor-pointer shadow-xs"
+                  className="w-full py-2.5 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white font-bold text-xs sm:text-sm transition-colors cursor-pointer shadow-xs"
                 >
                   Send Inquiry
                 </button>

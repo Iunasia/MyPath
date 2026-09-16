@@ -123,7 +123,7 @@ export default function InformationCheckDemo() {
             href="https://www.rupp.edu.kh"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-sky-deep px-4 py-2.5 text-xs sm:text-sm font-bold text-white hover:bg-sky-dark transition-all bubble-shadow-sm"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#7AB3B7] px-4 py-2.5 text-xs sm:text-sm font-bold text-white hover:bg-[#68A1A5] transition-all bubble-shadow-sm"
           >
             <span>Visit official university portal</span>
             <ExternalLink className="w-3.5 h-3.5" />
