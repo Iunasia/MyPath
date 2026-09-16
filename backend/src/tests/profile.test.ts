@@ -1,6 +1,6 @@
 import { after, before, beforeEach, describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { api, closeDb, registerAndLogin, resetDb } from './helpers';
+import { api, closeDb, pool, registerAndLogin, resetDb } from './helpers';
 
 describe('Profile API', () => {
   before(resetDb);
@@ -79,6 +79,118 @@ describe('Profile API', () => {
 
       const meB = await b.client.get('/auth/me');
       assert.equal(meB.body.user.name, 'User B');
+    });
+
+    it('updates bio, location, website, date of birth, and gender', async () => {
+      const { client } = await registerAndLogin();
+
+      const res = await client.patch('/auth/me').send({
+        name: 'Test Student',
+        bio: 'I love learning.',
+        location: 'Phnom Penh',
+        website: 'https://example.com',
+        date_of_birth: '2000-01-15',
+        gender: 'other',
+      });
+
+      assert.equal(res.status, 200);
+      assert.equal(res.body.user.bio, 'I love learning.');
+      assert.equal(res.body.user.location, 'Phnom Penh');
+      assert.equal(res.body.user.website, 'https://example.com');
+      assert.equal(res.body.user.gender, 'other');
+      assert.ok(String(res.body.user.date_of_birth).startsWith('2000-01-15'));
+    });
+
+    it('clears an optional field when sent as an empty string', async () => {
+      const { client } = await registerAndLogin();
+      await client.patch('/auth/me').send({ name: 'Test Student', bio: 'Hello there' });
+
+      const res = await client.patch('/auth/me').send({ name: 'Test Student', bio: '' });
+      assert.equal(res.status, 200);
+      assert.equal(res.body.user.bio, null);
+    });
+
+    it('rejects a website without a valid protocol with 400', async () => {
+      const { client } = await registerAndLogin();
+      const res = await client.patch('/auth/me').send({ name: 'Test Student', website: 'not-a-url' });
+      assert.equal(res.status, 400);
+    });
+
+    it('rejects a date of birth in the future with 400', async () => {
+      const { client } = await registerAndLogin();
+      const futureYear = new Date().getFullYear() + 1;
+      const res = await client
+        .patch('/auth/me')
+        .send({ name: 'Test Student', date_of_birth: `${futureYear}-01-01` });
+      assert.equal(res.status, 400);
+    });
+
+    it('rejects a malformed date of birth with 400', async () => {
+      const { client } = await registerAndLogin();
+      const res = await client.patch('/auth/me').send({ name: 'Test Student', date_of_birth: 'not-a-date' });
+      assert.equal(res.status, 400);
+    });
+
+    it('rejects an invalid gender value with 400', async () => {
+      const { client } = await registerAndLogin();
+      const res = await client.patch('/auth/me').send({ name: 'Test Student', gender: 'robot' });
+      assert.equal(res.status, 400);
+    });
+
+    it('rejects a bio over the length limit with 400', async () => {
+      const { client } = await registerAndLogin();
+      const res = await client.patch('/auth/me').send({ name: 'Test Student', bio: 'x'.repeat(501) });
+      assert.equal(res.status, 400);
+    });
+  });
+
+  describe('PATCH /me/password', () => {
+    it('returns 401 when not authenticated', async () => {
+      const res = await api()
+        .patch('/auth/me/password')
+        .send({ currentPassword: 'password123', newPassword: 'newpassword456' });
+      assert.equal(res.status, 401);
+    });
+
+    it('rejects a wrong current password with 400', async () => {
+      const { client } = await registerAndLogin({ password: 'password123' });
+      const res = await client
+        .patch('/auth/me/password')
+        .send({ currentPassword: 'wrongpassword', newPassword: 'newpassword456' });
+      assert.equal(res.status, 400);
+    });
+
+    it('rejects a new password that is too short with 400', async () => {
+      const { client } = await registerAndLogin({ password: 'password123' });
+      const res = await client
+        .patch('/auth/me/password')
+        .send({ currentPassword: 'password123', newPassword: 'abc' });
+      assert.equal(res.status, 400);
+    });
+
+    it('changes the password and allows logging in with the new one', async () => {
+      const { client, user } = await registerAndLogin({ password: 'password123' });
+
+      const res = await client
+        .patch('/auth/me/password')
+        .send({ currentPassword: 'password123', newPassword: 'newpassword456' });
+      assert.equal(res.status, 200);
+
+      const loginRes = await api().post('/auth/login').send({ email: user.email, password: 'newpassword456' });
+      assert.equal(loginRes.status, 200);
+
+      const oldLoginRes = await api().post('/auth/login').send({ email: user.email, password: 'password123' });
+      assert.equal(oldLoginRes.status, 401);
+    });
+
+    it("rejects changing a Google-only account's password with 400", async () => {
+      const { client, id } = await registerAndLogin({ password: 'password123' });
+      await pool.query("UPDATE users SET password = NULL, auth_provider = 'google' WHERE id = $1", [id]);
+
+      const res = await client
+        .patch('/auth/me/password')
+        .send({ currentPassword: 'password123', newPassword: 'newpassword456' });
+      assert.equal(res.status, 400);
     });
   });
 });
