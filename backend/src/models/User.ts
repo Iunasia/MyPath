@@ -92,8 +92,8 @@ const User = {
 
   createOAuthUser: async ({ name, email, googleId, avatarUrl }: CreateOAuthUserInput): Promise<SafeUser> => {
     const res = await pool.query(
-      `INSERT INTO users (name, email, google_id, avatar_url, auth_provider)
-       VALUES ($1, $2, $3, $4, 'google')
+      `INSERT INTO users (name, email, google_id, avatar_url, auth_provider, is_verified)
+       VALUES ($1, $2, $3, $4, 'google', FALSE)
        RETURNING ${SAFE_COLUMNS}`,
       [name, email, googleId, avatarUrl || null]
     );

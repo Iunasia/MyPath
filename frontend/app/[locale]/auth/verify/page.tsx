@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState, FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/src/i18n";
 import { useTranslations } from "next-intl";
-import { verifyEmail, AuthError } from "@/app/lib/auth";
+import { verifyEmail, resendVerificationCode, AuthError } from "@/app/lib/auth";
 import { Button } from "@/app/components/ui";
 import {
   CheckCircle2,
@@ -23,12 +23,29 @@ function VerifyEmailForm() {
   const [error, setError] = useState("");
   const [verified, setVerified] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
 
   useEffect(() => {
     if (!email) {
       router.push("/auth/signup");
     }
   }, [email, router]);
+
+  async function handleResend() {
+    if (!email || resending) return;
+    setResending(true);
+    setError("");
+    try {
+      await resendVerificationCode(email);
+      setResendSuccess(true);
+      setTimeout(() => setResendSuccess(false), 5000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to resend code");
+    } finally {
+      setResending(false);
+    }
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -137,15 +154,25 @@ function VerifyEmailForm() {
                 </Button>
               </form>
 
-              <p className="mt-6 text-center text-sm text-gray-body font-medium">
-                {t("resendLink")}{" "}
-                <Link
-                  href="/auth/signup"
-                  className="font-bold text-sky-deep hover:text-blue-ink transition-colors"
-                >
-                  {t("resendLinkAction")}
-                </Link>
-              </p>
+              <div className="mt-6 text-center text-sm text-gray-body font-medium">
+                {resendSuccess ? (
+                  <span className="text-emerald-600 font-semibold">
+                    Verification code resent! Please check your inbox.
+                  </span>
+                ) : (
+                  <>
+                    {t("resendLink")}{" "}
+                    <button
+                      type="button"
+                      onClick={handleResend}
+                      disabled={resending}
+                      className="font-bold text-sky-deep hover:text-blue-ink transition-colors disabled:opacity-50 cursor-pointer"
+                    >
+                      {resending ? "Sending..." : t("resendLinkAction")}
+                    </button>
+                  </>
+                )}
+              </div>
             </>
           )}
         </div>

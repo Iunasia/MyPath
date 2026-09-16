@@ -114,6 +114,15 @@ export async function verifyEmail(
   });
 }
 
+export async function resendVerificationCode(
+  email: string
+): Promise<AuthResponse> {
+  return apiFetch<AuthResponse>("/auth/resend-verification", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
 export async function getCurrentUser(): Promise<{ user: User }> {
   return apiFetch<{ user: User }>("/auth/me");
 }

@@ -104,6 +104,35 @@ router.post('/verify-email',authLimiter, async (req: Request, res: Response) => 
   }
 });
 
+// POST /resend-verification
+router.post('/resend-verification', authLimiter, async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required.' });
+    }
+
+    const user = await User.findByEmail(email);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    if (user.is_verified) {
+      return res.status(400).json({ error: 'Email is already verified.' });
+    }
+
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    await EmailVerification.create(user.id, code);
+    await sendVerificationEmail(user.email, code);
+
+    res.status(200).json({ message: 'Verification code resent successfully.' });
+  } catch (err) {
+    console.error('Resend verification error:', err);
+    res.status(500).json({ error: 'Server error while resending verification code.' });
+  }
+});
+
 // GET /login
 router.get('/login', isGuest, (_req: Request, res: Response) => {
   res.json({ message: 'Login form endpoint' });
@@ -124,8 +153,8 @@ router.post('/login', authLimiter, async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // 🚨 BLOCK UNVERIFIED USERS
-    if (!user.is_verified) {
+    // 🚨 BLOCK UNVERIFIED USERS (Only admin bypasses verification)
+    if (user.role !== 'admin' && !user.is_verified) {
       return res.status(403).json({ 
         error: 'Please verify your email address before logging in.',
         requiresVerification: true 
@@ -398,16 +427,31 @@ router.get(
     }
     passport.authenticate('google', { failureRedirect: `${FRONTEND_URL}/auth/signin` })(req, res, next);
   },
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     const user = (req.user as any);
     if (user) {
-      // 🚨 BLOCK UNVERIFIED GOOGLE USERS
-      if (!user.is_verified) {
-        // Redirect them to your frontend verification page with their email
-        return res.redirect(`${FRONTEND_URL}/auth/verify?email=${user.email}`);
+      // 🚨 BLOCK UNVERIFIED GOOGLE USERS (Admins bypass verification)
+      if (user.role !== 'admin' && !user.is_verified) {
+        try {
+          // Generate 6-digit OTP code and send via email
+          const code = Math.floor(100000 + Math.random() * 900000).toString();
+          await EmailVerification.create(user.id, code);
+          await sendVerificationEmail(user.email, code);
+        } catch (emailErr) {
+          console.error('Failed to send verification email for Google user:', emailErr);
+        }
+
+        // Clean up temporary passport session so unverified users cannot bypass auth
+        if (req.session) {
+          req.session.destroy(() => {});
+        }
+        return res.redirect(`${FRONTEND_URL}/auth/verify?email=${encodeURIComponent(user.email)}`);
       }
 
       const session = req.session as any;
+      if (session.passport) {
+        delete session.passport;
+      }
       session.userId = user.id;
       session.userName = user.name;
       session.userRole = user.role;
