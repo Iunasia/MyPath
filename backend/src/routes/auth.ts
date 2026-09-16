@@ -35,7 +35,7 @@ router.get('/register', isGuest, (_req: Request, res: Response) => {
 });
 
 // POST /register
-router.post('/register', authLimiter, isGuest, async (req: Request, res: Response) => {
+router.post('/register', authLimiter, async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
 
@@ -110,7 +110,7 @@ router.get('/login', isGuest, (_req: Request, res: Response) => {
 });
 
 // POST /login
-router.post('/login', authLimiter, isGuest, async (req: Request, res: Response) => {
+router.post('/login', authLimiter, async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
@@ -133,6 +133,9 @@ router.post('/login', authLimiter, isGuest, async (req: Request, res: Response) 
     }
 
     const session = req.session as any;
+    if (session.passport) {
+      delete session.passport;
+    }
     session.userId = user.id;
     session.userName = user.name;
     session.userRole = user.role;
