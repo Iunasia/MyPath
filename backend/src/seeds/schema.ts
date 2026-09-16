@@ -16,6 +16,9 @@ const TABLES: string[] = [
     auth_provider TEXT NOT NULL DEFAULT 'local',
     google_id TEXT UNIQUE,
     avatar_url TEXT,
+    avatar_data BYTEA,
+    avatar_mime TEXT,
+    avatar_updated_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`,
   `CREATE TABLE IF NOT EXISTS scholarships (
@@ -181,6 +184,9 @@ const TABLES: string[] = [
  * databases made before a column was added need it bolted on explicitly.
  */
 const ADD_COLUMNS: Array<[string, string]> = [
+  ['users', 'avatar_data BYTEA'],
+  ['users', 'avatar_mime TEXT'],
+  ['users', 'avatar_updated_at TIMESTAMPTZ'],
   ['scholarships', 'degree_level TEXT'],
   ['scholarships', 'field_of_study TEXT'],
   ['scholarships', "documents TEXT[] NOT NULL DEFAULT '{}'"],
