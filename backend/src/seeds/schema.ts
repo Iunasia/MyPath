@@ -16,6 +16,14 @@ const TABLES: string[] = [
     auth_provider TEXT NOT NULL DEFAULT 'local',
     google_id TEXT UNIQUE,
     avatar_url TEXT,
+    is_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  )`,
+  `CREATE TABLE IF NOT EXISTS email_verifications (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    code TEXT NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`,
   `CREATE TABLE IF NOT EXISTS scholarships (
@@ -227,7 +235,8 @@ const ADD_COLUMNS: Array<[string, string]> = [
   ['universities', 'archived_at TIMESTAMPTZ'],
   ['universities', 'archived_by INTEGER REFERENCES users(id) ON DELETE SET NULL'],
   ['universities', 'edited_at TIMESTAMPTZ'],
-  ['universities', 'edited_by INTEGER REFERENCES users(id) ON DELETE SET NULL']
+  ['universities', 'edited_by INTEGER REFERENCES users(id) ON DELETE SET NULL'],
+  ['users', 'is_verified BOOLEAN NOT NULL DEFAULT FALSE']
 ];
 
 /**
@@ -267,6 +276,7 @@ const DROP_NOT_NULL: Array<[string, string]> = [
 
 /** Order matters: children are truncated before the rows they reference. */
 export const TABLE_NAMES = [
+  'email_verifications',
   'saved_items',
   'reports',
   'verification_requests',
