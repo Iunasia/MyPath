@@ -394,7 +394,7 @@ export default function AdminCareersPage() {
                   <tr
                     key={c.id}
                     onClick={() => editor.open(c)}
-                    className={`cursor-pointer ${editor.selected?.id === c.id ? "bg-sky/10" : "hover:bg-powder/60"}`}
+                    className={`cursor-pointer transition-colors ${editor.selected?.id === c.id ? "bg-sky/10 dark:bg-sky/15" : "hover:bg-powder/60 dark:hover:bg-white/5"}`}
                   >
                     <td className={`${tdClass} max-w-0`}>
                       <div className="flex items-center gap-2">
