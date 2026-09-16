@@ -8,7 +8,21 @@ export interface User {
   auth_provider: string;
   avatar_url: string | null;
   avatar_updated_at: string | null;
+  bio: string | null;
+  location: string | null;
+  website: string | null;
+  date_of_birth: string | null;
+  gender: string | null;
   created_at: string;
+}
+
+export interface ProfileUpdateInput {
+  name: string;
+  bio: string;
+  location: string;
+  website: string;
+  date_of_birth: string;
+  gender: string;
 }
 
 interface AuthResponse {
@@ -75,10 +89,22 @@ export async function getCurrentUser(): Promise<{ user: User }> {
   return apiFetch<{ user: User }>("/auth/me");
 }
 
-export async function updateUserProfile(name: string): Promise<AuthResponse> {
+export async function updateUserProfile(
+  fields: ProfileUpdateInput
+): Promise<AuthResponse> {
   return apiFetch<AuthResponse>("/auth/me", {
     method: "PATCH",
-    body: JSON.stringify({ name }),
+    body: JSON.stringify(fields),
+  });
+}
+
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string
+): Promise<AuthResponse> {
+  return apiFetch<AuthResponse>("/auth/me/password", {
+    method: "PATCH",
+    body: JSON.stringify({ currentPassword, newPassword }),
   });
 }
 
