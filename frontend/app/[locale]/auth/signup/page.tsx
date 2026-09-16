@@ -1,26 +1,30 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import { Link } from "@/src/i18n";
+import { Link, useRouter } from "@/src/i18n";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/app/context/AuthContext";
+import { AuthError } from "@/app/lib/auth";
 import { User, Mail, Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
 
 export default function SignUpPage() {
   const t = useTranslations("auth.signup");
   const tCommon = useTranslations("common");
   const { register, loginWithGoogle } = useAuth();
+  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError("");
+    setSuccess("");
 
     if (password !== confirmPassword) {
       setError(t("passwordsDoNotMatch"));
@@ -36,8 +40,16 @@ export default function SignUpPage() {
 
     try {
       await register(name, email, password);
+      setSuccess(t("checkYourEmail"));
+      setTimeout(() => {
+        router.push(`/auth/verify?email=${encodeURIComponent(email)}`);
+      }, 1500);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("registrationFailed"));
+      if (err instanceof AuthError && err.status === 429) {
+        setError(t("tooManyAttempts"));
+      } else {
+        setError(err instanceof Error ? err.message : t("registrationFailed"));
+      }
     } finally {
       setSubmitting(false);
     }
@@ -78,6 +90,11 @@ export default function SignUpPage() {
           {error && (
             <div className="mb-6 rounded-2xl bg-red-50 border border-red-200 px-5 py-3.5 text-sm font-semibold text-red-700">
               {error}
+            </div>
+          )}
+          {success && (
+            <div className="mb-6 rounded-2xl bg-emerald-50 border border-emerald-200 px-5 py-3.5 text-sm font-semibold text-emerald-700">
+              {success}
             </div>
           )}
 

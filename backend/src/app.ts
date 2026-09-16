@@ -41,21 +41,29 @@ app.use(
 );
 app.use(generalLimiter);
 
-app.use(cors({
-  origin: (origin, callback) => {
+// Strict CORS allowlist. Without this, any site could make authenticated requests
+// to our backend using the user's session cookie (CSRF account-takeover vector).
+// Never add wildcards or permissive fallbacks here — add specific origins only.
+const allowedOrigins = [
+  'http://localhost:3000',
+  FRONTEND_URL, // production URL
+].filter(Boolean);
+
+const corsOptions = {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    // Allow requests with no origin (mobile apps, Postman, curl)
     if (!origin) return callback(null, true);
-    // Allow configured FRONTEND_URL and localhost during dev
-    if (origin === FRONTEND_URL || (!isProduction && origin.startsWith('http://localhost:'))) {
+
+    if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    // Allow vercel preview deployments if FRONTEND_URL matches vercel.app
-    if (origin.endsWith('.vercel.app')) {
-      return callback(null, true);
-    }
-    return callback(null, true);
+
+    return callback(null, false);
   },
   credentials: true,
-}));
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

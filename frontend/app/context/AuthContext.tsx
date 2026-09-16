@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/src/i18n";
 import { LogOut } from "lucide-react";
 import {
   User,
@@ -68,23 +68,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           localStorage.setItem("domner_user", JSON.stringify(data.user));
         } catch {}
       }
-      router.push("/");
     },
-    [router]
+    []
   );
 
   const register = useCallback(
     async (name: string, email: string, password: string) => {
-      const data = await registerUser(name, email, password);
-      if (data.user) {
-        setUser(data.user);
-        try {
-          localStorage.setItem("domner_user", JSON.stringify(data.user));
-        } catch {}
-      }
-      router.push("/");
+      await registerUser(name, email, password);
     },
-    [router]
+    []
   );
 
   const logout = useCallback(async () => {
