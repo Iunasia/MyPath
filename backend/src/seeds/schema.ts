@@ -19,6 +19,11 @@ const TABLES: string[] = [
     avatar_data BYTEA,
     avatar_mime TEXT,
     avatar_updated_at TIMESTAMPTZ,
+    bio TEXT,
+    location TEXT,
+    website TEXT,
+    date_of_birth DATE,
+    gender TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`,
   `CREATE TABLE IF NOT EXISTS scholarships (
@@ -187,6 +192,11 @@ const ADD_COLUMNS: Array<[string, string]> = [
   ['users', 'avatar_data BYTEA'],
   ['users', 'avatar_mime TEXT'],
   ['users', 'avatar_updated_at TIMESTAMPTZ'],
+  ['users', 'bio TEXT'],
+  ['users', 'location TEXT'],
+  ['users', 'website TEXT'],
+  ['users', 'date_of_birth DATE'],
+  ['users', 'gender TEXT'],
   ['scholarships', 'degree_level TEXT'],
   ['scholarships', 'field_of_study TEXT'],
   ['scholarships', "documents TEXT[] NOT NULL DEFAULT '{}'"],
