@@ -41,15 +41,16 @@ app.use(
     crossOriginResourcePolicy: { policy: 'cross-origin' }
   })
 );
-app.use(generalLimiter);
-
 // Strict CORS allowlist. Without this, any site could make authenticated requests
 // to our backend using the user's session cookie (CSRF account-takeover vector).
 // Never add wildcards or permissive fallbacks here — add specific origins only.
-const allowedOrigins = [
+const allowedOrigins = Array.from(new Set([
   'http://localhost:3000',
-  FRONTEND_URL, // production URL
-].filter(Boolean);
+  FRONTEND_URL,
+  FRONTEND_URL.includes('://www.')
+    ? FRONTEND_URL.replace('://www.', '://')
+    : FRONTEND_URL.replace('://', '://www.'),
+].filter(Boolean)));
 
 const corsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
@@ -66,6 +67,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use(generalLimiter);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

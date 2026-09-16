@@ -29,7 +29,7 @@ const authLimiter = rateLimit({
 });
 
 /**
- * Looser limiter for general API routes — protects against basic
+ * Looeral API rouser limiter for gentes — protects against basic
  * scraping/abuse without getting in the way of normal browsing.
  */
 const generalLimiter = rateLimit({
