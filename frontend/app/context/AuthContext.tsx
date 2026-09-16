@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import {
   User,
+  ProfileUpdateInput,
   AuthApiError,
   loginUser,
   registerUser,
@@ -12,6 +13,7 @@ import {
   getCurrentUser,
   getGoogleAuthUrl,
   updateUserProfile,
+  changePassword as changePasswordRequest,
   uploadAvatar as uploadAvatarRequest,
   removeAvatarRequest,
 } from "@/app/lib/auth";
@@ -24,9 +26,10 @@ interface AuthContextType {
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   loginWithGoogle: () => void;
-  updateProfile: (name: string) => Promise<void>;
+  updateProfile: (fields: ProfileUpdateInput) => Promise<void>;
   uploadAvatar: (file: File) => Promise<void>;
   removeAvatar: () => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -125,8 +128,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     window.location.href = getGoogleAuthUrl();
   }, []);
 
-  const updateProfile = useCallback(async (name: string) => {
-    const data = await updateUserProfile(name);
+  const updateProfile = useCallback(async (fields: ProfileUpdateInput) => {
+    const data = await updateUserProfile(fields);
     if (data.user) {
       setUser(data.user);
       try {
@@ -155,6 +158,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const changePassword = useCallback(async (currentPassword: string, newPassword: string) => {
+    await changePasswordRequest(currentPassword, newPassword);
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -168,6 +175,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         updateProfile,
         uploadAvatar,
         removeAvatar,
+        changePassword,
       }}
     >
       {children}
