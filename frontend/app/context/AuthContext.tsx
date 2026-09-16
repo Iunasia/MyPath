@@ -17,7 +17,7 @@ interface AuthContextType {
   loading: boolean;
   isLoggingOut: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, locale?: string) => Promise<void>;
   logout: () => Promise<void>;
   loginWithGoogle: () => void;
 }
@@ -73,8 +73,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const register = useCallback(
-    async (name: string, email: string, password: string) => {
-      await registerUser(name, email, password);
+    async (name: string, email: string, password: string, locale?: string) => {
+      await registerUser(name, email, password, locale);
     },
     []
   );

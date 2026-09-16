@@ -66,9 +66,8 @@ const User = {
 
   createOAuthUser: async ({ name, email, googleId, avatarUrl }: CreateOAuthUserInput): Promise<SafeUser> => {
     const res = await pool.query(
-      // ✅ ADDED is_verified to RETURNING
-      `INSERT INTO users (name, email, google_id, avatar_url, auth_provider)
-       VALUES ($1, $2, $3, $4, 'google')
+      `INSERT INTO users (name, email, google_id, avatar_url, auth_provider, is_verified)
+       VALUES ($1, $2, $3, $4, 'google', TRUE)
        RETURNING id, name, email, role, auth_provider, google_id, avatar_url, is_verified`,
       [name, email, googleId, avatarUrl || null]
     );
@@ -77,7 +76,11 @@ const User = {
 
   linkGoogleId: async (userId: number, googleId: string): Promise<void> => {
     await pool.query(
-      'UPDATE users SET google_id = $1, auth_provider = CASE WHEN auth_provider = \'local\' THEN \'local\' ELSE auth_provider END WHERE id = $2',
+      `UPDATE users
+         SET google_id = $1,
+             is_verified = TRUE,
+             auth_provider = CASE WHEN auth_provider = 'local' THEN 'both' ELSE auth_provider END
+       WHERE id = $2`,
       [googleId, userId]
     );
   },

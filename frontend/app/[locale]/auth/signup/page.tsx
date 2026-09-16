@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { Link, useRouter } from "@/src/i18n";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useAuth } from "@/app/context/AuthContext";
 import { AuthError } from "@/app/lib/auth";
 import { User, Mail, Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
@@ -10,6 +10,7 @@ import { User, Mail, Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
 export default function SignUpPage() {
   const t = useTranslations("auth.signup");
   const tCommon = useTranslations("common");
+  const locale = useLocale();
   const { register, loginWithGoogle } = useAuth();
   const router = useRouter();
   const [name, setName] = useState("");
@@ -39,7 +40,7 @@ export default function SignUpPage() {
     setSubmitting(true);
 
     try {
-      await register(name, email, password);
+      await register(name, email, password, locale);
       setSuccess(t("checkYourEmail"));
       setTimeout(() => {
         router.push(`/auth/verify?email=${encodeURIComponent(email)}`);

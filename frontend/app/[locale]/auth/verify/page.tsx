@@ -1,10 +1,10 @@
 "use client";
 
-import { Suspense, useEffect, useState, FormEvent } from "react";
+import { Suspense, useEffect, useState, useRef, FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/src/i18n";
 import { useTranslations } from "next-intl";
-import { verifyEmail, AuthError } from "@/app/lib/auth";
+import { verifyEmail, checkVerificationStatus, AuthError } from "@/app/lib/auth";
 import { Button } from "@/app/components/ui";
 import {
   CheckCircle2,
@@ -18,31 +18,58 @@ function VerifyEmailForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email") ?? "";
+  const codeParam = searchParams.get("code") ?? "";
 
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState(codeParam);
   const [error, setError] = useState("");
   const [verified, setVerified] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  
+  // Ref to prevent double-submission in StrictMode
+  const hasAutoSubmitted = useRef(false);
 
   useEffect(() => {
     if (!email) {
       router.push("/auth/signup");
+    } else if (codeParam && !hasAutoSubmitted.current) {
+      // User arrived via magic link! Auto-submit the verification
+      hasAutoSubmitted.current = true;
+      submitVerification(codeParam);
     }
-  }, [email, router]);
+  }, [email, codeParam, router]);
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
+  // Premium Polling: Automatically login if verified on another device (e.g. phone)
+  useEffect(() => {
+    if (!email || verified) return;
+
+    const intervalId = setInterval(async () => {
+      try {
+        const res = await checkVerificationStatus();
+        if (res.verified) {
+          clearInterval(intervalId);
+          setVerified(true);
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 1500);
+        }
+      } catch (err) {
+        // Ignore network errors during polling to prevent UI flicker
+      }
+    }, 3000);
+
+    return () => clearInterval(intervalId);
+  }, [email, verified]);
+
+  async function submitVerification(codeToVerify: string) {
     setError("");
-
-    if (!email) return;
-
     setSubmitting(true);
 
     try {
-      await verifyEmail(email, code.trim());
+      await verifyEmail(email, codeToVerify.trim());
       setVerified(true);
       setTimeout(() => {
-        router.push("/auth/signin");
+        // Force a hard reload so AuthContext picks up the new session cookie!
+        window.location.href = "/";
       }, 1500);
     } catch (err) {
       if (err instanceof AuthError && err.status === 0) {
@@ -53,6 +80,12 @@ function VerifyEmailForm() {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!email) return;
+    await submitVerification(code);
   }
 
   return (

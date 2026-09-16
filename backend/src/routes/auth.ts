@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
+import crypto from 'crypto';
 import passport from 'passport';
+import pool from '../config/db';
 import User from '../models/User';
 import EmailVerification from '../models/EmailVerification';
 import { sendVerificationEmail } from '../utils/email';
@@ -16,40 +18,109 @@ router.get('/register', isGuest, (_req: Request, res: Response) => {
 });
 
 // POST /register
-router.post('/register', authLimiter, isGuest, async (req: Request, res: Response) => {
+router.post('/register', authLimiter, async (req: Request, res: Response) => {
+  const { name, email, password, locale = 'en' } = req.body;
+
+  if (!name || !email || !password) {
+    return res.status(400).json({ error: 'Name, email, and password are required' });
+  }
+
+  // ── Step 1: Check for existing email BEFORE creating anything ──────────
   try {
-    const { name, email, password } = req.body;
-
-    if (!name || !email || !password) {
-      return res.status(400).json({ error: 'Name, email and password are all required.' });
+    const existing = await User.findByEmail(email);
+    if (existing) {
+      if (!existing.is_verified) {
+        // Stale unverified account from a previous failed attempt → clean up
+        await pool.query('DELETE FROM email_verifications WHERE user_id = $1', [existing.id]);
+        await pool.query('DELETE FROM users WHERE id = $1', [existing.id]);
+      } else {
+        return res.status(409).json({ error: 'This email is already registered. Please log in.' });
+      }
     }
-
-    // 1. Create the user (is_verified defaults to false in Postgres)
-    const user = await User.create({ name, email, password, role: 'student' });
-
-    // 2. Generate a 6-digit verification code
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    
-    // 3. Save it to the email_verifications table
-    await EmailVerification.create(user.id, code);
-    
-    // 4. Send the email via your team's Gmail
-    await sendVerificationEmail(user.email, code);
-
-    // 🚨 DO NOT SET SESSION HERE. They must verify first.
-    
-    res.status(201).json({ 
-      message: 'User registered successfully. Please check your email for the verification code.',
-      requiresVerification: true 
-    });
   } catch (err) {
-    console.error(err);
-    res.status(400).json({ error: 'Email already registered or error occurred.' });
+    console.error('Register – lookup error:', err);
+    return res.status(500).json({ error: 'Server error. Please try again.' });
+  }
+
+  // ── Step 2: Create the user (is_verified defaults to false) ────────────
+  let user: any;
+  try {
+    user = await User.create({ name, email, password, role: 'student' });
+  } catch (err) {
+    console.error('Register – create user error:', err);
+    return res.status(500).json({ error: 'Could not create account. Please try again.' });
+  }
+
+  // ── Step 3: Generate + save a 6-digit verification code & Magic Link UUID ─
+  const code = crypto.randomInt(100000, 999999).toString();
+  const uuidToken = crypto.randomUUID();
+  
+  try {
+    await EmailVerification.create(user.id, code, uuidToken);
+  } catch (err) {
+    console.error('Register – save code error:', err);
+    await pool.query('DELETE FROM users WHERE id = $1', [user.id]).catch(console.error);
+    return res.status(500).json({ error: 'Could not save verification code. Please try again.' });
+  }
+
+  // ── Step 4: Send verification email ────────────────────────────────────
+  try {
+    await sendVerificationEmail(user.email, code, uuidToken, locale);
+  } catch (err) {
+    console.error('Register – send email error:', err);
+    // Roll back so the user can retry with the same email
+    await pool.query('DELETE FROM email_verifications WHERE user_id = $1', [user.id]).catch(console.error);
+    await pool.query('DELETE FROM users WHERE id = $1', [user.id]).catch(console.error);
+    return res.status(500).json({ error: 'Verification email failed to send. Please try again.' });
+  }
+
+  // Set pendingUserId so this specific browser can poll for verification status
+  const session = req.session as any;
+  session.pendingUserId = user.id;
+
+  req.session.save((err) => {
+    if (err) console.error('Session save error on register:', err);
+    return res.status(201).json({
+      message: 'Registered successfully. Please check your email for the verification code.',
+      requiresVerification: true,
+    });
+  });
+});
+
+// GET /check-verification
+// Called by the frontend polling mechanism to magically auto-login when verified on another device.
+router.get('/check-verification', async (req: Request, res: Response) => {
+  const session = req.session as any;
+  if (!session.pendingUserId) {
+    return res.status(200).json({ verified: false });
+  }
+
+  try {
+    const user = await User.findById(session.pendingUserId);
+    if (user && user.is_verified) {
+      // User was verified on another device! Upgrade to a full session.
+      session.userId = user.id;
+      session.userName = user.name;
+      session.userRole = user.role;
+      delete session.pendingUserId;
+
+      return req.session.save((err) => {
+        if (err) {
+          console.error('Session upgrade error:', err);
+          return res.status(500).json({ error: 'Session upgrade failed' });
+        }
+        return res.status(200).json({ verified: true });
+      });
+    }
+    return res.status(200).json({ verified: false });
+  } catch (err) {
+    console.error('Check verification error:', err);
+    return res.status(500).json({ error: 'Server error' });
   }
 });
 
 // POST /verify-email
-router.post('/verify-email',authLimiter, async (req: Request, res: Response) => {
+router.post('/verify-email', authLimiter, async (req: Request, res: Response) => {
   try {
     const { email, code } = req.body;
 
@@ -74,11 +145,23 @@ router.post('/verify-email',authLimiter, async (req: Request, res: Response) => 
 
     // Mark user as verified in the database
     await User.markAsVerified(user.id);
-    
+
     // Clean up the used code
     await EmailVerification.deleteByUserId(user.id);
 
-    res.status(200).json({ message: 'Email verified successfully! You can now log in.' });
+    // ── Auto-login the user ──────────────────────────────────────────────
+    const session = req.session as any;
+    session.userId = user.id;
+    session.userName = user.name;
+    session.userRole = user.role;
+
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error on verify:', err);
+        return res.status(500).json({ error: 'Server error during session save.' });
+      }
+      res.status(200).json({ message: 'Email verified successfully! You are now logged in.' });
+    });
   } catch (err) {
     console.error('Verification error:', err);
     res.status(500).json({ error: 'Server error during verification.' });
@@ -107,9 +190,13 @@ router.post('/login', authLimiter, isGuest, async (req: Request, res: Response) 
 
     // 🚨 BLOCK UNVERIFIED USERS
     if (!user.is_verified) {
-      return res.status(403).json({ 
-        error: 'Please verify your email address before logging in.',
-        requiresVerification: true 
+      const session = req.session as any;
+      session.pendingUserId = user.id;
+      return req.session.save(() => {
+        res.status(403).json({
+          error: 'Please verify your email address before logging in.',
+          requiresVerification: true
+        });
       });
     }
 
@@ -167,12 +254,7 @@ router.get(
   (req: Request, res: Response) => {
     const user = (req.user as any);
     if (user) {
-      // 🚨 BLOCK UNVERIFIED GOOGLE USERS
-      if (!user.is_verified) {
-        // Redirect them to your frontend verification page with their email
-        return res.redirect(`${FRONTEND_URL}/auth/verify?email=${user.email}`);
-      }
-
+      // Google users are auto-verified — set session immediately
       const session = req.session as any;
       session.userId = user.id;
       session.userName = user.name;
