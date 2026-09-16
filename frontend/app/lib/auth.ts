@@ -12,25 +12,43 @@ interface AuthResponse {
   message?: string;
   user?: User;
   error?: string;
+  requiresVerification?: boolean;
+}
+
+/** Auth failure carrying the HTTP status and response body, so callers can branch. */
+export class AuthError extends Error {
+  constructor(
+    public status: number,
+    message: string,
+    public data: AuthResponse = {}
+  ) {
+    super(message);
+    this.name = "AuthError";
+  }
 }
 
 async function apiFetch<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-    ...options,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+      ...options,
+    });
+  } catch {
+    throw new AuthError(0, "Unable to reach the server. Please try again.");
+  }
 
-  const data = await res.json();
+  const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
-    throw new Error(data.error || "Something went wrong");
+    throw new AuthError(res.status, data.error || "Something went wrong", data);
   }
 
   return data as T;
@@ -59,6 +77,16 @@ export async function registerUser(
 
 export async function logoutUser(): Promise<AuthResponse> {
   return apiFetch<AuthResponse>("/auth/logout");
+}
+
+export async function verifyEmail(
+  email: string,
+  code: string
+): Promise<AuthResponse> {
+  return apiFetch<AuthResponse>("/auth/verify-email", {
+    method: "POST",
+    body: JSON.stringify({ email, code }),
+  });
 }
 
 export async function getCurrentUser(): Promise<{ user: User }> {

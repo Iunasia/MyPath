@@ -17,6 +17,7 @@
   "type": "commonjs",
   "dependencies": {
     "@types/cors": "^2.8.19",
+    "@types/nodemailer": "^8.0.1",
     "bcryptjs": "^3.0.3",
     "connect-pg-simple": "^10.0.0",
     "connect-redis": "^10.0.0",
@@ -29,6 +30,7 @@
     "express-session": "^1.19.0",
     "helmet": "^8.3.0",
     "ioredis": "^6.0.0",
+    "nodemailer": "^10.0.10",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "pg": "^8.23.0"

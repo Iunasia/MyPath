@@ -10,6 +10,7 @@ interface User {
   auth_provider: string;
   google_id: string | null;
   avatar_url: string | null;
+  is_verified: boolean; // ✅ ADDED THIS
   created_at: Date;
 }
 
@@ -37,7 +38,8 @@ const User = {
 
   findById: async (id: number): Promise<SafeUser | undefined> => {
     const res = await pool.query(
-      'SELECT id, name, email, role, auth_provider, google_id, avatar_url, created_at FROM users WHERE id = $1',
+      // ✅ ADDED is_verified
+      'SELECT id, name, email, role, auth_provider, google_id, avatar_url, is_verified, created_at FROM users WHERE id = $1',
       [id]
     );
     return res.rows[0] as SafeUser | undefined;
@@ -55,7 +57,8 @@ const User = {
       hashedPassword = await bcrypt.hash(password, salt);
     }
     const res = await pool.query(
-      'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role, auth_provider, google_id, avatar_url',
+      // ✅ ADDED is_verified to RETURNING
+      'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role, auth_provider, google_id, avatar_url, is_verified',
       [name, email, hashedPassword, role]
     );
     return res.rows[0] as SafeUser;
@@ -63,9 +66,10 @@ const User = {
 
   createOAuthUser: async ({ name, email, googleId, avatarUrl }: CreateOAuthUserInput): Promise<SafeUser> => {
     const res = await pool.query(
+      // ✅ ADDED is_verified to RETURNING
       `INSERT INTO users (name, email, google_id, avatar_url, auth_provider)
        VALUES ($1, $2, $3, $4, 'google')
-       RETURNING id, name, email, role, auth_provider, google_id, avatar_url`,
+       RETURNING id, name, email, role, auth_provider, google_id, avatar_url, is_verified`,
       [name, email, googleId, avatarUrl || null]
     );
     return res.rows[0] as SafeUser;
@@ -76,6 +80,11 @@ const User = {
       'UPDATE users SET google_id = $1, auth_provider = CASE WHEN auth_provider = \'local\' THEN \'local\' ELSE auth_provider END WHERE id = $2',
       [googleId, userId]
     );
+  },
+
+  // ✅ ADDED THIS METHOD
+  markAsVerified: async (userId: number): Promise<void> => {
+    await pool.query('UPDATE users SET is_verified = TRUE WHERE id = $1', [userId]);
   },
 
   comparePassword: async (inputPassword: string, storedPassword: string): Promise<boolean> => {

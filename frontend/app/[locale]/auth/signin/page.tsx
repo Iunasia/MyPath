@@ -1,15 +1,17 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import { Link } from "@/src/i18n";
+import { Link, useRouter } from "@/src/i18n";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/app/context/AuthContext";
+import { AuthError } from "@/app/lib/auth";
 import { Mail, Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
 
 export default function SignInPage() {
   const t = useTranslations("auth.signin");
   const tCommon = useTranslations("common");
   const { login, loginWithGoogle } = useAuth();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -23,8 +25,19 @@ export default function SignInPage() {
 
     try {
       await login(email, password);
+      router.push("/");
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("loginFailed"));
+      if (err instanceof AuthError && err.status === 403 && err.data.requiresVerification) {
+        router.push(`/auth/verify?email=${encodeURIComponent(email)}`);
+        return;
+      }
+      if (err instanceof AuthError && err.status === 401) {
+        setError(t("invalidCredentials"));
+      } else if (err instanceof AuthError && err.status === 429) {
+        setError(t("tooManyAttempts"));
+      } else {
+        setError(err instanceof Error ? err.message : t("loginFailed"));
+      }
     } finally {
       setSubmitting(false);
     }
