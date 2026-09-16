@@ -465,9 +465,33 @@
     "nameLabel": "ឈ្មោះពេញ",
     "namePlaceholder": "ឈ្មោះរបស់អ្នក",
     "nameRequired": "សូមបញ្ចូលឈ្មោះរបស់អ្នក។",
+    "bioLabel": "ជីវប្រវត្តិសង្ខេប",
+    "bioPlaceholder": "ប្រាប់យើងបន្តិចអំពីខ្លួនអ្នក",
+    "locationLabel": "ទីតាំង",
+    "locationPlaceholder": "ទីក្រុង, ប្រទេស",
+    "websiteLabel": "គេហទំព័រ",
+    "websitePlaceholder": "https://example.com",
+    "websiteInvalid": "សូមបញ្ចូល URL គេហទំព័រពេញលេញដែលចាប់ផ្តើមដោយ https://",
+    "dateOfBirthLabel": "ថ្ងៃខែឆ្នាំកំណើត",
+    "genderLabel": "ភេទ",
+    "genderPlaceholder": "ជ្រើសរើស...",
+    "gender": {
+      "male": "ប្រុស",
+      "female": "ស្រី",
+      "other": "ផ្សេងទៀត",
+      "prefer_not_to_say": "មិនចង់បញ្ជាក់"
+    },
     "saveChanges": "រក្សាទុកការផ្លាស់ប្តូរ",
     "saving": "កំពុងរក្សាទុក...",
-    "saveSuccess": "បានធ្វើបច្ចុប្បន្នភាពប្រវត្តិរូបដោយជោគជ័យ។"
+    "saveSuccess": "បានធ្វើបច្ចុប្បន្នភាពប្រវត្តិរូបដោយជោគជ័យ។",
+    "changePasswordSection": "ប្តូរពាក្យសម្ងាត់",
+    "currentPasswordLabel": "ពាក្យសម្ងាត់បច្ចុប្បន្ន",
+    "newPasswordLabel": "ពាក្យសម្ងាត់ថ្មី",
+    "confirmNewPasswordLabel": "បញ្ជាក់ពាក្យសម្ងាត់ថ្មី",
+    "passwordTooShort": "ពាក្យសម្ងាត់ថ្មីត្រូវតែមានយ៉ាងតិច 6 តួអក្សរ។",
+    "passwordMismatch": "ពាក្យសម្ងាត់ថ្មី និងការបញ្ជាក់មិនត្រូវគ្នាទេ។",
+    "updatePassword": "ធ្វើបច្ចុប្បន្នភាពពាក្យសម្ងាត់",
+    "passwordUpdateSuccess": "បានធ្វើបច្ចុប្បន្នភាពពាក្យសម្ងាត់ដោយជោគជ័យ។"
   },
   "auth": {
     "signin": {
