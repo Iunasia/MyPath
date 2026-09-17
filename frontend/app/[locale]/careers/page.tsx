@@ -93,7 +93,7 @@ function CareersInner() {
               <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight leading-[1.15]">
                 {t("heroTitle1")}
                 <br />
-                {t("heroTitle2")}
+                <span className="text-[#5B9DA2]">{t("heroTitle2")}</span>
               </h1>
               <p className="text-xs sm:text-sm lg:text-base text-gray-soft mt-3 leading-relaxed font-medium">
                 {t("heroSubtitle")}

@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useRef, useMemo, useEffect } from "react";
+import { Suspense, useState, useRef, useMemo, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import { usePathname, useRouter } from "@/src/i18n";
 import { useLenis } from "@/app/context/LenisContext";
 import {
   Phone,
@@ -21,6 +23,7 @@ import {
   Trophy,
 } from "lucide-react";
 import Footer from "@/app/components/Footer";
+import { Button, EmptyState, SearchInput } from "@/app/components/ui";
 import {
   PROMOTE_CONTACT,
   WorkshopItem,
@@ -56,10 +59,30 @@ const isFinished = (ws: WorkshopItem): boolean => {
 const byFinishedLast = (rows: WorkshopItem[]): WorkshopItem[] =>
   [...rows].sort((a, b) => Number(isFinished(a)) - Number(isFinished(b)));
 
-export default function WorkshopsPage() {
+function WorkshopsInner() {
   const t = useTranslations("workshops");
+  const tCommon = useTranslations("common");
   const locale = useLocale();
   const lenis = useLenis();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const searchQuery = searchParams.get("q") ?? "";
+
+  const updateUrl = (patch: { q?: string | null }) => {
+    const params = new URLSearchParams(searchParams.toString());
+    for (const [key, value] of Object.entries(patch)) {
+      if (value) {
+        params.set(key, value);
+      } else {
+        params.delete(key);
+      }
+    }
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  };
+
   const workshopsData = locale === "km" ? kmWorkshops : enWorkshops;
 
   const workshops = useMemo(
@@ -69,6 +92,22 @@ export default function WorkshopsPage() {
       ),
     [workshopsData]
   );
+
+  const filteredWorkshops = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return workshops;
+    return workshops.filter((ws) => {
+      return (
+        ws.title.toLowerCase().includes(q) ||
+        ws.category.toLowerCase().includes(q) ||
+        ws.organization.toLowerCase().includes(q) ||
+        ws.description.toLowerCase().includes(q) ||
+        ws.location.toLowerCase().includes(q) ||
+        ws.role.toLowerCase().includes(q) ||
+        (ws.highlights && ws.highlights.some((h) => h.toLowerCase().includes(q)))
+      );
+    });
+  }, [searchQuery, workshops]);
 
   const mentors = useMemo(
     () =>
@@ -140,13 +179,28 @@ export default function WorkshopsPage() {
       <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
 
         <main className="w-full pb-16 flex flex-col gap-10 sm:gap-12 flex-1">
-          <section className="text-left pt-2 sm:pt-4">
-            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#5B9DA2] tracking-tight leading-[1.15] mb-2.5">
-              {t("heroTitle")}
-            </h1>
-            <p className="text-xs sm:text-sm lg:text-base text-gray-soft font-medium leading-relaxed max-w-xl">
-              {t("heroSubtitle")}
-            </p>
+          <section className="pt-2 sm:pt-4">
+            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+              <div className="max-w-xl">
+                <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#5B9DA2] tracking-tight leading-[1.15]">
+                  {t("heroTitle")}
+                </h1>
+                <p className="text-xs sm:text-sm lg:text-base text-gray-soft mt-3 leading-relaxed font-medium">
+                  {t("heroSubtitle")}
+                </p>
+              </div>
+
+              <div className="w-full lg:max-w-md">
+                <SearchInput
+                  name="q"
+                  size="sm"
+                  value={searchQuery}
+                  onChange={(value) => updateUrl({ q: value || null })}
+                  placeholder={t("searchPlaceholder")}
+                  ariaLabel={t("searchPlaceholder")}
+                />
+              </div>
+            </div>
           </section>
 
           <section>
@@ -155,124 +209,141 @@ export default function WorkshopsPage() {
                 <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink tracking-tight">
                   {t("workshopsAndOpportunities")}
                 </h2>
-                <p className="text-xs text-gray-soft font-medium mt-0.5 flex items-center gap-1.5">
-                  <span>{t("swipeToExplore")}</span>
-                  <span className="text-sky-deep font-bold" aria-hidden="true">→</span>
-                </p>
+                {filteredWorkshops.length > 0 && (
+                  <p className="text-xs text-gray-soft font-medium mt-0.5 flex items-center gap-1.5">
+                    <span>{t("swipeToExplore")}</span>
+                    <span className="text-sky-deep font-bold" aria-hidden="true">→</span>
+                  </p>
+                )}
               </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => scroll("left")}
-                  className="w-9 h-9 rounded-full bg-white border border-sky/25 hover:border-sky text-sky-deep flex items-center justify-center transition-all shadow-xs hover:bg-sitomo/40 cursor-pointer"
-                  aria-label={t("scrollLeft")}
-                  title={t("scrollLeft")}
-                >
-                  <ChevronLeft className="w-4.5 h-4.5" />
-                </button>
+              {filteredWorkshops.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => scroll("left")}
+                    className="w-9 h-9 rounded-full bg-white border border-sky/25 hover:border-sky text-sky-deep flex items-center justify-center transition-all shadow-xs hover:bg-sitomo/40 cursor-pointer"
+                    aria-label={t("scrollLeft")}
+                    title={t("scrollLeft")}
+                  >
+                    <ChevronLeft className="w-4.5 h-4.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => scroll("right")}
+                    className="w-9 h-9 rounded-full bg-white border border-sky/25 hover:border-sky text-sky-deep flex items-center justify-center transition-all shadow-xs hover:bg-sitomo/40 cursor-pointer"
+                    aria-label={t("scrollRight")}
+                    title={t("scrollRight")}
+                  >
+                    <ChevronRight className="w-4.5 h-4.5" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {filteredWorkshops.length === 0 ? (
+              <EmptyState
+                icon={Trophy}
+                title={t("noWorkshopsMatch")}
+                description={t("noWorkshopsHint")}
+                action={
+                  <Button variant="primary" size="md" onClick={() => updateUrl({ q: null })}>
+                    {tCommon("clearAllFilters")}
+                  </Button>
+                }
+              />
+            ) : (
+              <div className="relative group/carousel">
                 <button
                   type="button"
                   onClick={() => scroll("right")}
-                  className="w-9 h-9 rounded-full bg-white border border-sky/25 hover:border-sky text-sky-deep flex items-center justify-center transition-all shadow-xs hover:bg-sitomo/40 cursor-pointer"
+                  className="hidden lg:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white border-2 border-sky/30 text-sky-deep hover:bg-[#7AB3B7] hover:text-white shadow-xl items-center justify-center transition-all cursor-pointer hover:scale-105"
                   aria-label={t("scrollRight")}
                   title={t("scrollRight")}
                 >
-                  <ChevronRight className="w-4.5 h-4.5" />
+                  <ChevronRight className="w-5 h-5" strokeWidth={2.5} />
                 </button>
-              </div>
-            </div>
 
-            <div className="relative group/carousel">
-              <button
-                type="button"
-                onClick={() => scroll("right")}
-                className="hidden lg:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white border-2 border-sky/30 text-sky-deep hover:bg-[#7AB3B7] hover:text-white shadow-xl items-center justify-center transition-all cursor-pointer hover:scale-105"
-                aria-label={t("scrollRight")}
-                title={t("scrollRight")}
-              >
-                <ChevronRight className="w-5 h-5" strokeWidth={2.5} />
-              </button>
+                <div
+                  ref={scrollContainerRef}
+                  className="flex gap-4 sm:gap-5 overflow-x-auto pb-5 pt-1.5 scroll-smooth snap-x snap-mandatory pr-4 sm:pr-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                >
+                  {byFinishedLast(filteredWorkshops).map((ws) => (
+                    <button
+                      key={ws.id}
+                      type="button"
+                      onClick={() => setSelectedWorkshop(ws)}
+                      aria-haspopup="dialog"
+                      className={`w-[260px] sm:w-[280px] md:w-[300px] shrink-0 snap-start group flex flex-col justify-between text-left rounded-2xl p-3.5 sm:p-4 bg-white border border-sky/20 bubble-shadow-sm hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer ${
+                        isFinished(ws) ? "opacity-70" : ""
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center gap-2 mb-2.5">
+                          <span
+                            className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border ${getCategoryStyle(
+                              ws.category
+                            )}`}
+                          >
+                            {ws.category}
+                          </span>
+                        </div>
 
-              <div
-                ref={scrollContainerRef}
-                className="flex gap-4 sm:gap-5 overflow-x-auto pb-5 pt-1.5 scroll-smooth snap-x snap-mandatory pr-4 sm:pr-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-              >
-                {byFinishedLast(workshops).map((ws) => (
-                  <button
-                    key={ws.id}
-                    type="button"
-                    onClick={() => setSelectedWorkshop(ws)}
-                    aria-haspopup="dialog"
-                    className={`w-[260px] sm:w-[280px] md:w-[300px] shrink-0 snap-start group flex flex-col justify-between text-left rounded-2xl p-3.5 sm:p-4 bg-white border border-sky/20 bubble-shadow-sm hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer ${
-                      isFinished(ws) ? "opacity-70" : ""
-                    }`}
-                  >
-                    <div>
-                      <div className="flex items-center gap-2 mb-2.5">
-                        <span
-                          className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border ${getCategoryStyle(
-                            ws.category
-                          )}`}
-                        >
-                          {ws.category}
+                        <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-slate-900 border border-sky/15 shadow-inner mb-3">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={ws.posterImage}
+                            alt={ws.title}
+                            width={600}
+                            height={375}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                          <div className="absolute top-2 right-2">
+                            <span className="bg-sky text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-white/20 shadow-xs">
+                              {ws.price ?? t("free")}
+                            </span>
+                          </div>
+                          <div className="absolute bottom-2 left-2 right-2">
+                            <span className="text-[10px] text-white/95 font-medium truncate block drop-shadow-xs">
+                              <MapPin className="w-2 h-2 text-sky-deep shrink-0 inline mr-1" aria-hidden="true" />
+                              {ws.location}
+                            </span>
+                          </div>
+                        </div>
+
+                        <h3 className="font-display text-sm sm:text-base font-bold text-blue-ink group-hover:text-sky-deep transition-colors leading-snug line-clamp-2 min-h-[42px]">
+                          {ws.title}
+                        </h3>
+
+                        <div className="mt-2 space-y-1">
+                          <div className="flex items-center gap-1.5 text-gray-soft text-[10px] sm:text-[11px]">
+                            <Calendar className="w-3 h-3 text-sky-deep shrink-0" />
+                            <span className="truncate">
+                              {t("deadlinePrefix")} <strong className="text-blue-ink">{ws.deadline}</strong>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 pt-2.5 border-t border-sky/10 flex items-center justify-between gap-2">
+                        {isFinished(ws) ? (
+                          <span className="rounded-full bg-blue-ink/85 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white">
+                            {t("finished")}
+                          </span>
+                        ) : (
+                          <span />
+                        )}
+                        <span className="inline-flex items-center justify-center px-3.5 py-1 rounded-xl border border-sky text-sky-deep group-hover:bg-[#7AB3B7] group-hover:text-white text-xs font-bold transition-colors shadow-2xs">
+                          {t("details")}
                         </span>
                       </div>
-
-                      <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-slate-900 border border-sky/15 shadow-inner mb-3">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={ws.posterImage}
-                          alt={ws.title}
-                          width={600}
-                          height={375}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                        <div className="absolute top-2 right-2">
-                          <span className="bg-sky text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-white/20 shadow-xs">
-                            {ws.price ?? t("free")}
-                          </span>
-                        </div>
-                        <div className="absolute bottom-2 left-2 right-2">
-                          <span className="text-[10px] text-white/95 font-medium truncate block drop-shadow-xs">
-                            <MapPin className="w-2 h-2 text-sky-deep shrink-0 inline mr-1" aria-hidden="true" />
-                            {ws.location}
-                          </span>
-                        </div>
-                      </div>
-
-                      <h3 className="font-display text-sm sm:text-base font-bold text-blue-ink group-hover:text-sky-deep transition-colors leading-snug line-clamp-2 min-h-[42px]">
-                        {ws.title}
-                      </h3>
-
-                      <div className="mt-2 space-y-1">
-                        <div className="flex items-center gap-1.5 text-gray-soft text-[10px] sm:text-[11px]">
-                          <Calendar className="w-3 h-3 text-sky-deep shrink-0" />
-                          <span className="truncate">
-                            {t("deadlinePrefix")} <strong className="text-blue-ink">{ws.deadline}</strong>
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-3 pt-2.5 border-t border-sky/10 flex items-center justify-between gap-2">
-                      {isFinished(ws) ? (
-                        <span className="rounded-full bg-blue-ink/85 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white">
-                          {t("finished")}
-                        </span>
-                      ) : (
-                        <span />
-                      )}
-                      <span className="inline-flex items-center justify-center px-3.5 py-1 rounded-xl border border-sky text-sky-deep group-hover:bg-[#7AB3B7] group-hover:text-white text-xs font-bold transition-colors shadow-2xs">
-                        {t("details")}
-                      </span>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </section>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
@@ -799,5 +870,13 @@ export default function WorkshopsPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function WorkshopsPage() {
+  return (
+    <Suspense fallback={null}>
+      <WorkshopsInner />
+    </Suspense>
   );
 }
