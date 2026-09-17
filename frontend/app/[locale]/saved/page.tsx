@@ -23,7 +23,7 @@ type FilterTab = "all" | "scholarship" | "major" | "career" | "university";
 export default function SavedPage() {
   const t = useTranslations("saved");
   const tCommon = useTranslations("common");
-  const { savedItems, unsaveItem, clearAll, isHydrated } = useSaved();
+  const { savedItems, unsaveItem, clearAll, isHydrated, isServerSynced } = useSaved();
   const [selectedTab, setSelectedTab] = useState<FilterTab>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showClearConfirm, setShowClearConfirm] = useState(false);
@@ -102,7 +102,7 @@ export default function SavedPage() {
                 </p>
               </div>
 
-              {savedItems.length > 0 && (
+              {isHydrated && savedItems.length > 0 && (
                 <div className="flex items-center gap-3">
                   {showClearConfirm ? (
                     <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-red-200 bubble-shadow-sm animate-in fade-in">
@@ -157,7 +157,7 @@ export default function SavedPage() {
                     onClick={() => setSelectedTab(tab.id)}
                     className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                       isActive
-                        ? "bg-sky-deep text-white bubble-shadow-sm"
+                        ? "bg-[#7AB3B7] text-white bubble-shadow-sm"
                         : "bg-white text-blue-ink border border-sky/20 hover:border-sky bubble-shadow-sm"
                     }`}
                   >
@@ -167,14 +167,14 @@ export default function SavedPage() {
                         isActive ? "bg-white/25 text-white" : "bg-sitomo text-sky-deep"
                       }`}
                     >
-                      {count}
+                      {isHydrated ? count : 0}
                     </span>
                   </button>
                 );
               })}
             </div>
 
-            {savedItems.length > 0 && (
+            {isHydrated && savedItems.length > 0 && (
               <div className="relative w-full sm:w-72">
                 <Search className="w-4 h-4 text-gray-soft absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
@@ -196,7 +196,7 @@ export default function SavedPage() {
             )}
           </section>
 
-          {!isHydrated ? (
+          {(!isHydrated || (!isServerSynced && savedItems.length === 0)) ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {[1, 2, 3].map((n) => (
                 <div
@@ -220,7 +220,7 @@ export default function SavedPage() {
               <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
                 <Link
                   href="/scholarships"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-sky-deep text-white text-xs sm:text-sm font-bold hover:bg-sky-dark transition-all bubble-shadow-sm cursor-pointer"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#7AB3B7] text-white text-xs sm:text-sm font-bold hover:bg-[#68A1A5] transition-all bubble-shadow-sm cursor-pointer"
                 >
                   <Award className="w-4 h-4" />
                   <span>{t("exploreScholarships")}</span>
@@ -264,7 +264,7 @@ export default function SavedPage() {
                   setSelectedTab("all");
                   setSearchQuery("");
                 }}
-                className="px-5 py-2 rounded-full bg-sky-deep text-white text-xs font-bold hover:bg-sky-dark transition-colors cursor-pointer bubble-shadow-sm"
+                className="px-5 py-2 rounded-full bg-[#7AB3B7] text-white text-xs font-bold hover:bg-[#68A1A5] transition-colors cursor-pointer bubble-shadow-sm"
               >
                 {tCommon("resetFilters")}
               </button>
@@ -278,7 +278,7 @@ export default function SavedPage() {
                 return (
                   <div
                     key={item.id}
-                    className="bg-white rounded-3xl rounded-br-[86px] border border-sky/15 bubble-shadow-sm overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-lg hover:border-sky/40 group"
+                    className="bg-white rounded-3xl rounded-br-[86px] border border-sky/15 bubble-shadow-sm overflow-hidden flex flex-col justify-between hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 group"
                   >
                     <div>
                       {item.image ? (
@@ -287,7 +287,7 @@ export default function SavedPage() {
                           <img
                             src={item.image}
                             alt={item.title}
-                            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                            className="w-full h-full object-cover object-center"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 

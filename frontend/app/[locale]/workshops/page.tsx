@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useLenis } from "@/app/context/LenisContext";
 import {
   Phone,
   Mail,
@@ -58,6 +59,7 @@ const byFinishedLast = (rows: WorkshopItem[]): WorkshopItem[] =>
 export default function WorkshopsPage() {
   const t = useTranslations("workshops");
   const locale = useLocale();
+  const lenis = useLenis();
   const workshopsData = locale === "km" ? kmWorkshops : enWorkshops;
 
   const workshops = useMemo(
@@ -81,6 +83,35 @@ export default function WorkshopsPage() {
   const [showAllMentorsModal, setShowAllMentorsModal] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [inquirySubmitted, setInquirySubmitted] = useState(false);
+
+  const isAnyModalOpen = Boolean(
+    selectedWorkshop || selectedMentor || showAllMentorsModal || showContactModal
+  );
+
+  useEffect(() => {
+    if (!isAnyModalOpen) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    lenis?.stop();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setSelectedWorkshop(null);
+        setSelectedMentor(null);
+        setShowAllMentorsModal(false);
+        setShowContactModal(false);
+        setInquirySubmitted(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      lenis?.start();
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isAnyModalOpen, lenis]);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -156,7 +187,7 @@ export default function WorkshopsPage() {
               <button
                 type="button"
                 onClick={() => scroll("right")}
-                className="hidden lg:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white border-2 border-sky/30 text-sky-deep hover:bg-sky hover:text-white shadow-xl items-center justify-center transition-all cursor-pointer hover:scale-105"
+                className="hidden lg:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white border-2 border-sky/30 text-sky-deep hover:bg-[#7AB3B7] hover:text-white shadow-xl items-center justify-center transition-all cursor-pointer hover:scale-105"
                 aria-label={t("scrollRight")}
                 title={t("scrollRight")}
               >
@@ -173,7 +204,7 @@ export default function WorkshopsPage() {
                     type="button"
                     onClick={() => setSelectedWorkshop(ws)}
                     aria-haspopup="dialog"
-                    className={`w-[260px] sm:w-[280px] md:w-[300px] shrink-0 snap-start group flex flex-col justify-between text-left rounded-2xl p-3.5 sm:p-4 bg-white border border-sky/20 bubble-shadow-sm hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1 transition-all duration-300 cursor-pointer ${
+                    className={`w-[260px] sm:w-[280px] md:w-[300px] shrink-0 snap-start group flex flex-col justify-between text-left rounded-2xl p-3.5 sm:p-4 bg-white border border-sky/20 bubble-shadow-sm hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer ${
                       isFinished(ws) ? "opacity-70" : ""
                     }`}
                   >
@@ -206,9 +237,9 @@ export default function WorkshopsPage() {
                         </div>
                         <div className="absolute bottom-2 left-2 right-2">
                           <span className="text-[10px] text-white/95 font-medium truncate block drop-shadow-xs">
-                          <MapPin className="w-2 h-2 text-sky-deep shrink-0" aria-hidden="true" />
-                          {ws.location}
-                        </span>
+                            <MapPin className="w-2 h-2 text-sky-deep shrink-0 inline mr-1" aria-hidden="true" />
+                            {ws.location}
+                          </span>
                         </div>
                       </div>
 
@@ -234,7 +265,7 @@ export default function WorkshopsPage() {
                       ) : (
                         <span />
                       )}
-                      <span className="inline-flex items-center justify-center px-3.5 py-1 rounded-xl border border-sky text-sky-deep group-hover:bg-sky-deep group-hover:text-white text-xs font-bold transition-colors shadow-2xs">
+                      <span className="inline-flex items-center justify-center px-3.5 py-1 rounded-xl border border-sky text-sky-deep group-hover:bg-[#7AB3B7] group-hover:text-white text-xs font-bold transition-colors shadow-2xs">
                         {t("details")}
                       </span>
                     </div>
@@ -301,7 +332,7 @@ export default function WorkshopsPage() {
 
               <button
                 onClick={() => setShowAllMentorsModal(true)}
-                className="w-full py-2.5 sm:py-3 rounded-full border border-sky text-sky-deep hover:bg-sky hover:text-white text-xs sm:text-sm font-bold transition-all text-center cursor-pointer shadow-2xs"
+                className="w-full py-2.5 sm:py-3 rounded-full border border-sky text-sky-deep hover:bg-[#7AB3B7] hover:text-white text-xs sm:text-sm font-bold transition-all text-center cursor-pointer shadow-2xs"
               >
                 {t("viewAllMentors")}
               </button>
@@ -360,7 +391,7 @@ export default function WorkshopsPage() {
 
               <button
                 onClick={() => setShowContactModal(true)}
-                className="w-full py-3 sm:py-3.5 rounded-full bg-sky-deep hover:bg-sky-dark text-white text-xs sm:text-sm font-bold transition-all text-center shadow-xs cursor-pointer"
+                className="w-full py-3 sm:py-3.5 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white text-xs sm:text-sm font-bold transition-all text-center shadow-xs cursor-pointer"
               >
                 {t("contactUs")}
               </button>
@@ -371,8 +402,16 @@ export default function WorkshopsPage() {
 
       {/* Modal 1: Workshop Detail */}
       {selectedWorkshop && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 relative border border-sky/20 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overscroll-contain"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setSelectedWorkshop(null);
+          }}
+        >
+          <div
+            data-lenis-prevent
+            className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 relative border border-sky/20 shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden overscroll-contain"
+          >
             <button
               onClick={() => {
                 setSelectedWorkshop(null);
@@ -403,13 +442,13 @@ export default function WorkshopsPage() {
 
             <div className="rounded-2xl overflow-hidden aspect-[16/9] mb-4 bg-slate-900 border border-sky/15">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-<img
-                  src={selectedWorkshop.posterImage}
-                  alt={selectedWorkshop.title}
-                  width={800}
-                  height={450}
-                  className="w-full h-full object-cover"
-                />
+              <img
+                src={selectedWorkshop.posterImage}
+                alt={selectedWorkshop.title}
+                width={800}
+                height={450}
+                className="w-full h-full object-cover"
+              />
             </div>
 
             {selectedWorkshop.applicationLink ? (
@@ -420,7 +459,7 @@ export default function WorkshopsPage() {
                 className={`mb-4 w-full inline-flex items-center justify-center gap-2 py-3 rounded-full font-bold text-xs sm:text-sm transition-colors ${
                   isFinished(selectedWorkshop)
                     ? "bg-sitomo text-sky-deep border border-sky/30 hover:bg-powder"
-                    : "bg-sky-deep text-white hover:bg-sky-dark"
+                    : "bg-[#7AB3B7] text-white hover:bg-[#68A1A5]"
                 }`}
               >
                 {isFinished(selectedWorkshop)
@@ -506,7 +545,7 @@ export default function WorkshopsPage() {
                   href={selectedWorkshop.applicationLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full sm:flex-1 py-3 px-5 rounded-full bg-sky-deep hover:bg-sky-dark text-white font-bold text-xs sm:text-sm transition-colors text-center shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full sm:flex-1 py-3 px-5 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white font-bold text-xs sm:text-sm transition-colors text-center shadow-xs flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <span>{t("applyRegisterHere")}</span>
                   <ExternalLink className="w-4 h-4" />
@@ -530,8 +569,16 @@ export default function WorkshopsPage() {
 
       {/* Modal 2: All Mentors */}
       {showAllMentorsModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 relative border border-sky/20 shadow-2xl max-h-[85vh] overflow-y-auto">
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overscroll-contain"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowAllMentorsModal(false);
+          }}
+        >
+          <div
+            data-lenis-prevent
+            className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 relative border border-sky/20 shadow-2xl max-h-[85vh] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden overscroll-contain"
+          >
             <button
               onClick={() => setShowAllMentorsModal(false)}
               aria-label={t("close")}
@@ -586,7 +633,7 @@ export default function WorkshopsPage() {
                         setSelectedMentor(mentor);
                         setShowAllMentorsModal(false);
                       }}
-                      className="px-4 py-1.5 rounded-full bg-sky text-white text-xs font-bold hover:bg-sky-bright transition-colors cursor-pointer"
+                      className="px-4 py-1.5 rounded-full bg-[#7AB3B7] text-white text-xs font-bold hover:bg-[#68A1A5] transition-colors cursor-pointer"
                     >
                       {t("bookSession")}
                     </button>
@@ -600,8 +647,16 @@ export default function WorkshopsPage() {
 
       {/* Modal 3: Mentor Booking */}
       {selectedMentor && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 relative border border-sky/20 shadow-2xl">
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overscroll-contain"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setSelectedMentor(null);
+          }}
+        >
+          <div
+            data-lenis-prevent
+            className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 relative border border-sky/20 shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden overscroll-contain"
+          >
             <button
               onClick={() => setSelectedMentor(null)}
               aria-label={t("close")}
@@ -656,7 +711,7 @@ export default function WorkshopsPage() {
                 href={PROMOTE_CONTACT.telegramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full bg-sky-deep hover:bg-sky-dark text-white font-bold text-xs sm:text-sm transition-all shadow-sm"
+                className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white font-bold text-xs sm:text-sm transition-all shadow-sm"
               >
                 <Send className="w-4 h-4" />
                 {t("connectOnTelegram")}
@@ -668,8 +723,19 @@ export default function WorkshopsPage() {
 
       {/* Modal 4: Promote Inquiry */}
       {showContactModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 relative border border-sky/20 shadow-2xl">
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overscroll-contain"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowContactModal(false);
+              setInquirySubmitted(false);
+            }
+          }}
+        >
+          <div
+            data-lenis-prevent
+            className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 relative border border-sky/20 shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden overscroll-contain"
+          >
             <button
               onClick={() => {
                 setShowContactModal(false);
@@ -721,7 +787,7 @@ export default function WorkshopsPage() {
                 />
                 <button
                   type="submit"
-                  className="w-full py-2.5 rounded-full bg-sky-deep hover:bg-sky-dark text-white font-bold text-xs sm:text-sm transition-colors cursor-pointer shadow-xs"
+                  className="w-full py-2.5 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white font-bold text-xs sm:text-sm transition-colors cursor-pointer shadow-xs"
                 >
                   {t("sendInquiry")}
                 </button>

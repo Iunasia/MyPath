@@ -1,11 +1,29 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 export interface User {
   id: number;
   name: string;
   email: string;
   role: string;
+  auth_provider: string;
+  avatar_url: string | null;
+  avatar_updated_at: string | null;
+  is_verified?: boolean;
+  bio: string | null;
+  location: string | null;
+  website: string | null;
+  date_of_birth: string | null;
+  gender: string | null;
   created_at: string;
+}
+
+export interface ProfileUpdateInput {
+  name: string;
+  bio: string;
+  location: string;
+  website: string;
+  date_of_birth: string;
+  gender: string;
 }
 
 interface AuthResponse {
@@ -24,6 +42,13 @@ export class AuthError extends Error {
   ) {
     super(message);
     this.name = "AuthError";
+  }
+}
+
+export class AuthApiError extends AuthError {
+  constructor(status: number, message: string, data: AuthResponse = {}) {
+    super(status, message, data);
+    this.name = "AuthApiError";
   }
 }
 
@@ -90,12 +115,61 @@ export async function verifyEmail(
   });
 }
 
+export async function resendVerificationCode(
+  email: string
+): Promise<AuthResponse> {
+  return apiFetch<AuthResponse>("/auth/resend-verification", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
 export async function getCurrentUser(): Promise<{ user: User }> {
   return apiFetch<{ user: User }>("/auth/me");
 }
 
 export async function checkVerificationStatus(): Promise<{ verified: boolean }> {
   return apiFetch<{ verified: boolean }>("/auth/check-verification");
+}
+
+export async function updateUserProfile(
+  fields: ProfileUpdateInput
+): Promise<AuthResponse> {
+  return apiFetch<AuthResponse>("/auth/me", {
+    method: "PATCH",
+    body: JSON.stringify(fields),
+  });
+}
+
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string
+): Promise<AuthResponse> {
+  return apiFetch<AuthResponse>("/auth/me/password", {
+    method: "PATCH",
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+}
+
+export async function uploadAvatar(file: File): Promise<AuthResponse> {
+  const formData = new FormData();
+  formData.append("avatar", file);
+
+  const res = await fetch(`${API_BASE}/auth/me/avatar`, {
+    method: "PATCH",
+    credentials: "include",
+    body: formData,
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || "Something went wrong");
+  }
+  return data as AuthResponse;
+}
+
+export async function removeAvatarRequest(): Promise<AuthResponse> {
+  return apiFetch<AuthResponse>("/auth/me/avatar", { method: "DELETE" });
 }
 
 export function getGoogleAuthUrl(): string {

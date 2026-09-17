@@ -226,6 +226,7 @@ export interface ApiSavedItem {
   user_id: number;
   item_type: SavedItemType;
   item_id: number;
+  slug?: string | null;
   saved_at: string;
   title: string;
   subtitle: string | null;
@@ -395,11 +396,11 @@ async function send(method: "POST" | "DELETE", path: string): Promise<void> {
   }
 }
 
-export const saveItem = (type: SavedItemType, id: number) =>
-  send("POST", `/saved/${type}/${id}`);
+export const saveItem = (type: SavedItemType, id: number | string) =>
+  send("POST", `/saved/${type}/${encodeURIComponent(id)}`);
 
-export const unsaveItem = (type: SavedItemType, id: number) =>
-  send("DELETE", `/saved/${type}/${id}`);
+export const unsaveItem = (type: SavedItemType, id: number | string) =>
+  send("DELETE", `/saved/${type}/${encodeURIComponent(id)}`);
 
 /* ------------------------------------------------------------------ */
 /* Verification requests — the DMIL loop                               */

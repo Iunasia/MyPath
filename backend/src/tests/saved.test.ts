@@ -95,10 +95,28 @@ describe('Saved items API', () => {
       assert.equal(res.status, 404);
     });
 
-    it('returns 400 for a non-numeric id', async () => {
+    it('returns 404 for an unknown id or slug', async () => {
       const { client } = await registerAndLogin();
-      const res = await client.post('/saved/major/not-a-number');
-      assert.equal(res.status, 400);
+      const res = await client.post('/saved/major/not-a-real-major');
+      assert.equal(res.status, 404);
+    });
+
+    it('saves a university by slug and returns its slug in GET /saved', async () => {
+      const id = await insertUniversity({ name: 'CADT Slug University', slug: 'cadt-slug-test' });
+      const { client } = await registerAndLogin();
+      const res = await client.post('/saved/university/cadt-slug-test');
+      assert.equal(res.status, 201);
+
+      const saved = await client.get('/saved');
+      assert.equal(saved.body.length, 1);
+      assert.equal(saved.body[0].item_type, 'university');
+      assert.equal(saved.body[0].item_id, id);
+      assert.equal(saved.body[0].slug, 'cadt-slug-test');
+
+      const delRes = await client.delete('/saved/university/cadt-slug-test');
+      assert.equal(delRes.status, 204);
+      const afterDel = await client.get('/saved');
+      assert.equal(afterDel.body.length, 0);
     });
   });
 
@@ -159,7 +177,7 @@ describe('Saved items API', () => {
   describe('Retiring saved_opportunities', () => {
     /** The scholarship-only table an older database may still have. */
     const createLegacyTable = () =>
-      pool.query(`CREATE TABLE saved_opportunities (
+      pool.query(`CREATE TABLE IF NOT EXISTS saved_opportunities (
         user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         scholarship_id INTEGER NOT NULL REFERENCES scholarships(id) ON DELETE CASCADE,
         saved_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),

@@ -1,5 +1,6 @@
 import { Link } from "@/src/i18n";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 
 interface FooterProps {
   className?: string;
@@ -16,13 +17,14 @@ export default function Footer({ className = "" }: FooterProps) {
         { label: t("majors"), href: "/majors" },
         { label: t("universities"), href: "/universities" },
         { label: t("scholarships"), href: "/scholarships" },
+        { label: "Workshops", href: "/workshops" },
+        { label: "Verify", href: "/verify" },
       ],
     },
     {
       heading: t("tools"),
       links: [
-        { label: t("informationCheck"), href: "#" },
-        { label: t("deadlineTracker"), href: "#" },
+        { label: t("informationCheck"), href: "/verify" },
         { label: t("savedOpportunities"), href: "/saved" },
         { label: t("adminPortal"), href: "/admin" },
       ],
@@ -30,7 +32,7 @@ export default function Footer({ className = "" }: FooterProps) {
     {
       heading: t("about"),
       links: [
-        { label: t("aboutDomner"), href: "#" },
+        { label: t("aboutDomner"), href: "/about" },
         { label: t("privacyPolicy"), href: "#" },
         { label: t("termsOfUse"), href: "#" },
         { label: t("contact"), href: "#" },
@@ -45,9 +47,15 @@ export default function Footer({ className = "" }: FooterProps) {
           {/* Brand Info */}
           <div>
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <span className="flex items-center justify-center w-7 h-7 rounded-full bg-sky-deep text-white text-xs font-bold font-display">
-                D
-              </span>
+              <div className="relative w-7 h-7 shrink-0 flex items-center justify-center">
+                <Image
+                  src="/images/domner-logo.png"
+                  alt="Domner Logo"
+                  width={28}
+                  height={28}
+                  className="w-full h-full object-contain"
+                />
+              </div>
               <span className="font-display text-base font-bold text-blue-ink">
                 Domner
               </span>
@@ -88,12 +96,12 @@ export default function Footer({ className = "" }: FooterProps) {
           ))}
         </div>
 
-        {/* Bottom Disclaimer */}
-        <div className="pt-8 border-t border-sky/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-gray-faint font-medium">
-            {t("copyright")}
+        {/* Bottom bar */}
+        <div className="pt-8 border-t border-sky/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-soft font-medium">
+          <p>
+            {t("copyright", { year: new Date().getFullYear() })}
           </p>
-          <p className="text-xs text-gray-faint font-medium">
+          <p className="text-gray-faint">
             {t("project")}
           </p>
         </div>

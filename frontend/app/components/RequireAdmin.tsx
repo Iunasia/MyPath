@@ -60,7 +60,7 @@ export default function RequireAdmin({ children }: { children: React.ReactNode }
           </p>
           <Link
             href="/"
-            className="inline-flex items-center justify-center rounded-full bg-sky-deep px-5 py-2.5 text-sm font-bold text-white hover:bg-sky-dark transition-colors"
+            className="inline-flex items-center justify-center rounded-full bg-[#7AB3B7] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#68A1A5] transition-colors"
           >
             {t("backToDomner")}
           </Link>

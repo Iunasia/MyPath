@@ -90,6 +90,9 @@ if (process.env.REDIS_URL) {
     pool: pool,
     tableName: 'session',
     createTableIfMissing: true,
+    errorLog: (err: any) => {
+      console.warn('⚠️ [Session Store Warning]:', err?.message || err);
+    },
   });
 }
 

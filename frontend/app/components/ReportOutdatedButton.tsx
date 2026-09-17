@@ -84,7 +84,7 @@ export default function ReportOutdatedButton({
         <div className="flex items-center gap-3">
           <Link
             href="/auth/signin"
-            className="inline-flex items-center rounded-full bg-sky-deep px-4 py-2 text-xs font-bold text-white hover:bg-sky-dark transition-colors"
+            className="inline-flex items-center rounded-full bg-[#7AB3B7] px-4 py-2 text-xs font-bold text-white hover:bg-[#68A1A5] transition-colors"
           >
             {t("signIn")}
           </Link>
@@ -123,7 +123,7 @@ export default function ReportOutdatedButton({
         <button
           type="submit"
           disabled={sending}
-          className="inline-flex items-center gap-2 rounded-full bg-sky-deep px-4 py-2 text-xs font-bold text-white hover:bg-sky-dark transition-colors disabled:opacity-60 cursor-pointer"
+          className="inline-flex items-center gap-2 rounded-full bg-[#7AB3B7] px-4 py-2 text-xs font-bold text-white hover:bg-[#68A1A5] transition-colors disabled:opacity-60 cursor-pointer"
         >
           {sending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
           {t("sendReport")}

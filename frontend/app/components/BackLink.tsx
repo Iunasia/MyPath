@@ -3,15 +3,14 @@ import { ArrowLeft } from "lucide-react";
 
 interface BackLinkProps {
   href: string;
-  label: string;
+  label?: string;
   className?: string;
 }
 
 /**
- * "← All scholarships" above a page's title. Lives in the page rather than the
- * header, so the header is the same everywhere.
+ * "← Back" link above a page's title.
  */
-export default function BackLink({ href, label, className = "" }: BackLinkProps) {
+export default function BackLink({ href, label = "Back", className = "" }: BackLinkProps) {
   return (
     <Link
       href={href}
@@ -20,7 +19,7 @@ export default function BackLink({ href, label, className = "" }: BackLinkProps)
       <span className="flex items-center justify-center w-7 h-7 rounded-full bg-white border border-sky/25 group-hover:border-sky-deep transition-colors">
         <ArrowLeft className="w-3.5 h-3.5" strokeWidth={2.4} aria-hidden="true" />
       </span>
-      {label}
+      Back
     </Link>
   );
 }

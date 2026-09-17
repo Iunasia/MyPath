@@ -432,7 +432,7 @@ export default function AdminMajorsPage() {
                   <tr
                     key={major.id}
                     onClick={() => editor.open(major)}
-                    className={`cursor-pointer ${editor.selected?.id === major.id ? "bg-sky/10" : "hover:bg-powder/60"}`}
+                    className={`cursor-pointer transition-colors ${editor.selected?.id === major.id ? "bg-sky/10 dark:bg-sky/15" : "hover:bg-powder/60 dark:hover:bg-white/5"}`}
                   >
                     <td className={`${tdClass} max-w-0`}>
                       <div className="flex items-center gap-2">

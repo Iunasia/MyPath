@@ -260,6 +260,7 @@ function UniversitiesInner() {
                         variant="card-action"
                         item={{
                           id: uni.id,
+                          slug: uni.id,
                           type: "university",
                           title: uni.name,
                           subtitle: uni.location,
