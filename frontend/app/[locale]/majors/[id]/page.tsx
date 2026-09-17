@@ -1,8 +1,6 @@
 import { notFound } from "next/navigation";
 import { Link } from "@/src/i18n";
 import {
-  ExternalLink,
-  Info,
   MapPin,
 } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -595,41 +593,7 @@ export default async function MajorDetailPage({ params }: PageProps) {
             </section>
           )}
 
-          {/* 7. Where this comes from. No "verified" badge: majors haven't been
-              checked against an accreditation body, and the card used to say
-              they had. */}
-          <div className="rounded-3xl bg-momo p-6 sm:p-8 border border-momo w-full">
-            <div className="flex items-center gap-2 mb-3">
-              <Info className="w-5 h-5 text-sky-deep" />
-              <span className="text-xs sm:text-sm font-bold text-blue-ink uppercase tracking-wider">
-                {t("aboutThisInfo")}
-              </span>
-            </div>
-
-            <p className="text-xs sm:text-sm text-gray-body mb-4 font-medium">
-              {t("aboutThisInfoDesc")}
-            </p>
-
-            <div className="text-xs sm:text-sm text-blue-ink font-medium">
-              <span className="text-xs text-gray-soft block">{tCommon("source")}</span>
-              <span className="font-bold">{major.source || t("domnerMajorsDataset")}</span>
-            </div>
-
-            {major.sourceUrl && (
-              <div className="mt-4 pt-3 border-t border-blue-ink/10 flex justify-end">
-                <a
-                  href={major.sourceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-sky-deep hover:underline"
-                >
-                  {t("viewSource")} <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              </div>
-            )}
-          </div>
-
-          {/* 8. Universities Offering This Major (uses same card style as university page) */}
+          {/* 7. Universities Offering This Major (uses same card style as university page) */}
           {offerUniversities.length > 0 && (
             <section className="w-full">
               <div className="flex items-center justify-between mb-6">

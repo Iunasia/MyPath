@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { Link, usePathname, useRouter } from "@/src/i18n";
 import { useAuth } from "@/app/context/AuthContext";
@@ -147,10 +148,18 @@ export default function Header({ variant = "default", activeNav, className = "" 
   return (
     <div className={`${position} z-50 ${className}`}>
       <header className="bg-white/90 backdrop-blur-md rounded-full bubble-shadow-sm border border-sky/15 pl-4 pr-3 sm:pl-5 sm:pr-4 py-2.5 flex items-center justify-between gap-4">
+        {/* The logo is the way home on every page. */}
         <Link href="/" className="flex items-center gap-2.5 shrink-0" aria-label={t("home")}>
-          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-sky-deep text-white text-sm font-bold font-display">
-            D
-          </span>
+          <div className="relative w-8 h-8 shrink-0 flex items-center justify-center">
+            <Image
+              src="/images/domner-logo.png"
+              alt="Domner Logo"
+              width={32}
+              height={32}
+              priority
+              className="w-full h-full object-contain"
+            />
+          </div>
           <span className="font-display text-lg font-bold text-blue-ink tracking-tight hidden sm:block">
             DOMNER
           </span>

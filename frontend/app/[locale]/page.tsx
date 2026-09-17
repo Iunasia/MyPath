@@ -106,7 +106,12 @@ const TRUST_DESC_KEYS = [
   "alwaysFreeDesc",
 ] as const;
 
-const TRUST_BGS = ["bg-sitomo", "bg-momo", "bg-sitomo", "bg-momo"];
+const TRUST_STYLES = [
+  { border: "border-sky-deep", iconBg: "bg-sky-deep" },
+  { border: "border-sky", iconBg: "bg-sky" },
+  { border: "border-sky-dark", iconBg: "bg-sky-dark" },
+  { border: "border-sky-deep", iconBg: "bg-sky-deep" },
+] as const;
 
 /* ── Page ──────────────────────────────────────────────── */
 
@@ -415,8 +420,8 @@ export default async function Home() {
       </section>
 
       {/* ── Trust tiles ────────────────────────────────────── */}
-      <section className="py-20 lg:py-24 bg-powder">
-        <div className="max-w-5xl mx-auto px-6 lg:px-8">
+      <section className="py-20 lg:py-28 bg-powder">
+        <div className="max-w-6xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-14">
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-blue-ink tracking-tight">
               {t("trustTitle")}
@@ -426,14 +431,37 @@ export default async function Home() {
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-2">
             {TRUST_TITLE_KEYS.map((titleKey, i) => {
               const Icon = TRUST_ICONS[i];
+              const descKey = TRUST_DESC_KEYS[i];
+              const style = TRUST_STYLES[i];
               return (
-                <div key={titleKey} className={`rounded-2xl ${TRUST_BGS[i]} p-5 border border-sky/15`}>
-                  <Icon className="w-7 h-7 text-blue-ink mb-3" strokeWidth={2} aria-hidden="true" />
-                  <h3 className="font-display text-sm font-bold text-blue-ink mb-1">{t(titleKey)}</h3>
-                  <p className="text-xs text-gray-body leading-relaxed font-medium">{t(TRUST_DESC_KEYS[i])}</p>
+                <div key={titleKey} className="relative group pt-3 pl-3 pr-2">
+                  {/* Offset colored outline behind the card */}
+                  <div
+                    className={`absolute top-0 left-0 right-3 bottom-3 rounded-3xl border-2 ${style.border} pointer-events-none transition-transform duration-300 group-hover:-translate-x-1 group-hover:-translate-y-1`}
+                  />
+
+                  {/* Foreground white card */}
+                  <div className="relative z-10 bg-white rounded-3xl p-6 shadow-sm border border-sky/15 flex flex-col justify-center min-h-[160px] transition-shadow duration-300 group-hover:shadow-md">
+                    {/* Floating circular icon badge at top right */}
+                    <div
+                      className={`absolute -top-3 -right-2 sm:-top-3.5 sm:-right-2.5 w-11 h-11 sm:w-12 sm:h-12 rounded-full ${style.iconBg} text-white flex items-center justify-center shadow-md`}
+                    >
+                      <Icon className="w-5 h-5 sm:w-5.5 sm:h-5.5" strokeWidth={2.2} />
+                    </div>
+
+                    {/* Title & Description */}
+                    <div className="pr-4">
+                      <h3 className="font-display text-sm sm:text-base font-extrabold uppercase tracking-wider text-sky-deep mb-2">
+                        {t(titleKey)}
+                      </h3>
+                      <p className="text-xs sm:text-[13px] text-gray-body leading-relaxed font-medium">
+                        {t(descKey)}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               );
             })}

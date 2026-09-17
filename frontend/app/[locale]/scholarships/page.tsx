@@ -3,12 +3,11 @@
 import { Suspense, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { Coins, Calendar, CheckCircle2 } from "lucide-react";
+import { Coins, Calendar, Rocket, Lightbulb, Target } from "lucide-react";
 import { Link, usePathname, useRouter } from "@/src/i18n";
 import Footer from "@/app/components/Footer";
 import SaveItemButton from "@/app/components/SaveItemButton";
 import {
-  Badge,
   Button,
   EmptyState,
   FilterPill,
@@ -212,34 +211,67 @@ function ScholarshipsInner() {
           )}
         </section>
 
-        <section className="rounded-3xl rounded-br-[86px] sm:rounded-br-[86px] bg-white border border-sky/15 p-6 sm:p-8 md:p-10 bubble-shadow-sm mb-16">
-          <div className="max-w-3xl">
-            <Badge tone="teal" className="uppercase tracking-wider mb-3">
-              {t("transparencyVerification")}
-            </Badge>
-            <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-blue-ink mb-3">
+        {/* ── Section Divider Line ──────────────────────────────── */}
+        <div className="w-full border-t border-sky/25 mb-14" />
+
+        {/* ── Information Check & Trust Guarantee Section (No background card, infographic style) ── */}
+        <section className="w-full mb-16">
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-blue-ink tracking-tight">
               {t("howDoesDomnerVerify")}
             </h2>
-            <p className="text-sm text-gray-body leading-relaxed font-medium mb-6">
+            <p className="text-xs sm:text-sm text-gray-body leading-relaxed font-medium mt-2">
               {t("howDoesDomnerVerifyDesc")}
             </p>
+          </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 gap-4">
-              {[
-                { title: t("directLinks"), desc: t("directLinksDesc") },
-                { title: t("zeroHiddenFees"), desc: t("zeroHiddenFeesDesc") },
-                { title: t("updatedDeadlines"), desc: t("updatedDeadlinesDesc") },
-              ].map((item) => (
-                <div key={item.title} className="p-4 rounded-2xl bg-powder border border-sky/10 flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-sky-deep shrink-0 mt-0.5" aria-hidden="true" />
-                  <div>
-                    <h4 className="text-xs font-bold text-blue-ink">{item.title}</h4>
-                    <p className="text-[11px] text-gray-soft mt-0.5 leading-normal">
-                      {item.desc}
-                    </p>
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 pt-2 max-w-5xl mx-auto">
+            {/* Step 1: Direct Links (Rocket) */}
+            <div className="relative group pt-3 pl-3 pr-2">
+              <div className="absolute top-0 left-0 right-3 bottom-3 rounded-3xl border-2 border-sky-deep pointer-events-none transition-transform duration-300 group-hover:-translate-x-1 group-hover:-translate-y-1 bg-sky-deep" />
+              <div className="relative z-10 bg-white rounded-3xl p-6 sm:p-7 shadow-sm border border-sky/15 flex flex-col items-center text-center justify-center min-h-[160px] transition-shadow duration-300 group-hover:shadow-md">
+                <div className="absolute -top-3 -right-2 sm:-top-3.5 sm:-right-2.5 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-sky-deep text-white flex items-center justify-center shadow-md">
+                  <Rocket className="w-5 h-5 sm:w-5.5 sm:h-5.5" strokeWidth={2.2} />
                 </div>
-              ))}
+                <h3 className="font-display text-sm sm:text-base font-extrabold uppercase tracking-wider text-sky-deep mb-2">
+                  {t("directLinks")}
+                </h3>
+                <p className="text-xs sm:text-[13px] text-gray-body leading-relaxed font-medium">
+                  {t("directLinksDesc")}
+                </p>
+              </div>
+            </div>
+
+            {/* Step 2: Zero Hidden Fees (Lightbulb) */}
+            <div className="relative group pt-3 pl-3 pr-2">
+              <div className="absolute top-0 left-0 right-3 bottom-3 rounded-3xl border-2 border-sky-deep pointer-events-none transition-transform duration-300 group-hover:-translate-x-1 group-hover:-translate-y-1 bg-sky-deep" />
+              <div className="relative z-10 bg-white rounded-3xl p-6 sm:p-7 shadow-sm border border-sky/15 flex flex-col items-center text-center justify-center min-h-[160px] transition-shadow duration-300 group-hover:shadow-md">
+                <div className="absolute -top-3 -right-2 sm:-top-3.5 sm:-right-2.5 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-sky-deep text-white flex items-center justify-center shadow-md">
+                  <Lightbulb className="w-5 h-5 sm:w-5.5 sm:h-5.5" strokeWidth={2.2} />
+                </div>
+                <h3 className="font-display text-sm sm:text-base font-extrabold uppercase tracking-wider text-sky-deep mb-2">
+                  {t("zeroHiddenFees")}
+                </h3>
+                <p className="text-xs sm:text-[13px] text-gray-body leading-relaxed font-medium">
+                  {t("zeroHiddenFeesDesc")}
+                </p>
+              </div>
+            </div>
+
+            {/* Step 3: Updated Deadlines (Target) */}
+            <div className="relative group pt-3 pl-3 pr-2">
+              <div className="absolute top-0 left-0 right-3 bottom-3 rounded-3xl border-2 border-sky-deep pointer-events-none transition-transform duration-300 group-hover:-translate-x-1 group-hover:-translate-y-1 bg-sky-deep" />
+              <div className="relative z-10 bg-white rounded-3xl p-6 sm:p-7 shadow-sm border border-sky/15 flex flex-col items-center text-center justify-center min-h-[160px] transition-shadow duration-300 group-hover:shadow-md">
+                <div className="absolute -top-3 -right-2 sm:-top-3.5 sm:-right-2.5 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-sky-deep text-white flex items-center justify-center shadow-md">
+                  <Target className="w-5 h-5 sm:w-5.5 sm:h-5.5" strokeWidth={2.2} />
+                </div>
+                <h3 className="font-display text-sm sm:text-base font-extrabold uppercase tracking-wider text-sky-deep mb-2">
+                  {t("updatedDeadlines")}
+                </h3>
+                <p className="text-xs sm:text-[13px] text-gray-body leading-relaxed font-medium">
+                  {t("updatedDeadlinesDesc")}
+                </p>
+              </div>
             </div>
           </div>
         </section>
