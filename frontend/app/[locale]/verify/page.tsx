@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, FormEvent } from "react";
+import { useState, useEffect, useRef, FormEvent } from "react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/src/i18n";
 import {
   ShieldCheck,
   ShieldAlert,
@@ -13,6 +14,7 @@ import {
   XCircle,
   AlertTriangle,
   ExternalLink,
+  X,
 } from "lucide-react";
 import Footer from "@/app/components/Footer";
 import { Button, EmptyState } from "@/app/components/ui";
@@ -117,6 +119,79 @@ export default function VerifyPage() {
   const [requests, setRequests] = useState<ApiVerificationRequest[]>([]);
   const [loadingRequests, setLoadingRequests] = useState(true);
 
+  // File upload state for "Upload here"
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<{
+    name: string;
+    size: string;
+    extension: string;
+    progress: number;
+    status: string;
+  } | null>(null);
+
+  const handleBrowseClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const ext = (file.name.split(".").pop() || "FILE").toUpperCase().slice(0, 4);
+    const sizeInMB = (file.size / (1024 * 1024)).toFixed(1);
+    setSelectedFile({
+      name: file.name,
+      size: `${sizeInMB}MB of ${sizeInMB}MB`,
+      extension: ext,
+      progress: 78,
+      status: "Uploading...... 78%",
+    });
+    setTimeout(() => {
+      setSelectedFile((prev) =>
+        prev ? { ...prev, progress: 100, status: "Ready to upload" } : null
+      );
+    }, 500);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    const ext = (file.name.split(".").pop() || "FILE").toUpperCase().slice(0, 4);
+    const sizeInMB = (file.size / (1024 * 1024)).toFixed(1);
+    setSelectedFile({
+      name: file.name,
+      size: `${sizeInMB}MB of ${sizeInMB}MB`,
+      extension: ext,
+      progress: 78,
+      status: "Uploading...... 78%",
+    });
+    setTimeout(() => {
+      setSelectedFile((prev) =>
+        prev ? { ...prev, progress: 100, status: "Ready to upload" } : null
+      );
+    }, 500);
+  };
+
+  const handleUploadClick = () => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+  };
+
   const loadRequests = async () => {
     try {
       const data = await fetchMyVerificationRequests();
@@ -167,7 +242,6 @@ export default function VerifyPage() {
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
-
         <div className="w-full pb-16 flex flex-col gap-10 max-w-4xl mx-auto">
           <section className="text-center pt-4">
             <span className="inline-block px-3 py-1 rounded-full bg-sitomo text-sky-deep text-[11px] font-extrabold uppercase tracking-wider mb-3">
@@ -188,14 +262,136 @@ export default function VerifyPage() {
                 <span className="text-sm font-semibold">{tCommon("loading")}</span>
               </div>
             ) : !user ? (
-              <div className="text-center py-6">
-                <p className="font-bold text-blue-ink mb-2">{t("signInToSend")}</p>
-                <p className="text-sm text-gray-body font-medium mb-5">
-                  {t("signInToSendDesc")}
-                </p>
-                <Button href="/auth/signin?next=/verify" size="md">
-                  {tCommon("signIn")}
-                </Button>
+              <div className="py-2 max-w-xl mx-auto w-full">
+                <h2 className="font-display text-2xl sm:text-3xl font-bold text-blue-ink text-center mb-6 sm:mb-8">
+                  Upload here
+                </h2>
+
+                {/* Dashed dropzone */}
+                <div
+                  onClick={handleBrowseClick}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  className={`border-2 border-dashed rounded-3xl py-8 px-4 sm:py-10 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
+                    isDragging
+                      ? "border-sky-deep bg-sitomo scale-[1.01]"
+                      : "border-sky/40 hover:border-sky-deep hover:bg-sitomo/50 bg-sitomo/25"
+                  }`}
+                >
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept="image/*,.pdf"
+                    className="hidden"
+                  />
+
+                  {/* Cloud upload icon with brand color */}
+                  <div className="mb-3 text-sky-deep">
+                    <svg
+                      className="w-12 h-12 sm:w-14 sm:h-14 mx-auto"
+                      viewBox="0 0 64 64"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M48 42a12 12 0 0 0-4-23.3 16 16 0 0 0-31 6A12 12 0 0 0 16 48h32" />
+                      <polyline points="24 34 32 26 40 34" />
+                      <line x1="32" y1="26" x2="32" y2="44" />
+                    </svg>
+                  </div>
+
+                  <p className="text-sm sm:text-base text-gray-body font-medium">
+                    Drag files here or{" "}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleBrowseClick();
+                      }}
+                      className="text-sky-deep font-bold hover:underline cursor-pointer"
+                    >
+                      Browse
+                    </button>
+                  </p>
+                </div>
+
+                {/* File preview row */}
+                {selectedFile && (
+                  <div className="mt-6 flex items-center gap-3.5 px-1">
+                    {/* Document Icon with folded corner and type stamp */}
+                    <div className="relative w-9 h-11 shrink-0">
+                      <svg className="w-full h-full" viewBox="0 0 36 44" fill="none">
+                        <path
+                          d="M0 3C0 1.34315 1.34315 0 3 0H23L36 13V41C36 42.6569 34.6569 44 33 44H3C1.34315 44 0 42.6569 0 41V3Z"
+                          fill="#2D3A3A"
+                        />
+                        <path
+                          d="M23 0L36 13H26C24.3431 13 23 11.6569 23 10V0Z"
+                          fill="#7AB3B7"
+                        />
+                        <text
+                          x="18"
+                          y="34"
+                          fill="white"
+                          fontSize="9.5"
+                          fontWeight="800"
+                          textAnchor="middle"
+                          letterSpacing="0.5"
+                          fontFamily="sans-serif"
+                        >
+                          {selectedFile.extension}
+                        </text>
+                      </svg>
+                    </div>
+
+                    {/* Progress track & labels */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between text-xs sm:text-sm font-bold text-blue-ink mb-1.5">
+                        <span className="truncate">{selectedFile.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedFile(null);
+                            if (fileInputRef.current) fileInputRef.current.value = "";
+                          }}
+                          className="text-gray-soft hover:text-rose-600 p-0.5 rounded cursor-pointer transition-colors"
+                          title="Remove file"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      <div className="w-full bg-sky/15 h-2 rounded-full overflow-hidden mb-1.5">
+                        <div
+                          className="bg-sky-deep h-full rounded-full transition-all duration-300"
+                          style={{ width: `${selectedFile.progress}%` }}
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between text-[11px] sm:text-xs text-gray-soft font-medium">
+                        <span>{selectedFile.size}</span>
+                        <span className="text-gray-body font-semibold">
+                          {selectedFile.status}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Upload Action Button */}
+                <div className="mt-8 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={handleUploadClick}
+                    className="w-full sm:w-auto min-w-[260px] py-3.5 px-10 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white font-bold text-sm tracking-wider uppercase transition-all shadow-md hover:shadow-lg cursor-pointer text-center"
+                  >
+                    Upload
+                  </button>
+                </div>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -259,7 +455,8 @@ export default function VerifyPage() {
                 <Button
                   type="submit"
                   loading={submitting}
-                  disabled={(!url.trim() && !title.trim()) || submitting}
+                  disabled={submitting || (!url.trim() && !title.trim())}
+                  className="inline-flex items-center gap-2 rounded-full bg-[#7AB3B7] px-6 py-3 text-sm font-bold text-white hover:bg-[#68A1A5] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   <Send className="w-4 h-4" aria-hidden="true" />
                   {submitting ? t("checking") : t("checkThisScholarship")}
@@ -383,20 +580,75 @@ export default function VerifyPage() {
                 t("tip6"),
                 t("tip7"),
                 t("tip8"),
-              ].map((tip) => (
-                <li key={tip} className="flex items-start gap-2.5">
+              ].map((tip, idx) => (
+                <li key={idx} className="flex items-start gap-2.5">
                   <AlertTriangle className="w-4 h-4 text-sky-deep shrink-0 mt-0.5" aria-hidden="true" />
                   <p className="text-xs sm:text-sm text-gray-body font-medium">{tip}</p>
                 </li>
               ))}
             </ul>
 
-            <p className="text-xs text-gray-body font-medium mt-5 pt-4 border-t border-sky/15">
-              <strong>{t("bestHabit")}</strong> {t("bestHabitDesc")}
-            </p>
+            <div className="mt-8 pt-6 border-t border-sky/15">
+              <div className="bg-sitomo/40 border border-sky/20 rounded-2xl p-4 sm:p-5">
+                <span className="inline-block text-[11px] font-extrabold uppercase tracking-wider text-sky-deep mb-1">
+                  {t("bestHabit")}
+                </span>
+                <p className="text-xs sm:text-sm text-gray-body font-medium leading-relaxed">
+                  {t("bestHabitDesc")}
+                </p>
+              </div>
+            </div>
           </section>
         </div>
       </div>
+
+      {/* Sign-in prompt modal */}
+      {showAuthModal && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setShowAuthModal(false)}
+        >
+          <div
+            className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-sky/20 text-center relative animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setShowAuthModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-blue-ink p-1.5 rounded-full transition-colors cursor-pointer"
+              aria-label="Close"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="w-16 h-16 rounded-full bg-sitomo/80 border border-sky/30 text-sky-deep flex items-center justify-center mx-auto mb-4">
+              <ShieldCheck className="w-8 h-8" />
+            </div>
+
+            <h3 className="font-display text-xl sm:text-2xl font-bold text-blue-ink mb-2">
+              Sign in to send a request
+            </h3>
+            <p className="text-sm text-gray-body font-medium mb-6 leading-relaxed">
+              We need an account so we can send you the answer once our team checks your scholarship.
+            </p>
+
+            <div className="flex flex-col gap-3">
+              <Link
+                href="/auth/signin?next=/verify"
+                className="w-full py-3 rounded-full bg-[#7AB3B7] text-white font-bold text-sm hover:bg-[#68A1A5] transition-all shadow-md text-center block"
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/auth/signup?next=/verify"
+                className="w-full py-2.5 rounded-full border border-sky/30 text-blue-ink font-bold text-sm hover:bg-sky/10 transition-all text-center block"
+              >
+                Create an account
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

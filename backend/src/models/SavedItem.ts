@@ -27,6 +27,7 @@ export interface SavedItemDetail extends SavedItem {
   title: string;
   subtitle: string | null;
   image: string | null;
+  slug?: string | null;
 }
 
 const SavedItem = {
@@ -34,6 +35,50 @@ const SavedItem = {
   targetExists: async (type: SavedItemType, id: number): Promise<boolean> => {
     const res = await pool.query(`SELECT 1 FROM ${TABLE_FOR[type]} WHERE id = $1`, [id]);
     return res.rowCount === 1;
+  },
+
+  /** Resolve a numeric id or text slug/name to the record's primary key id and optional slug. */
+  resolveTarget: async (
+    type: SavedItemType,
+    idOrSlug: string | number
+  ): Promise<{ id: number; slug?: string | null } | null> => {
+    const raw = String(idOrSlug).trim();
+    if (!raw) return null;
+
+    const numeric = Number(raw);
+    if (Number.isInteger(numeric) && numeric > 0) {
+      if (type === 'university') {
+        const res = await pool.query('SELECT id, slug FROM universities WHERE id = $1', [numeric]);
+        if (res.rowCount && res.rows[0]) return { id: res.rows[0].id, slug: res.rows[0].slug };
+      } else {
+        const res = await pool.query(`SELECT id FROM ${TABLE_FOR[type]} WHERE id = $1`, [numeric]);
+        if (res.rowCount && res.rows[0]) return { id: res.rows[0].id };
+      }
+    }
+
+    if (type === 'university') {
+      const res = await pool.query(
+        'SELECT id, slug FROM universities WHERE LOWER(slug) = LOWER($1) OR LOWER(short_name) = LOWER($1) OR LOWER(name) = LOWER($1) LIMIT 1',
+        [raw]
+      );
+      if (res.rowCount && res.rows[0]) return { id: res.rows[0].id, slug: res.rows[0].slug };
+    } else if (type === 'major') {
+      const clean = raw.replace(/[-_]/g, ' ');
+      const res = await pool.query(
+        'SELECT id FROM majors WHERE LOWER(name) = LOWER($1) OR LOWER(name) = LOWER($2) LIMIT 1',
+        [raw, clean]
+      );
+      if (res.rowCount && res.rows[0]) return { id: res.rows[0].id };
+    } else if (type === 'career') {
+      const clean = raw.replace(/[-_]/g, ' ');
+      const res = await pool.query(
+        'SELECT id FROM careers WHERE LOWER(title) = LOWER($1) OR LOWER(title) = LOWER($2) LIMIT 1',
+        [raw, clean]
+      );
+      if (res.rowCount && res.rows[0]) return { id: res.rows[0].id };
+    }
+
+    return null;
   },
 
   save: async (userId: number, type: SavedItemType, itemId: number): Promise<void> => {
@@ -68,7 +113,7 @@ const SavedItem = {
       career: `SELECT c.id AS item_id, c.title, c.category AS subtitle, NULL AS image
                FROM careers c JOIN saved_items si ON si.item_id = c.id
                WHERE si.user_id = $1 AND si.item_type = 'career'`,
-      university: `SELECT u.id AS item_id, u.name AS title, u.city AS subtitle, u.image_url AS image
+      university: `SELECT u.id AS item_id, u.slug, u.name AS title, u.city AS subtitle, u.image_url AS image
                    FROM universities u JOIN saved_items si ON si.item_id = u.id
                    WHERE si.user_id = $1 AND si.item_type = 'university'`
     };
@@ -92,6 +137,7 @@ const SavedItem = {
           title: row.title,
           subtitle: row.subtitle,
           image: row.image,
+          slug: row.slug ?? null,
           saved_at: when.get(`${type}:${row.item_id}`) as Date
         });
       }

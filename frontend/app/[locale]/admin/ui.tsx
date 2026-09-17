@@ -210,11 +210,11 @@ export function Callout({ title, children }: { title: ReactNode; children?: Reac
 }
 
 const TONES = {
-  neutral: "border border-sky/20 text-gray-body bg-white",
-  red: "bg-rose-50 text-rose-700 border border-rose-200",
-  amber: "bg-amber-50 text-amber-800 border border-amber-200",
-  green: "bg-emerald-50 text-emerald-700 border border-emerald-200",
-  accent: "bg-sky/15 text-sky-deep border border-sky/25",
+  neutral: "border border-sky/20 dark:border-white/10 text-gray-body dark:text-slate-300 bg-white dark:bg-panel",
+  red: "bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/50 dark:text-rose-400 dark:border-rose-900/50",
+  amber: "bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-950/50 dark:text-amber-400 dark:border-amber-900/50",
+  green: "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-400 dark:border-emerald-900/50",
+  accent: "bg-sky/15 text-sky-deep border border-sky/25 dark:bg-sky/20 dark:text-sky dark:border-sky/30",
 } as const;
 
 export function Tag({ tone = "neutral", children }: { tone?: keyof typeof TONES; children: ReactNode }) {
@@ -313,25 +313,27 @@ export function Segments<T extends string>({
 export const btnPrimary =
   "inline-flex items-center justify-center gap-2 rounded-lg bg-[#2B6B6D] px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[#235759] active:scale-[0.98] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
 export const btnSecondary =
-  "inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 active:scale-[0.98] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
+  "inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 dark:border-white/15 bg-white dark:bg-panel px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-xs hover:bg-slate-50 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/25 active:scale-[0.98] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
 export const btnGhost =
-  "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors cursor-pointer";
+  "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer";
 export const btnDanger =
   "inline-flex items-center justify-center gap-2 rounded-lg bg-rose-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-rose-700 active:scale-[0.98] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
 
 export const inputClass =
-  "w-full h-10 rounded-lg border border-slate-200 bg-white px-3.5 text-[13.5px] font-medium text-slate-900 placeholder:text-slate-400 placeholder:font-normal shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-150 hover:border-slate-300 focus:border-[#2B6B6D] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#2B6B6D]/15 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-60 hover:[&::-webkit-calendar-picker-indicator]:opacity-100";
+  "w-full h-10 rounded-lg border border-slate-200 dark:border-white/15 bg-white dark:bg-panel px-3.5 text-[13.5px] font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-150 hover:border-slate-300 dark:hover:border-white/25 focus:border-[#2B6B6D] dark:focus:border-sky focus:bg-white dark:focus:bg-panel focus:outline-none focus:ring-4 focus:ring-[#2B6B6D]/15 dark:focus:ring-sky/20 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-60 hover:[&::-webkit-calendar-picker-indicator]:opacity-100";
 
-export const tableClass = "w-full text-sm bg-white border border-slate-200/90 rounded-xl overflow-hidden shadow-xs";
+export const tableClass =
+  "w-full text-sm bg-white dark:bg-panel border border-slate-200/90 dark:border-transparent rounded-xl overflow-hidden shadow-xs";
 export const thClass =
-  "text-left text-xs font-semibold text-slate-600 bg-slate-50/80 px-3.5 py-3 border-b border-slate-200 whitespace-nowrap";
-export const tdClass = "px-3.5 py-3 border-b border-slate-100 align-top text-[13px] text-slate-700";
+  "text-left text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-50/80 dark:bg-panel-raised px-3.5 py-3 border-b border-slate-200 dark:border-b-0 dark:border-transparent whitespace-nowrap";
+export const tdClass =
+  "px-3.5 py-3 border-b border-slate-100 dark:border-b-0 dark:border-transparent align-top text-[13px] text-slate-700 dark:text-slate-200";
 
 export const textareaClass =
-  "w-full min-h-[96px] rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-[13.5px] font-medium leading-relaxed text-slate-900 placeholder:text-slate-400 placeholder:font-normal shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-150 hover:border-slate-300 focus:border-[#2B6B6D] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#2B6B6D]/15 resize-y";
+  "w-full min-h-[96px] rounded-lg border border-slate-200 dark:border-white/15 bg-white dark:bg-panel px-3.5 py-2.5 text-[13.5px] font-medium leading-relaxed text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-150 hover:border-slate-300 dark:hover:border-white/25 focus:border-[#2B6B6D] dark:focus:border-sky focus:bg-white dark:focus:bg-panel focus:outline-none focus:ring-4 focus:ring-[#2B6B6D]/15 dark:focus:ring-sky/20 resize-y";
 
 export const selectClass =
-  "w-full h-10 rounded-lg border border-slate-200 bg-white pl-3.5 pr-10 text-[13.5px] font-medium text-slate-900 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-150 hover:border-slate-300 focus:border-[#2B6B6D] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#2B6B6D]/15 cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%2364748b%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M5.23%207.21a.75.75%200%20011.06.02L10%2011.168l3.71-3.938a.75.75%200%20111.08%201.04l-4.25%204.5a.75.75%200%2001-1.08%200l-4.25-4.5a.75.75%200%2001.02-1.06z%22%20clip-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.65rem_center] bg-no-repeat";
+  "w-full h-10 rounded-lg border border-slate-200 dark:border-white/15 bg-white dark:bg-panel pl-3.5 pr-10 text-[13.5px] font-medium text-slate-900 dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-150 hover:border-slate-300 dark:hover:border-white/25 focus:border-[#2B6B6D] dark:focus:border-sky focus:bg-white dark:focus:bg-panel focus:outline-none focus:ring-4 focus:ring-[#2B6B6D]/15 dark:focus:ring-sky/20 cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%2364748b%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M5.23%207.21a.75.75%200%20011.06.02L10%2011.168l3.71-3.938a.75.75%200%20111.08%201.04l-4.25%204.5a.75.75%200%2001-1.08%200l-4.25-4.5a.75.75%200%2001.02-1.06z%22%20clip-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.65rem_center] bg-no-repeat";
 
 /* ── Form + overlay primitives ─────────────────────────── */
 
@@ -355,16 +357,16 @@ export function Field({
 }) {
   return (
     <div className={`flex flex-col gap-1.5 ${className ?? ""}`}>
-      <label htmlFor={htmlFor} className="text-[12.5px] font-semibold text-slate-800 flex items-center justify-between gap-2 cursor-pointer select-none">
+      <label htmlFor={htmlFor} className="text-[12.5px] font-semibold text-slate-800 dark:text-slate-200 flex items-center justify-between gap-2 cursor-pointer select-none">
         <span className="flex items-center gap-1">
           <span>{label}</span>
           {required && <span className="text-rose-500 font-bold text-[13px]" title="Required">*</span>}
         </span>
       </label>
       {children}
-      {hint && <p className="text-[11.5px] text-slate-500 font-normal leading-normal">{hint}</p>}
+      {hint && <p className="text-[11.5px] text-slate-500 dark:text-slate-400 font-normal leading-normal">{hint}</p>}
       {error && (
-        <div className="flex items-center gap-1.5 text-[11.5px] font-semibold text-rose-700 mt-0.5 animate-in fade-in slide-in-from-top-1 duration-150">
+        <div className="flex items-center gap-1.5 text-[11.5px] font-semibold text-rose-700 dark:text-rose-400 mt-0.5 animate-in fade-in slide-in-from-top-1 duration-150">
           <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-rose-500" />
           <span>{error}</span>
         </div>
@@ -398,21 +400,21 @@ export function FormSection({
       data-form-section
       data-section-title={title}
       data-section-empty={empty ?? 0}
-      className="rounded-xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-[0_1px_3px_rgba(15,23,42,0.04)] scroll-mt-24 transition-all hover:border-slate-300"
+      className="rounded-xl border border-slate-200/90 dark:border-white/10 bg-white dark:bg-panel p-5 sm:p-6 shadow-[0_1px_3px_rgba(15,23,42,0.04)] scroll-mt-24 transition-all hover:border-slate-300 dark:hover:border-white/20"
     >
-      <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-3.5 mb-4">
+      <div className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-white/10 pb-3.5 mb-4">
         <div className="flex items-center gap-2.5">
           {icon && (
-            <div className="w-7 h-7 rounded-lg bg-teal-50 border border-teal-100 text-[#2B6B6D] flex items-center justify-center shrink-0">
+            <div className="w-7 h-7 rounded-lg bg-teal-50 dark:bg-teal-950/40 border border-teal-100 dark:border-teal-800/50 text-[#2B6B6D] dark:text-sky flex items-center justify-center shrink-0">
               {icon}
             </div>
           )}
-          <h2 className="text-[14.5px] font-bold text-slate-900 tracking-tight">{title}</h2>
+          <h2 className="text-[14.5px] font-bold text-slate-900 dark:text-white tracking-tight">{title}</h2>
         </div>
         <div className="flex items-center gap-2">
           {badge && <span className="text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">{badge}</span>}
           {empty !== undefined && empty > 0 && (
-            <span className="text-[11px] font-medium text-slate-500 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md">
+            <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-2 py-0.5 rounded-md">
               {empty} {empty === 1 ? "field" : "fields"} remaining
             </span>
           )}

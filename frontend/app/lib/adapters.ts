@@ -7,7 +7,7 @@
  * as they were and there is one file to fix when the API moves.
  */
 import type { ApiInfoCheck, ApiScholarship } from "./api";
-import type { Scholarship } from "@/app/data/scholarships";
+import { SCHOLARSHIPS_DATA, type Scholarship } from "@/app/data/scholarships";
 import { toKhmerDigits } from "./dataTranslations";
 
 /** The view model is the existing page shape plus the DMIL verdict. */
@@ -32,8 +32,8 @@ export interface ScholarshipView extends Scholarship {
  * requirement ("Grade A, B, or C").
  */
 const toBullets = (text: string | string[] | null | undefined): string[] => {
-  if (Array.isArray(text)) return text.map(s => String(s).trim()).filter(Boolean);
-  if (typeof text !== "string" || !text.trim()) return [];
+  if (Array.isArray(text)) return text.map((s) => String(s).trim().replace(/^[-•*]\s*/, "")).filter(Boolean);
+  if (!text || typeof text !== "string" || !text.trim()) return [];
   return text
     .split(/[;\n]+/)
     .map(part => part.trim().replace(/^[-•*]\s*/, ""))
@@ -42,8 +42,8 @@ const toBullets = (text: string | string[] | null | undefined): string[] => {
 
 /** Comma-separated list cells (majors, fields) — commas are the separator here. */
 const toList = (text: string | string[] | null | undefined): string[] => {
-  if (Array.isArray(text)) return text.map(s => String(s).trim()).filter(Boolean);
-  if (typeof text !== "string" || !text.trim()) return [];
+  if (Array.isArray(text)) return text.map((s) => String(s).trim()).filter(Boolean);
+  if (!text || typeof text !== "string" || !text.trim()) return [];
   return text
     .split(/[;,\n]+/)
     .map(part => part.trim())
@@ -152,7 +152,7 @@ export const deadlineLabel = (state: DeadlineState, locale: string = "en"): stri
 
 /** `provider_type` (6 values) collapsed onto the page's 3 filter categories. */
 const toCategory = (providerType?: string | null): Scholarship["category"] => {
-  switch (providerType) {
+  switch ((providerType || "").toLowerCase()) {
     case "government":
       return "Government";
     case "foundation":
@@ -179,7 +179,7 @@ const toCoverageBand = (amount?: string | null, coverage?: string | null): Schol
 };
 
 const toCoveragePercent = (amount?: string | null): number | undefined => {
-  if (!amount) return undefined;
+  if (!amount || typeof amount !== "string") return undefined;
   const match = amount.match(/(\d{1,3})\s*%/);
   if (match) return Number(match[1]);
   return /full tuition|fully funded/i.test(amount) ? 100 : undefined;
@@ -256,10 +256,15 @@ const EXPIRING_IMAGE_HOST = /(^|\.)(fbcdn\.net|cdninstagram\.com|fbsbx\.com)$/i;
 const usableImage = (url: string): boolean => {
   try {
     const parsed = new URL(url);
+    if (parsed.protocol !== "https:" || EXPIRING_IMAGE_HOST.test(parsed.hostname)) {
+      return false;
+    }
     return (
-      parsed.protocol === "https:" &&
-      !EXPIRING_IMAGE_HOST.test(parsed.hostname) &&
-      IMAGE_FILE.test(parsed.pathname + parsed.search)
+      IMAGE_FILE.test(parsed.pathname + parsed.search) ||
+      parsed.hostname.includes("gstatic.com") ||
+      parsed.hostname.includes("googleusercontent.com") ||
+      parsed.pathname.includes("/images") ||
+      parsed.hostname.includes("unsplash.com")
     );
   } catch {
     return false;
@@ -267,8 +272,28 @@ const usableImage = (url: string): boolean => {
 };
 
 const toImage = (row: any): string => {
-  if (row.image && typeof row.image === "string") return row.image;
-  if (row.image_url && usableImage(row.image_url)) return row.image_url;
+  const customUrl = (row as any).image || row.image_url;
+  if (customUrl) {
+    if (usableImage(customUrl)) return customUrl;
+    if (typeof customUrl === "string" && customUrl.startsWith("http") && !EXPIRING_IMAGE_HOST.test(customUrl)) {
+      return customUrl;
+    }
+  }
+
+  // Fallback to matching entry in SCHOLARSHIPS_DATA if defined
+  const slug = (row as any).slug ? String((row as any).slug).toLowerCase() : "";
+  const idStr = String(row.id).toLowerCase();
+  const titleStr = (row.title || "").toLowerCase();
+  const matched = SCHOLARSHIPS_DATA.find(
+    (s) =>
+      (slug && s.id.toLowerCase() === slug) ||
+      s.id.toLowerCase() === idStr ||
+      (titleStr && s.title.toLowerCase() === titleStr) ||
+      (titleStr.includes("techo digital") && s.id === "techo-digital-talent-2026")
+  );
+  if (matched?.image) {
+    return matched.image;
+  }
   return subjectPhoto(row);
 };
 
@@ -354,3 +379,112 @@ export const relatedScholarships = (
   const others = candidates.filter(s => s.category !== current.category);
   return [...sameCategory, ...others].slice(0, limit);
 };
+
+/**
+ * Adapts a static curated Scholarship into a ScholarshipView model.
+ */
+export const curatedToScholarshipView = (s: Scholarship): ScholarshipView => {
+  const parsedDate = s.deadline ? Date.parse(s.deadline) : NaN;
+  const deadlineAt = !Number.isNaN(parsedDate) ? new Date(parsedDate).toISOString() : null;
+
+  return {
+    ...s,
+    apiId: 0,
+    infoCheck: {
+      verifiedStatus: s.isVerified ? "verified" : "unverified",
+      sourceType: "official",
+      isRisky: false,
+      reasons: [],
+      source: s.officialSource,
+      sourceUrl: s.officialSource,
+      lastVerified: s.lastVerified,
+      summary: `${s.coverage} scholarship offered by ${s.provider}.`,
+    },
+    coverageText: s.coverage,
+    deadlineNote: null,
+    deadlineAt,
+  };
+};
+
+/**
+ * Finds all scholarships related to a specific university by provider, name,
+ * shortName acronym, or curated list references.
+ */
+export const getScholarshipsForUniversity = (
+  uni: {
+    id: string;
+    name: string;
+    shortName?: string;
+    scholarshipsList?: string[];
+    popularMajors?: string[];
+  },
+  all: ScholarshipView[]
+): ScholarshipView[] => {
+  const uId = uni.id.toLowerCase().trim();
+  const uName = uni.name.toLowerCase().trim();
+  const uShort = (uni.shortName || "").toLowerCase().trim();
+  const shortRegex =
+    uShort.length >= 2
+      ? new RegExp(`\\b${uShort.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i")
+      : null;
+
+  const matches = all.filter((s) => {
+    const sId = s.id.toLowerCase();
+    const sProvider = s.provider.toLowerCase();
+    const sTitle = s.title.toLowerCase();
+
+    // 1. Direct university name match
+    if (sProvider.includes(uName) || uName.includes(sProvider)) return true;
+
+    // 2. University short name acronym match with word boundaries
+    if (shortRegex && (shortRegex.test(s.provider) || shortRegex.test(s.title))) return true;
+
+    // 3. ID / slug association (e.g. cadt -> cadt / techo)
+    if (uId === "cadt" && (sId.includes("cadt") || sId.includes("techo"))) return true;
+    if (sId.startsWith(uId + "-") || sId.endsWith("-" + uId) || sId === uId) return true;
+
+    // 4. University scholarshipsList cross-matching
+    if (
+      uni.scholarshipsList &&
+      uni.scholarshipsList.some((item) => {
+        const itemLower = item.toLowerCase();
+        if (itemLower.includes("techo") && sTitle.includes("techo")) return true;
+        if (itemLower.includes("aeon") && (sTitle.includes("aeon") || sTitle.includes("æon"))) return true;
+        return sTitle.includes(itemLower) || itemLower.includes(sTitle);
+      })
+    ) {
+      return true;
+    }
+
+    return false;
+  });
+
+  // Deduplicate by id
+  const seen = new Set<string>();
+  const unique = matches.filter((s) => {
+    if (seen.has(s.id)) return false;
+    seen.add(s.id);
+    return true;
+  });
+
+  // If no direct matches, fall back to matching by popular majors or open scholarships
+  if (unique.length === 0 && uni.popularMajors && uni.popularMajors.length > 0) {
+    const majorMatches = all.filter((s) =>
+      s.targetMajors.some((m) =>
+        uni.popularMajors!.some(
+          (pm) => pm.toLowerCase().includes(m.toLowerCase()) || m.toLowerCase().includes(pm.toLowerCase())
+        )
+      )
+    );
+    for (const m of majorMatches) {
+      if (!seen.has(m.id)) {
+        seen.add(m.id);
+        unique.push(m);
+      }
+      if (unique.length >= 2) break;
+    }
+  }
+
+  return unique;
+};
+

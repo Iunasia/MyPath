@@ -38,6 +38,8 @@ services:
       - DATABASE_URL=postgres://${POSTGRES_USER:-mypath}:${POSTGRES_PASSWORD:-mypath_dev_password}@db:5432/${POSTGRES_DB:-mypath}
       - SESSION_SECRET=${SESSION_SECRET:-mypath-dev-secret}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
       # Optional — Google OAuth stays disabled unless these are set in .env
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}

@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { Link, usePathname, useRouter } from "@/src/i18n";
 import { useAuth } from "@/app/context/AuthContext";
 import { fetchMyVerificationRequests } from "@/app/lib/api";
 import SignOutButton from "./SignOutButton";
+import Avatar from "./Avatar";
 import {
   Menu,
   X,
@@ -22,6 +24,7 @@ import {
   Globe,
   Sun,
   Moon,
+  UserCircle,
 } from "lucide-react";
 import { useTheme } from "@/app/context/ThemeContext";
 
@@ -93,6 +96,8 @@ function useDismiss(open: boolean, close: () => void) {
   return ref;
 }
 
+const subscribeToMount = () => () => {};
+
 export default function Header({ variant = "default", activeNav, className = "" }: HeaderProps) {
   const t = useTranslations("nav");
   const tCommon = useTranslations("common");
@@ -103,14 +108,10 @@ export default function Header({ variant = "default", activeNav, className = "" 
   const [accountOpen, setAccountOpen] = useState(false);
   const { user, loading } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(subscribeToMount, () => true, () => false);
   const isAdmin = user?.role === "admin";
   const unread = useUnreadAnswers(Boolean(user));
   const accountRef = useDismiss(accountOpen, () => setAccountOpen(false));
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const closeMenus = () => {
     setAccountOpen(false);
@@ -147,10 +148,18 @@ export default function Header({ variant = "default", activeNav, className = "" 
   return (
     <div className={`${position} z-50 ${className}`}>
       <header className="bg-white/90 backdrop-blur-md rounded-full bubble-shadow-sm border border-sky/15 pl-4 pr-3 sm:pl-5 sm:pr-4 py-2.5 flex items-center justify-between gap-4">
+        {/* The logo is the way home on every page. */}
         <Link href="/" className="flex items-center gap-2.5 shrink-0" aria-label={t("home")}>
-          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-sky-deep text-white text-sm font-bold font-display">
-            D
-          </span>
+          <div className="relative w-8 h-8 shrink-0 flex items-center justify-center">
+            <Image
+              src="/images/domner-logo.png"
+              alt="Domner Logo"
+              width={32}
+              height={32}
+              priority
+              className="w-full h-full object-contain"
+            />
+          </div>
           <span className="font-display text-lg font-bold text-blue-ink tracking-tight hidden sm:block">
             DOMNER
           </span>
@@ -233,9 +242,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
                 aria-label={t("yourAccount")}
                 className="flex items-center gap-1 rounded-full p-0.5 pr-1.5 hover:bg-sitomo transition-colors cursor-pointer"
               >
-                <span className="w-8 h-8 rounded-full bg-sky-deep text-white text-sm font-bold flex items-center justify-center">
-                  {user.name.trim().charAt(0).toUpperCase() || "?"}
-                </span>
+                <Avatar user={user} size={32} className="text-sm" />
                 <ChevronDown className="w-3.5 h-3.5 text-gray-soft" aria-hidden="true" />
               </button>
 
@@ -267,6 +274,15 @@ export default function Header({ variant = "default", activeNav, className = "" 
                     <Bookmark className="w-4 h-4 text-sky-deep" />
                     {t("saved")}
                   </Link>
+                  <Link
+                    href="/profile"
+                    role="menuitem"
+                    onClick={() => setAccountOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-blue-ink hover:bg-powder"
+                  >
+                    <UserCircle className="w-4 h-4 text-sky-deep" />
+                    {t("profile")}
+                  </Link>
                   {isAdmin && (
                     <Link
                       href="/admin"
@@ -285,7 +301,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
           ) : (
             <Link
               href="/auth/signin"
-              className="hidden sm:inline-flex items-center rounded-full bg-sky-deep px-5 py-2 text-sm font-bold text-white hover:bg-sky-dark transition-colors"
+              className="hidden sm:inline-flex items-center rounded-full bg-[#7AB3B7] px-5 py-2 text-sm font-bold text-white hover:bg-[#68A1A5] transition-colors"
             >
               {tCommon("signIn")}
             </Link>
@@ -367,6 +383,10 @@ export default function Header({ variant = "default", activeNav, className = "" 
                 <p className="px-3.5 pb-1 text-xs text-gray-soft font-medium truncate">
                   {tCommon("signIn")} <span className="font-bold text-blue-ink">{user.name}</span>
                 </p>
+                <Link href="/profile" className={mobileLink(false)} onClick={() => setMenuOpen(false)}>
+                  <UserCircle className="w-4 h-4 text-sky-deep" />
+                  {t("profile")}
+                </Link>
                 {isAdmin && (
                   <Link href="/admin" className={mobileLink(false)} onClick={() => setMenuOpen(false)}>
                     <LayoutDashboard className="w-4 h-4 text-sky-deep" />
@@ -387,7 +407,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
                 <Link
                   href="/auth/signup"
                   onClick={() => setMenuOpen(false)}
-                  className="text-center rounded-full bg-sky-deep px-4 py-2.5 font-bold text-white hover:bg-sky-dark transition-colors"
+                  className="text-center rounded-full bg-[#7AB3B7] px-4 py-2.5 font-bold text-white hover:bg-[#68A1A5] transition-colors"
                 >
                   {tCommon("createAccount")}
                 </Link>

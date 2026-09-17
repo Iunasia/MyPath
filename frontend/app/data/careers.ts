@@ -110,7 +110,7 @@ export const CAREERS_DATA: CareerItem[] = [
       "A software developer is someone who creates, builds, and maintains software applications, websites, and digital programs. They use programming languages and problem-solving skills to turn ideas into working technology that can be used by individuals, businesses, and organizations.",
     whatYouDo: "Develops and maintains software applications and systems.",
     icon: Code2,
-    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop&q=80",
+    image: "https://www.redlinegroup.com/app/data/blog/crop_ef6c974b780c49ff09552f0d07d8737f.jpg",
     relatedMajorsText: ["Computer Science", "IT", "Software Engineering"],
     relatedMajors: [
       { id: "computer-science", name: "Computer Science", icon: Laptop },
@@ -133,7 +133,7 @@ export const CAREERS_DATA: CareerItem[] = [
       "An IT support specialist is someone who helps people and organizations solve problems related to computers, software, networks, and other technology. They troubleshoot technical issues, install and maintain systems, and guide users when they have difficulties using technology.",
     whatYouDo: "Helps organizations solve hardware, software, and technical problems.",
     icon: Wrench,
-    image: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=800&auto=format&fit=crop&q=80",
+    image: "https://www.auxilion.com/hubfs/it-support.jpg",
     relatedMajorsText: ["IT", "CS", "Information Systems"],
     relatedMajors: [
       { id: "information-technology", name: "Information Technology", icon: Network },
@@ -157,7 +157,7 @@ export const CAREERS_DATA: CareerItem[] = [
       "A cybersecurity analyst is someone who protects computer systems, networks, and sensitive information from cyber threats. They monitor systems for suspicious activity, identify security weaknesses, and respond to potential attacks or data breaches.",
     whatYouDo: "Protects systems and information from security threats.",
     icon: ShieldCheck,
-    image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&auto=format&fit=crop&q=80",
+    image: "https://www.acitechacademy.com/static/3f99a17a8bac139fb9766fd104eca7a4/eeb31/cysa_ta_program_blog_cover_122962228e.webp",
     relatedMajorsText: ["Cybersecurity", "CS", "IT"],
     relatedMajors: [
       { id: "cybersecurity", name: "Cybersecurity", icon: ShieldCheck },
@@ -181,7 +181,7 @@ export const CAREERS_DATA: CareerItem[] = [
       "A data analyst is someone who collects, organizes, and studies data to help organizations understand what is happening and make better decisions. They use tools such as spreadsheets, databases, and data visualization software to identify patterns and trends in information.",
     whatYouDo: "Uses data to identify patterns and support business decisions.",
     icon: LineChart,
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80",
+    image: "https://blog.herzing.ca/hubfs/data%20analytics.jpg",
     relatedMajorsText: ["Data Science", "CS", "Economics", "Business"],
     relatedMajors: [
       { id: "data-science", name: "Data Science", icon: LineChart },
@@ -206,7 +206,7 @@ export const CAREERS_DATA: CareerItem[] = [
       "An AI or machine learning engineer is someone who develops computer systems that can learn from data and perform tasks that normally require human intelligence. They create, train, and improve machine learning models for prediction, automation, and intelligent applications.",
     whatYouDo: "Develops systems using AI and machine learning.",
     icon: Brain,
-    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&auto=format&fit=crop&q=80",
+    image: "https://www.global-csg.com/wp-content/uploads/2024/08/How-Artificial-Intelligence-AI-and-Machine-Learning-ML-Would-Impact-the-Future-of-Engineering_.jpg",
     relatedMajorsText: ["AI", "CS", "Data Science"],
     relatedMajors: [
       { id: "artificial-intelligence", name: "Artificial Intelligence", icon: Brain },
@@ -230,7 +230,7 @@ export const CAREERS_DATA: CareerItem[] = [
       "A business analyst is someone who studies how an organization works and helps identify problems, opportunities, and ways to improve its performance. They communicate with different teams and help design effective solutions.",
     whatYouDo: "Analyzes business problems and helps improve processes and decisions.",
     icon: Layers,
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80",
+    image: "https://nhmsoft.vn/wp-content/uploads/2026/03/6_essential_skills_for_every_business_analyst.webp",
     relatedMajorsText: ["Business Administration", "BIS", "Economics"],
     relatedMajors: [
       { id: "business-administration", name: "Business Administration", icon: Briefcase },
@@ -254,7 +254,7 @@ export const CAREERS_DATA: CareerItem[] = [
       "A marketing specialist is someone who helps a business promote its products, services, or brand and connect with its target customers. They work on social media, advertising, branding, and market research to drive growth.",
     whatYouDo: "Plans marketing activities to attract and retain customers.",
     icon: Megaphone,
-    image: "https://images.unsplash.com/photo-1533750516457-a7f992034fec?w=800&auto=format&fit=crop&q=80",
+    image: "https://emeritus.org/wp-content/uploads/sites/3/2023/04/what-does-a-business-analyst-do.png",
     relatedMajorsText: ["Marketing", "Business", "Digital Business"],
     relatedMajors: [
       { id: "marketing", name: "Marketing", icon: Megaphone },
@@ -278,7 +278,7 @@ export const CAREERS_DATA: CareerItem[] = [
       "An accountant is someone who manages and records the financial information of individuals, businesses, or organizations. They prepare financial statements, track expenses, and ensure regulatory compliance.",
     whatYouDo: "Records and manages financial information.",
     icon: Coins,
-    image: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&auto=format&fit=crop&q=80",
+    image: "https://tgg-accounting.com/wp-content/uploads/2023/07/accounting-asset-based-2-scaled.jpeg",
     relatedMajorsText: ["Accounting", "Finance", "Business"],
     relatedMajors: [
       { id: "accounting", name: "Accounting", icon: Coins },
@@ -302,7 +302,7 @@ export const CAREERS_DATA: CareerItem[] = [
       "A financial analyst is someone who studies financial information to help businesses, investors, or organizations make informed financial decisions. They analyze investments, market trends, and risk to develop recommendations.",
     whatYouDo: "Analyzes financial information for investment and business decisions.",
     icon: LineChart,
-    image: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=800&auto=format&fit=crop&q=80",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTT7OOSeZAOT72Fq2bK0mXssoAnWnZjrw4M5p_0KWYSQ4AomgWRnhfWHlDS&s=10",
     relatedMajorsText: ["Finance", "Accounting", "Economics"],
     relatedMajors: [
       { id: "finance-banking", name: "Finance & Banking", icon: Coins },
@@ -326,7 +326,7 @@ export const CAREERS_DATA: CareerItem[] = [
       "An HR specialist is someone who helps organizations manage their employees and create an effective workplace. They handle recruitment, employee development, and workplace policies.",
     whatYouDo: "Supports recruitment and employee management.",
     icon: Briefcase,
-    image: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=800&auto=format&fit=crop&q=80",
+    image: "https://d35okqf31nin9j.cloudfront.net/media-prod-2/original_images/News_Human_Resources_Specialist.jpg",
     relatedMajorsText: ["Business", "HR", "Management", "Psychology"],
     relatedMajors: [
       { id: "business-administration", name: "Business Administration", icon: Briefcase },
@@ -348,7 +348,7 @@ export const CAREERS_DATA: CareerItem[] = [
       "A project manager is someone who plans, organizes, and leads projects from beginning to completion. They coordinate teams, manage budgets, and ensure projects achieve intended goals.",
     whatYouDo: "Plans and manages projects from start to completion.",
     icon: Layers,
-    image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&auto=format&fit=crop&q=80",
+    image: "https://www.forbes.com/advisor/wp-content/uploads/2021/10/what_is_a_project_manager_-_article_image.jpg",
     relatedMajorsText: ["Business", "Management", "Engineering", "IT"],
     relatedMajors: [
       { id: "business-administration", name: "Business Administration", icon: Briefcase },
@@ -372,7 +372,7 @@ export const CAREERS_DATA: CareerItem[] = [
       "A civil engineer is someone who designs, develops, and maintains infrastructure such as roads, bridges, buildings, and water systems to create safe, durable public structures.",
     whatYouDo: "Designs and manages construction and infrastructure projects.",
     icon: Building2,
-    image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80",
+    image: "https://www.thomasandhutton.com/wp-content/uploads/2023/05/Gorodenkoff-construction-1.jpg",
     relatedMajorsText: ["Civil Engineering", "Architecture"],
     relatedMajors: [
       { id: "civil-engineering", name: "Civil Engineering", icon: Building2 },
@@ -395,7 +395,7 @@ export const CAREERS_DATA: CareerItem[] = [
       "An electrical engineer is someone who designs, develops, tests, and maintains electrical systems and equipment, including power grids, electronics, and telecommunications.",
     whatYouDo: "Designs and maintains electrical systems and equipment.",
     icon: Cpu,
-    image: "https://images.unsplash.com/photo-1498084393753-b411b2d26b34?w=800&auto=format&fit=crop&q=80",
+    image: "https://maker.pro/storage/VtxAkWbGmVasPYFgVJaLsrqfi5WHAfteHyIHrBHS/VtxAkWbGmVasPYFgVJaLsrqfi5WHAfteHyIHrBHS.jpg",
     relatedMajorsText: ["Electrical Engineering", "Electronics"],
     relatedMajors: [
       { id: "electrical-engineering", name: "Electrical Engineering", icon: Cpu },
@@ -417,7 +417,7 @@ export const CAREERS_DATA: CareerItem[] = [
       "A mechanical engineer is someone who designs, develops, tests, and improves machines, equipment, and mechanical systems across manufacturing, robotics, energy, and automotive industries.",
     whatYouDo: "Designs and maintains machines and mechanical systems.",
     icon: Wrench,
-    image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80",
+    image: "https://assets-us-01.kc-usercontent.com/d6a9597f-2e6e-0006-ad27-50e384133464/121332cd-e278-4522-8866-06f59f983355/mechanical-engineering-technology-1920x1080.jpg?auto=format",
     relatedMajorsText: ["Mechanical Engineering"],
     relatedMajors: [
       { id: "mechanical-engineering", name: "Mechanical Engineering", icon: Wrench },
@@ -439,7 +439,7 @@ export const CAREERS_DATA: CareerItem[] = [
       "An architect is someone who designs buildings and physical spaces based on the needs of the people who will use them, combining creativity and structural engineering.",
     whatYouDo: "Designs buildings and spaces considering function and aesthetics.",
     icon: Building,
-    image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&auto=format&fit=crop&q=80",
+    image: "https://www.dbarchitect.com/sites/default/files/styles/original/public/2023-01/working_group_photography_annehamersky_2022_07_web.jpg.webp?itok=68ofAuwU",
     relatedMajorsText: ["Architecture", "Civil Engineering"],
     relatedMajors: [
       { id: "architecture", name: "Architecture", icon: Building },
@@ -462,7 +462,7 @@ export const CAREERS_DATA: CareerItem[] = [
       "An economist or economic analyst is someone who studies how money, resources, markets, and economic policies affect society and businesses, providing forecasts and strategic policy guidance.",
     whatYouDo: "Studies economic data and trends to support decisions and policy.",
     icon: LineChart,
-    image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&auto=format&fit=crop&q=80",
+    image: "https://www.workbc.ca/sites/default/files/styles/hero_image/public/2025-06/NOC%2041401-1187874882.jpg?itok=lz5s5kvW",
     relatedMajorsText: ["Economics", "Finance", "Business"],
     relatedMajors: [
       { id: "economics", name: "Economics", icon: LineChart },
@@ -486,7 +486,7 @@ export const CAREERS_DATA: CareerItem[] = [
       "An international relations officer works with governments, international partners, and organizations to foster diplomacy, manage cross-border programs, and support global cooperation.",
     whatYouDo: "Supports international affairs, partnerships, and programs.",
     icon: Globe,
-    image: "https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=800&auto=format&fit=crop&q=80",
+    image: "https://www.aiu.edu/wp-content/uploads/2025/02/businessmen-agreement_1098-72.jpg",
     relatedMajorsText: ["IR", "Political Science", "Law"],
     relatedMajors: [
       { id: "international-relations", name: "International Relations", icon: Globe },
@@ -509,7 +509,7 @@ export const CAREERS_DATA: CareerItem[] = [
       "A legal officer provides legal support, reviews contracts, evaluates regulatory compliance, and mitigates legal risks for organizations.",
     whatYouDo: "Provides legal support and helps organizations comply with laws.",
     icon: Scale,
-    image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&auto=format&fit=crop&q=80",
+    image: "https://ask.legal/assets/legal-professional-Rg5CNQat.png",
     relatedMajorsText: ["Law", "IR", "Business"],
     relatedMajors: [
       { id: "law", name: "Law", icon: Scale },
@@ -533,7 +533,7 @@ export const CAREERS_DATA: CareerItem[] = [
       "A hotel or tourism manager manages the operations of hotels, resorts, or travel companies to deliver exceptional customer experiences and run profitable hospitality businesses.",
     whatYouDo: "Manages hospitality operations and customer experiences.",
     icon: Compass,
-    image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&auto=format&fit=crop&q=80",
+    image: "https://aaft.com/blog/wp-content/uploads/2025/05/tourist-giving-passport-receptionist-scaled.jpg",
     relatedMajorsText: ["Tourism & Hospitality", "Business"],
     relatedMajors: [
       { id: "tourism-hospitality", name: "Tourism & Hospitality Management", icon: Compass },
@@ -556,7 +556,7 @@ export const CAREERS_DATA: CareerItem[] = [
       "A graphic or UI designer creates visual communications, branding assets, and digital interfaces for web and mobile applications.",
     whatYouDo: "Creates visual designs and digital interfaces.",
     icon: Palette,
-    image: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=800&auto=format&fit=crop&q=80",
+    image: "https://www.singaporetech.edu.sg/sitlearn/sites/sitlearn/files/2024-11/course-sctpuiuxdesign-banner_0.png",
     relatedMajorsText: ["Graphic Design", "Digital Arts", "CS", "Digital Business"],
     relatedMajors: [
       { id: "graphic-design", name: "Graphic Design / Digital Arts & Design", icon: Palette },

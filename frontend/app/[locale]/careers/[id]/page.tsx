@@ -3,12 +3,12 @@ import { Link } from "@/src/i18n";
 import {
   ArrowRight,
   Info,
-  Briefcase,
   GraduationCap,
   Sparkles,
   TrendingUp,
   Target,
   CheckCircle2,
+  Briefcase,
 } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { type Locale } from "@/src/i18n/routing";
@@ -97,7 +97,6 @@ export default async function CareerDetailPage({ params }: PageProps) {
           unmatched: [],
         };
 
-  const Icon = career.icon;
 
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
@@ -119,10 +118,7 @@ export default async function CareerDetailPage({ params }: PageProps) {
               </span>
             </div>
 
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-16 h-16 rounded-2xl bg-sitomo flex items-center justify-center border border-sky/15 shrink-0">
-                <Icon className="w-8 h-8 text-sky-deep" strokeWidth={2.2} />
-              </div>
+            <div className="mb-6 pb-6 border-b border-sky/15 max-w-4xl">
               <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight leading-[1.15]">
                 {career.title}
               </h1>
@@ -144,7 +140,6 @@ export default async function CareerDetailPage({ params }: PageProps) {
                 </div>
               </div>
             </div>
-
             <div className="max-w-4xl mb-6">
               <h2 className="text-xs font-extrabold uppercase tracking-wider text-gray-soft mb-2">
                 {t("shortOverview")}
@@ -158,6 +153,7 @@ export default async function CareerDetailPage({ params }: PageProps) {
               <SaveItemButton
                 item={{
                   id: career.id,
+                  slug: career.id,
                   type: "career",
                   title: career.title,
                   subtitle: career.categoryKey,

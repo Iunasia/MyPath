@@ -16,6 +16,22 @@ const TABLES: string[] = [
     auth_provider TEXT NOT NULL DEFAULT 'local',
     google_id TEXT UNIQUE,
     avatar_url TEXT,
+    avatar_data BYTEA,
+    avatar_mime TEXT,
+    avatar_updated_at TIMESTAMPTZ,
+    bio TEXT,
+    location TEXT,
+    website TEXT,
+    date_of_birth DATE,
+    gender TEXT,
+    is_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  )`,
+  `CREATE TABLE IF NOT EXISTS email_verifications (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    code TEXT NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`,
   `CREATE TABLE IF NOT EXISTS scholarships (
@@ -173,6 +189,13 @@ const TABLES: string[] = [
     changes JSONB NOT NULL DEFAULT '{}'::jsonb,
     reason TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  )`,
+  `CREATE TABLE IF NOT EXISTS email_verifications (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    code TEXT NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`
 ];
 
@@ -181,6 +204,15 @@ const TABLES: string[] = [
  * databases made before a column was added need it bolted on explicitly.
  */
 const ADD_COLUMNS: Array<[string, string]> = [
+  ['users', 'is_verified BOOLEAN NOT NULL DEFAULT FALSE'],
+  ['users', 'avatar_data BYTEA'],
+  ['users', 'avatar_mime TEXT'],
+  ['users', 'avatar_updated_at TIMESTAMPTZ'],
+  ['users', 'bio TEXT'],
+  ['users', 'location TEXT'],
+  ['users', 'website TEXT'],
+  ['users', 'date_of_birth DATE'],
+  ['users', 'gender TEXT'],
   ['scholarships', 'degree_level TEXT'],
   ['scholarships', 'field_of_study TEXT'],
   ['scholarships', "documents TEXT[] NOT NULL DEFAULT '{}'"],
@@ -227,7 +259,8 @@ const ADD_COLUMNS: Array<[string, string]> = [
   ['universities', 'archived_at TIMESTAMPTZ'],
   ['universities', 'archived_by INTEGER REFERENCES users(id) ON DELETE SET NULL'],
   ['universities', 'edited_at TIMESTAMPTZ'],
-  ['universities', 'edited_by INTEGER REFERENCES users(id) ON DELETE SET NULL']
+  ['universities', 'edited_by INTEGER REFERENCES users(id) ON DELETE SET NULL'],
+  ['users', 'is_verified BOOLEAN NOT NULL DEFAULT FALSE']
 ];
 
 /**
@@ -267,6 +300,7 @@ const DROP_NOT_NULL: Array<[string, string]> = [
 
 /** Order matters: children are truncated before the rows they reference. */
 export const TABLE_NAMES = [
+  'email_verifications',
   'saved_items',
   'reports',
   'verification_requests',

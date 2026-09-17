@@ -61,7 +61,10 @@ function RequestRow({ request }: { request: ApiVerificationRequest }) {
       </div>
       <div className="flex items-center gap-2 justify-self-end">
         {risk && <Tag tone={risk.tone}>{risk.label}</Tag>}
-        <Link href={`/admin/requests#request-${request.id}`} className={btnPrimary}>
+        <Link
+          href={`/admin/requests#request-${request.id}`}
+          className="rounded-md bg-[#7AB3B7] px-3 py-1 text-xs font-bold text-white hover:opacity-90"
+        >
           Answer
         </Link>
       </div>
