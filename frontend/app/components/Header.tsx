@@ -133,11 +133,15 @@ export default function Header({ variant = "default", activeNav, className = "" 
 
   const desktopLink = (active: boolean) =>
     `inline-flex items-center gap-1.5 transition-colors ${
-      active ? "font-bold text-sky-deep" : "text-gray-soft hover:text-blue-ink dark:text-gray-body dark:hover:text-white"
+      active
+        ? "font-bold text-[#7AB3B7]"
+        : "text-gray-soft hover:text-[#7AB3B7] dark:text-gray-body dark:hover:text-[#7AB3B7]"
     }`;
   const mobileLink = (active: boolean) =>
-    `flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors ${
-      active ? "bg-sky/15 text-sky-deep font-bold" : "text-blue-ink hover:bg-powder"
+    `group flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors ${
+      active
+        ? "bg-[#7AB3B7]/15 text-[#7AB3B7] font-bold"
+        : "text-blue-ink hover:bg-powder hover:text-[#7AB3B7]"
     }`;
 
   const position =
@@ -149,18 +153,18 @@ export default function Header({ variant = "default", activeNav, className = "" 
     <div className={`${position} z-50 ${className}`}>
       <header className="bg-white/90 backdrop-blur-md rounded-full bubble-shadow-sm border border-sky/15 pl-4 pr-3 sm:pl-5 sm:pr-4 py-2.5 flex items-center justify-between gap-4">
         {/* The logo is the way home on every page. */}
-        <Link href="/" className="flex items-center gap-2.5 shrink-0" aria-label={t("home")}>
-          <div className="relative w-8 h-8 shrink-0 flex items-center justify-center">
+        <Link href="/" className="flex items-center gap-1 shrink-0" aria-label={t("home")}>
+          <div className="relative h-18 sm:h-18 aspect-[207/268] shrink-0 flex items-center justify-center">
             <Image
-              src="/images/domner-logo.png"
+              src="/images/logo.png"
               alt="Domner Logo"
-              width={32}
-              height={32}
+              width={48}
+              height={62}
               priority
               className="w-full h-full object-contain"
             />
           </div>
-          <span className="font-display text-lg font-bold text-blue-ink tracking-tight hidden sm:block">
+          <span className="font-display text-xl font-extrabold text-[#5B9DA2] tracking-tight hidden sm:block">
             DOMNER
           </span>
         </Link>
@@ -214,7 +218,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
               type="button"
               onClick={() => switchLocale("en")}
               className={`px-2.5 py-1.5 transition-colors cursor-pointer ${
-                locale === "en" ? "bg-sky-deep text-white" : "text-gray-soft hover:text-blue-ink"
+                locale === "en" ? "bg-sky-deep text-white" : "text-gray-soft hover:text-[#7AB3B7]"
               }`}
             >
               EN
@@ -223,7 +227,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
               type="button"
               onClick={() => switchLocale("km")}
               className={`px-2.5 py-1.5 transition-colors cursor-pointer ${
-                locale === "km" ? "bg-sky-deep text-white" : "text-gray-soft hover:text-blue-ink"
+                locale === "km" ? "bg-sky-deep text-white" : "text-gray-soft hover:text-[#7AB3B7]"
               }`}
             >
               KM
@@ -358,7 +362,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
                 type="button"
                 onClick={() => switchLocale("en")}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                  locale === "en" ? "bg-sky-deep text-white" : "text-gray-soft hover:text-blue-ink bg-powder"
+                  locale === "en" ? "bg-sky-deep text-white" : "text-gray-soft hover:text-[#7AB3B7] bg-powder"
                 }`}
               >
                 English
@@ -367,7 +371,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
                 type="button"
                 onClick={() => switchLocale("km")}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                  locale === "km" ? "bg-sky-deep text-white" : "text-gray-soft hover:text-blue-ink bg-powder"
+                  locale === "km" ? "bg-sky-deep text-white" : "text-gray-soft hover:text-[#7AB3B7] bg-powder"
                 }`}
               >
                 ខ្មែរ

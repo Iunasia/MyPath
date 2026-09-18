@@ -109,7 +109,7 @@ const TRUST_DESC_KEYS = [
 const TRUST_STYLES = [
   { border: "border-sky-deep", iconBg: "bg-sky-deep" },
   { border: "border-sky", iconBg: "bg-sky" },
-  { border: "border-sky-dark", iconBg: "bg-sky-dark" },
+  { border: "border-[#7AB3B7]", iconBg: "bg-[#7AB3B7]" },
   { border: "border-sky-deep", iconBg: "bg-sky-deep" },
 ] as const;
 
@@ -173,7 +173,7 @@ export default async function Home() {
             <h2 className="font-display text-3xl sm:text-4xl lg:text-[2.75rem] font-extrabold text-blue-ink tracking-tight">
               {t("howItWorksTitle")}
               <br />
-              <span className="text-sky-deep">{t("howItWorksHighlight")}</span>
+              <span className="text-[#5B9DA2]">{t("howItWorksHighlight")}</span>
             </h2>
           </div>
 
@@ -351,7 +351,7 @@ export default async function Home() {
 
                 <h2 className="font-display text-3xl sm:text-4xl lg:text-[2.65rem] font-extrabold text-blue-ink tracking-tight mb-4 leading-tight">
                   {t("infoCheckTitle")} <br />
-                  <span className="text-sky-deep">{t("infoCheckHighlight")}</span>
+                  <span className="text-[#5B9DA2]">{t("infoCheckHighlight")}</span>
                 </h2>
 
                 <p className="text-gray-body leading-relaxed mb-6 font-medium text-sm sm:text-base">
@@ -454,7 +454,7 @@ export default async function Home() {
 
                     {/* Title & Description */}
                     <div className="pr-4">
-                      <h3 className="font-display text-sm sm:text-base font-extrabold uppercase tracking-wider text-sky-deep mb-2">
+                      <h3 className="font-display text-sm sm:text-base font-extrabold uppercase tracking-wider text-[#5B9DA2] mb-2">
                         {t(titleKey)}
                       </h3>
                       <p className="text-xs sm:text-[13px] text-gray-body leading-relaxed font-medium">

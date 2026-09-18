@@ -123,6 +123,8 @@ export default async function UniversityDetailPage({ params }: PageProps) {
       0
     ) || (university.popularMajors ? university.popularMajors.length : 0);
 
+
+
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       {/* Full-width responsive container */}
@@ -239,56 +241,72 @@ export default async function UniversityDetailPage({ params }: PageProps) {
 
           {/* 2. Key Statistics Bar */}
           <section className="w-full">
-            <div className="bg-white rounded-3xl p-6 sm:p-7 border border-sky/20 bubble-shadow-sm">
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 divide-y sm:divide-y-0 sm:divide-x divide-sky/15">
+            <div className="bg-white rounded-3xl p-5 sm:p-7 border border-sky/20 bubble-shadow-sm">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-6 gap-x-3 sm:gap-x-6 lg:gap-0 lg:divide-x lg:divide-sky/15">
                 {/* Stat 1: Established */}
-                <div className="flex flex-col items-center text-center px-2">
-                  <span className="font-display text-2xl sm:text-3xl font-extrabold text-blue-ink">
-                    {university.established ? `${t("est")} ${university.established}` : "Accredited"}
-                  </span>
-                  <span className="text-xs sm:text-sm font-bold text-sky-deep mt-1">
-                    Foundation & Heritage
-                  </span>
-                  <span className="text-[11px] text-gray-soft font-medium mt-0.5">
+                <div className="flex flex-col items-center text-center px-1 sm:px-4">
+                  <div className="h-8 sm:h-9 lg:h-10 flex items-center justify-center">
+                    <span className="font-display text-lg sm:text-xl lg:text-2xl font-extrabold text-blue-ink tracking-tight text-center">
+                      {university.established ? `${t("est")} ${university.established}` : "Accredited"}
+                    </span>
+                  </div>
+                  <div className="min-h-[1.75rem] sm:min-h-[2rem] flex items-center justify-center mt-1">
+                    <span className="text-xs sm:text-sm font-bold text-sky-deep leading-snug text-center">
+                      Foundation & Heritage
+                    </span>
+                  </div>
+                  <span className="text-[11px] sm:text-xs text-gray-soft font-medium mt-0.5 leading-tight text-center">
                     Recognized institutional quality
                   </span>
                 </div>
 
                 {/* Stat 2: Student Community */}
-                <div className="flex flex-col items-center text-center px-2 pt-4 sm:pt-0">
-                  <span className="font-display text-2xl sm:text-3xl font-extrabold text-blue-ink">
-                    {university.studentCount || "1,000+"}
-                  </span>
-                  <span className="text-xs sm:text-sm font-bold text-sky-deep mt-1">
-                    Active Students & Alumni
-                  </span>
-                  <span className="text-[11px] text-gray-soft font-medium mt-0.5">
+                <div className="flex flex-col items-center text-center px-1 sm:px-4">
+                  <div className="h-8 sm:h-9 lg:h-10 flex items-center justify-center">
+                    <span className="font-display text-lg sm:text-xl lg:text-2xl font-extrabold text-blue-ink tracking-tight text-center">
+                      {university.studentCount || "1,000+"}
+                    </span>
+                  </div>
+                  <div className="min-h-[1.75rem] sm:min-h-[2rem] flex items-center justify-center mt-1">
+                    <span className="text-xs sm:text-sm font-bold text-sky-deep leading-snug text-center">
+                      Active Students & Alumni
+                    </span>
+                  </div>
+                  <span className="text-[11px] sm:text-xs text-gray-soft font-medium mt-0.5 leading-tight text-center">
                     Enrolled across diverse programs
                   </span>
                 </div>
 
                 {/* Stat 3: Majors & Programs */}
-                <div className="flex flex-col items-center text-center px-2 pt-4 sm:pt-0">
-                  <span className="font-display text-2xl sm:text-3xl font-extrabold text-blue-ink">
-                    {totalMajorsCount}+
-                  </span>
-                  <span className="text-xs sm:text-sm font-bold text-sky-deep mt-1">
-                    Specialized Majors
-                  </span>
-                  <span className="text-[11px] text-gray-soft font-medium mt-0.5">
+                <div className="flex flex-col items-center text-center px-1 sm:px-4">
+                  <div className="h-8 sm:h-9 lg:h-10 flex items-center justify-center">
+                    <span className="font-display text-lg sm:text-xl lg:text-2xl font-extrabold text-blue-ink tracking-tight text-center">
+                      {totalMajorsCount}+
+                    </span>
+                  </div>
+                  <div className="min-h-[1.75rem] sm:min-h-[2rem] flex items-center justify-center mt-1">
+                    <span className="text-xs sm:text-sm font-bold text-sky-deep leading-snug text-center">
+                      Specialized Majors
+                    </span>
+                  </div>
+                  <span className="text-[11px] sm:text-xs text-gray-soft font-medium mt-0.5 leading-tight text-center">
                     Structured degree curricula
                   </span>
                 </div>
 
                 {/* Stat 4: Tuition & Support */}
-                <div className="flex flex-col items-center text-center px-2 pt-4 sm:pt-0">
-                  <span className="font-display text-2xl sm:text-3xl font-extrabold text-blue-ink">
-                    {university.scholarshipsList?.length ? "Aid Available" : "Verified"}
-                  </span>
-                  <span className="text-xs sm:text-sm font-bold text-sky-deep mt-1">
-                    Tuition & Scholarships
-                  </span>
-                  <span className="text-[11px] text-gray-soft font-medium mt-0.5">
+                <div className="flex flex-col items-center text-center px-1 sm:px-4">
+                  <div className="h-8 sm:h-9 lg:h-10 flex items-center justify-center">
+                    <span className="font-display text-lg sm:text-xl lg:text-2xl font-extrabold text-blue-ink tracking-tight text-center">
+                      {university.scholarshipsList?.length ? "Aid Available" : "Verified"}
+                    </span>
+                  </div>
+                  <div className="min-h-[1.75rem] sm:min-h-[2rem] flex items-center justify-center mt-1">
+                    <span className="text-xs sm:text-sm font-bold text-sky-deep leading-snug text-center">
+                      Tuition & Scholarships
+                    </span>
+                  </div>
+                  <span className="text-[11px] sm:text-xs text-gray-soft font-medium mt-0.5 leading-tight text-center">
                     Published academic financial aid
                   </span>
                 </div>
@@ -419,17 +437,14 @@ export default async function UniversityDetailPage({ params }: PageProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 {/* Undergraduate Card */}
                 {university.undergraduate && (
-                  <div className="bg-white rounded-3xl overflow-hidden border border-sky/20 bubble-shadow-sm flex flex-col group hover:border-sky/50 transition-all">
+                  <div className="bg-white rounded-3xl overflow-hidden border border-sky/20 bubble-shadow-sm flex flex-col">
                     <div className="relative w-full h-44 sm:h-52 overflow-hidden bg-sitomo/40">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={university.undergraduate.image}
                         alt={university.undergraduate.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover"
                       />
-                      <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-xs px-3 py-1 rounded-full text-[11px] font-bold text-sky-deep border border-sky/20 shadow-2xs">
-                        Bachelor&apos;s Level • 4 Years
-                      </div>
                     </div>
                     <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between">
                       <div>
@@ -450,17 +465,14 @@ export default async function UniversityDetailPage({ params }: PageProps) {
 
                 {/* Graduate Card */}
                 {university.graduate && (
-                  <div className="bg-white rounded-3xl overflow-hidden border border-sky/20 bubble-shadow-sm flex flex-col group hover:border-sky/50 transition-all">
+                  <div className="bg-white rounded-3xl overflow-hidden border border-sky/20 bubble-shadow-sm flex flex-col">
                     <div className="relative w-full h-44 sm:h-52 overflow-hidden bg-sitomo/40">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={university.graduate.image}
                         alt={university.graduate.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover"
                       />
-                      <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-xs px-3 py-1 rounded-full text-[11px] font-bold text-sky-deep border border-sky/20 shadow-2xs">
-                        Postgraduate & Master • 2 Years
-                      </div>
                     </div>
                     <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between">
                       <div>
@@ -492,15 +504,10 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                       return (
                         <div
                           key={program.title}
-                          className="rounded-3xl border border-sky/25 bg-white p-5 sm:p-6 bubble-shadow-sm hover:border-sky hover:shadow-md transition-all flex flex-col rounded-br-[48px]"
+                          className="rounded-3xl border border-sky/25 bg-white p-5 sm:p-6 bubble-shadow-sm hover:border-sky hover:shadow-md transition-all flex flex-col items-center text-center rounded-br-[48px]"
                         >
-                          <div className="flex items-center justify-between gap-3 mb-3">
-                            <div className="w-11 h-11 rounded-2xl bg-sitomo/80 flex items-center justify-center border border-sky/20 shadow-2xs">
-                              <Icon className="w-5 h-5 text-blue-ink" strokeWidth={2.2} />
-                            </div>
-                            <span className="text-[11px] font-extrabold text-sky-deep bg-powder px-2.5 py-1 rounded-full border border-sky/20">
-                              {program.shortCode}
-                            </span>
+                          <div className="w-12 h-12 rounded-2xl bg-sitomo/80 flex items-center justify-center border border-sky/20 shadow-2xs mb-3.5">
+                            <Icon className="w-5 h-5 text-blue-ink" strokeWidth={2.2} />
                           </div>
 
                           <h4 className="font-display text-sm sm:text-base font-bold text-blue-ink mb-1.5">
@@ -521,21 +528,13 @@ export default async function UniversityDetailPage({ params }: PageProps) {
           {/* 5. Comprehensive Faculties & Degree Majors Directory */}
           {university.facultiesList && university.facultiesList.length > 0 && (
             <section className="w-full">
-              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
-                <div>
-                  <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink">
-                    {t("facultiesAndDegreeMajors")}
-                  </h2>
-                  <p className="text-xs text-gray-soft font-medium mt-1">
-                    {t("facultiesSubtitle")}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2 text-xs font-bold text-sky-deep bg-white px-3.5 py-1.5 rounded-full border border-sky/20 w-fit bubble-shadow-sm">
-                  <span>
-                    {t("majorsAcrossFaculties", { count: totalMajorsCount, faculties: university.facultiesList.length })}
-                  </span>
-                </div>
+              <div className="mb-6">
+                <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink">
+                  {t("facultiesAndDegreeMajors")}
+                </h2>
+                <p className="text-xs text-gray-soft font-medium mt-1">
+                  {t("facultiesSubtitle")}
+                </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 w-full">
@@ -585,7 +584,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                 </p>
               </div>
 
-              {/* Compact Gallery Grid - Text shows only on hover */}
+              {/* Compact Gallery Grid - Text reveals on hover, image does not zoom */}
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-5">
                 {university.facilities.map((fac, idx) => (
                   <div
@@ -596,9 +595,9 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                     <img
                       src={fac.image}
                       alt={fac.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover"
                     />
-                    {/* Dark gradient overlay + text visible ONLY on hover */}
+                    {/* Dark gradient overlay + text visible on hover */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3 sm:p-4">
                       <span className="text-white text-xs sm:text-sm font-bold drop-shadow-md line-clamp-2">
                         {fac.name}
@@ -673,7 +672,11 @@ export default async function UniversityDetailPage({ params }: PageProps) {
               <div className="relative w-full h-60 sm:h-72 lg:h-80 rounded-2xl overflow-hidden border border-sky/15 mb-5 bg-sitomo/30">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={university.mapImage}
+                  src={
+                    university.mapImage?.startsWith("public/")
+                      ? `/${university.mapImage.slice(7)}`
+                      : university.mapImage
+                  }
                   alt={`${university.name} Location Map`}
                   className="w-full h-full object-cover"
                 />
