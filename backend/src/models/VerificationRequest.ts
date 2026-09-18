@@ -1,4 +1,7 @@
-import pool from '../config/db';
+import { and, asc, desc, eq, sql } from 'drizzle-orm';
+import { alias } from 'drizzle-orm/pg-core';
+import db from '../db';
+import { users, verificationRequests } from '../db/schema';
 import type { LinkCheck } from '../utils/linkCheck';
 
 export const REQUEST_STATUSES = ['pending', 'reviewing', 'resolved'] as const;
@@ -50,46 +53,83 @@ export interface CreateInput {
 export const DEFAULT_PAGE_SIZE = 50;
 export const MAX_PAGE_SIZE = 200;
 
-const WITH_USER = `
-  SELECT r.*,
-         u.name  AS submitted_by_name,
-         u.email AS submitted_by_email,
-         a.name  AS reviewed_by_name
-  FROM verification_requests r
-  LEFT JOIN users u ON u.id = r.user_id
-  LEFT JOIN users a ON a.id = r.reviewed_by
-`;
+/**
+ * `users` is joined twice — once for who asked, once for who reviewed — so each
+ * join needs its own alias, exactly as the raw SQL used `u` and `a`. Both are
+ * LEFT joins because either side may be null: accounts are ON DELETE SET NULL,
+ * and an unreviewed request has no reviewer.
+ *
+ * Selecting the request's columns individually rather than as a nested object
+ * keeps the result flat, so rows come back in the shape the routes already
+ * expect with no post-processing.
+ */
+const submitter = alias(users, 'submitter');
+const reviewer = alias(users, 'reviewer');
+
+const withUser = () =>
+  db
+    .select({
+      id: verificationRequests.id,
+      user_id: verificationRequests.user_id,
+      scholarship_id: verificationRequests.scholarship_id,
+      submitted_url: verificationRequests.submitted_url,
+      submitted_title: verificationRequests.submitted_title,
+      note: verificationRequests.note,
+      auto_check: verificationRequests.auto_check,
+      status: verificationRequests.status,
+      verdict: verificationRequests.verdict,
+      admin_response: verificationRequests.admin_response,
+      reviewed_by: verificationRequests.reviewed_by,
+      reviewed_at: verificationRequests.reviewed_at,
+      read_by_user: verificationRequests.read_by_user,
+      created_at: verificationRequests.created_at,
+      submitted_by_name: submitter.name,
+      submitted_by_email: submitter.email,
+      reviewed_by_name: reviewer.name
+    })
+    .from(verificationRequests)
+    .leftJoin(submitter, eq(submitter.id, verificationRequests.user_id))
+    .leftJoin(reviewer, eq(reviewer.id, verificationRequests.reviewed_by));
+
+/** Pending first, then reviewing, then everything else — the queue's priority. */
+const statusRank = sql`CASE ${verificationRequests.status}
+                         WHEN 'pending' THEN 0
+                         WHEN 'reviewing' THEN 1
+                         ELSE 2
+                       END`;
 
 const VerificationRequest = {
   create: async (data: CreateInput): Promise<VerificationRequest> => {
-    const res = await pool.query(
-      `INSERT INTO verification_requests
-         (user_id, scholarship_id, submitted_url, submitted_title, note, auto_check)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [
-        data.user_id,
-        data.scholarship_id,
-        data.submitted_url,
-        data.submitted_title,
-        data.note,
-        JSON.stringify(data.auto_check)
-      ]
-    );
-    return res.rows[0] as VerificationRequest;
+    const [row] = await db
+      .insert(verificationRequests)
+      .values({
+        user_id: data.user_id,
+        scholarship_id: data.scholarship_id,
+        submitted_url: data.submitted_url,
+        submitted_title: data.submitted_title,
+        note: data.note,
+        // Passed as an object, not JSON.stringify'd as the raw version did:
+        // Drizzle serialises jsonb itself, and pre-stringifying would store a
+        // JSON string *containing* JSON rather than the object.
+        auto_check: data.auto_check
+      })
+      .returning();
+
+    return row as VerificationRequest;
   },
 
   getById: async (id: number): Promise<VerificationRequestWithUser | undefined> => {
-    const res = await pool.query(`${WITH_USER} WHERE r.id = $1`, [id]);
-    return res.rows[0] as VerificationRequestWithUser | undefined;
+    const rows = await withUser().where(eq(verificationRequests.id, id));
+    return rows[0] as VerificationRequestWithUser | undefined;
   },
 
   /** One student's own requests — their inbox. Newest first. */
   listForUser: async (userId: number): Promise<VerificationRequestWithUser[]> => {
-    const res = await pool.query(
-      `${WITH_USER} WHERE r.user_id = $1 ORDER BY r.created_at DESC`,
-      [userId]
-    );
-    return res.rows as VerificationRequestWithUser[];
+    const rows = await withUser()
+      .where(eq(verificationRequests.user_id, userId))
+      .orderBy(desc(verificationRequests.created_at));
+
+    return rows as VerificationRequestWithUser[];
   },
 
   /**
@@ -108,42 +148,38 @@ const VerificationRequest = {
     const limit = page.limit ?? DEFAULT_PAGE_SIZE;
     const offset = page.offset ?? 0;
 
-    const res = status
-      ? await pool.query(
-          `${WITH_USER} WHERE r.status = $1
-           ORDER BY r.created_at ASC
-           LIMIT $2 OFFSET $3`,
-          [status, limit, offset]
-        )
-      : await pool.query(
-          `${WITH_USER}
-           ORDER BY CASE r.status
-                      WHEN 'pending' THEN 0
-                      WHEN 'reviewing' THEN 1
-                      ELSE 2
-                    END,
-                    r.created_at ASC
-           LIMIT $1 OFFSET $2`,
-          [limit, offset]
-        );
-    return res.rows as VerificationRequestWithUser[];
+    const query = status
+      ? withUser()
+          .where(eq(verificationRequests.status, status))
+          .orderBy(asc(verificationRequests.created_at))
+      : withUser().orderBy(statusRank, asc(verificationRequests.created_at));
+
+    const rows = await query.limit(limit).offset(offset);
+    return rows as VerificationRequestWithUser[];
   },
 
   /** How many answered requests the student has not opened yet. */
   unreadCount: async (userId: number): Promise<number> => {
-    const res = await pool.query(
-      `SELECT count(*) FROM verification_requests
-       WHERE user_id = $1 AND status = 'resolved' AND read_by_user = FALSE`,
-      [userId]
-    );
-    return Number(res.rows[0].count);
+    const [row] = await db
+      .select({ count: sql<string>`count(*)` })
+      .from(verificationRequests)
+      .where(
+        and(
+          eq(verificationRequests.user_id, userId),
+          eq(verificationRequests.status, 'resolved'),
+          eq(verificationRequests.read_by_user, false)
+        )
+      );
+
+    return Number(row.count);
   },
 
   markRead: async (id: number, userId: number): Promise<void> => {
-    await pool.query(
-      'UPDATE verification_requests SET read_by_user = TRUE WHERE id = $1 AND user_id = $2',
-      [id, userId]
-    );
+    await db
+      .update(verificationRequests)
+      .set({ read_by_user: true })
+      // Scoped by user as well as id, so one student can never clear another's badge.
+      .where(and(eq(verificationRequests.id, id), eq(verificationRequests.user_id, userId)));
   },
 
   /**
@@ -156,19 +192,24 @@ const VerificationRequest = {
     data: { status: RequestStatus; verdict: Verdict | null; admin_response: string | null }
   ): Promise<VerificationRequestWithUser | undefined> => {
     const resolved = data.status === 'resolved';
-    const res = await pool.query(
-      `UPDATE verification_requests
-       SET status = $1,
-           verdict = $2,
-           admin_response = $3,
-           reviewed_by = $4,
-           reviewed_at = CASE WHEN $5::boolean THEN NOW() ELSE reviewed_at END,
-           read_by_user = CASE WHEN $5::boolean THEN FALSE ELSE read_by_user END
-       WHERE id = $6
-       RETURNING id`,
-      [data.status, data.verdict, data.admin_response, reviewerId, resolved, id]
-    );
-    if (res.rowCount === 0) return undefined;
+
+    const updated = await db
+      .update(verificationRequests)
+      .set({
+        status: data.status,
+        verdict: data.verdict,
+        admin_response: data.admin_response,
+        reviewed_by: reviewerId,
+        // Only a resolution stamps the time and relights the unread badge; the
+        // raw version expressed this as a SQL CASE, but leaving the keys out
+        // entirely is the same thing and reads better. `now()` rather than a JS
+        // Date so the timestamp still comes from the database clock.
+        ...(resolved ? { reviewed_at: sql`now()`, read_by_user: false } : {})
+      })
+      .where(eq(verificationRequests.id, id))
+      .returning({ id: verificationRequests.id });
+
+    if (updated.length === 0) return undefined;
     return VerificationRequest.getById(id);
   }
 };
