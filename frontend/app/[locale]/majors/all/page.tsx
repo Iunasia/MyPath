@@ -184,7 +184,7 @@ function AllMajorsInner() {
                     <div className="p-4 pt-1 pb-4 flex justify-end">
                       <Link
                         href={`/majors/${major.id}`}
-                        className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-sky text-sky-deep hover:bg-sky hover:text-white text-xs font-bold transition-colors cursor-pointer"
+                        className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-[#7AB3B7] text-[#7AB3B7] hover:bg-[#7AB3B7] hover:text-white text-xs font-bold transition-colors cursor-pointer"
                       >
                         {tCommon("viewMore")}
                       </Link>

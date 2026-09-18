@@ -358,8 +358,8 @@ export const UNIVERSITIES_DATA: University[] = [
     shortName: "ITC",
     location: "Phnom Penh",
     type: "Public",
-    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcxQ1ENA_HDTb8CevHH_xedT04l3el4XrY-WAhB-GBgdG1lCKuR1QuxUS1&s=10",
-    heroImage: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1600&auto=format&fit=crop&q=80",
+    image: "https://www.chain-cambodia.eu/sites/default/files/styles/wide/public/2024-03/ITC%20campus.jpg?itok=VctMWeKM",
+    heroImage: "https://www.chain-cambodia.eu/sites/default/files/styles/wide/public/2024-03/ITC%20campus.jpg?itok=VctMWeKM",
     description:
       "Cambodia's leading public engineering and technology institution, known particularly for engineering, science and technology.",
     popularMajors: [

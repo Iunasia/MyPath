@@ -43,8 +43,8 @@
   color-scheme: dark;
 
   /* Clean Minimalist Obsidian Brand Palette */
-  --sky: #2DD4BF;            /* Clean vibrant cyan-teal */
-  --sky-bright: #5EEAD4;     /* Luminous cyan-teal hover */
+  --sky: #7AB3B7;            /* Soft teal */
+  --sky-bright: #8DC4C8;     /* Lighter soft teal for hover states */
   --sky-deep: #7AB3B7;       /* Clean solid accent teal */
   --sky-dark: #7AB3B7;       /* Hover state */
   --powder: #0A0D12;         /* Deep obsidian black canvas */

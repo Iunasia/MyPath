@@ -137,8 +137,8 @@ function MajorsInner() {
                   aria-pressed={isSelected}
                   className={`flex flex-col items-center justify-center p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-3xl rounded-br-[36px] sm:rounded-br-[48px] border-2 text-center group cursor-pointer min-h-[120px] sm:min-h-[135px] transition-[transform,box-shadow,border-color,background-color] duration-300 ${
                     isSelected
-                      ? "border-sky ring-2 ring-sky/30 bg-sky/5 bubble-shadow"
-                      : "border-sky/40 bg-white hover:border-sky bubble-shadow-sm hover:scale-[1.03] hover:shadow-md"
+                      ? "border-[#7AB3B7] ring-2 ring-[#7AB3B7]/30 bg-[#7AB3B7]/10 bubble-shadow"
+                      : "border-[#7AB3B7] bg-white hover:border-[#7AB3B7] bubble-shadow-sm hover:scale-[1.03] hover:shadow-md"
                   }`}
                 >
                   <div
@@ -228,7 +228,7 @@ function MajorsInner() {
                       <div className="p-4 pt-1 pb-4 flex justify-end">
                         <Link
                           href={`/majors/${major.id}`}
-                          className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-sky text-sky-deep hover:bg-sky hover:text-white text-xs font-bold transition-colors cursor-pointer"
+                          className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-[#7AB3B7] text-[#7AB3B7] hover:bg-[#7AB3B7] hover:text-white text-xs font-bold transition-colors cursor-pointer"
                         >
                           {tCommon("viewMore")}
                         </Link>
