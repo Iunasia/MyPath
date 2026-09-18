@@ -170,7 +170,7 @@ function CareersInner() {
         <section className="flex-1 pb-16">
           <h2 className="font-display text-lg sm:text-xl font-bold text-blue-ink tracking-tight mb-5">
             {selectedCategory
-              ? t("categoryCareers", { category: selectedCategory })
+              ? t("categoryCareers", { category: categories.find((c) => c.id === selectedCategory)?.name ?? selectedCategory })
               : t("allCareers")}
           </h2>
 
@@ -223,7 +223,7 @@ function CareersInner() {
                     <div className="p-4 pt-3 pb-4 border-t border-sky/10 flex items-center justify-between gap-2">
                       <div className="space-y-1 min-w-0">
                         <p className="text-xs text-gray-soft font-medium line-clamp-1">
-                          {career.category}
+                          {career.categoryLabel ?? career.category}
                         </p>
                         <p className="text-xs font-semibold text-blue-ink line-clamp-1">
                           {t("marketDemand")} <span className="font-bold text-sky-deep">{career.jobMarketDemand}</span>
