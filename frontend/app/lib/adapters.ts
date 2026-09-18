@@ -276,8 +276,15 @@ const toImage = (row: any): string => {
   const customUrl = (row as any).image || row.image_url;
   if (customUrl) {
     if (usableImage(customUrl)) return customUrl;
-    if (typeof customUrl === "string" && customUrl.startsWith("http") && !INVALID_IMAGE_HOST.test(customUrl)) {
-      return customUrl;
+    if (typeof customUrl === "string" && customUrl.startsWith("http")) {
+      try {
+        const parsed = new URL(customUrl);
+        if (!INVALID_IMAGE_HOST.test(parsed.hostname)) {
+          return customUrl;
+        }
+      } catch {
+        // Fall through
+      }
     }
   }
 
