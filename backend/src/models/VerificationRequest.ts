@@ -46,6 +46,10 @@ export interface CreateInput {
   auto_check: LinkCheck;
 }
 
+/** Queue page size when the caller does not ask for one, and the ceiling it may ask for. */
+export const DEFAULT_PAGE_SIZE = 50;
+export const MAX_PAGE_SIZE = 200;
+
 const WITH_USER = `
   SELECT r.*,
          u.name  AS submitted_by_name,
@@ -88,13 +92,28 @@ const VerificationRequest = {
     return res.rows as VerificationRequestWithUser[];
   },
 
-  /** The review queue. Pending first, then oldest first within a status. */
-  listAll: async (status?: RequestStatus): Promise<VerificationRequestWithUser[]> => {
+  /**
+   * The review queue. Pending first, then oldest first within a status.
+   *
+   * Paged, because this used to load every request ever filed on each view.
+   * Offset paging rather than keyset: the unfiltered ordering sorts on a CASE
+   * expression, so a keyset cursor would have to carry that derived rank, and
+   * an admin queue is browsed from the front rather than paged deeply. Revisit
+   * if anyone ever pages far into `resolved`.
+   */
+  listAll: async (
+    status?: RequestStatus,
+    page: { limit?: number; offset?: number } = {}
+  ): Promise<VerificationRequestWithUser[]> => {
+    const limit = page.limit ?? DEFAULT_PAGE_SIZE;
+    const offset = page.offset ?? 0;
+
     const res = status
       ? await pool.query(
           `${WITH_USER} WHERE r.status = $1
-           ORDER BY r.created_at ASC`,
-          [status]
+           ORDER BY r.created_at ASC
+           LIMIT $2 OFFSET $3`,
+          [status, limit, offset]
         )
       : await pool.query(
           `${WITH_USER}
@@ -103,7 +122,9 @@ const VerificationRequest = {
                       WHEN 'reviewing' THEN 1
                       ELSE 2
                     END,
-                    r.created_at ASC`
+                    r.created_at ASC
+           LIMIT $1 OFFSET $2`,
+          [limit, offset]
         );
     return res.rows as VerificationRequestWithUser[];
   },
