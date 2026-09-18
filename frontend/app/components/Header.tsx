@@ -33,6 +33,7 @@ type NavKey =
   | "majors"
   | "universities"
   | "scholarships"
+  | "opportunities"
   | "workshops"
   | "verify"
   | "saved";
@@ -128,7 +129,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
     { key: "majors", href: "/majors", label: t("majors"), icon: BookOpen },
     { key: "universities", href: "/universities", label: t("universities"), icon: GraduationCap },
     { key: "scholarships", href: "/scholarships", label: t("scholarships"), icon: Coins },
-    { key: "workshops", href: "/workshops", label: t("workshops"), icon: Users },
+    { key: "opportunities", href: "/opportunities", label: t("opportunities"), icon: Users },
   ];
 
   const desktopLink = (active: boolean) =>
@@ -154,12 +155,12 @@ export default function Header({ variant = "default", activeNav, className = "" 
       <header className="bg-white/90 backdrop-blur-md rounded-full bubble-shadow-sm border border-sky/15 pl-4 pr-3 sm:pl-5 sm:pr-4 py-2.5 flex items-center justify-between gap-4">
         {/* The logo is the way home on every page. */}
         <Link href="/" className="flex items-center gap-1 shrink-0" aria-label={t("home")}>
-          <div className="relative h-18 sm:h-18 aspect-[207/268] shrink-0 flex items-center justify-center">
+          <div className="relative h-12 sm:h-12 aspect-[207/268] shrink-0 flex items-center justify-center">
             <Image
               src="/images/logo.png"
               alt="Domner Logo"
-              width={48}
-              height={62}
+              width={40}
+              height={40}
               priority
               className="w-full h-full object-contain"
             />

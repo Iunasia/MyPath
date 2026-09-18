@@ -137,8 +137,8 @@ function MajorsInner() {
                   aria-pressed={isSelected}
                   className={`flex flex-col items-center justify-center p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-3xl rounded-br-[36px] sm:rounded-br-[48px] border-2 text-center group cursor-pointer min-h-[120px] sm:min-h-[135px] transition-[transform,box-shadow,border-color,background-color] duration-300 ${
                     isSelected
-                      ? "border-sky ring-2 ring-sky/30 bg-sky/5 bubble-shadow"
-                      : "border-sky/40 bg-white hover:border-sky bubble-shadow-sm hover:scale-[1.03] hover:shadow-md"
+                      ? "border-[#7AB3B7] ring-2 ring-[#7AB3B7]/30 bg-[#7AB3B7]/10 bubble-shadow"
+                      : "border-[#7AB3B7] bg-white hover:border-[#7AB3B7] bubble-shadow-sm hover:scale-[1.03] hover:shadow-md"
                   }`}
                 >
                   <div
@@ -194,7 +194,8 @@ function MajorsInner() {
                   <li key={major.id} className="h-full">
                     <article className="bg-white rounded-2xl border border-sky/20 overflow-hidden shadow-xs hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-[transform,box-shadow,border-color] duration-300 flex flex-col justify-between group cursor-pointer h-full">
                       <div>
-                        <Link href={`/majors/${major.id}`} className="block w-full h-[140px] overflow-hidden bg-sky/5">
+                        {/* Top Image */}
+                        <Link href={`/majors/${major.id}`} className="block w-full h-[165px] overflow-hidden bg-sky/5">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={major.heroImage}
@@ -202,33 +203,34 @@ function MajorsInner() {
                             width={640}
                             height={360}
                             decoding="async"
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            className="w-full h-full object-cover"
                             loading="lazy"
                           />
                         </Link>
 
-                        <div className="p-4 pb-2">
+                        {/* Card Content: Title */}
+                        <div className="p-4 pb-3">
                           <Link href={`/majors/${major.id}`}>
                             <h3 className="font-display text-base font-bold text-blue-ink hover:text-sky-deep transition-colors leading-snug line-clamp-2 min-h-[44px]">
                               {major.name}
                             </h3>
-                          </Link>
-
-                          <div className="mt-2 space-y-1">
-                            <p className="text-xs text-gray-soft font-medium line-clamp-1">
-                              {major.categoryLabel ?? major.category} • {major.duration}
-                            </p>
-                            <p className="text-xs font-semibold text-blue-ink">
-                              {t("marketDemand")} <span className="font-bold text-sky-deep">{major.jobMarketDemand}</span>
-                            </p>
-                          </div>
                         </div>
                       </div>
 
-                      <div className="p-4 pt-1 pb-4 flex justify-end">
+                      {/* Bottom: 2 text lines on left aligned with View more button on right */}
+                      <div className="p-4 pt-3 pb-4 border-t border-sky/10 flex items-center justify-between gap-2">
+                        <div className="space-y-1 min-w-0">
+                          <p className="text-xs text-gray-soft font-medium line-clamp-1">
+                            {major.categoryLabel ?? major.category} • {major.duration}
+                          </p>
+                          <p className="text-xs font-semibold text-blue-ink line-clamp-1">
+                            {t("marketDemand")} <span className="font-bold text-sky-deep">{major.jobMarketDemand}</span>
+                          </p>
+                        </div>
+
                         <Link
                           href={`/majors/${major.id}`}
-                          className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-sky text-sky-deep hover:bg-sky hover:text-white text-xs font-bold transition-colors cursor-pointer"
+                          className="inline-flex items-center justify-center px-3.5 py-1.5 rounded-lg border border-[#7AB3B7] text-[#7AB3B7] hover:bg-[#7AB3B7] hover:text-white text-xs font-bold transition-colors cursor-pointer shrink-0"
                         >
                           {tCommon("viewMore")}
                         </Link>

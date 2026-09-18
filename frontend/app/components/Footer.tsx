@@ -17,7 +17,7 @@ export default function Footer({ className = "" }: FooterProps) {
         { label: t("majors"), href: "/majors" },
         { label: t("universities"), href: "/universities" },
         { label: t("scholarships"), href: "/scholarships" },
-        { label: t("opportunity"), href: "/workshops" },
+        { label: t("opportunity"), href: "/opportunities" },
         { label: "Verify", href: "/verify" },
       ],
     },

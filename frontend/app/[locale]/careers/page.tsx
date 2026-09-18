@@ -144,8 +144,8 @@ function CareersInner() {
                   aria-pressed={isSelected}
                   className={`flex flex-col items-center justify-center p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-3xl border-2 text-center group cursor-pointer min-h-[120px] sm:min-h-[135px] transition-[transform,box-shadow,border-color,background-color] duration-300 ${
                     isSelected
-                      ? "border-sky ring-2 ring-sky/30 bg-sky/5 shadow-md"
-                      : "border-sky/40 bg-white hover:border-sky shadow-xs hover:shadow-md hover:-translate-y-1"
+                      ? "border-[#7AB3B7] ring-2 ring-[#7AB3B7]/30 bg-[#7AB3B7]/10 shadow-md"
+                      : "border-[#7AB3B7] bg-white hover:border-[#7AB3B7] hover:shadow-md hover:-translate-y-1 shadow-xs"
                   }`}
                 >
                   <div
@@ -232,7 +232,7 @@ function CareersInner() {
 
                       <Link
                         href={`/careers/${career.id}`}
-                        className="inline-flex items-center justify-center px-3.5 py-1.5 rounded-lg border border-sky text-sky-deep hover:bg-sky hover:text-white text-xs font-bold transition-colors cursor-pointer shrink-0"
+                        className="inline-flex items-center justify-center px-3.5 py-1.5 rounded-lg border border-[#7AB3B7] text-[#7AB3B7] hover:bg-[#7AB3B7] hover:text-white text-xs font-bold transition-colors cursor-pointer shrink-0"
                       >
                         {tCommon("viewMore")}
                       </Link>
