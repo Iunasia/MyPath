@@ -84,7 +84,9 @@ router.post('/register', authLimiter, async (req: Request, res: Response) => {
 
   // ── Step 4: Send verification email ────────────────────────────────────
   try {
-    await sendVerificationEmail(user.email, code, uuidToken, locale);
+    const baseUrl = process.env.API_URL || `${req.protocol}://${req.get('host')}`;
+    const magicLinkUrl = `${baseUrl}/auth/magic-verify/${uuidToken}`;
+    await sendVerificationEmail(user.email, code, magicLinkUrl, locale);
   } catch (err) {
     console.error('Register – send email error:', err);
     // Roll back so the user can retry with the same email
@@ -187,6 +189,47 @@ router.post('/verify-email', authLimiter, async (req: Request, res: Response) =>
   }
 });
 
+// GET /magic-verify/:token (Magic Link Click Handler)
+router.get('/magic-verify/:token', async (req: Request, res: Response) => {
+  try {
+    const token = req.params.token as string;
+    const userId = await EmailVerification.findByToken(token);
+    
+    const frontendUrl = process.env.FRONTEND_URL || 'https://domner.app';
+
+    if (!userId) {
+      // Invalid or expired token
+      return res.redirect(`${frontendUrl}/verify?error=invalid_magic_link`);
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.redirect(`${frontendUrl}/verify?error=user_not_found`);
+    }
+
+    if (!user.is_verified) {
+      await User.markAsVerified(userId);
+    }
+
+    await EmailVerification.deleteByUserId(userId);
+
+    // Set session so they are logged in on the device they clicked the link from
+    const session = req.session as any;
+    session.userId = user.id;
+    session.userName = user.name;
+    session.userRole = user.role;
+
+    req.session.save((err) => {
+      if (err) console.error('Session save error on magic verify:', err);
+      res.redirect(`${frontendUrl}/?verified=true`);
+    });
+  } catch (err) {
+    console.error('Magic link verification error:', err);
+    const frontendUrl = process.env.FRONTEND_URL || 'https://domner.app';
+    res.redirect(`${frontendUrl}/verify?error=server_error`);
+  }
+});
+
 // POST /resend-verification
 router.post('/resend-verification', authLimiter, async (req: Request, res: Response) => {
   try {
@@ -206,8 +249,14 @@ router.post('/resend-verification', authLimiter, async (req: Request, res: Respo
     }
 
     const code = Math.floor(100000 + Math.random() * 900000).toString();
-    await EmailVerification.create(user.id, code);
-    await sendVerificationEmail(user.email, code);
+    const uuidToken = crypto.randomUUID();
+    await EmailVerification.create(user.id, code, uuidToken);
+    
+    const baseUrl = process.env.API_URL || `${req.protocol}://${req.get('host')}`;
+    const magicLinkUrl = `${baseUrl}/auth/magic-verify/${uuidToken}`;
+    
+    const locale = req.cookies?.NEXT_LOCALE || 'en';
+    await sendVerificationEmail(user.email, code, magicLinkUrl, locale);
 
     res.status(200).json({ message: 'Verification code resent successfully.' });
   } catch (err) {
@@ -524,7 +573,9 @@ router.get(
           const code = crypto.randomInt(100000, 999999).toString();
           const uuidToken = crypto.randomUUID();
           await EmailVerification.create(user.id, code, uuidToken);
-          await sendVerificationEmail(user.email, code, uuidToken);
+          const baseUrl = process.env.API_URL || `${req.protocol}://${req.get('host')}`;
+          const magicLinkUrl = `${baseUrl}/auth/magic-verify/${uuidToken}`;
+          await sendVerificationEmail(user.email, code, magicLinkUrl);
         } catch (emailErr) {
           console.error('Failed to send verification email for Google user:', emailErr);
         }

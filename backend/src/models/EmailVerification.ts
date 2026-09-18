@@ -35,6 +35,15 @@ const EmailVerification = {
     return res.rows.length > 0;
   },
 
+  findByToken: async (token: string): Promise<number | null> => {
+    const hashedToken = hashToken(token);
+    const res = await pool.query(
+      'SELECT user_id FROM email_verifications WHERE code = $1 AND expires_at > NOW()',
+      [hashedToken]
+    );
+    return res.rows.length > 0 ? res.rows[0].user_id : null;
+  },
+
   deleteByUserId: async (userId: number): Promise<void> => {
     await pool.query('DELETE FROM email_verifications WHERE user_id = $1', [userId]);
   }
