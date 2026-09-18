@@ -1,6 +1,5 @@
 FROM node:22-alpine
 RUN apk update && apk upgrade --no-cache libssl3 libcrypto3
-RUN npm install -g npm@latest
 WORKDIR /app
 COPY package*.json ./
 # NOTE: do NOT add --omit=optional here. esbuild (pulled in by tsx) ships its
