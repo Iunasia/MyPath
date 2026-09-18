@@ -145,23 +145,71 @@ export const sendVerificationEmail = async (
     </div>
   `;
 
-  // ── Try Brevo first, then MailerSend ─────────────────────────────────────
-  if (hasBrevo) {
+  await deliver(to, subject, html, `Verification email (locale: ${locale})`);
+};
+
+// ── Shared delivery: Brevo first, then MailerSend ────────────────────────────
+const deliver = async (to: string, subject: string, html: string, label: string): Promise<void> => {
+  if (process.env.BREVO_API_KEY) {
     try {
       await sendViaBrevo(to, subject, html);
-      console.log(`✅ [Brevo] Verification email sent to ${to} (locale: ${locale})`);
+      console.log(`✅ [Brevo] ${label} sent to ${to}`);
       return;
     } catch (err) {
       console.warn(`⚠️  Brevo failed — falling back to MailerSend. Reason: ${(err as Error).message}`);
     }
   }
 
-  if (hasMailerSend) {
+  if (process.env.MAILERSEND_API_KEY) {
     await sendViaMailerSend(to, subject, html);
-    console.log(`✅ [MailerSend] Verification email sent to ${to} (locale: ${locale})`);
+    console.log(`✅ [MailerSend] ${label} sent to ${to}`);
     return;
   }
 
   // Both providers were configured but both failed (only Brevo was set and threw)
   throw new Error('All email providers failed. Check your API keys and domain verification.');
+};
+
+const escapeHtml = (value: string): string =>
+  value.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+
+/**
+ * Tells a student their verification request has been answered.
+ *
+ * Deliberately says only *that* there is an answer, not what it is: a verdict
+ * like "scam" sitting in an inbox without the reviewer's explanation beside it
+ * is easy to misread or forward out of context. The in-app inbox holds the
+ * full answer. Bilingual because accounts do not record a language.
+ */
+export const sendVerdictEmail = async (to: string, name: string, requestTitle: string): Promise<void> => {
+  if (process.env.NODE_ENV === 'test') return;
+  const inboxLink = `${process.env.FRONTEND_URL}/verify`;
+
+  if (!process.env.BREVO_API_KEY && !process.env.MAILERSEND_API_KEY) {
+    console.log(`📧 [DEV] Verdict email for ${to}: "${requestTitle}" has an answer → ${inboxLink}`);
+    return;
+  }
+
+  const subject = 'Your scholarship check has an answer · ការត្រួតពិនិត្យអាហារូបករណ៍របស់អ្នកមានចម្លើយហើយ';
+  const title = escapeHtml(requestTitle);
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; text-align: center;">
+      <h2>Hi ${escapeHtml(name)},</h2>
+      <p>Our team has finished checking what you sent us:</p>
+      <p style="font-weight: bold; background: #F3F4F6; padding: 12px; border-radius: 8px;">${title}</p>
+      <p>សួស្តី! ក្រុមការងាររបស់យើងបានពិនិត្យរួចរាល់នូវអ្វីដែលអ្នកបានផ្ញើមក។</p>
+      <div style="margin: 30px 0;">
+        <a href="${inboxLink}" style="display:inline-block; padding:14px 28px; background-color:#4F46E5; color:#ffffff; text-decoration:none; border-radius:8px; font-weight:bold; font-size:16px;">
+          See the answer · មើលចម្លើយ
+        </a>
+      </div>
+      <p style="font-size: 12px; color: #999;">
+        You are receiving this because you asked Domner to check a scholarship.<br/>
+        អ្នកទទួលបានអ៊ីមែលនេះ ព្រោះអ្នកបានស្នើឱ្យ Domner ពិនិត្យអាហារូបករណ៍មួយ។
+      </p>
+    </div>
+  `;
+
+  await deliver(to, subject, html, 'Verdict email');
 };

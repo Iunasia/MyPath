@@ -244,6 +244,23 @@ export const verificationRequests = pgTable('verification_requests', {
   created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
 });
 
+/**
+ * Screenshots attached to a verification request. Metadata only — the bytes
+ * live in object storage under `storage_key` (see src/utils/storage.ts).
+ */
+export const verificationAttachments = pgTable('verification_attachments', {
+  id: serial('id').primaryKey(),
+  request_id: integer('request_id')
+    .notNull()
+    .references(() => verificationRequests.id, { onDelete: 'cascade' }),
+  storage_key: text('storage_key').notNull().unique(),
+  mime: text('mime').notNull(),
+  width: integer('width').notNull(),
+  height: integer('height').notNull(),
+  size_bytes: integer('size_bytes').notNull(),
+  created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+});
+
 export const contentAudit = pgTable('content_audit', {
   id: serial('id').primaryKey(),
   entity: text('entity').notNull(),

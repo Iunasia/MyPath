@@ -2,4 +2,6 @@ node_modules/
 .env
 .DS_Store
 *.log
+# Screenshots stored on disk in development (see src/utils/storage.ts)
+uploads/
 !.env.example

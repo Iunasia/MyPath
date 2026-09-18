@@ -264,6 +264,17 @@ export interface ApiVerificationRequest {
   submitted_by_name?: string | null;
   submitted_by_email?: string | null;
   reviewed_by_name?: string | null;
+  /** Screenshots the student attached. Removed 90 days after the answer. */
+  attachments?: ApiVerificationAttachment[];
+}
+
+export interface ApiVerificationAttachment {
+  id: number;
+  mime: string;
+  width: number;
+  height: number;
+  size_bytes: number;
+  created_at: string;
 }
 
 export class ApiError extends Error {
@@ -424,14 +435,46 @@ export interface SubmitVerificationInput {
   title?: string;
   note?: string;
   scholarshipId?: number;
+  /** Up to three screenshots, already downscaled (see lib/imageResize.ts). */
+  images?: Blob[];
 }
 
-export const submitVerificationRequest = (input: SubmitVerificationInput) =>
-  sendJson<{ request: ApiVerificationRequest; autoCheck: ApiLinkCheck }>(
-    "POST",
-    "/verification-requests",
-    input
+type SubmitResult = { request: ApiVerificationRequest; autoCheck: ApiLinkCheck };
+
+/** JSON when there is nothing to upload; multipart when there are screenshots. */
+export const submitVerificationRequest = async ({ images, ...fields }: SubmitVerificationInput) => {
+  if (!images?.length) return sendJson<SubmitResult>("POST", "/verification-requests", fields);
+
+  const form = new FormData();
+  for (const [key, value] of Object.entries(fields)) {
+    if (value !== undefined) form.append(key, String(value));
+  }
+  images.forEach((image, i) => form.append("images", image, `screenshot-${i + 1}.jpg`));
+
+  // No Content-Type header: the browser sets the multipart boundary itself.
+  const res = await fetch(`${API_BASE}/verification-requests`, {
+    method: "POST",
+    credentials: "include",
+    body: form,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new ApiError(res.status, data.error || `Request failed (${res.status})`);
+  return data as SubmitResult;
+};
+
+/**
+ * One screenshot, as a Blob. Fetched rather than put in an <img src> because
+ * the endpoint needs the session cookie, and an <img> to another origin will
+ * not reliably send it.
+ */
+export const fetchVerificationAttachment = async (requestId: number, attachmentId: number) => {
+  const res = await fetch(
+    `${API_BASE}/verification-requests/${requestId}/attachments/${attachmentId}`,
+    { credentials: "include" }
   );
+  if (!res.ok) throw new ApiError(res.status, `Could not load image (${res.status})`);
+  return res.blob();
+};
 
 /** The student's own requests, with a count of answers they haven't opened. */
 export const fetchMyVerificationRequests = () =>

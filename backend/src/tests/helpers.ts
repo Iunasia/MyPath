@@ -204,5 +204,13 @@ export const registerAndLogin = async (
   if (res.status !== 201) {
     throw new Error(`Fixture registration failed (${res.status}): ${JSON.stringify(res.body)}`);
   }
-  return { client, user, id: res.body.user.id as number };
+
+  // Registration no longer signs the user in: it waits for the emailed code.
+  // Confirm the address directly, then log in like a returning student.
+  await pool.query('UPDATE users SET is_verified = TRUE WHERE email = $1', [user.email]);
+  const login = await client.post('/auth/login').send({ email: user.email, password: user.password });
+  if (login.status !== 200) {
+    throw new Error(`Fixture login failed (${login.status}): ${JSON.stringify(login.body)}`);
+  }
+  return { client, user, id: login.body.user.id as number };
 };

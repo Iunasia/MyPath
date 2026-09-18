@@ -9,7 +9,8 @@
     "seed": "tsx src/seeds/seed.ts",
     "seed:preview": "tsx src/seeds/preview.ts",
     "test": "tsx --test --test-concurrency=1 src/tests/*.test.ts",
-    "test:watch": "tsx --test --test-concurrency=1 --watch src/tests/*.test.ts"
+    "test:watch": "tsx --test --test-concurrency=1 --watch src/tests/*.test.ts",
+    "purge:attachments": "tsx src/scripts/purgeAttachments.ts"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +18,8 @@
   "type": "commonjs",
   "dependencies": {
     "@types/cors": "^2.8.19",
+    "@vercel/functions": "^3.9.8",
+    "aws4fetch": "^1.0.20",
     "bcryptjs": "^3.0.3",
     "connect-pg-simple": "^10.0.0",
     "connect-redis": "^10.0.0",

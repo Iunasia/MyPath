@@ -15,8 +15,11 @@ import {
   AlertTriangle,
   ExternalLink,
   X,
+  ImagePlus,
 } from "lucide-react";
 import Footer from "@/app/components/Footer";
+import AttachmentGallery from "@/app/components/AttachmentGallery";
+import { downscaleImage, MAX_SCREENSHOTS } from "@/app/lib/imageResize";
 import { Button, EmptyState } from "@/app/components/ui";
 import { useAuth } from "@/app/context/AuthContext";
 import {
@@ -118,6 +121,30 @@ export default function VerifyPage() {
 
   const [requests, setRequests] = useState<ApiVerificationRequest[]>([]);
   const [loadingRequests, setLoadingRequests] = useState(true);
+
+  // Screenshots attached to the signed-in form: the original file plus a preview URL.
+  const screenshotInputRef = useRef<HTMLInputElement>(null);
+  const [screenshots, setScreenshots] = useState<Array<{ file: File; preview: string }>>([]);
+  const [preparing, setPreparing] = useState(false);
+
+  const addScreenshots = (files: FileList | null) => {
+    if (!files?.length) return;
+    setError("");
+    const incoming = Array.from(files).filter((f) => f.type.startsWith("image/"));
+    const room = Math.max(MAX_SCREENSHOTS - screenshots.length, 0);
+
+    if (incoming.length > room) setError(t("tooManyScreenshots", { max: MAX_SCREENSHOTS }));
+    else if (incoming.length < files.length) setError(t("onlyImages"));
+
+    const added = incoming.slice(0, room).map((file) => ({ file, preview: URL.createObjectURL(file) }));
+    setScreenshots([...screenshots, ...added]);
+    if (screenshotInputRef.current) screenshotInputRef.current.value = "";
+  };
+
+  const removeScreenshot = (index: number) => {
+    URL.revokeObjectURL(screenshots[index].preview);
+    setScreenshots(screenshots.filter((_, i) => i !== index));
+  };
 
   // File upload state for "Upload here"
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -222,15 +249,31 @@ export default function VerifyPage() {
     setSubmitting(true);
 
     try {
+      let images: Blob[] = [];
+      if (screenshots.length > 0) {
+        setPreparing(true);
+        try {
+          images = await Promise.all(screenshots.map((s) => downscaleImage(s.file)));
+        } catch {
+          setError(t("notAnImage"));
+          return;
+        } finally {
+          setPreparing(false);
+        }
+      }
+
       const result = await submitVerificationRequest({
         url: url.trim() || undefined,
         title: title.trim() || undefined,
         note: note.trim() || undefined,
+        images,
       });
       setLastCheck(result.autoCheck);
       setUrl("");
       setTitle("");
       setNote("");
+      screenshots.forEach((s) => URL.revokeObjectURL(s.preview));
+      setScreenshots([]);
       await loadRequests();
     } catch (err) {
       setError(err instanceof Error ? err.message : tCommon("error"));
@@ -443,6 +486,59 @@ export default function VerifyPage() {
                   </p>
                 </div>
 
+                <div>
+                  <span className="block text-xs font-extrabold uppercase tracking-wider text-blue-ink mb-1.5">
+                    {t("screenshotsLabel")}
+                  </span>
+                  <input
+                    ref={screenshotInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => addScreenshots(e.target.files)}
+                    className="hidden"
+                    aria-hidden="true"
+                    tabIndex={-1}
+                  />
+                  <div
+                    className="flex flex-wrap gap-2"
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      addScreenshots(e.dataTransfer.files);
+                    }}
+                  >
+                    {screenshots.map((s, i) => (
+                      <div key={s.preview} className="relative w-24 h-24 rounded-2xl overflow-hidden border border-sky/25 bg-white">
+                        {/* Local preview of a file not yet uploaded. */}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={s.preview} alt={s.file.name} className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => removeScreenshot(i)}
+                          aria-label={t("removeScreenshot")}
+                          className="absolute top-1 right-1 p-1 rounded-full bg-black/55 text-white hover:bg-rose-600 transition-colors cursor-pointer"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                    {screenshots.length < MAX_SCREENSHOTS && (
+                      <button
+                        type="button"
+                        onClick={() => screenshotInputRef.current?.click()}
+                        className="w-24 h-24 rounded-2xl border-2 border-dashed border-sky/40 bg-sitomo/25 hover:border-sky-deep hover:bg-sitomo/50 text-sky-deep flex flex-col items-center justify-center gap-1 transition-colors cursor-pointer"
+                      >
+                        <ImagePlus className="w-5 h-5" aria-hidden="true" />
+                        <span className="text-[10px] font-bold px-1 leading-tight">{t("addScreenshot")}</span>
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-gray-soft mt-1.5 font-medium">
+                    {t("screenshotsHint", { max: MAX_SCREENSHOTS })}
+                  </p>
+                </div>
+
                 {error && (
                   <div className="rounded-2xl bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700 font-medium" role="alert">
                     {error}
@@ -452,11 +548,11 @@ export default function VerifyPage() {
                 <Button
                   type="submit"
                   loading={submitting}
-                  disabled={submitting || (!url.trim() && !title.trim())}
+                  disabled={submitting || (!url.trim() && !title.trim() && screenshots.length === 0)}
                   className="inline-flex items-center gap-2 rounded-full bg-[#7AB3B7] px-6 py-3 text-sm font-bold text-white hover:bg-[#68A1A5] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   <Send className="w-4 h-4" aria-hidden="true" />
-                  {submitting ? t("checking") : t("checkThisScholarship")}
+                  {preparing ? t("preparingImages") : submitting ? t("checking") : t("checkThisScholarship")}
                 </Button>
               </form>
             )}
@@ -524,6 +620,19 @@ export default function VerifyPage() {
                             <ExternalLink className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
                             <span className="truncate max-w-full">{request.submitted_url}</span>
                           </a>
+                        )}
+
+                        {request.attachments && request.attachments.length > 0 && (
+                          <AttachmentGallery
+                            requestId={request.id}
+                            attachments={request.attachments}
+                            labels={{
+                              heading: t("yourScreenshots"),
+                              unavailable: t("imageUnavailable"),
+                              open: t("openImage"),
+                              close: t("closeImage"),
+                            }}
+                          />
                         )}
 
                         {verdict && (

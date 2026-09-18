@@ -107,7 +107,11 @@ const matches = (host: string, list: string[]): boolean =>
  * Runs the offline checks over a URL and any text the student pasted.
  * Never throws — a malformed URL is itself a finding.
  */
-export const checkLink = (rawUrl: string, text = ''): LinkCheck => {
+export const checkLink = (
+  rawUrl: string,
+  text = '',
+  options: { hasImages?: boolean } = {}
+): LinkCheck => {
   const findings: string[] = [];
   const passed: string[] = [];
   let score = 0;
@@ -115,7 +119,11 @@ export const checkLink = (rawUrl: string, text = ''): LinkCheck => {
   const raw = rawUrl.trim();
 
   if (!raw) {
-    findings.push('No link was provided, so the source could not be checked at all.');
+    findings.push(
+      options.hasImages
+        ? 'No link was provided, so only the screenshot can be checked — a person on our team will look at it.'
+        : 'No link was provided, so the source could not be checked at all.'
+    );
     return { score: 50, level: 'caution', findings, passed, hostname: null, sourceType: 'unknown' };
   }
 

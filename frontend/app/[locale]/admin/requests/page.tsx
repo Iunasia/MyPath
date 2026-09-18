@@ -10,6 +10,7 @@ import {
   type RequestStatus,
   type Verdict,
 } from "@/app/lib/api";
+import AttachmentGallery from "@/app/components/AttachmentGallery";
 import { btnSecondary, ErrorBox, formatAge, formatDate as formatDay, Loading, PageHeader, Segments } from "../ui";
 
 const VERDICTS: Array<{ value: Verdict; label: string; cls: string }> = [
@@ -116,6 +117,19 @@ function RequestCard({
           <ExternalLink className="w-3.5 h-3.5 shrink-0" />
           <span className="truncate max-w-full">{request.submitted_url}</span>
         </a>
+      )}
+
+      {request.attachments && request.attachments.length > 0 && (
+        <AttachmentGallery
+          requestId={request.id}
+          attachments={request.attachments}
+          labels={{
+            heading: `Screenshots (${request.attachments.length})`,
+            unavailable: "Deleted after 90 days",
+            open: "Open screenshot",
+            close: "Close",
+          }}
+        />
       )}
 
       {request.note && (

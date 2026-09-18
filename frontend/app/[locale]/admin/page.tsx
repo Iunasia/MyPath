@@ -42,11 +42,14 @@ function RequestRow({ request }: { request: ApiVerificationRequest }) {
   const age = formatAge(request.created_at);
   const waitingLong = waitedMoreThan(request.created_at, 24);
   const risk = request.auto_check ? RISK_TAG[request.auto_check.level] : null;
+  const screenshots = request.attachments?.length ?? 0;
   const where = request.submitted_url
     ? hostOf(request.submitted_url)
     : request.scholarship_id
       ? `About listing #${request.scholarship_id}`
-      : "No link given";
+      : screenshots > 0
+        ? `${screenshots} screenshot${screenshots === 1 ? "" : "s"}`
+        : "No link given";
 
   return (
     <li className="grid grid-cols-[52px_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 border-b border-sky/10 last:border-b-0 hover:bg-powder/60 transition-colors">

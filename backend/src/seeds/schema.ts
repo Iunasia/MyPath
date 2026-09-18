@@ -176,6 +176,22 @@ const TABLES: string[] = [
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`,
   /**
+   * Screenshots attached to a verification request. Only metadata lives here —
+   * the bytes are in object storage under `storage_key` (see utils/storage.ts).
+   * A separate table rather than columns, so listing the queue never drags
+   * image rows along. CASCADE: an attachment means nothing without its request.
+   */
+  `CREATE TABLE IF NOT EXISTS verification_attachments (
+    id SERIAL PRIMARY KEY,
+    request_id INTEGER NOT NULL REFERENCES verification_requests(id) ON DELETE CASCADE,
+    storage_key TEXT NOT NULL UNIQUE,
+    mime TEXT NOT NULL,
+    width INTEGER NOT NULL,
+    height INTEGER NOT NULL,
+    size_bytes INTEGER NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  )`,
+  /**
    * Who changed which catalogue row, when, and why. Written by every admin
    * create / update / archive / restore, so the trust layer has a memory of
    * its own edits — the sheets never had one.
@@ -296,7 +312,9 @@ const ADD_CONSTRAINTS: string[] = [
      ON verification_requests (status, created_at)`,
   `CREATE INDEX IF NOT EXISTS verification_requests_unread_idx
      ON verification_requests (user_id)
-     WHERE status = 'resolved' AND read_by_user = FALSE`
+     WHERE status = 'resolved' AND read_by_user = FALSE`,
+  `CREATE INDEX IF NOT EXISTS verification_attachments_request_idx
+     ON verification_attachments (request_id)`
 ];
 
 /** Columns the source spreadsheets do not supply: relaxed rather than faked. */
@@ -319,6 +337,7 @@ export const TABLE_NAMES = [
   'email_verifications',
   'saved_items',
   'reports',
+  'verification_attachments',
   'verification_requests',
   'content_audit',
   'scholarships',
@@ -344,6 +363,12 @@ export const createTables = async (pool: Pool): Promise<void> => {
 };
 
 export const applyMigrations = async (pool: Pool): Promise<void> => {
+  // Startup runs only applyMigrations, never the seeder — so a table added
+  // after a database was first built (content_audit, verification_attachments)
+  // would otherwise never exist there, and the index statements below would
+  // fail on it and abort every migration after them. All IF NOT EXISTS, so
+  // this is a no-op on an up-to-date database.
+  await createTables(pool);
   for (const [table, definition] of ADD_COLUMNS) {
     await pool.query(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS ${definition}`);
   }

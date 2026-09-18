@@ -1,7 +1,8 @@
 import { and, asc, desc, eq, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import db from '../db';
-import { users, verificationRequests } from '../db/schema';
+import { users, verificationAttachments, verificationRequests } from '../db/schema';
+import type { NewAttachment } from './VerificationAttachment';
 import type { LinkCheck } from '../utils/linkCheck';
 
 export const REQUEST_STATUSES = ['pending', 'reviewing', 'resolved'] as const;
@@ -47,6 +48,8 @@ export interface CreateInput {
   submitted_title: string;
   note: string | null;
   auto_check: LinkCheck;
+  /** Screenshots already written to storage; their rows are inserted with the request. */
+  attachments?: NewAttachment[];
 }
 
 /** Queue page size when the caller does not ask for one, and the ceiling it may ask for. */
@@ -99,24 +102,32 @@ const statusRank = sql`CASE ${verificationRequests.status}
                        END`;
 
 const VerificationRequest = {
-  create: async (data: CreateInput): Promise<VerificationRequest> => {
-    const [row] = await db
-      .insert(verificationRequests)
-      .values({
-        user_id: data.user_id,
-        scholarship_id: data.scholarship_id,
-        submitted_url: data.submitted_url,
-        submitted_title: data.submitted_title,
-        note: data.note,
-        // Passed as an object, not JSON.stringify'd as the raw version did:
-        // Drizzle serialises jsonb itself, and pre-stringifying would store a
-        // JSON string *containing* JSON rather than the object.
-        auto_check: data.auto_check
-      })
-      .returning();
+  create: async (data: CreateInput): Promise<VerificationRequest> =>
+    // One transaction, so a request never exists with half its attachments.
+    db.transaction(async tx => {
+      const [row] = await tx
+        .insert(verificationRequests)
+        .values({
+          user_id: data.user_id,
+          scholarship_id: data.scholarship_id,
+          submitted_url: data.submitted_url,
+          submitted_title: data.submitted_title,
+          note: data.note,
+          // Passed as an object, not JSON.stringify'd as the raw version did:
+          // Drizzle serialises jsonb itself, and pre-stringifying would store a
+          // JSON string *containing* JSON rather than the object.
+          auto_check: data.auto_check
+        })
+        .returning();
 
-    return row as VerificationRequest;
-  },
+      if (data.attachments?.length) {
+        await tx
+          .insert(verificationAttachments)
+          .values(data.attachments.map(a => ({ ...a, request_id: row.id })));
+      }
+
+      return row as VerificationRequest;
+    }),
 
   getById: async (id: number): Promise<VerificationRequestWithUser | undefined> => {
     const rows = await withUser().where(eq(verificationRequests.id, id));

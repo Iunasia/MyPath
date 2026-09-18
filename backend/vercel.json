@@ -11,5 +11,11 @@
       "src": "/(.*)",
       "dest": "api/index.ts"
     }
+  ],
+  "crons": [
+    {
+      "path": "/verification-requests/attachments/purge",
+      "schedule": "0 3 * * *"
+    }
   ]
 }

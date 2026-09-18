@@ -14,6 +14,10 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=5000
+    volumes:
+      # Verification screenshots, when no S3 bucket is configured in .env.prod.
+      # A named volume so they survive rebuilds; unused once S3_* is set.
+      - uploads:/app/uploads
 
   frontend:
     build:
@@ -33,3 +37,6 @@ services:
       - BACKEND_INTERNAL_URL=http://backend:5000
     depends_on:
       - backend
+
+volumes:
+  uploads:

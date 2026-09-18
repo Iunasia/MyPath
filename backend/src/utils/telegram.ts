@@ -63,6 +63,8 @@ export interface RequestAlert {
   riskLevel: string;
   findings: string[];
   submittedBy: string;
+  /** Screenshots attached. They are not forwarded: the admin queue shows them behind a login. */
+  imageCount?: number;
 }
 
 const RISK_ICON: Record<string, string> = {
@@ -80,6 +82,9 @@ export const notifyNewRequest = async (alert: RequestAlert): Promise<boolean> =>
     '',
     `*What:* ${escape(alert.title)}`,
     alert.url ? `*Link:* ${escape(alert.url)}` : '*Link:* none given',
+    ...(alert.imageCount
+      ? [`*Screenshots:* ${alert.imageCount} attached — open the admin queue to view`]
+      : []),
     `*From:* ${escape(alert.submittedBy)}`,
     `*Auto\\-check:* ${escape(alert.riskLevel)}`
   ];

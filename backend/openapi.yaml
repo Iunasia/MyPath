@@ -616,6 +616,12 @@ paths:
         so the student gets something immediately while a human review is
         queued. The review team is alerted over Telegram.
 
+        Screenshots: send `multipart/form-data` with up to three `images`
+        (JPEG, PNG or WebP, 4MB each). A screenshot alone is a complete request.
+        Each is re-encoded to JPEG (at most 2000px on its long side, EXIF
+        stripped) and written to private object storage; only its metadata is
+        returned. Answers 503 when this deployment has no storage configured.
+
         Limited to 10 accepted submissions per account per hour, since each
         one pings the team. Rejected submissions (4xx) don't count.
       requestBody:
@@ -630,6 +636,19 @@ paths:
                 title: { type: string, maxLength: 300 }
                 note: { type: string, maxLength: 2000, description: What the student wants to know. }
                 scholarshipId: { type: integer, description: When asking about a listing we already hold. }
+          multipart/form-data:
+            schema:
+              type: object
+              description: At least one of `url`, `title`, `scholarshipId` or `images` is required.
+              properties:
+                url: { type: string }
+                title: { type: string, maxLength: 300 }
+                note: { type: string, maxLength: 2000 }
+                scholarshipId: { type: string, description: A positive integer, as multipart fields are strings. }
+                images:
+                  type: array
+                  maxItems: 3
+                  items: { type: string, format: binary, contentMediaType: image/* }
       responses:
         '201':
           description: Request recorded, with the automated first pass
@@ -645,6 +664,11 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '429':
           description: 10 accepted submissions from this account in the last hour
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '503':
+          description: Screenshots were attached but no file storage is configured here
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
@@ -686,6 +710,53 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
+
+  /verification-requests/attachments/purge:
+    get:
+      tags: [Verification]
+      summary: Delete expired screenshots (Vercel Cron)
+      description: |
+        Removes screenshots whose request was resolved more than 90 days ago —
+        the object in storage first, then its row. The request, verdict and
+        text are kept. Requires `Authorization: Bearer <CRON_SECRET>`, which
+        Vercel Cron sends; closed when `CRON_SECRET` is unset.
+      security: []
+      responses:
+        '200':
+          description: What was removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted: { type: integer }
+                  failed: { type: integer, description: Objects storage refused to delete; retried next run. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /verification-requests/{id}/attachments/{attachmentId}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+      - name: attachmentId
+        in: path
+        required: true
+        schema: { type: integer, minimum: 1 }
+    get:
+      tags: [Verification]
+      summary: One screenshot attached to a request
+      description: |
+        The image bytes. Same access rule as the request: the student who sent
+        it or any admin. Never publicly cacheable. 404 once the retention sweep
+        has removed it.
+      responses:
+        '200':
+          description: Image bytes
+          content:
+            image/jpeg:
+              schema: { type: string, format: binary }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
 
   /verification-requests/{id}:
     parameters:
@@ -1419,6 +1490,20 @@ components:
         submitted_by_name: { type: [string, 'null'], description: Present on list endpoints. }
         submitted_by_email: { type: [string, 'null'] }
         reviewed_by_name: { type: [string, 'null'] }
+        attachments:
+          type: array
+          description: Screenshots the student attached. Fetch each from `/verification-requests/{id}/attachments/{attachmentId}`.
+          items: { $ref: '#/components/schemas/VerificationAttachment' }
+
+    VerificationAttachment:
+      type: object
+      properties:
+        id: { type: integer }
+        mime: { type: string, examples: [image/jpeg] }
+        width: { type: integer }
+        height: { type: integer }
+        size_bytes: { type: integer }
+        created_at: { type: string, format: date-time }
 
     SavedItem:
       type: object

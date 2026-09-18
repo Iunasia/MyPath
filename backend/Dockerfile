@@ -16,6 +16,10 @@ COPY . .
 ENV NODE_ENV=production
 ENV PORT=5000
 
+# Screenshot storage when no S3 bucket is configured. Created here so the
+# volume docker-compose.prod.yml mounts over it is writable by the node user.
+RUN mkdir -p /app/uploads && chown node:node /app/uploads
+
 # Run as non-root user
 USER node
 
