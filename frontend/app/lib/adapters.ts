@@ -247,16 +247,17 @@ const subjectPhoto = (row: any): string => {
 const IMAGE_FILE = /\.(jpe?g|png|webp|gif|avif)(\?|$)/i;
 
 /**
- * Facebook and Instagram CDN links are signed and expire within days, and the
- * CDN refuses hotlinks — the ÆON card showed a broken image because the sheet
- * holds one. Treat them as no image rather than a broken one.
+ * Facebook and Instagram CDN links are signed and expire within days.
+ * Additionally, Facebook post URLs (facebook.com/photo) are HTML pages, not images.
+ * Trying to load them in an <img> tag causes NotSameOrigin / CORB errors.
+ * We treat all of these as "no image" to trigger the fallback photo generator.
  */
-const EXPIRING_IMAGE_HOST = /(^|\.)(fbcdn\.net|cdninstagram\.com|fbsbx\.com)$/i;
+const INVALID_IMAGE_HOST = /(^|\.)(fbcdn\.net|cdninstagram\.com|fbsbx\.com|facebook\.com|instagram\.com)$/i;
 
 const usableImage = (url: string): boolean => {
   try {
     const parsed = new URL(url);
-    if (parsed.protocol !== "https:" || EXPIRING_IMAGE_HOST.test(parsed.hostname)) {
+    if (parsed.protocol !== "https:" || INVALID_IMAGE_HOST.test(parsed.hostname)) {
       return false;
     }
     return (
@@ -275,7 +276,7 @@ const toImage = (row: any): string => {
   const customUrl = (row as any).image || row.image_url;
   if (customUrl) {
     if (usableImage(customUrl)) return customUrl;
-    if (typeof customUrl === "string" && customUrl.startsWith("http") && !EXPIRING_IMAGE_HOST.test(customUrl)) {
+    if (typeof customUrl === "string" && customUrl.startsWith("http") && !INVALID_IMAGE_HOST.test(customUrl)) {
       return customUrl;
     }
   }
