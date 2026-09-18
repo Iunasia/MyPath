@@ -1,5 +1,10 @@
 import { Request, Response } from 'express';
-import VerificationRequest, { isStatus, isVerdict } from '../models/VerificationRequest';
+import VerificationRequest, {
+  isStatus,
+  isVerdict,
+  DEFAULT_PAGE_SIZE,
+  MAX_PAGE_SIZE
+} from '../models/VerificationRequest';
 import Scholarship from '../models/Scholarship';
 import User from '../models/User';
 import { isAuthenticated } from '../middleware/auth';
@@ -14,6 +19,37 @@ const router = require('express').Router();
 
 const MAX_TITLE = 300;
 const MAX_NOTE = 2000;
+
+/**
+ * Validates `?limit=&offset=` for the queue.
+ *
+ * Both are rejected rather than silently clamped when they are nonsense — a
+ * caller asking for `limit=abc` has a bug, and quietly returning page one would
+ * hide it. A limit above the ceiling IS clamped, since asking for too much is a
+ * reasonable thing a client might do.
+ */
+const parsePageParams = (
+  limit: unknown,
+  offset: unknown
+): { limit: number; offset: number } | { error: string } => {
+  const toInt = (value: unknown, fallback: number): number | null => {
+    if (value === undefined) return fallback;
+    if (typeof value !== 'string' || !/^\d+$/.test(value)) return null;
+    return Number(value);
+  };
+
+  const parsedLimit = toInt(limit, DEFAULT_PAGE_SIZE);
+  if (parsedLimit === null || parsedLimit === 0) {
+    return { error: 'limit must be a positive integer.' };
+  }
+
+  const parsedOffset = toInt(offset, 0);
+  if (parsedOffset === null) {
+    return { error: 'offset must be a non-negative integer.' };
+  }
+
+  return { limit: Math.min(parsedLimit, MAX_PAGE_SIZE), offset: parsedOffset };
+};
 
 /**
  * Submit something to be checked.
@@ -60,7 +96,13 @@ router.post('/', isAuthenticated, verificationLimiter, async (req: Request, res:
     }
   }
 
-  const autoCheck = checkLink(submittedUrl, `${submittedTitle} ${submittedNote}`);
+  // Fall back to the listing's own source when the student did not paste a link.
+  // Asking "is this deadline still right?" about a scholarship we already hold is
+  // a complete question, and we have its official URL right here — without this,
+  // checkLink saw an empty string and answered "caution: no link was provided",
+  // warning students off listings we had already classified as official.
+  const urlToCheck = submittedUrl || scholarship?.source_url?.trim() || '';
+  const autoCheck = checkLink(urlToCheck, `${submittedTitle} ${submittedNote}`);
 
   const created = await VerificationRequest.create({
     user_id: session.userId,
@@ -97,17 +139,26 @@ router.get('/', isAuthenticated, async (req: Request, res: Response) => {
   res.json({ requests, unread });
 });
 
-/** The review queue. Admins only. */
+/**
+ * The review queue. Admins only.
+ *
+ * Paged via `?limit=&offset=`. Both are optional and the response is still a
+ * bare array, so callers that predate paging keep working — they just receive
+ * the first page, which for this ordering is the oldest pending work.
+ */
 router.get('/all', isAdmin, async (req: Request, res: Response) => {
-  const status = req.query.status;
+  const { status, limit, offset } = req.query;
+
+  const page = parsePageParams(limit, offset);
+  if ('error' in page) return res.status(400).json({ error: page.error });
 
   if (status === undefined) {
-    return res.json(await VerificationRequest.listAll());
+    return res.json(await VerificationRequest.listAll(undefined, page));
   }
   if (!isStatus(status)) {
     return res.status(400).json({ error: 'Unknown status filter.' });
   }
-  res.json(await VerificationRequest.listAll(status));
+  res.json(await VerificationRequest.listAll(status, page));
 });
 
 /** One request. The owner or any admin may read it. */

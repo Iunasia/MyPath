@@ -33,6 +33,7 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "pg": "^8.23.0",
+    "rate-limit-redis": "^6.0.1",
     "sharp": "^0.35.4"
   },
   "devDependencies": {

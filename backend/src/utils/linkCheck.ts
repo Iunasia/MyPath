@@ -12,21 +12,58 @@
  * something immediately and to tell the reviewer where to look.
  */
 
-/** Phrases that recur in fake scholarship offers. */
-const SCAM_PATTERNS: Array<[RegExp, string]> = [
-  [/processing fee|application fee|admin(istration)? fee/i, 'Mentions a fee to apply — legitimate scholarships do not charge one.'],
-  [/pay(ment)? (is )?required|pay to (apply|register)/i, 'Asks for payment to apply.'],
-  [/wire transfer|western union|money ?gram/i, 'Asks for an untraceable money transfer.'],
-  [/send.{0,20}bank (details|account)|account (number|details)/i, 'Asks for bank account details.'],
-  [/credit card (number|details)/i, 'Asks for card details.'],
-  [/social security number|national id number/i, 'Asks for a national identity number up front.'],
-  [/guaranteed (acceptance|approval|scholarship)|100% guaranteed/i, 'Promises a guaranteed award — no real scholarship can.'],
-  [/act now|apply (within|in) 24 hours|limited (spots|slots|time)/i, 'Uses urgency pressure.'],
-  [/no essay required|no documents required/i, 'Claims no documents are needed.'],
-  [/congratulations.{0,30}(selected|won)|winner.{0,20}(selected|chosen)/i, 'Says you have already won something you never entered.'],
-  [/free (iphone|laptop|phone|gift)/i, 'Offers an unrelated free gift.'],
-  [/t\.me\/|telegram|whatsapp/i, 'Directs applicants to a private messaging app rather than an official portal.']
+/**
+ * Phrases that recur in fake scholarship offers.
+ *
+ * `negatable` marks the ones where a leading "no"/"without" flips the meaning
+ * entirely: a page saying "there is no application fee" is advertising the
+ * opposite of a scam, and flagging it hit precisely the legitimate listings —
+ * real scholarships say this *because* scams are common. Patterns whose own
+ * wording already contains the negation ("no documents required") are NOT
+ * negatable, or the guard would cancel the very thing they look for.
+ */
+interface ScamPattern {
+  pattern: RegExp;
+  message: string;
+  negatable: boolean;
+}
+
+const SCAM_PATTERNS: ScamPattern[] = [
+  { pattern: /processing fee|application fee|admin(istration)? fee/i, message: 'Mentions a fee to apply — legitimate scholarships do not charge one.', negatable: true },
+  { pattern: /pay(ment)? (is )?required|pay to (apply|register)/i, message: 'Asks for payment to apply.', negatable: true },
+  { pattern: /wire transfer|western union|money ?gram/i, message: 'Asks for an untraceable money transfer.', negatable: true },
+  { pattern: /send.{0,20}bank (details|account)|account (number|details)/i, message: 'Asks for bank account details.', negatable: true },
+  { pattern: /credit card (number|details)/i, message: 'Asks for card details.', negatable: true },
+  { pattern: /social security number|national id number/i, message: 'Asks for a national identity number up front.', negatable: true },
+  { pattern: /guaranteed (acceptance|approval|scholarship)|100% guaranteed/i, message: 'Promises a guaranteed award — no real scholarship can.', negatable: true },
+  { pattern: /act now|apply (within|in) 24 hours|limited (spots|slots|time)/i, message: 'Uses urgency pressure.', negatable: false },
+  { pattern: /no essay required|no documents required/i, message: 'Claims no documents are needed.', negatable: false },
+  { pattern: /congratulations.{0,30}(selected|won)|winner.{0,20}(selected|chosen)/i, message: 'Says you have already won something you never entered.', negatable: false },
+  { pattern: /free (iphone|laptop|phone|gift)/i, message: 'Offers an unrelated free gift.', negatable: false },
+  { pattern: /t\.me\/|telegram|whatsapp/i, message: 'Directs applicants to a private messaging app rather than an official portal.', negatable: false }
 ];
+
+/** A negation within the few words immediately before a match cancels it. */
+const NEGATION_BEFORE = /\b(no|not|never|without|free of|zero|waived|exempt from|isn'?t|aren'?t|does ?n'?t|do ?n'?t)\b[^.!?]{0,24}$/i;
+
+/** True when the URL already carries a scheme, e.g. "https://" or "ftp://". */
+const HAS_SCHEME = /^[a-z][a-z0-9+.-]*:\/\//i;
+
+/**
+ * Whether a scam pattern genuinely fires, ignoring matches that a negation
+ * immediately precedes. Every match is considered, so "no application fee, but
+ * pay a processing fee" is still caught on the second clause.
+ */
+const firesFor = ({ pattern, negatable }: ScamPattern, text: string): boolean => {
+  if (!negatable) return pattern.test(text);
+
+  const scan = new RegExp(pattern.source, pattern.flags.includes('g') ? pattern.flags : `${pattern.flags}g`);
+  for (const match of text.matchAll(scan)) {
+    const preceding = text.slice(Math.max(0, match.index - 40), match.index);
+    if (!NEGATION_BEFORE.test(preceding)) return true;
+  }
+  return false;
+};
 
 const RISKY_TLDS = ['.tk', '.ml', '.ga', '.cf', '.gq', '.xyz', '.top', '.click', '.link'];
 
@@ -75,12 +112,30 @@ export const checkLink = (rawUrl: string, text = ''): LinkCheck => {
   const passed: string[] = [];
   let score = 0;
 
-  const url = rawUrl.trim();
-  const host = url ? hostnameOf(url) : null;
+  const raw = rawUrl.trim();
 
-  if (!url) {
+  if (!raw) {
     findings.push('No link was provided, so the source could not be checked at all.');
     return { score: 50, level: 'caution', findings, passed, hostname: null, sourceType: 'unknown' };
+  }
+
+  let url = raw;
+  let host = hostnameOf(raw);
+
+  /**
+   * Students paste bare domains constantly — "facebook.com/somepost" with no
+   * scheme. `new URL()` rejects those, so they used to score 70/high with "not
+   * a valid web address", which is both wrong and alarming. Retry with a scheme
+   * before writing the address off.
+   */
+  let schemeAssumed = false;
+  if (!host && !HAS_SCHEME.test(raw)) {
+    const retried = hostnameOf(`https://${raw}`);
+    if (retried) {
+      host = retried;
+      url = `https://${raw}`;
+      schemeAssumed = true;
+    }
   }
 
   if (!host) {
@@ -90,11 +145,15 @@ export const checkLink = (rawUrl: string, text = ''): LinkCheck => {
 
   /* -------------------------------------------------- URL structure */
 
-  if (!/^https:\/\//i.test(url)) {
-    findings.push('The link is not HTTPS, so information sent to it is not encrypted.');
-    score += 15;
-  } else {
-    passed.push('Uses an encrypted HTTPS connection.');
+  // When we supplied the scheme ourselves we know nothing about the real one,
+  // so neither credit nor penalise encryption — saying either would be a guess.
+  if (!schemeAssumed) {
+    if (!/^https:\/\//i.test(url)) {
+      findings.push('The link is not HTTPS, so information sent to it is not encrypted.');
+      score += 15;
+    } else {
+      passed.push('Uses an encrypted HTTPS connection.');
+    }
   }
 
   if (/^https?:\/\/(\d{1,3}\.){3}\d{1,3}/.test(url)) {
@@ -132,9 +191,9 @@ export const checkLink = (rawUrl: string, text = ''): LinkCheck => {
   /* -------------------------------------------------- Wording */
 
   const haystack = `${text} ${url}`;
-  for (const [pattern, message] of SCAM_PATTERNS) {
-    if (pattern.test(haystack)) {
-      findings.push(message);
+  for (const scam of SCAM_PATTERNS) {
+    if (firesFor(scam, haystack)) {
+      findings.push(scam.message);
       score += 20;
     }
   }
