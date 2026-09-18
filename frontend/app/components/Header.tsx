@@ -33,6 +33,7 @@ type NavKey =
   | "majors"
   | "universities"
   | "scholarships"
+  | "opportunities"
   | "workshops"
   | "verify"
   | "saved";
@@ -128,7 +129,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
     { key: "majors", href: "/majors", label: t("majors"), icon: BookOpen },
     { key: "universities", href: "/universities", label: t("universities"), icon: GraduationCap },
     { key: "scholarships", href: "/scholarships", label: t("scholarships"), icon: Coins },
-    { key: "workshops", href: "/workshops", label: t("workshops"), icon: Users },
+    { key: "opportunities", href: "/opportunities", label: t("opportunities"), icon: Users },
   ];
 
   const desktopLink = (active: boolean) =>
