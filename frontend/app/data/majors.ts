@@ -1312,7 +1312,8 @@ export function mergeMajorTranslations(major: MajorItem, tr: MajorTranslations):
   return {
     ...major,
     name: tr.name,
-    category: tr.category,
+    category: major.category,
+    categoryLabel: tr.category ?? major.category,
     badge: tr.badge?.text
       ? ({ ...(major.badge ?? {}), ...tr.badge } as NonNullable<MajorItem["badge"]>)
       : major.badge,

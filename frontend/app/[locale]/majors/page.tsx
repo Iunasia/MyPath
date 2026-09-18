@@ -160,8 +160,8 @@ function MajorsInner() {
           <div className="flex items-center justify-between mb-5">
             <h2 className="font-display text-lg sm:text-xl font-bold text-blue-ink tracking-tight">
               {selectedCategory
-                ? t("categoryMajors", { category: selectedCategory })
-                : t("featuredMajors")}
+              ? t("categoryMajors", { category: categories.find((c) => c.id === selectedCategory)?.name ?? selectedCategory })
+              : t("featuredMajors")}
             </h2>
             <Link
               href="/majors/all"
@@ -216,7 +216,7 @@ function MajorsInner() {
 
                           <div className="mt-2 space-y-1">
                             <p className="text-xs text-gray-soft font-medium line-clamp-1">
-                              {major.category} • {major.duration}
+                              {(major as any).categoryLabel ?? major.category} • {major.duration}
                             </p>
                             <p className="text-xs font-semibold text-blue-ink">
                               {t("marketDemand")} <span className="font-bold text-sky-deep">{major.jobMarketDemand}</span>

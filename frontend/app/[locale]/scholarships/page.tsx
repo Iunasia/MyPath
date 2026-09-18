@@ -193,6 +193,7 @@ function ScholarshipsInner() {
                         variant="card-action"
                         item={{
                           id: scholarship.id,
+                          apiId: scholarship.apiId,
                           type: "scholarship",
                           title: scholarship.title,
                           subtitle: scholarship.provider,
