@@ -214,6 +214,7 @@ function MajorsInner() {
                             <h3 className="font-display text-base font-bold text-blue-ink hover:text-sky-deep transition-colors leading-snug line-clamp-2 min-h-[44px]">
                               {major.name}
                             </h3>
+                          </Link>
                         </div>
                       </div>
 
