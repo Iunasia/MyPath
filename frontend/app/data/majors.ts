@@ -66,6 +66,7 @@ export interface MajorItem {
   id: string;
   name: string;
   category: string;
+  categoryLabel?: string;
   badge?: {
     text: string;
     bg: string;

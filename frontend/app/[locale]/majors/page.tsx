@@ -216,7 +216,7 @@ function MajorsInner() {
 
                           <div className="mt-2 space-y-1">
                             <p className="text-xs text-gray-soft font-medium line-clamp-1">
-                              {(major as any).categoryLabel ?? major.category} • {major.duration}
+                              {major.categoryLabel ?? major.category} • {major.duration}
                             </p>
                             <p className="text-xs font-semibold text-blue-ink">
                               {t("marketDemand")} <span className="font-bold text-sky-deep">{major.jobMarketDemand}</span>
