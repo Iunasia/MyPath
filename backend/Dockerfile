@@ -16,6 +16,9 @@ COPY . .
 ENV NODE_ENV=production
 ENV PORT=5000
 
+# Ensure uploads directory exists and is writable by non-root user
+RUN mkdir -p /app/uploads/campaigns && chown -R node:node /app/uploads
+
 # Run as non-root user
 USER node
 

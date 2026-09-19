@@ -5,8 +5,9 @@ COPY package*.json ./
 # NOTE: do NOT add --omit=optional here. esbuild (pulled in by tsx) ships its
 # platform binary as an optionalDependency; omitting it makes the container
 # fail at startup with "@esbuild/linux-x64 could not be found".
-RUN npm ci
+RUN npm install
 COPY . .
+RUN mkdir -p /app/uploads/campaigns && chown -R node:node /app/uploads
 USER node
 EXPOSE 5000
 CMD ["npm", "run", "dev"]

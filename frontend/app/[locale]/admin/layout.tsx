@@ -16,6 +16,8 @@ const NAV: ({ href: string; label: string; openCount?: boolean } | { heading: st
   { href: "/admin/universities", label: "Universities" },
   { href: "/admin/majors", label: "Majors" },
   { href: "/admin/careers", label: "Careers" },
+  { heading: "Marketing" },
+  { href: "/admin/campaigns", label: "Campaigns & Ads" },
 ];
 
 /** Requests nobody has answered yet — refreshed on every admin navigation. */

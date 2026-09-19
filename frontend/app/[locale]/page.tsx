@@ -6,8 +6,9 @@ import ScholarshipCard from "@/app/components/ScholarshipCard";
 import InformationCheckDemo from "@/app/components/InformationCheckDemo";
 import InteractiveCTA from "@/app/components/InteractiveCTA";
 import FeaturedWorkshops from "@/app/components/FeaturedWorkshops";
+import AdPopup from "@/app/components/AdPopup";
 import { Button, WaveDivider } from "@/app/components/ui";
-import { getScholarships } from "@/app/lib/api.server";
+import { getScholarships, getCampaigns } from "@/app/lib/api.server";
 import {
   deadlineState,
   sortByDeadline,
@@ -129,10 +130,19 @@ async function getClosingSoon(): Promise<ScholarshipView[]> {
 }
 
 export default async function Home() {
-  const [closingSoon, t] = await Promise.all([getClosingSoon(), getTranslations("home")]);
+  const [closingSoon, t, campaigns] = await Promise.all([
+    getClosingSoon(),
+    getTranslations("home"),
+    getCampaigns(),
+  ]);
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
+      {/* ── Marketing Campaign Pop-up (Shows when URL has ?campaign=... or ?test_ad=1) ── */}
+      <AdPopup
+        ads={campaigns}
+        countdownSeconds={3}
+      />
 
       {/* ── Hero Slider ────────────────────────────────────── */}
       <HeroSlider />
