@@ -105,9 +105,6 @@ function VerifyEmailForm() {
 
   return (
     <div className="relative min-h-screen bg-powder flex items-center justify-center px-4 py-12 overflow-hidden">
-      <div className="blob blob-1" />
-      <div className="blob blob-2" />
-
       <Link
         href="/"
         className="absolute top-6 left-6 inline-flex items-center gap-2 text-sm font-semibold text-gray-soft hover:text-blue-ink transition-colors"
@@ -134,10 +131,10 @@ function VerifyEmailForm() {
           </p>
         </div>
 
-        <div className="rounded-3xl border-2 border-sky/15 bg-white p-8 bubble-shadow">
+        <div className="rounded-lg border border-sky/15 bg-white p-8">
           {verified ? (
             <div
-              className="rounded-2xl bg-emerald-50 border border-emerald-200 px-5 py-6 text-center"
+              className="rounded-md bg-emerald-50 border border-emerald-200 px-5 py-6 text-center"
               aria-live="polite"
             >
               <CheckCircle2 className="w-10 h-10 text-emerald-600 mx-auto mb-3" />
@@ -151,7 +148,7 @@ function VerifyEmailForm() {
           ) : (
             <>
               {error && (
-                <div className="mb-6 rounded-2xl bg-red-50 border border-red-200 px-5 py-3.5 text-sm font-semibold text-red-700" role="alert">
+                <div className="mb-6 rounded-md bg-red-50 border border-red-200 px-5 py-3.5 text-sm font-semibold text-red-700" role="alert">
                   {error}
                 </div>
               )}
@@ -175,7 +172,7 @@ function VerifyEmailForm() {
                       value={code}
                       onChange={(e) => setCode(e.target.value)}
                       placeholder={t("codePlaceholder")}
-                      className="w-full rounded-2xl border border-sky/20 bg-powder py-3 pl-11 pr-4 text-sm text-blue-ink placeholder:text-gray-faint font-medium focus:outline-none focus:ring-2 focus:ring-sky focus:border-transparent transition-shadow"
+                      className="w-full rounded-md border border-sky/20 bg-powder py-3 pl-11 pr-4 text-sm text-blue-ink placeholder:text-gray-faint font-medium focus:outline-none focus:ring-2 focus:ring-sky focus:border-transparent transition-colors duration-150 ease-out"
                     />
                   </div>
                 </div>

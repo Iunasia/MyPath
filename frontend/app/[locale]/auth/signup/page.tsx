@@ -58,9 +58,6 @@ export default function SignUpPage() {
 
   return (
     <div className="relative min-h-screen bg-powder flex items-center justify-center px-4 py-12 overflow-hidden">
-      <div className="blob blob-1" />
-      <div className="blob blob-2" />
-
       <Link
         href="/"
         className="absolute top-6 left-6 inline-flex items-center gap-2 text-sm font-semibold text-gray-soft hover:text-blue-ink transition-colors"
@@ -87,14 +84,14 @@ export default function SignUpPage() {
           </p>
         </div>
 
-        <div className="rounded-3xl border-2 border-sky/15 bg-white p-8 bubble-shadow">
+        <div className="rounded-lg border border-sky/15 bg-white p-8">
           {error && (
-            <div className="mb-6 rounded-2xl bg-red-50 border border-red-200 px-5 py-3.5 text-sm font-semibold text-red-700">
+            <div className="mb-6 rounded-md bg-red-50 border border-red-200 px-5 py-3.5 text-sm font-semibold text-red-700">
               {error}
             </div>
           )}
           {success && (
-            <div className="mb-6 rounded-2xl bg-emerald-50 border border-emerald-200 px-5 py-3.5 text-sm font-semibold text-emerald-700">
+            <div className="mb-6 rounded-md bg-emerald-50 border border-emerald-200 px-5 py-3.5 text-sm font-semibold text-emerald-700">
               {success}
             </div>
           )}
@@ -116,7 +113,7 @@ export default function SignUpPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={t("fullNamePlaceholder")}
-                  className="w-full rounded-2xl border border-sky/20 bg-powder py-3 pl-11 pr-4 text-sm text-blue-ink placeholder:text-gray-faint font-medium focus:outline-none focus:ring-2 focus:ring-sky focus:border-transparent transition-shadow"
+                  className="w-full rounded-md border border-sky/20 bg-powder py-3 pl-11 pr-4 text-sm text-blue-ink placeholder:text-gray-faint font-medium focus:outline-none focus:ring-2 focus:ring-sky focus:border-transparent transition-colors duration-150 ease-out"
                 />
               </div>
             </div>
@@ -137,7 +134,7 @@ export default function SignUpPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t("emailPlaceholder")}
-                  className="w-full rounded-2xl border border-sky/20 bg-powder py-3 pl-11 pr-4 text-sm text-blue-ink placeholder:text-gray-faint font-medium focus:outline-none focus:ring-2 focus:ring-sky focus:border-transparent transition-shadow"
+                  className="w-full rounded-md border border-sky/20 bg-powder py-3 pl-11 pr-4 text-sm text-blue-ink placeholder:text-gray-faint font-medium focus:outline-none focus:ring-2 focus:ring-sky focus:border-transparent transition-colors duration-150 ease-out"
                 />
               </div>
             </div>
@@ -158,7 +155,7 @@ export default function SignUpPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={t("passwordPlaceholder")}
-                  className="w-full rounded-2xl border border-sky/20 bg-powder py-3 pl-11 pr-11 text-sm text-blue-ink placeholder:text-gray-faint font-medium focus:outline-none focus:ring-2 focus:ring-sky focus:border-transparent transition-shadow"
+                  className="w-full rounded-md border border-sky/20 bg-powder py-3 pl-11 pr-11 text-sm text-blue-ink placeholder:text-gray-faint font-medium focus:outline-none focus:ring-2 focus:ring-sky focus:border-transparent transition-colors duration-150 ease-out"
                 />
                 <button
                   type="button"
@@ -191,7 +188,7 @@ export default function SignUpPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder={t("confirmPasswordPlaceholder")}
-                  className="w-full rounded-2xl border border-sky/20 bg-powder py-3 pl-11 pr-4 text-sm text-blue-ink placeholder:text-gray-faint font-medium focus:outline-none focus:ring-2 focus:ring-sky focus:border-transparent transition-shadow"
+                  className="w-full rounded-md border border-sky/20 bg-powder py-3 pl-11 pr-4 text-sm text-blue-ink placeholder:text-gray-faint font-medium focus:outline-none focus:ring-2 focus:ring-sky focus:border-transparent transition-colors duration-150 ease-out"
                 />
               </div>
             </div>
@@ -199,7 +196,7 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full rounded-full bg-[#7AB3B7] py-3 text-sm font-bold text-white hover:bg-[#68A1A5] transition-colors bubble-shadow-sm disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+              className="w-full rounded-md bg-[#7AB3B7] py-3 text-sm font-bold text-white hover:bg-[#68A1A5] transition-colors duration-150 ease-out disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
             >
               {submitting ? t("creatingAccount") : t("createAccount")}
             </button>
@@ -216,7 +213,7 @@ export default function SignUpPage() {
 
         <button
           onClick={loginWithGoogle}
-          className="w-full flex items-center justify-center gap-3 rounded-full border-2 border-sky/20 bg-white py-3 text-sm font-bold text-blue-ink hover:bg-sky/5 transition-colors bubble-shadow-sm cursor-pointer"
+          className="w-full flex items-center justify-center gap-3 rounded-md border border-sky/20 bg-white py-3 text-sm font-bold text-blue-ink hover:bg-sky/5 transition-colors duration-150 ease-out cursor-pointer"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path
