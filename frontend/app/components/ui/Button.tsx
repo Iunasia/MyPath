@@ -6,12 +6,12 @@ export type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "dan
 export type ButtonSize = "xs" | "sm" | "md" | "lg";
 
 const VARIANTS: Record<ButtonVariant, string> = {
-  primary: "bg-[#7AB3B7] text-white hover:bg-[#68A1A5] border border-transparent",
+  primary: "bg-[#7AB3B7] text-white hover:bg-[#68A1A5] active:bg-[#5C9195] border border-transparent",
   secondary:
-    "bg-panel text-blue-ink border border-sky/30 hover:border-sky hover:bg-sitomo",
-  outline: "border border-[#7AB3B7] text-[#7AB3B7] hover:bg-[#7AB3B7] hover:text-white bg-transparent",
-  ghost: "text-sky-deep hover:bg-sitomo bg-transparent",
-  danger: "bg-rose-600 text-white hover:bg-rose-700 border border-transparent",
+    "bg-panel text-blue-ink border border-sky/30 hover:border-sky hover:bg-sitomo active:bg-sitomo",
+  outline: "border border-[#7AB3B7] text-[#7AB3B7] hover:bg-[#7AB3B7] hover:text-white active:bg-[#68A1A5] bg-transparent",
+  ghost: "text-sky-deep hover:bg-sitomo active:bg-sitomo bg-transparent",
+  danger: "bg-rose-600 text-white hover:bg-rose-700 active:bg-rose-800 border border-transparent",
 };
 
 const SIZES: Record<ButtonSize, string> = {
@@ -48,7 +48,7 @@ interface ButtonAsLink extends CommonProps {
 export type ButtonProps = ButtonAsButton | ButtonAsLink;
 
 const base = (variant: ButtonVariant, size: ButtonSize, fullWidth?: boolean) =>
-  `inline-flex items-center justify-center rounded-full font-bold cursor-pointer select-none transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed bubble-shadow-sm ${VARIANTS[variant]} ${SIZES[size]} ${
+  `inline-flex items-center justify-center rounded-md font-bold cursor-pointer select-none transition-colors duration-150 ease-out disabled:opacity-50 disabled:cursor-not-allowed ${VARIANTS[variant]} ${SIZES[size]} ${
     fullWidth ? "w-full" : ""
   }`;
 

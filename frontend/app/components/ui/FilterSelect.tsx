@@ -39,7 +39,7 @@ export const FilterSelect = forwardRef<HTMLSelectElement, FilterSelectProps>(
           value={value}
           onChange={(e) => onChange(e.target.value)}
           aria-label={ariaLabel}
-          className="appearance-none bg-panel border border-sky/25 text-blue-ink text-xs font-bold pl-4 pr-9 py-2 rounded-full cursor-pointer hover:border-sky transition-colors focus:outline-none focus:ring-2 focus:ring-sky/30 bubble-shadow-sm"
+          className="appearance-none bg-panel border border-sky/25 text-blue-ink text-xs font-bold pl-4 pr-9 py-2 rounded-md cursor-pointer hover:border-sky transition-colors duration-150 ease-out focus:outline-none focus:ring-2 focus:ring-sky/30"
         >
           {options.map((opt) => (
             <option key={opt.value} value={opt.value}>

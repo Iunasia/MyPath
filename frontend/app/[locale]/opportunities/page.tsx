@@ -222,7 +222,7 @@ function WorkshopsInner() {
                   <button
                     type="button"
                     onClick={() => scroll("left")}
-                    className="w-9 h-9 rounded-full bg-white border border-sky/25 hover:border-sky text-sky-deep flex items-center justify-center transition-all shadow-xs hover:bg-sitomo/40 cursor-pointer"
+                    className="w-9 h-9 rounded-full bg-white border border-sky/25 hover:border-sky text-sky-deep flex items-center justify-center transition-colors hover:bg-sitomo/40 cursor-pointer"
                     aria-label={t("scrollLeft")}
                     title={t("scrollLeft")}
                   >
@@ -231,7 +231,7 @@ function WorkshopsInner() {
                   <button
                     type="button"
                     onClick={() => scroll("right")}
-                    className="w-9 h-9 rounded-full bg-white border border-sky/25 hover:border-sky text-sky-deep flex items-center justify-center transition-all shadow-xs hover:bg-sitomo/40 cursor-pointer"
+                    className="w-9 h-9 rounded-full bg-white border border-sky/25 hover:border-sky text-sky-deep flex items-center justify-center transition-colors hover:bg-sitomo/40 cursor-pointer"
                     aria-label={t("scrollRight")}
                     title={t("scrollRight")}
                   >
@@ -253,17 +253,7 @@ function WorkshopsInner() {
                 }
               />
             ) : (
-              <div className="relative group/carousel">
-                <button
-                  type="button"
-                  onClick={() => scroll("right")}
-                  className="hidden lg:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white border-2 border-sky/30 text-sky-deep hover:bg-[#7AB3B7] hover:text-white shadow-xl items-center justify-center transition-all cursor-pointer hover:scale-105"
-                  aria-label={t("scrollRight")}
-                  title={t("scrollRight")}
-                >
-                  <ChevronRight className="w-5 h-5" strokeWidth={2.5} />
-                </button>
-
+              <div className="relative">
                 <div
                   ref={scrollContainerRef}
                   className="flex gap-4 sm:gap-5 overflow-x-auto pb-5 pt-1.5 scroll-smooth snap-x snap-mandatory pr-4 sm:pr-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
@@ -274,7 +264,7 @@ function WorkshopsInner() {
                       type="button"
                       onClick={() => setSelectedWorkshop(ws)}
                       aria-haspopup="dialog"
-                      className={`w-[260px] sm:w-[280px] md:w-[300px] shrink-0 snap-start group flex flex-col justify-between text-left rounded-2xl p-3.5 sm:p-4 bg-white border border-sky/20 bubble-shadow-sm hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer ${
+                      className={`w-[260px] sm:w-[280px] md:w-[300px] shrink-0 snap-start group flex flex-col justify-between text-left rounded-lg p-3.5 sm:p-4 bg-white border border-sky/20 hover:border-sky transition-colors duration-150 ease-out cursor-pointer ${
                         isFinished(ws) ? "opacity-70" : ""
                       }`}
                     >
@@ -301,7 +291,7 @@ function WorkshopsInner() {
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                           <div className="absolute top-2 right-2">
-                            <span className="bg-sky text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-white/20 shadow-xs">
+                            <span className="bg-sky text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-white/20">
                               {ws.price ?? t("free")}
                             </span>
                           </div>
@@ -335,7 +325,7 @@ function WorkshopsInner() {
                         ) : (
                           <span />
                         )}
-                        <span className="inline-flex items-center justify-center px-3.5 py-1 rounded-xl border border-sky text-sky-deep group-hover:bg-[#7AB3B7] group-hover:text-white text-xs font-bold transition-colors shadow-2xs">
+                        <span className="inline-flex items-center justify-center px-3.5 py-1 rounded-xl border border-sky text-sky-deep group-hover:bg-[#7AB3B7] group-hover:text-white text-xs font-bold transition-colors">
                           {t("details")}
                         </span>
                       </div>
@@ -347,10 +337,10 @@ function WorkshopsInner() {
           </section>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-            <section className="rounded-3xl bg-white border border-sky/15 p-6 sm:p-7 bubble-shadow-sm flex flex-col justify-between">
+            <section className="rounded-lg bg-white border border-sky/15 p-6 sm:p-7 flex flex-col justify-between">
               <div>
                 <div className="flex items-start gap-4 mb-5">
-                  <div className="w-12 h-12 rounded-full bg-momo/80 flex items-center justify-center shrink-0 border border-momo/60 shadow-2xs">
+                  <div className="w-12 h-12 rounded-full bg-momo/80 flex items-center justify-center shrink-0 border border-momo/60">
                     <UserCheck className="w-6 h-6 text-sky-deep" strokeWidth={2.2} />
                   </div>
                   <div>
@@ -363,12 +353,12 @@ function WorkshopsInner() {
                   </div>
                 </div>
 
-                <div className="space-y-3 mb-6">
+                <div className="divide-y divide-sky/15 border-t border-b border-sky/15 mb-6">
                   {mentors.slice(0, 2).map((mentor) => (
                     <button
                       key={mentor.id}
                       onClick={() => setSelectedMentor(mentor)}
-                      className="w-full text-left rounded-2xl border border-sky/35 hover:border-sky p-3 sm:p-3.5 flex items-center justify-between transition-all bg-white hover:bg-sitomo/10 group cursor-pointer shadow-2xs"
+                      className="w-full text-left p-3 sm:p-3.5 flex items-center justify-between transition-colors bg-white hover:bg-powder/40 group cursor-pointer"
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full border-2 border-sky/30 overflow-hidden bg-sitomo/40 shrink-0">
@@ -403,16 +393,16 @@ function WorkshopsInner() {
 
               <button
                 onClick={() => setShowAllMentorsModal(true)}
-                className="w-full py-2.5 sm:py-3 rounded-full border border-sky text-sky-deep hover:bg-[#7AB3B7] hover:text-white text-xs sm:text-sm font-bold transition-all text-center cursor-pointer shadow-2xs"
+                className="w-full py-2.5 sm:py-3 rounded-full border border-sky text-sky-deep hover:bg-[#7AB3B7] hover:text-white text-xs sm:text-sm font-bold transition-colors text-center cursor-pointer"
               >
                 {t("viewAllMentors")}
               </button>
             </section>
 
-            <section className="rounded-3xl bg-white border border-sky/15 p-6 sm:p-7 bubble-shadow-sm flex flex-col justify-between">
+            <section className="rounded-lg bg-white border border-sky/15 p-6 sm:p-7 flex flex-col justify-between">
               <div>
                 <div className="flex items-start gap-4 mb-5">
-                  <div className="w-12 h-12 rounded-full bg-momo/80 flex items-center justify-center shrink-0 border border-momo/60 shadow-2xs">
+                  <div className="w-12 h-12 rounded-full bg-momo/80 flex items-center justify-center shrink-0 border border-momo/60">
                     <Megaphone className="w-6 h-6 text-sky-deep" strokeWidth={2.2} />
                   </div>
                   <div>
@@ -462,7 +452,7 @@ function WorkshopsInner() {
 
               <button
                 onClick={() => setShowContactModal(true)}
-                className="w-full py-3 sm:py-3.5 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white text-xs sm:text-sm font-bold transition-all text-center shadow-xs cursor-pointer"
+                className="w-full py-3 sm:py-3.5 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white text-xs sm:text-sm font-bold transition-colors text-center cursor-pointer"
               >
                 {t("contactUs")}
               </button>
@@ -481,7 +471,7 @@ function WorkshopsInner() {
         >
           <div
             data-lenis-prevent
-            className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 relative border border-sky/20 shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden overscroll-contain"
+            className="bg-white dark:bg-panel-raised rounded-lg max-w-xl w-full p-6 sm:p-8 relative border border-sky/20 dark:border-white/10 max-h-[90vh] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden overscroll-contain"
           >
             <button
               onClick={() => {
@@ -511,7 +501,7 @@ function WorkshopsInner() {
               </h3>
             </div>
 
-            <div className="rounded-2xl overflow-hidden aspect-[16/9] mb-4 bg-slate-900 border border-sky/15">
+            <div className="rounded-lg overflow-hidden aspect-[16/9] mb-4 bg-slate-900 border border-sky/15">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={selectedWorkshop.posterImage}
@@ -539,18 +529,18 @@ function WorkshopsInner() {
                 <ExternalLink className="w-4 h-4" />
               </a>
             ) : (
-              <p className="mb-4 rounded-2xl bg-momo border border-momo px-4 py-3 text-xs font-medium text-blue-ink">
+              <p className="mb-4 rounded-md bg-momo border border-momo px-4 py-3 text-xs font-medium text-blue-ink">
                 {t("noSignUpLink", { organization: selectedWorkshop.organization })}
               </p>
             )}
 
             {isFinished(selectedWorkshop) && (
-              <p className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-medium text-rose-800">
+              <p className="mb-4 rounded-md border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-medium text-rose-800">
                 {t("thisOneFinished")}
               </p>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-2xl bg-powder border border-sky/15 text-xs mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-lg bg-powder border border-sky/15 text-xs mb-4">
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-sky-deep shrink-0" />
                 <span className="font-medium text-blue-ink">
@@ -587,7 +577,7 @@ function WorkshopsInner() {
             </div>
 
             {selectedWorkshop.requirement && (
-              <div className="p-3.5 rounded-2xl bg-sitomo/35 border border-sky/20 mb-4">
+              <div className="p-3.5 rounded-md bg-sitomo/35 border border-sky/20 mb-4">
                 <h4 className="text-xs font-bold text-sky-deep uppercase tracking-wider mb-1 flex items-center gap-1.5">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   {t("requirementsAndEligibility")}
@@ -599,7 +589,7 @@ function WorkshopsInner() {
             )}
 
             {selectedWorkshop.benefit && (
-              <div className="p-3.5 rounded-2xl bg-momo/60 border border-momo/80 mb-5">
+              <div className="p-3.5 rounded-md bg-momo/60 border border-momo/80 mb-5">
                 <h4 className="text-xs font-bold text-blue-ink uppercase tracking-wider mb-1 flex items-center gap-1.5">
                   <Trophy className="w-3.5 h-3.5 text-sky-deep" />
                   {t("benefitsAndPrizes")}
@@ -616,7 +606,7 @@ function WorkshopsInner() {
                   href={selectedWorkshop.applicationLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full sm:flex-1 py-3 px-5 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white font-bold text-xs sm:text-sm transition-colors text-center shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full sm:flex-1 py-3 px-5 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white font-bold text-xs sm:text-sm transition-colors text-center flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <span>{t("applyRegisterHere")}</span>
                   <ExternalLink className="w-4 h-4" />
@@ -648,7 +638,7 @@ function WorkshopsInner() {
         >
           <div
             data-lenis-prevent
-            className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 relative border border-sky/20 shadow-2xl max-h-[85vh] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden overscroll-contain"
+            className="bg-white rounded-lg max-w-lg w-full p-6 sm:p-8 relative border border-sky/20 max-h-[85vh] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden overscroll-contain"
           >
             <button
               onClick={() => setShowAllMentorsModal(false)}
@@ -671,7 +661,7 @@ function WorkshopsInner() {
               {mentors.map((mentor) => (
                 <div
                   key={mentor.id}
-                  className="rounded-2xl border border-sky/25 p-4 flex flex-col gap-3 bg-white"
+                  className="rounded-lg border border-sky/25 p-4 flex flex-col gap-3 bg-white"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-sky/30 bg-sitomo shrink-0">
@@ -726,7 +716,7 @@ function WorkshopsInner() {
         >
           <div
             data-lenis-prevent
-            className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 relative border border-sky/20 shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden overscroll-contain"
+            className="bg-white rounded-lg max-w-md w-full p-6 sm:p-7 relative border border-sky/20 max-h-[90vh] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden overscroll-contain"
           >
             <button
               onClick={() => setSelectedMentor(null)}
@@ -753,7 +743,7 @@ function WorkshopsInner() {
               </div>
             </div>
 
-            <div className="p-3 rounded-2xl bg-powder border border-sky/15 text-xs text-blue-ink mb-4">
+            <div className="p-3 rounded-md bg-powder border border-sky/15 text-xs text-blue-ink mb-4">
               <p className="font-bold text-sky-deep mb-1">{t("focusArea")}</p>
               <p className="font-medium">{selectedMentor.specialty}</p>
             </div>
@@ -766,13 +756,13 @@ function WorkshopsInner() {
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <button
                   type="button"
-                  className="p-2 rounded-xl border border-sky/30 hover:border-sky bg-sitomo/20 text-blue-ink font-bold text-center"
+                  className="p-2 rounded-md border border-sky/30 hover:border-sky bg-sitomo/20 text-blue-ink font-bold text-center"
                 >
                   {t("majorChoice")}
                 </button>
                 <button
                   type="button"
-                  className="p-2 rounded-xl border border-sky/30 hover:border-sky bg-sitomo/20 text-blue-ink font-bold text-center"
+                  className="p-2 rounded-md border border-sky/30 hover:border-sky bg-sitomo/20 text-blue-ink font-bold text-center"
                 >
                   {t("scholarshipEssay")}
                 </button>
@@ -782,7 +772,7 @@ function WorkshopsInner() {
                 href={PROMOTE_CONTACT.telegramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white font-bold text-xs sm:text-sm transition-all shadow-sm"
+                className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white font-bold text-xs sm:text-sm transition-colors"
               >
                 <Send className="w-4 h-4" />
                 {t("connectOnTelegram")}
@@ -805,7 +795,7 @@ function WorkshopsInner() {
         >
           <div
             data-lenis-prevent
-            className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 relative border border-sky/20 shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden overscroll-contain"
+            className="bg-white rounded-lg max-w-md w-full p-6 sm:p-7 relative border border-sky/20 max-h-[90vh] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden overscroll-contain"
           >
             <button
               onClick={() => {
@@ -832,7 +822,7 @@ function WorkshopsInner() {
             </p>
 
             {inquirySubmitted ? (
-              <div className="p-4 rounded-2xl bg-sitomo border border-sky/20 text-center text-blue-ink text-sm font-medium">
+              <div className="p-4 rounded-md bg-sitomo border border-sky/20 text-center text-blue-ink text-sm font-medium">
                 <p className="font-bold mb-1">{t("emailAppOpened")}</p>
                 <p>
                   {t("emailMessageAddressed", { email: PROMOTE_CONTACT.email })}
@@ -846,7 +836,7 @@ function WorkshopsInner() {
                   placeholder={t("institutionOrCompany")}
                   value={inquiryOrg}
                   onChange={(e) => setInquiryOrg(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-sky/25 text-xs text-blue-ink focus:outline-none focus:ring-2 focus:ring-sky"
+                  className="w-full px-3.5 py-2.5 rounded-md border border-sky/25 text-xs text-blue-ink focus:outline-none focus:ring-2 focus:ring-sky"
                 />
                 <textarea
                   required
@@ -854,11 +844,11 @@ function WorkshopsInner() {
                   placeholder={t("tellUsAboutEvent")}
                   value={inquiryMsg}
                   onChange={(e) => setInquiryMsg(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-sky/25 text-xs text-blue-ink focus:outline-none focus:ring-2 focus:ring-sky"
+                  className="w-full px-3.5 py-2.5 rounded-md border border-sky/25 text-xs text-blue-ink focus:outline-none focus:ring-2 focus:ring-sky"
                 />
                 <button
                   type="submit"
-                  className="w-full py-2.5 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white font-bold text-xs sm:text-sm transition-colors cursor-pointer shadow-xs"
+                  className="w-full py-2.5 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white font-bold text-xs sm:text-sm transition-colors cursor-pointer"
                 >
                   {t("sendInquiry")}
                 </button>

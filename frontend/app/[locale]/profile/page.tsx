@@ -26,7 +26,7 @@ const MAX_BIO_LENGTH = 500;
 const GENDER_OPTIONS = ["male", "female", "other", "prefer_not_to_say"] as const;
 
 const INPUT_CLS =
-  "w-full px-4 py-3 rounded-2xl border border-sky/25 text-sm bg-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-sky/40 focus:border-sky transition-[border-color,box-shadow] font-medium";
+  "w-full px-4 py-3 rounded-md border border-sky/25 text-sm bg-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-sky/40 focus:border-sky transition-[border-color,box-shadow] font-medium";
 
 const LABEL_CLS = "block text-xs font-extrabold uppercase tracking-wider text-blue-ink mb-1.5";
 
@@ -219,7 +219,7 @@ export default function ProfilePage() {
               <span className="text-sm font-semibold">{tCommon("loading")}</span>
             </div>
           ) : !user ? (
-            <section className="bg-white rounded-3xl rounded-br-[86px] p-6 sm:p-8 border border-sky/15 bubble-shadow-sm text-center">
+            <section className="bg-white rounded-lg p-6 sm:p-8 border border-sky/15 text-center">
               <p className="font-bold text-blue-ink mb-2">{t("signInToView")}</p>
               <p className="text-sm text-gray-body font-medium mb-5">
                 {t("signInToViewDesc")}
@@ -230,13 +230,13 @@ export default function ProfilePage() {
             </section>
           ) : (
             <>
-              <section className="bg-white rounded-3xl rounded-br-[86px] p-6 sm:p-8 border border-sky/15 bubble-shadow-sm">
+              <section className="bg-white rounded-lg p-6 sm:p-8 border border-sky/15">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-5">
                   <div className="relative mx-auto sm:mx-0 shrink-0">
                     <Avatar user={user} size={80} className="text-2xl" />
                     <label
                       htmlFor="avatar-upload"
-                      className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-white border border-sky/25 flex items-center justify-center cursor-pointer bubble-shadow-sm"
+                      className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-white border border-sky/25 flex items-center justify-center cursor-pointer"
                       aria-label={t("changePhoto")}
                     >
                       {avatarUploading ? (
@@ -294,14 +294,14 @@ export default function ProfilePage() {
                 {avatarError && (
                   <div
                     role="alert"
-                    className="rounded-2xl bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700 font-medium mt-4"
+                    className="rounded-md bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700 font-medium mt-4"
                   >
                     {avatarError}
                   </div>
                 )}
               </section>
 
-              <section className="bg-white rounded-3xl rounded-br-[86px] p-6 sm:p-8 border border-sky/15 bubble-shadow-sm">
+              <section className="bg-white rounded-lg p-6 sm:p-8 border border-sky/15">
                 <h2 className="font-display text-xl sm:text-2xl font-bold mb-5 flex items-center gap-2">
                   <UserCircle className="w-5 h-5 text-sky-deep" aria-hidden="true" />
                   {t("editSection")}
@@ -439,7 +439,7 @@ export default function ProfilePage() {
                   {error && (
                     <div
                       role="alert"
-                      className="rounded-2xl bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700 font-medium"
+                      className="rounded-md bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700 font-medium"
                     >
                       {error}
                     </div>
@@ -448,7 +448,7 @@ export default function ProfilePage() {
                   {success && (
                     <div
                       role="status"
-                      className="rounded-2xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-700 font-medium"
+                      className="rounded-md bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-700 font-medium"
                     >
                       {t("saveSuccess")}
                     </div>
@@ -462,7 +462,7 @@ export default function ProfilePage() {
               </section>
 
               {isLocalAccount && (
-                <section className="bg-white rounded-3xl rounded-br-[86px] p-6 sm:p-8 border border-sky/15 bubble-shadow-sm">
+                <section className="bg-white rounded-lg p-6 sm:p-8 border border-sky/15">
                   <h2 className="font-display text-xl sm:text-2xl font-bold mb-5 flex items-center gap-2">
                     <Lock className="w-5 h-5 text-sky-deep" aria-hidden="true" />
                     {t("changePasswordSection")}
@@ -528,7 +528,7 @@ export default function ProfilePage() {
                     {pwError && (
                       <div
                         role="alert"
-                        className="rounded-2xl bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700 font-medium"
+                        className="rounded-md bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700 font-medium"
                       >
                         {pwError}
                       </div>
@@ -537,7 +537,7 @@ export default function ProfilePage() {
                     {pwSuccess && (
                       <div
                         role="status"
-                        className="rounded-2xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-700 font-medium"
+                        className="rounded-md bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-700 font-medium"
                       >
                         {t("passwordUpdateSuccess")}
                       </div>

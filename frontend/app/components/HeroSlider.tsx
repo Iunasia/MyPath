@@ -138,7 +138,7 @@ export default function HeroSlider() {
                   className={`group relative h-2.5 rounded-full transition-all duration-300 cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-sky-deep ${
                     isActive
                       ? "w-8 bg-sky-deep/20 dark:bg-white/20 overflow-hidden"
-                      : "w-2.5 bg-sky-deep/35 dark:bg-white/35 hover:bg-sky-deep/60 dark:hover:bg-white/60 hover:scale-110"
+                      : "w-2.5 bg-sky-deep/35 dark:bg-white/35 hover:bg-sky-deep/60 dark:hover:bg-white/60"
                   }`}
                 >
                   {isActive && (

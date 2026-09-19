@@ -122,18 +122,8 @@ export default function FeaturedWorkshops() {
           </div>
         </div>
 
-        {/* ── Workshop Cards Carousel (Right scroll like Opportunity page) ── */}
-        <div className="relative group/carousel">
-          <button
-            type="button"
-            onClick={() => scroll("right")}
-            className="hidden lg:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white border-2 border-sky/30 text-sky-deep hover:bg-[#7AB3B7] hover:text-white shadow-xl items-center justify-center transition-all cursor-pointer hover:scale-105"
-            aria-label={t("scrollRight")}
-            title={t("scrollRight")}
-          >
-            <ChevronRight className="w-5 h-5" strokeWidth={2.5} />
-          </button>
-
+        {/* ── Workshop Cards Carousel ── */}
+        <div className="relative">
           <div
             ref={scrollContainerRef}
             className="flex gap-4 sm:gap-5 overflow-x-auto pb-5 pt-1.5 scroll-smooth snap-x snap-mandatory pr-4 sm:pr-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
@@ -149,7 +139,7 @@ export default function FeaturedWorkshops() {
                   type="button"
                   onClick={() => setSelectedWorkshop(ws)}
                   aria-haspopup="dialog"
-                  className="w-[260px] sm:w-[280px] md:w-[300px] shrink-0 snap-start group flex flex-col justify-between text-left rounded-2xl p-3.5 sm:p-4 bg-white dark:bg-card-dark border border-sky/20 hover:border-[#7AB3B7] bubble-shadow-sm hover:shadow-xl hover:shadow-slate-300/60 dark:hover:shadow-black/40 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer h-full"
+                  className="w-[260px] sm:w-[280px] md:w-[300px] shrink-0 snap-start group flex flex-col justify-between text-left rounded-lg p-3.5 sm:p-4 bg-white dark:bg-card-dark border border-sky/20 hover:border-[#7AB3B7] transition-colors duration-150 ease-out cursor-pointer h-full"
                 >
                   <div>
                     {/* Premium Badge on Left */}
@@ -168,7 +158,7 @@ export default function FeaturedWorkshops() {
                         alt={title}
                         width={600}
                         height={375}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover"
                         loading="lazy"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
@@ -231,7 +221,7 @@ export default function FeaturedWorkshops() {
         >
           <div
             data-lenis-prevent
-            className="bg-white dark:bg-panel-raised rounded-3xl max-w-xl w-full p-6 sm:p-8 relative border border-sky/20 dark:border-white/10 shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden overscroll-contain"
+            className="bg-white dark:bg-panel-raised rounded-lg max-w-xl w-full p-6 sm:p-8 relative border border-sky/20 dark:border-white/10 max-h-[90vh] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden overscroll-contain"
           >
             {/* Close Button */}
             <button
@@ -265,7 +255,7 @@ export default function FeaturedWorkshops() {
             </div>
 
             {/* Poster Image */}
-            <div className="relative rounded-2xl overflow-hidden aspect-[16/9] mb-5 bg-slate-900 border border-sky/15 shadow-inner">
+            <div className="relative rounded-lg overflow-hidden aspect-[16/9] mb-5 bg-slate-900 border border-sky/15 shadow-inner">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={selectedWorkshop.image}
@@ -275,7 +265,7 @@ export default function FeaturedWorkshops() {
                 className="w-full h-full object-cover"
               />
               <div className="absolute top-3 right-3">
-                <span className="bg-[#7AB3B7] text-white text-xs font-extrabold px-3 py-1 rounded-full border border-white/20 shadow-md flex items-center gap-1.5">
+                <span className="bg-[#7AB3B7] text-white text-xs font-extrabold px-3 py-1 rounded-full border border-white/20 flex items-center gap-1.5">
                   <Lock className="w-3 h-3" />
                   <span>Premium Access</span>
                 </span>
@@ -283,7 +273,7 @@ export default function FeaturedWorkshops() {
             </div>
 
             {/* Logistics Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-2xl bg-powder dark:bg-white/5 border border-sky/15 dark:border-white/5 text-xs mb-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-lg bg-powder dark:bg-white/5 border border-sky/15 dark:border-white/5 text-xs mb-5">
               <div className="flex items-start gap-2.5">
                 <Calendar className="w-4 h-4 text-[#7AB3B7] shrink-0 mt-0.5" />
                 <div>
@@ -353,7 +343,7 @@ export default function FeaturedWorkshops() {
             </div>
 
             {/* What You'll Learn Checklist */}
-            <div className="p-4 rounded-2xl bg-sitomo/30 dark:bg-sitomo/10 border border-sky/20 dark:border-white/10 mb-6">
+            <div className="p-4 rounded-lg bg-sitomo/30 dark:bg-sitomo/10 border border-sky/20 dark:border-white/10 mb-6">
               <h4 className="text-xs font-bold text-sky-deep dark:text-[#7AB3B7] uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-[#7AB3B7]" />
                 <span>{t("whatYoullLearn")}</span>
@@ -374,7 +364,7 @@ export default function FeaturedWorkshops() {
             <button
               type="button"
               onClick={() => setShowPremiumModal(true)}
-              className="w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white font-bold text-sm sm:text-base transition-all shadow-md hover:shadow-lg cursor-pointer group"
+              className="w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white font-bold text-sm sm:text-base transition-colors duration-150 ease-out cursor-pointer group"
             >
               <Lock className="w-4 h-4 text-white/90" />
               <span>{t("registerNow")}</span>
@@ -399,7 +389,7 @@ export default function FeaturedWorkshops() {
         >
           <div
             data-lenis-prevent
-            className="bg-white dark:bg-panel-raised rounded-3xl max-w-md w-full p-6 sm:p-8 relative border border-sky/30 dark:border-white/10 shadow-2xl text-center overscroll-contain"
+            className="bg-white dark:bg-panel-raised rounded-lg max-w-md w-full p-6 sm:p-8 relative border border-sky/30 dark:border-white/10 text-center overscroll-contain"
           >
             {/* Close Button */}
             <button
@@ -462,7 +452,7 @@ export default function FeaturedWorkshops() {
                 </p>
 
                 {/* Price Callout */}
-                <div className="my-5 p-4 rounded-2xl bg-powder dark:bg-white/5 border border-sky/20 dark:border-white/10">
+                <div className="my-5 p-4 rounded-lg bg-powder dark:bg-white/5 border border-sky/20 dark:border-white/10">
                   <div className="flex items-baseline justify-center gap-1">
                     <span className="font-display text-4xl sm:text-5xl font-black text-blue-ink dark:text-white">
                       {t("premiumPrice")}
@@ -481,7 +471,7 @@ export default function FeaturedWorkshops() {
                   <button
                     type="button"
                     onClick={() => setPremiumSuccess(true)}
-                    className="w-full py-3.5 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white font-bold text-sm sm:text-base transition-all shadow-md hover:shadow-lg cursor-pointer flex items-center justify-center gap-2"
+                    className="w-full py-3.5 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white font-bold text-sm sm:text-base transition-colors duration-150 ease-out cursor-pointer flex items-center justify-center gap-2"
                   >
                     <Sparkles className="w-4 h-4" />
                     <span>{t("upgradeToPremium")}</span>

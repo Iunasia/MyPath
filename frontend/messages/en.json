@@ -442,7 +442,11 @@
     "scholarship": "Scholarship",
     "universityMajor": "University Major",
     "careerPath": "Career Path",
-    "university": "University"
+    "university": "University",
+    "signInToSave": "Sign in to save",
+    "signInToSaveDesc": "You must have an account to save opportunities, scholarships, majors, and universities to your personal list.",
+    "signInToViewSaved": "Sign in to view your saved items",
+    "signInToViewSavedDesc": "You need an account to save and access your bookmarked opportunities. Sign in or create an account to get started."
   },
   "verify": {
     "informationCheck": "Information Check",

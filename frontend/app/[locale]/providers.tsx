@@ -7,6 +7,7 @@ import {ThemeProvider} from '@/app/context/ThemeContext';
 import SmoothScroll from '@/app/components/SmoothScroll';
 import ScrollToTop from '@/app/components/ScrollToTop';
 import SavedToast from '@/app/components/SavedToast';
+import SavedAuthModal from '@/app/components/SavedAuthModal';
 import SiteHeader from '@/app/components/SiteHeader';
 
 export default function Providers({
@@ -27,6 +28,7 @@ export default function Providers({
               <SiteHeader />
               {children}
               <SavedToast />
+              <SavedAuthModal />
             </SavedProvider>
           </AuthProvider>
         </SmoothScroll>

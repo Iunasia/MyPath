@@ -180,7 +180,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           aria-live="polite"
           className="fixed inset-0 z-[100] flex items-center justify-center bg-blue-ink/35 backdrop-blur-md transition-all duration-300 p-4"
         >
-          <div className="relative bg-white/95 backdrop-blur-xl rounded-3xl p-8 sm:p-9 max-w-sm w-full border border-white/80 shadow-[0_25px_60px_-15px_rgba(61,112,116,0.35)] flex flex-col items-center text-center overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="relative bg-white/95 backdrop-blur-xl rounded-lg p-8 sm:p-9 max-w-sm w-full border border-sky/15 flex flex-col items-center text-center overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             {/* Top ambient color glow */}
             <div className="absolute -top-16 inset-x-0 h-28 bg-gradient-to-b from-sky/30 to-transparent pointer-events-none rounded-full blur-xl" />
 
@@ -193,7 +193,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-sky-deep border-r-sky animate-spin" />
               
               {/* Center icon badge */}
-              <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-sitomo to-powder border border-sky/30 text-sky-deep flex items-center justify-center shadow-inner">
+              <div className="w-13 h-13 rounded-lg bg-gradient-to-br from-sitomo to-powder border border-sky/30 text-sky-deep flex items-center justify-center">
                 <LogOut className="w-6 h-6 text-sky-deep" strokeWidth={2.2} />
               </div>
             </div>

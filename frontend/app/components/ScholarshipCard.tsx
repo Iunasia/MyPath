@@ -25,12 +25,12 @@ export default function ScholarshipCard({
   const urgent = deadline.kind === "open" && deadline.daysLeft <= 3;
   const check = scholarship.infoCheck;
 
-  // Standard detailed variant with scooped corner
+  // Standard detailed variant
   if (variant === "standard") {
     return (
       <Link
         href={`/scholarships/${scholarship.id}`}
-        className={`group flex flex-col bg-white rounded-3xl rounded-br-[72px] overflow-hidden border border-sky/15 bubble-shadow-sm hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 ${
+        className={`group flex flex-col bg-white rounded-lg overflow-hidden border border-sky/15 hover:border-sky transition-colors duration-150 ease-out ${
           closed ? "opacity-80" : ""
         }`}
       >
@@ -44,12 +44,12 @@ export default function ScholarshipCard({
 
           <div className="absolute top-3 left-3 flex flex-col items-start gap-1.5">
             {closed ? (
-              <span className="rounded-full bg-blue-ink/85 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white shadow-sm">
+              <span className="rounded-full bg-blue-ink/85 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white">
                 Closed
               </span>
             ) : closingSoon ? (
               <span
-                className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-extrabold shadow-sm ${
+                className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-extrabold ${
                   urgent ? "bg-rose-600 text-white" : "bg-white text-blue-ink"
                 }`}
               >
@@ -117,11 +117,11 @@ export default function ScholarshipCard({
     );
   }
 
-  // Signature full-bleed photo card with rounded-3xl rounded-br-[72px] shape
+  // Signature full-bleed photo card
   return (
     <Link
       href={`/scholarships/${scholarship.id}`}
-      className={`group relative aspect-[4/3] min-h-[190px] rounded-3xl rounded-br-[72px] overflow-hidden cursor-pointer bubble-shadow-sm border border-sky/15 hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 block bg-sitomo/40 ${
+      className={`group relative aspect-[4/3] min-h-[190px] rounded-lg overflow-hidden cursor-pointer border border-sky/15 hover:border-sky transition-colors duration-150 ease-out block bg-sitomo/40 ${
         closed ? "opacity-80" : ""
       }`}
     >
@@ -138,12 +138,12 @@ export default function ScholarshipCard({
       {/* Floating Badges (Top Left) */}
       <div className="absolute top-3 left-3 flex flex-col items-start gap-1.5 z-20">
         {closed ? (
-          <span className="rounded-full bg-blue-ink/85 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white shadow-sm">
+          <span className="rounded-full bg-blue-ink/85 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white">
             Closed
           </span>
         ) : closingSoon ? (
           <span
-            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-extrabold shadow-sm ${
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-extrabold ${
               urgent ? "bg-rose-600 text-white" : "bg-white text-blue-ink"
             }`}
           >
@@ -151,7 +151,7 @@ export default function ScholarshipCard({
             {deadlineLabel(deadline)}
           </span>
         ) : scholarship.coverage ? (
-          <span className="rounded-full bg-sitomo/90 backdrop-blur-xs px-2.5 py-1 text-[10px] font-extrabold text-sky-deep shadow-sm border border-sky/20">
+          <span className="rounded-full bg-sitomo/90 backdrop-blur-xs px-2.5 py-1 text-[10px] font-extrabold text-sky-deep border border-sky/20">
             {scholarship.coverage}
           </span>
         ) : null}

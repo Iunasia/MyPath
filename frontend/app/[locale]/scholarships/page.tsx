@@ -12,6 +12,7 @@ import {
   EmptyState,
   FilterPill,
   FilterSelect,
+  Pagination,
   SearchInput,
   type SelectOption,
 } from "@/app/components/ui";
@@ -23,6 +24,8 @@ import {
 } from "@/app/data/scholarships";
 import enScholarships from "@/app/data-translations/en/scholarships.json";
 import kmScholarships from "@/app/data-translations/km/scholarships.json";
+
+const ITEMS_PER_PAGE = 8;
 
 function ScholarshipsInner() {
   const t = useTranslations("scholarships");
@@ -48,12 +51,21 @@ function ScholarshipsInner() {
   const searchQuery = searchParams.get("q") ?? "";
   const selectedCategory = searchParams.get("category") ?? "All Categories";
   const selectedCoverage = searchParams.get("coverage") ?? "All Coverage";
+  const currentPage = Math.max(1, Number(searchParams.get("page") ?? 1) || 1);
 
-  const updateUrl = (patch: { q?: string | null; category?: string | null; coverage?: string | null }) => {
+  const updateUrl = (patch: {
+    q?: string | null;
+    category?: string | null;
+    coverage?: string | null;
+    page?: number;
+  }) => {
     const params = new URLSearchParams(searchParams.toString());
     for (const [key, value] of Object.entries(patch)) {
-      if (value && value !== "All Categories" && value !== "All Coverage") {
-        params.set(key, value);
+      if (key === "page") {
+        if (value === 1) params.delete(key);
+        else params.set(key, String(value));
+      } else if (value && value !== "All Categories" && value !== "All Coverage") {
+        params.set(key, value as string);
       } else {
         params.delete(key);
       }
@@ -61,6 +73,12 @@ function ScholarshipsInner() {
     const qs = params.toString();
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   };
+
+  const onFilterChange = (patch: {
+    q?: string | null;
+    category?: string | null;
+    coverage?: string | null;
+  }) => updateUrl({ ...patch, page: 1 });
 
   const filteredScholarships = useMemo(() => {
     return scholarships.filter((item) => {
@@ -81,9 +99,16 @@ function ScholarshipsInner() {
     });
   }, [searchQuery, selectedCategory, selectedCoverage, scholarships]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredScholarships.length / ITEMS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedScholarships = useMemo(() => {
+    const start = (safePage - 1) * ITEMS_PER_PAGE;
+    return filteredScholarships.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredScholarships, safePage]);
+
   const hasActiveFilters = searchQuery !== "" || selectedCategory !== "All Categories" || selectedCoverage !== "All Coverage";
 
-  const resetFilters = () => updateUrl({ q: null, category: null, coverage: null });
+  const resetFilters = () => updateUrl({ q: null, category: null, coverage: null, page: 1 });
 
   const coverageOptions: SelectOption[] = COVERAGE_FILTERS.map((cov) => ({ value: cov, label: cov }));
 
@@ -110,7 +135,7 @@ function ScholarshipsInner() {
                 name="q"
                 size="sm"
                 value={searchQuery}
-                onChange={(value) => updateUrl({ q: value || null, category: selectedCategory, coverage: selectedCoverage })}
+                onChange={(value) => onFilterChange({ q: value || null, category: selectedCategory, coverage: selectedCoverage })}
                 placeholder={t("searchPlaceholder")}
                 ariaLabel={t("searchPlaceholder")}
               />
@@ -127,7 +152,7 @@ function ScholarshipsInner() {
                   key={cat}
                   label={cat}
                   selected={selectedCategory === cat}
-                  onClick={() => updateUrl({ q: searchQuery, category: cat, coverage: selectedCoverage })}
+                  onClick={() => onFilterChange({ q: searchQuery, category: cat, coverage: selectedCoverage })}
                 />
               ))}
             </div>
@@ -137,7 +162,7 @@ function ScholarshipsInner() {
                 <FilterSelect
                   name="coverage"
                   value={selectedCoverage}
-                  onChange={(value) => updateUrl({ q: searchQuery, category: selectedCategory, coverage: value })}
+                  onChange={(value) => onFilterChange({ q: searchQuery, category: selectedCategory, coverage: value })}
                   options={coverageOptions}
                   ariaLabel={t("filterCoverageLabel")}
                 />
@@ -170,53 +195,72 @@ function ScholarshipsInner() {
               }
             />
           ) : (
-            <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
-              {filteredScholarships.map((scholarship) => (
-                <li key={scholarship.id} className="h-full">
-                  <Link
-                    href={`/scholarships/${scholarship.id}`}
-                    className="group relative aspect-[4/3] min-h-[190px] rounded-3xl rounded-br-[72px] overflow-hidden cursor-pointer bubble-shadow-sm border border-sky/15 hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-[transform,box-shadow,border-color] duration-300 block bg-sitomo/40"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={scholarship.image}
-                      alt={scholarship.title}
-                      width={600}
-                      height={450}
-                      decoding="async"
-                      loading="lazy"
-                      className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
-                    />
-
-                    <div className="absolute top-3 right-3 z-20">
-                      <SaveItemButton
-                        variant="card-action"
-                        item={{
-                          id: scholarship.id,
-                          apiId: scholarship.apiId,
-                          type: "scholarship",
-                          title: scholarship.title,
-                          subtitle: scholarship.provider,
-                          image: scholarship.image,
-                          link: `/scholarships/${scholarship.id}`,
-                        }}
+            <>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+                {paginatedScholarships.map((scholarship) => (
+                  <li key={scholarship.id} className="h-full">
+                    <Link
+                      href={`/scholarships/${scholarship.id}`}
+                      className="group relative aspect-[4/3] min-h-[190px] rounded-lg overflow-hidden cursor-pointer border border-sky/15 hover:border-sky transition-colors duration-150 ease-out block bg-sitomo/40"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={scholarship.image}
+                        alt={scholarship.title}
+                        width={600}
+                        height={450}
+                        decoding="async"
+                        loading="lazy"
+                        className="absolute inset-0 w-full h-full object-cover object-center"
                       />
-                    </div>
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent flex flex-col justify-end p-3.5 sm:p-4 z-10">
-                      <h3 className="font-display text-sm sm:text-base font-extrabold text-white tracking-tight leading-snug drop-shadow-sm mb-1.5 group-hover:text-sky-bright transition-colors line-clamp-2">
-                        {scholarship.title}
-                      </h3>
-
-                      <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-white/75 font-medium drop-shadow-xs">
-                        <Calendar className="w-3 h-3 text-sky-bright shrink-0" aria-hidden="true" />
-                        <span>{tCommon("deadline")}: {scholarship.deadline}</span>
+                      <div className="absolute top-3 right-3 z-20">
+                        <SaveItemButton
+                          variant="card-action"
+                          item={{
+                            id: scholarship.id,
+                            apiId: scholarship.apiId,
+                            type: "scholarship",
+                            title: scholarship.title,
+                            subtitle: scholarship.provider,
+                            image: scholarship.image,
+                            link: `/scholarships/${scholarship.id}`,
+                          }}
+                        />
                       </div>
-                    </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent flex flex-col justify-end p-3.5 sm:p-4 z-10">
+                        <h3 className="font-display text-sm sm:text-base font-extrabold text-white tracking-tight leading-snug drop-shadow-sm mb-1.5 group-hover:text-sky-bright transition-colors line-clamp-2">
+                          {scholarship.title}
+                        </h3>
+
+                        <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-white/75 font-medium drop-shadow-xs">
+                          <Calendar className="w-3 h-3 text-sky-bright shrink-0" aria-hidden="true" />
+                          <span>{tCommon("deadline")}: {scholarship.deadline}</span>
+                        </div>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+
+              {totalPages > 1 && (
+                <Pagination
+                  currentPage={safePage}
+                  totalPages={totalPages}
+                  onPageChange={(page) => {
+                    updateUrl({ page });
+                    window.scrollTo({ top: 250, behavior: "smooth" });
+                  }}
+                  labels={{
+                    prev: tCommon("prev"),
+                    next: tCommon("next"),
+                    page: tCommon("pageLabel"),
+                    pageOf: tCommon("pageOf", { current: safePage, total: totalPages }),
+                  }}
+                />
+              )}
+            </>
           )}
         </section>
 
@@ -236,51 +280,42 @@ function ScholarshipsInner() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 pt-2 max-w-5xl mx-auto">
             {/* Step 1: Direct Links (Rocket) */}
-            <div className="relative group pt-3 pl-3 pr-2">
-              <div className="absolute top-0 left-0 right-3 bottom-3 rounded-3xl border-2 border-sky-deep pointer-events-none transition-transform duration-300 group-hover:-translate-x-1 group-hover:-translate-y-1 bg-sky-deep" />
-              <div className="relative z-10 bg-white rounded-3xl p-6 sm:p-7 shadow-sm border border-sky/15 flex flex-col items-center text-center justify-center min-h-[160px] transition-shadow duration-300 group-hover:shadow-md">
-                <div className="absolute -top-3 -right-2 sm:-top-3.5 sm:-right-2.5 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-sky-deep text-white flex items-center justify-center shadow-md">
-                  <Rocket className="w-5 h-5 sm:w-5.5 sm:h-5.5" strokeWidth={2.2} />
-                </div>
-                <h3 className="font-display text-sm sm:text-base font-extrabold uppercase tracking-wider text-sky-deep mb-2">
-                  {t("directLinks")}
-                </h3>
-                <p className="text-xs sm:text-[13px] text-gray-body leading-relaxed font-medium">
-                  {t("directLinksDesc")}
-                </p>
+            <div className="group relative bg-white rounded-lg p-6 sm:p-7 border border-sky/15 hover:border-sky transition-colors duration-150 ease-out flex flex-col items-center text-center justify-center min-h-[160px]">
+              <div className="absolute -top-3 -right-2 sm:-top-3.5 sm:-right-2.5 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-sky-deep text-white flex items-center justify-center">
+                <Rocket className="w-5 h-5 sm:w-5.5 sm:h-5.5" strokeWidth={2.2} />
               </div>
+              <h3 className="font-display text-sm sm:text-base font-extrabold uppercase tracking-wider text-sky-deep mb-2">
+                {t("directLinks")}
+              </h3>
+              <p className="text-xs sm:text-[13px] text-gray-body leading-relaxed font-medium">
+                {t("directLinksDesc")}
+              </p>
             </div>
 
             {/* Step 2: Zero Hidden Fees (Lightbulb) */}
-            <div className="relative group pt-3 pl-3 pr-2">
-              <div className="absolute top-0 left-0 right-3 bottom-3 rounded-3xl border-2 border-sky-deep pointer-events-none transition-transform duration-300 group-hover:-translate-x-1 group-hover:-translate-y-1 bg-sky-deep" />
-              <div className="relative z-10 bg-white rounded-3xl p-6 sm:p-7 shadow-sm border border-sky/15 flex flex-col items-center text-center justify-center min-h-[160px] transition-shadow duration-300 group-hover:shadow-md">
-                <div className="absolute -top-3 -right-2 sm:-top-3.5 sm:-right-2.5 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-sky-deep text-white flex items-center justify-center shadow-md">
-                  <Lightbulb className="w-5 h-5 sm:w-5.5 sm:h-5.5" strokeWidth={2.2} />
-                </div>
-                <h3 className="font-display text-sm sm:text-base font-extrabold uppercase tracking-wider text-sky-deep mb-2">
-                  {t("zeroHiddenFees")}
-                </h3>
-                <p className="text-xs sm:text-[13px] text-gray-body leading-relaxed font-medium">
-                  {t("zeroHiddenFeesDesc")}
-                </p>
+            <div className="group relative bg-white rounded-lg p-6 sm:p-7 border border-sky/15 hover:border-sky transition-colors duration-150 ease-out flex flex-col items-center text-center justify-center min-h-[160px]">
+              <div className="absolute -top-3 -right-2 sm:-top-3.5 sm:-right-2.5 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-sky-deep text-white flex items-center justify-center">
+                <Lightbulb className="w-5 h-5 sm:w-5.5 sm:h-5.5" strokeWidth={2.2} />
               </div>
+              <h3 className="font-display text-sm sm:text-base font-extrabold uppercase tracking-wider text-sky-deep mb-2">
+                {t("zeroHiddenFees")}
+              </h3>
+              <p className="text-xs sm:text-[13px] text-gray-body leading-relaxed font-medium">
+                {t("zeroHiddenFeesDesc")}
+              </p>
             </div>
 
             {/* Step 3: Updated Deadlines (Target) */}
-            <div className="relative group pt-3 pl-3 pr-2">
-              <div className="absolute top-0 left-0 right-3 bottom-3 rounded-3xl border-2 border-sky-deep pointer-events-none transition-transform duration-300 group-hover:-translate-x-1 group-hover:-translate-y-1 bg-sky-deep" />
-              <div className="relative z-10 bg-white rounded-3xl p-6 sm:p-7 shadow-sm border border-sky/15 flex flex-col items-center text-center justify-center min-h-[160px] transition-shadow duration-300 group-hover:shadow-md">
-                <div className="absolute -top-3 -right-2 sm:-top-3.5 sm:-right-2.5 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-sky-deep text-white flex items-center justify-center shadow-md">
-                  <Target className="w-5 h-5 sm:w-5.5 sm:h-5.5" strokeWidth={2.2} />
-                </div>
-                <h3 className="font-display text-sm sm:text-base font-extrabold uppercase tracking-wider text-sky-deep mb-2">
-                  {t("updatedDeadlines")}
-                </h3>
-                <p className="text-xs sm:text-[13px] text-gray-body leading-relaxed font-medium">
-                  {t("updatedDeadlinesDesc")}
-                </p>
+            <div className="group relative bg-white rounded-lg p-6 sm:p-7 border border-sky/15 hover:border-sky transition-colors duration-150 ease-out flex flex-col items-center text-center justify-center min-h-[160px]">
+              <div className="absolute -top-3 -right-2 sm:-top-3.5 sm:-right-2.5 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-sky-deep text-white flex items-center justify-center">
+                <Target className="w-5 h-5 sm:w-5.5 sm:h-5.5" strokeWidth={2.2} />
               </div>
+              <h3 className="font-display text-sm sm:text-base font-extrabold uppercase tracking-wider text-sky-deep mb-2">
+                {t("updatedDeadlines")}
+              </h3>
+              <p className="text-xs sm:text-[13px] text-gray-body leading-relaxed font-medium">
+                {t("updatedDeadlinesDesc")}
+              </p>
             </div>
           </div>
         </section>

@@ -43,7 +43,7 @@ export default function ListHero({ title, description, search, back }: ListHeroP
             onChange={(e) => search.onChange(e.target.value)}
             placeholder={search.placeholder}
             aria-label={search.placeholder}
-            className="w-full pl-11 pr-10 py-3.5 bg-white rounded-full border border-sky/25 text-sm text-blue-ink placeholder:text-gray-soft focus:outline-none focus:ring-2 focus:ring-sky-deep/40 focus:border-sky-deep transition-all bubble-shadow-sm font-medium"
+            className="w-full pl-11 pr-10 py-3.5 bg-white rounded-md border border-sky/25 text-sm text-blue-ink placeholder:text-gray-soft focus:outline-none focus:ring-2 focus:ring-sky-deep/40 focus:border-sky-deep transition-colors duration-150 ease-out font-medium"
           />
           {search.value && (
             <button

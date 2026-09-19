@@ -48,7 +48,7 @@ export default function RequireAdmin({ children }: { children: React.ReactNode }
   if (!isAdmin) {
     return (
       <div className="min-h-screen bg-powder flex items-center justify-center px-4">
-        <div className="w-full max-w-md bg-white rounded-3xl border border-sky/15 bubble-shadow-sm p-8 text-center">
+        <div className="w-full max-w-md bg-white rounded-lg border border-sky/15 p-8 text-center">
           <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-momo mb-4">
             <ShieldAlert className="w-6 h-6 text-blue-ink" />
           </span>

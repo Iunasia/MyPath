@@ -160,7 +160,7 @@ export function Card({
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-sky/15 bg-white overflow-hidden">
+    <section className="rounded-lg border border-sky/15 bg-white overflow-hidden">
       {accent && <div className="h-1 bg-sky-deep" aria-hidden="true" />}
       <header className="flex items-baseline justify-between gap-3 px-4 py-3 border-b border-sky/15">
         <h2 className="font-display text-sm font-extrabold text-blue-ink">{title}</h2>
@@ -187,7 +187,7 @@ export function Loading({ label = "Loading…" }: { label?: string }) {
 
 export function ErrorBox({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
-    <div className="rounded-2xl border border-rose-200 bg-white p-6 text-center">
+    <div className="rounded-lg border border-rose-200 bg-white p-6 text-center">
       <AlertTriangle className="w-8 h-8 text-rose-400 mx-auto mb-2" />
       <p className="font-bold text-blue-ink">{message || "Something went wrong"}</p>
       {onRetry && (
@@ -202,7 +202,7 @@ export function ErrorBox({ message, onRetry }: { message: string; onRetry?: () =
 /** Something in the data a person should fix. Amber, because it isn't an outage. */
 export function Callout({ title, children }: { title: ReactNode; children?: ReactNode }) {
   return (
-    <div className="rounded-xl border border-sky/15 border-l-[3px] border-l-amber-500 bg-white px-4 py-3">
+    <div className="rounded-lg border border-sky/15 border-l-[3px] border-l-amber-500 bg-white px-4 py-3">
       <p className="text-sm font-bold text-blue-ink">{title}</p>
       {children && <div className="text-xs text-gray-body mt-1 leading-relaxed">{children}</div>}
     </div>
@@ -311,29 +311,29 @@ export function Segments<T extends string>({
 
 /* One control language for the whole area. */
 export const btnPrimary =
-  "inline-flex items-center justify-center gap-2 rounded-lg bg-[#2B6B6D] px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[#235759] active:scale-[0.98] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
+  "inline-flex items-center justify-center gap-2 rounded-md bg-[#2B6B6D] px-4 py-2 text-xs font-semibold text-white hover:bg-[#235759] active:bg-[#1C4547] transition-colors duration-150 ease-out disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
 export const btnSecondary =
-  "inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 dark:border-white/15 bg-white dark:bg-panel px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-xs hover:bg-slate-50 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/25 active:scale-[0.98] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
+  "inline-flex items-center justify-center gap-2 rounded-md border border-slate-200 dark:border-white/15 bg-white dark:bg-panel px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/25 active:bg-slate-100 dark:active:bg-white/15 transition-colors duration-150 ease-out disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
 export const btnGhost =
-  "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer";
+  "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white transition-colors duration-150 ease-out cursor-pointer";
 export const btnDanger =
-  "inline-flex items-center justify-center gap-2 rounded-lg bg-rose-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-rose-700 active:scale-[0.98] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
+  "inline-flex items-center justify-center gap-2 rounded-md bg-rose-600 px-4 py-2 text-xs font-semibold text-white hover:bg-rose-700 active:bg-rose-800 transition-colors duration-150 ease-out disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
 
 export const inputClass =
-  "w-full h-10 rounded-lg border border-slate-200 dark:border-white/15 bg-white dark:bg-panel px-3.5 text-[13.5px] font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-150 hover:border-slate-300 dark:hover:border-white/25 focus:border-[#2B6B6D] dark:focus:border-sky focus:bg-white dark:focus:bg-panel focus:outline-none focus:ring-4 focus:ring-[#2B6B6D]/15 dark:focus:ring-sky/20 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-60 hover:[&::-webkit-calendar-picker-indicator]:opacity-100";
+  "w-full h-10 rounded-md border border-slate-200 dark:border-white/15 bg-white dark:bg-panel px-3.5 text-[13.5px] font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors duration-150 ease-out hover:border-slate-300 dark:hover:border-white/25 focus:border-[#2B6B6D] dark:focus:border-sky focus:bg-white dark:focus:bg-panel focus:outline-none focus:ring-4 focus:ring-[#2B6B6D]/15 dark:focus:ring-sky/20 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-60 hover:[&::-webkit-calendar-picker-indicator]:opacity-100";
 
 export const tableClass =
-  "w-full text-sm bg-white dark:bg-panel border border-slate-200/90 dark:border-transparent rounded-xl overflow-hidden shadow-xs";
+  "w-full text-sm bg-white dark:bg-panel border border-slate-200/90 dark:border-transparent rounded-lg overflow-hidden";
 export const thClass =
   "text-left text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-50/80 dark:bg-panel-raised px-3.5 py-3 border-b border-slate-200 dark:border-b-0 dark:border-transparent whitespace-nowrap";
 export const tdClass =
   "px-3.5 py-3 border-b border-slate-100 dark:border-b-0 dark:border-transparent align-top text-[13px] text-slate-700 dark:text-slate-200";
 
 export const textareaClass =
-  "w-full min-h-[96px] rounded-lg border border-slate-200 dark:border-white/15 bg-white dark:bg-panel px-3.5 py-2.5 text-[13.5px] font-medium leading-relaxed text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-150 hover:border-slate-300 dark:hover:border-white/25 focus:border-[#2B6B6D] dark:focus:border-sky focus:bg-white dark:focus:bg-panel focus:outline-none focus:ring-4 focus:ring-[#2B6B6D]/15 dark:focus:ring-sky/20 resize-y";
+  "w-full min-h-[96px] rounded-md border border-slate-200 dark:border-white/15 bg-white dark:bg-panel px-3.5 py-2.5 text-[13.5px] font-medium leading-relaxed text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors duration-150 ease-out hover:border-slate-300 dark:hover:border-white/25 focus:border-[#2B6B6D] dark:focus:border-sky focus:bg-white dark:focus:bg-panel focus:outline-none focus:ring-4 focus:ring-[#2B6B6D]/15 dark:focus:ring-sky/20 resize-y";
 
 export const selectClass =
-  "w-full h-10 rounded-lg border border-slate-200 dark:border-white/15 bg-white dark:bg-panel pl-3.5 pr-10 text-[13.5px] font-medium text-slate-900 dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-150 hover:border-slate-300 dark:hover:border-white/25 focus:border-[#2B6B6D] dark:focus:border-sky focus:bg-white dark:focus:bg-panel focus:outline-none focus:ring-4 focus:ring-[#2B6B6D]/15 dark:focus:ring-sky/20 cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%2364748b%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M5.23%207.21a.75.75%200%20011.06.02L10%2011.168l3.71-3.938a.75.75%200%20111.08%201.04l-4.25%204.5a.75.75%200%2001-1.08%200l-4.25-4.5a.75.75%200%2001.02-1.06z%22%20clip-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.65rem_center] bg-no-repeat";
+  "w-full h-10 rounded-md border border-slate-200 dark:border-white/15 bg-white dark:bg-panel pl-3.5 pr-10 text-[13.5px] font-medium text-slate-900 dark:text-white transition-colors duration-150 ease-out hover:border-slate-300 dark:hover:border-white/25 focus:border-[#2B6B6D] dark:focus:border-sky focus:bg-white dark:focus:bg-panel focus:outline-none focus:ring-4 focus:ring-[#2B6B6D]/15 dark:focus:ring-sky/20 cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%2364748b%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M5.23%207.21a.75.75%200%20011.06.02L10%2011.168l3.71-3.938a.75.75%200%20111.08%201.04l-4.25%204.5a.75.75%200%2001-1.08%200l-4.25-4.5a.75.75%200%2001.02-1.06z%22%20clip-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.65rem_center] bg-no-repeat";
 
 /* ── Form + overlay primitives ─────────────────────────── */
 
@@ -400,7 +400,7 @@ export function FormSection({
       data-form-section
       data-section-title={title}
       data-section-empty={empty ?? 0}
-      className="rounded-xl border border-slate-200/90 dark:border-white/10 bg-white dark:bg-panel p-5 sm:p-6 shadow-[0_1px_3px_rgba(15,23,42,0.04)] scroll-mt-24 transition-all hover:border-slate-300 dark:hover:border-white/20"
+      className="rounded-lg border border-slate-200/90 dark:border-white/10 bg-white dark:bg-panel p-5 sm:p-6 scroll-mt-24 transition-colors duration-150 ease-out hover:border-slate-300 dark:hover:border-white/20"
     >
       <div className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-white/10 pb-3.5 mb-4">
         <div className="flex items-center gap-2.5">
@@ -451,7 +451,7 @@ export function FormFooter({
 }) {
   const percentage = total ? Math.round((filled / total) * 100) : 0;
   return (
-    <div className="sticky bottom-0 -mx-5 sm:-mx-8 px-5 sm:px-8 py-3.5 bg-white/95 backdrop-blur-md border-t border-slate-200 flex items-center justify-between gap-4 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
+    <div className="sticky bottom-0 -mx-5 sm:-mx-8 px-5 sm:px-8 py-3.5 bg-white/95 backdrop-blur-md border-t border-slate-200 flex items-center justify-between gap-4">
       <div className="min-w-0 flex items-center gap-3">
         <div className="flex items-center gap-2">
           <div className="w-20 sm:w-24 h-1.5 rounded-full bg-slate-100 border border-slate-200/80 overflow-hidden" aria-hidden="true">
@@ -562,10 +562,10 @@ export function EditorShell({
   };
 
   return (
-    <section className="rounded-2xl border border-slate-200/90 bg-white shadow-sm overflow-hidden" aria-label="Record editor" ref={shellRef}>
+    <section className="rounded-lg border border-slate-200/90 bg-white overflow-hidden" aria-label="Record editor" ref={shellRef}>
       <header className="px-5 sm:px-8 pt-6 pb-5 border-b border-slate-100 bg-white">
-        <button type="button" onClick={onBack} className={`${btnGhost} -ml-2 mb-2 group text-[#2B6B6D] hover:text-slate-900`}>
-          <span className="transition-transform group-hover:-translate-x-0.5">←</span>
+        <button type="button" onClick={onBack} className={`${btnGhost} -ml-2 mb-2 text-[#2B6B6D] hover:text-slate-900`}>
+          <span aria-hidden="true">←</span>
           <span>Back to {backLabel}</span>
         </button>
         <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -583,7 +583,7 @@ export function EditorShell({
 
       {sections.length > 1 && (
         <nav
-          className="sticky top-14 z-30 border-b border-slate-200 bg-white/95 backdrop-blur-md px-5 sm:px-8 py-2.5 flex gap-1.5 overflow-x-auto shadow-xs"
+          className="sticky top-14 z-30 border-b border-slate-200 bg-white/95 backdrop-blur-md px-5 sm:px-8 py-2.5 flex gap-1.5 overflow-x-auto"
           aria-label="Sections"
         >
           {sections.map((s) => (
@@ -591,9 +591,9 @@ export function EditorShell({
               key={s.id}
               type="button"
               onClick={() => jumpTo(s.id)}
-              className={`inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap cursor-pointer transition-all duration-150 ${
+              className={`inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-semibold whitespace-nowrap cursor-pointer transition-colors duration-150 ease-out ${
                 s.id === activeId
-                  ? "bg-[#2B6B6D] text-white shadow-xs"
+                  ? "bg-[#2B6B6D] text-white"
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               }`}
             >
@@ -659,8 +659,8 @@ export function TokenSelect({
 
   return (
     <div
-      className={`min-h-[42px] rounded-lg border bg-white p-2 transition-all duration-150 ${
-        focused ? "border-[#2B6B6D] ring-4 ring-[#2B6B6D]/15 shadow-[0_1px_2px_rgba(0,0,0,0.04)]" : "border-slate-200 hover:border-slate-300 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+      className={`min-h-[42px] rounded-md border bg-white p-2 transition-colors duration-150 ease-out ${
+        focused ? "border-[#2B6B6D] ring-4 ring-[#2B6B6D]/15" : "border-slate-200 hover:border-slate-300"
       }`}
     >
       {value.length > 0 && (
@@ -752,14 +752,14 @@ export function ImagePreview({ url, className }: { url: string; className?: stri
 
   if (!url?.trim()) {
     return (
-      <div className={`h-16 w-16 rounded-xl border border-dashed border-sky/30 bg-powder/40 flex flex-col items-center justify-center text-gray-soft/70 ${className ?? ""}`}>
+      <div className={`h-16 w-16 rounded-lg border border-dashed border-sky/30 bg-powder/40 flex flex-col items-center justify-center text-gray-soft/70 ${className ?? ""}`}>
         <span className="text-[10px] font-bold">No image</span>
       </div>
     );
   }
 
   return (
-    <div className={`relative h-16 w-16 rounded-xl border border-sky/20 bg-white overflow-hidden shadow-sm shrink-0 group ${className ?? ""}`}>
+    <div className={`relative h-16 w-16 rounded-lg border border-sky/20 bg-white overflow-hidden shrink-0 ${className ?? ""}`}>
       {error ? (
         <div className="w-full h-full flex flex-col items-center justify-center bg-rose-50 text-rose-500 p-1 text-center">
           <AlertTriangle className="w-4 h-4 mb-0.5" />
@@ -771,7 +771,7 @@ export function ImagePreview({ url, className }: { url: string; className?: stri
           src={url}
           alt="Preview"
           onError={() => setError(true)}
-          className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+          className="w-full h-full object-cover"
         />
       )}
     </div>
@@ -928,7 +928,7 @@ export function ConfirmDialog({
       aria-modal="true"
       aria-label={title}
     >
-      <div className="w-full max-w-md rounded-2xl border border-sky/15 bg-white bubble-shadow p-5">
+      <div className="w-full max-w-md rounded-lg border border-sky/15 bg-white p-5">
         <h2 className="font-display text-base font-extrabold text-blue-ink">{title}</h2>
         {description && <p className="mt-1 text-sm text-gray-body">{description}</p>}
         {children && <div className="mt-3">{children}</div>}
@@ -1004,7 +1004,7 @@ export function Toast({ message }: { message: string }) {
   return (
     <div
       role="status"
-      className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full bg-blue-ink px-4 py-2 text-xs font-bold text-white shadow-lg"
+      className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full border border-white/10 bg-blue-ink px-4 py-2 text-xs font-bold text-white"
     >
       {message}
     </div>

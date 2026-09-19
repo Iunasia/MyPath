@@ -323,11 +323,11 @@ export default function ScholarshipQuizPage() {
                   setIsSubjectOpen((prev) => !prev);
                   setIsLevelOpen(false);
                 }}
-                className={`flex items-center gap-3 px-6 sm:px-7 py-3 rounded-full border-2 transition-all cursor-pointer select-none ${
+                className={`flex items-center gap-3 px-6 sm:px-7 py-3 rounded-full border-2 transition-colors duration-150 ease-out cursor-pointer select-none ${
                   selectedSubject
-                    ? "border-sky-deep bg-white text-blue-ink font-semibold shadow-xs"
+                    ? "border-sky-deep bg-white text-blue-ink font-semibold"
                     : isSubjectOpen
-                    ? "border-sky-deep bg-white/90 text-blue-ink font-medium shadow-xs"
+                    ? "border-sky-deep bg-white/90 text-blue-ink font-medium"
                     : "border-sky bg-white/60 hover:bg-white text-blue-ink font-medium"
                 }`}
               >
@@ -353,7 +353,7 @@ export default function ScholarshipQuizPage() {
 
               {/* Subject Dropdown Menu */}
               {isSubjectOpen && (
-                <div className="absolute top-full mt-2.5 left-0 min-w-[240px] sm:min-w-[280px] bg-white rounded-2xl border border-gray-200/80 shadow-xl shadow-black/10 p-4 sm:p-5 z-40 animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute top-full mt-2.5 left-0 min-w-[240px] sm:min-w-[280px] bg-white rounded-lg border border-gray-200/80 p-4 sm:p-5 z-40 animate-in fade-in zoom-in-95 duration-150">
                   <div className="flex flex-col gap-3">
                     {availableSubjects.map((sub) => {
                       const isSelected = selectedSubject?.id === sub.id;
@@ -385,11 +385,11 @@ export default function ScholarshipQuizPage() {
                   setIsLevelOpen((prev) => !prev);
                   setIsSubjectOpen(false);
                 }}
-                className={`flex items-center gap-3 px-6 sm:px-7 py-3 rounded-full border-2 transition-all cursor-pointer select-none ${
+                className={`flex items-center gap-3 px-6 sm:px-7 py-3 rounded-full border-2 transition-colors duration-150 ease-out cursor-pointer select-none ${
                   selectedLevel
-                    ? "border-sky-deep bg-white text-blue-ink font-semibold shadow-xs"
+                    ? "border-sky-deep bg-white text-blue-ink font-semibold"
                     : isLevelOpen
-                    ? "border-sky-deep bg-white/90 text-blue-ink font-medium shadow-xs"
+                    ? "border-sky-deep bg-white/90 text-blue-ink font-medium"
                     : "border-sky bg-white/60 hover:bg-white text-blue-ink font-medium"
                 }`}
               >
@@ -419,7 +419,7 @@ export default function ScholarshipQuizPage() {
 
               {/* Level Dropdown Menu */}
               {isLevelOpen && (
-                <div className="absolute top-full mt-2.5 left-0 min-w-[200px] sm:min-w-[240px] bg-white rounded-2xl border border-gray-200/80 shadow-xl shadow-black/10 p-4 sm:p-5 z-40 animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute top-full mt-2.5 left-0 min-w-[200px] sm:min-w-[240px] bg-white rounded-lg border border-gray-200/80 p-4 sm:p-5 z-40 animate-in fade-in zoom-in-95 duration-150">
                   <div className="flex flex-col gap-3">
                     {QUIZ_LEVELS.map((lvl) => {
                       const isSelected = selectedLevel === lvl.id;
@@ -464,7 +464,7 @@ export default function ScholarshipQuizPage() {
           <div ref={questionsRef} className="w-full flex flex-col scroll-mt-6">
             {/* Case 1: Both Subject & Level are NOT selected yet */}
             {(!selectedSubject || !selectedLevel) && (
-              <div className="bg-white/80 backdrop-blur-xs rounded-3xl p-10 sm:p-14 border border-sky/20 text-center bubble-shadow-sm">
+              <div className="bg-white/80 backdrop-blur-xs rounded-lg p-10 sm:p-14 border border-sky/20 text-center">
                 <div className="w-14 h-14 rounded-full bg-sitomo flex items-center justify-center mx-auto mb-4 border border-sky/25 text-sky-deep">
                   <HelpCircle className="w-7 h-7" />
                 </div>
@@ -487,7 +487,7 @@ export default function ScholarshipQuizPage() {
 
                 {/* Score Banner (Visible upon submission) */}
                 {isSubmitted && (
-                  <div className="bg-white rounded-3xl p-6 sm:p-8 border border-sky/20 bubble-shadow-sm text-center">
+                  <div className="bg-white rounded-lg p-6 sm:p-8 border border-sky/20 text-center">
                     <div className="w-14 h-14 rounded-full bg-sitomo flex items-center justify-center mx-auto mb-3.5 border border-sky/20">
                       <Trophy className="w-7 h-7 text-sky-deep" />
                     </div>
@@ -531,7 +531,7 @@ export default function ScholarshipQuizPage() {
                     <span className="text-xs font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-sitomo text-sky-deep">
                       {selectedSubject.name}
                     </span>
-                    <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-white border border-sky/20 text-blue-ink bubble-shadow-sm">
+                    <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-white border border-sky/20 text-blue-ink">
                       Level: {selectedLevel}
                     </span>
                   </div>
@@ -543,7 +543,7 @@ export default function ScholarshipQuizPage() {
 
                 {/* List of Questions */}
                 {activeQuestions.length === 0 ? (
-                  <div className="bg-white rounded-3xl p-8 border border-sky/20 text-center">
+                  <div className="bg-white rounded-lg p-8 border border-sky/20 text-center">
                     <HelpCircle className="w-10 h-10 text-sky-deep mx-auto mb-3" />
                     <h4 className="text-lg font-bold text-blue-ink mb-1">
                       No questions loaded for this level
@@ -567,7 +567,7 @@ export default function ScholarshipQuizPage() {
                     return (
                       <div
                         key={q.id}
-                        className="bg-white rounded-3xl p-6 sm:p-8 border border-sky/20 bubble-shadow-sm transition-all"
+                        className="bg-white rounded-lg p-6 sm:p-8 border border-sky/20"
                       >
                         {/* Question Top Bar: Question Number, Topic, Correctness */}
                         <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-sky/15 mb-4">
@@ -618,8 +618,8 @@ export default function ScholarshipQuizPage() {
                             if (!isSubmitted) {
                               if (isOptionSelected) {
                                 optionStyle =
-                                  "bg-sitomo/50 border-sky-deep text-blue-ink font-bold shadow-xs";
-                                pillStyle = "bg-sky-deep text-white shadow-xs";
+                                  "bg-sitomo/50 border-sky-deep text-blue-ink font-bold";
+                                pillStyle = "bg-sky-deep text-white";
                               }
                             } else {
                               // Submitted mode
@@ -644,7 +644,7 @@ export default function ScholarshipQuizPage() {
                                 type="button"
                                 disabled={isSubmitted}
                                 onClick={() => handleSelectOption(q.id, option.id)}
-                                className={`flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl border-2 transition-all text-left ${
+                                className={`flex items-center gap-3.5 p-3.5 sm:p-4 rounded-md border-2 transition-colors duration-150 ease-out text-left ${
                                   isSubmitted ? "cursor-default" : "cursor-pointer"
                                 } ${optionStyle}`}
                               >
@@ -676,7 +676,7 @@ export default function ScholarshipQuizPage() {
 
                         {/* Step-by-Step Explanation (Revealed on submit) */}
                         {isSubmitted && (
-                          <div className="mt-4 p-4 sm:p-5 rounded-2xl bg-powder border border-sky/20 text-xs sm:text-sm text-gray-body leading-relaxed">
+                          <div className="mt-4 p-4 sm:p-5 rounded-lg bg-powder border border-sky/20 text-xs sm:text-sm text-gray-body leading-relaxed">
                             <strong className="font-bold text-sky-deep mr-1.5">
                               Explanation:
                             </strong>
@@ -695,10 +695,10 @@ export default function ScholarshipQuizPage() {
                       type="button"
                       disabled={answeredCount === 0}
                       onClick={handleSubmit}
-                      className={`px-8 py-3.5 rounded-full text-sm font-bold transition-all ${
+                      className={`px-8 py-3.5 rounded-full text-sm font-bold transition-colors duration-150 ease-out ${
                         answeredCount === 0
                           ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                          : "bg-[#7AB3B7] text-white hover:bg-[#68A1A5] shadow-md shadow-sky-950/20 cursor-pointer"
+                          : "bg-[#7AB3B7] text-white hover:bg-[#68A1A5] cursor-pointer"
                       }`}
                     >
                       Submit Answer
