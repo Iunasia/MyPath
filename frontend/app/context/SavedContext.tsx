@@ -49,10 +49,14 @@ interface SavedContextType {
   lastSavedTitle: string | null;
   showToast: boolean;
   dismissToast: () => void;
+  showAuthModal: boolean;
+  setShowAuthModal: (show: boolean) => void;
+  openAuthModal: () => void;
+  closeAuthModal: () => void;
 }
 
-const getStorageKey = (userId?: number | null) => {
-  return userId ? `domner_saved_items_user_${userId}` : "domner_saved_items_guest";
+const getStorageKey = (userId: number) => {
+  return `domner_saved_items_user_${userId}`;
 };
 
 const SavedContext = createContext<SavedContextType | undefined>(undefined);
@@ -76,38 +80,13 @@ const matchesItem = (item: SavedItem, targetId: string): boolean => {
 };
 
 const readLocal = (userId?: number | null): SavedItem[] => {
-  if (typeof window === "undefined") return [];
+  if (typeof window === "undefined" || !userId) return [];
   try {
-    // 1. Check user-specific storage first if userId is provided
-    if (userId) {
-      const userStored = localStorage.getItem(getStorageKey(userId));
-      if (userStored) {
-        const parsed = JSON.parse(userStored);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      }
-    }
-
-    // 2. Check unified fast cache
-    const fastCache = localStorage.getItem("domner_saved_items_cache");
-    if (fastCache) {
-      const parsed = JSON.parse(fastCache);
+    const userStored = localStorage.getItem(getStorageKey(userId));
+    if (userStored) {
+      const parsed = JSON.parse(userStored);
       if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     }
-
-    // 3. Check guest storage
-    const guestStored = localStorage.getItem("domner_saved_items_guest");
-    if (guestStored) {
-      const parsed = JSON.parse(guestStored);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
-
-    // 4. Fallback for legacy key
-    const legacy = localStorage.getItem("domner_saved_items_v1");
-    if (legacy) {
-      const parsed = JSON.parse(legacy);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
-
     return [];
   } catch {
     return [];
@@ -115,11 +94,10 @@ const readLocal = (userId?: number | null): SavedItem[] => {
 };
 
 const writeLocal = (items: SavedItem[], userId?: number | null): void => {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined" || !userId) return;
   try {
     const key = getStorageKey(userId);
     localStorage.setItem(key, JSON.stringify(items));
-    // Always persist to unified fast cache for instant retrieval on refresh
     localStorage.setItem("domner_saved_items_cache", JSON.stringify(items));
   } catch (err) {
     console.warn("Failed to persist saved items:", err);
@@ -135,11 +113,19 @@ export function SavedProvider({ children }: { children: ReactNode }) {
   const [isServerSynced, setIsServerSynced] = useState(false);
   const [lastSavedTitle, setLastSavedTitle] = useState<string | null>(null);
   const [showToast, setShowToast] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  const openAuthModal = useCallback(() => setShowAuthModal(true), []);
+  const closeAuthModal = useCallback(() => setShowAuthModal(false), []);
 
   const mergedForUser = useRef<number | null>(null);
 
-  // 1. Initial client-side local hydration to display items instantly on mount without hydration error
+  // 1. Initial client-side local hydration
   useEffect(() => {
+    try {
+      localStorage.removeItem("domner_saved_items_guest");
+    } catch {}
+
     let initialUserId: number | null = user?.id ?? null;
     if (!initialUserId && typeof window !== "undefined") {
       try {
@@ -149,16 +135,19 @@ export function SavedProvider({ children }: { children: ReactNode }) {
       } catch {}
     }
 
-    const local = readLocal(initialUserId);
-    if (local.length > 0) {
-      setSavedItems(local);
+    if (initialUserId) {
+      const local = readLocal(initialUserId);
+      if (local.length > 0) {
+        setSavedItems(local);
+      }
+    } else {
+      setSavedItems([]);
     }
     setIsInitialized(true);
   }, []);
 
   /**
-   * Syncs saves: hydrates from user's local cache, merges with server,
-   * and pushes any offline/guest saves.
+   * Syncs saves: hydrates from user's local cache and merges with server.
    */
   useEffect(() => {
     if (authLoading) return;
@@ -177,8 +166,7 @@ export function SavedProvider({ children }: { children: ReactNode }) {
       if (!activeUserId) {
         mergedForUser.current = null;
         if (!cancelled) {
-          const guestItems = readLocal(null);
-          setSavedItems((prev) => (prev.length > 0 ? prev : guestItems));
+          setSavedItems([]);
           setIsInitialized(true);
           setIsServerSynced(true);
         }
@@ -192,17 +180,6 @@ export function SavedProvider({ children }: { children: ReactNode }) {
       }
 
       try {
-        // Upload any guest saves after signing in
-        const guestPending = mergedForUser.current === activeUserId ? [] : readLocal(null);
-        if (guestPending.length > 0) {
-          for (const item of guestPending) {
-            const id = apiIdOf(item);
-            if (id) await saveItemRequest(item.type, id).catch(() => {});
-          }
-          try {
-            localStorage.removeItem("domner_saved_items_guest");
-          } catch {}
-        }
         mergedForUser.current = activeUserId;
 
         const rows = await fetchSavedItems();
@@ -260,24 +237,23 @@ export function SavedProvider({ children }: { children: ReactNode }) {
   }, [authLoading, user]);
 
   const isSaved = useCallback(
-    (id: string) => savedItems.some((item) => matchesItem(item, id)),
-    [savedItems]
+    (id: string) => {
+      if (!user) return false;
+      return savedItems.some((item) => matchesItem(item, id));
+    },
+    [savedItems, user]
   );
 
   const dismissToast = useCallback(() => setShowToast(false), []);
 
   const saveItem = useCallback(
     (item: Omit<SavedItem, "savedAt">) => {
-      const fullItem: SavedItem = { ...item, savedAt: Date.now() };
-
-      let currentUserId = user?.id ?? null;
-      if (!currentUserId && typeof window !== "undefined") {
-        try {
-          const cached = localStorage.getItem("domner_user");
-          const u = cached ? JSON.parse(cached) : null;
-          if (u?.id) currentUserId = u.id;
-        } catch {}
+      if (!user) {
+        setShowAuthModal(true);
+        return;
       }
+      const fullItem: SavedItem = { ...item, savedAt: Date.now() };
+      const currentUserId = user.id;
 
       setSavedItems((prev) => {
         const next = prev.some((i) => matchesItem(i, item.id) || (item.apiId && i.apiId === item.apiId))
@@ -289,24 +265,16 @@ export function SavedProvider({ children }: { children: ReactNode }) {
       setLastSavedTitle(item.title);
       setShowToast(true);
 
-      if (currentUserId) {
-        const id = apiIdOf(item);
-        if (id) void saveItemRequest(item.type, id).catch(() => {});
-      }
+      const id = apiIdOf(item);
+      if (id) void saveItemRequest(item.type, id).catch(() => {});
     },
-    [user?.id]
+    [user]
   );
 
   const unsaveItem = useCallback(
     (id: string) => {
-      let currentUserId = user?.id ?? null;
-      if (!currentUserId && typeof window !== "undefined") {
-        try {
-          const cached = localStorage.getItem("domner_user");
-          const u = cached ? JSON.parse(cached) : null;
-          if (u?.id) currentUserId = u.id;
-        } catch {}
-      }
+      if (!user) return;
+      const currentUserId = user.id;
 
       const existing = savedItems.find((item) => matchesItem(item, id));
       setSavedItems((prev) => {
@@ -315,16 +283,20 @@ export function SavedProvider({ children }: { children: ReactNode }) {
         return next;
       });
 
-      if (currentUserId && existing) {
+      if (existing) {
         const targetId = apiIdOf(existing);
         if (targetId) void unsaveItemRequest(existing.type, targetId).catch(() => {});
       }
     },
-    [savedItems, user?.id]
+    [savedItems, user]
   );
 
   const toggleSave = useCallback(
     (item: Omit<SavedItem, "savedAt">): boolean => {
+      if (!user) {
+        setShowAuthModal(true);
+        return false;
+      }
       const wasSaved = savedItems.some(
         (i) => matchesItem(i, item.id) || (item.apiId && i.apiId === item.apiId)
       );
@@ -332,18 +304,12 @@ export function SavedProvider({ children }: { children: ReactNode }) {
       else saveItem(item);
       return !wasSaved;
     },
-    [savedItems, saveItem, unsaveItem]
+    [savedItems, saveItem, unsaveItem, user]
   );
 
   const clearAll = useCallback(() => {
-    let currentUserId = user?.id ?? null;
-    if (!currentUserId && typeof window !== "undefined") {
-      try {
-        const cached = localStorage.getItem("domner_user");
-        const u = cached ? JSON.parse(cached) : null;
-        if (u?.id) currentUserId = u.id;
-      } catch {}
-    }
+    if (!user) return;
+    const currentUserId = user.id;
 
     const previous = savedItems;
     setSavedItems([]);
@@ -352,13 +318,11 @@ export function SavedProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem("domner_saved_items_cache");
     } catch {}
 
-    if (currentUserId) {
-      for (const item of previous) {
-        const id = apiIdOf(item);
-        if (id) void unsaveItemRequest(item.type, id).catch(() => {});
-      }
+    for (const item of previous) {
+      const id = apiIdOf(item);
+      if (id) void unsaveItemRequest(item.type, id).catch(() => {});
     }
-  }, [savedItems, user?.id]);
+  }, [savedItems, user]);
 
   useEffect(() => {
     if (!showToast) return;
@@ -381,6 +345,10 @@ export function SavedProvider({ children }: { children: ReactNode }) {
         lastSavedTitle,
         showToast,
         dismissToast,
+        showAuthModal,
+        setShowAuthModal,
+        openAuthModal,
+        closeAuthModal,
       }}
     >
       {children}
@@ -401,6 +369,10 @@ const defaultSavedContext: SavedContextType = {
   lastSavedTitle: null,
   showToast: false,
   dismissToast: () => {},
+  showAuthModal: false,
+  setShowAuthModal: () => {},
+  openAuthModal: () => {},
+  closeAuthModal: () => {},
 };
 
 export function useSaved() {
