@@ -445,7 +445,7 @@ export default function AdminCareersPage() {
           </div>
 
           {editor.selected ? (
-            <aside className="rounded-2xl border border-sky/15 bg-white xl:sticky xl:top-20" aria-label="Career detail">
+            <aside className="rounded-lg border border-sky/15 bg-white xl:sticky xl:top-20" aria-label="Career detail">
               <header className="border-b border-sky/15 px-4 pt-4 pb-3">
                 <p className="tabular-nums text-xs text-gray-soft">#{editor.selected.id}</p>
                 <h2 className="mt-0.5 text-base font-extrabold leading-snug">{editor.selected.title}</h2>
@@ -493,7 +493,7 @@ export default function AdminCareersPage() {
               </details>
             </aside>
           ) : (
-            <aside className="rounded-2xl border border-dashed border-sky/25 bg-white/60 p-6 text-sm text-gray-soft">
+            <aside className="rounded-lg border border-dashed border-sky/25 bg-white/60 p-6 text-sm text-gray-soft">
               Select a career to edit it, or add a new one.
             </aside>
           )}

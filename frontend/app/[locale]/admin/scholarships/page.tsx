@@ -665,7 +665,7 @@ function ScholarshipsAdmin() {
           </div>
 
           {editor.selected ? (
-            <aside className="rounded-2xl border border-sky/15 bg-white xl:sticky xl:top-20" aria-label="Scholarship detail">
+            <aside className="rounded-lg border border-sky/15 bg-white xl:sticky xl:top-20" aria-label="Scholarship detail">
               <header className="border-b border-sky/15 px-4 pt-4 pb-3">
                 <p className="tabular-nums text-xs text-gray-soft">#{editor.selected.id}</p>
                 <h2 className="mt-0.5 text-base font-extrabold leading-snug">{editor.selected.title}</h2>
@@ -704,7 +704,7 @@ function ScholarshipsAdmin() {
               </dl>
 
               {(editor.selected.infoCheck?.reasons?.length ?? 0) > 0 && (
-                <ul className="mx-4 mt-3 space-y-1 rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-800">
+                <ul className="mx-4 mt-3 space-y-1 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-800">
                   {editor.selected.infoCheck?.reasons?.map((reason) => (
                     <li key={reason}>{reason}</li>
                   ))}
@@ -767,7 +767,7 @@ function ScholarshipsAdmin() {
               </p>
             </aside>
           ) : (
-            <aside className="rounded-2xl border border-dashed border-sky/25 bg-white/60 p-6 text-sm text-gray-soft">
+            <aside className="rounded-lg border border-dashed border-sky/25 bg-white/60 p-6 text-sm text-gray-soft">
               Select a listing to edit it, or add a new one.
             </aside>
           )}

@@ -76,7 +76,7 @@ function RequestCard({
   return (
     <article
       id={`request-${request.id}`}
-      className="scroll-mt-6 bg-white rounded-2xl border border-sky/15 p-5 target:ring-2 target:ring-sky"
+      className="scroll-mt-6 bg-white rounded-lg border border-sky/15 p-5 target:ring-2 target:ring-sky"
     >
       <div className="flex flex-wrap items-start justify-between gap-3 mb-1">
         <h3 className="font-bold text-blue-ink leading-snug min-w-0">
@@ -119,14 +119,14 @@ function RequestCard({
       )}
 
       {request.note && (
-        <div className="rounded-xl bg-powder/50 border border-sky/15 px-3.5 py-2.5 mb-3">
+        <div className="rounded-lg bg-powder/50 border border-sky/15 px-3.5 py-2.5 mb-3">
           <p className="text-[11px] font-bold text-gray-soft mb-1">They said</p>
           <p className="text-sm text-gray-body">{request.note}</p>
         </div>
       )}
 
       {check && (
-        <div className={`rounded-xl border px-3.5 py-2.5 mb-4 ${RISK_CLS[check.level] ?? RISK_CLS.low}`}>
+        <div className={`rounded-lg border px-3.5 py-2.5 mb-4 ${RISK_CLS[check.level] ?? RISK_CLS.low}`}>
           <div className="flex items-center gap-1.5 mb-1.5">
             {check.level === "low" ? (
               <ShieldCheck className="w-4 h-4 shrink-0" />
@@ -148,7 +148,7 @@ function RequestCard({
       )}
 
       {request.status === "resolved" ? (
-        <div className="rounded-xl bg-powder/50 border border-sky/15 px-3.5 py-2.5">
+        <div className="rounded-lg bg-powder/50 border border-sky/15 px-3.5 py-2.5">
           <p className="text-xs font-bold text-gray-soft mb-1">Answered — {request.verdict}</p>
           <p className="text-sm text-gray-body">{request.admin_response}</p>
           {request.reviewed_by_name && <p className="text-[11px] text-gray-soft mt-1.5">by {request.reviewed_by_name}</p>}
@@ -194,7 +194,7 @@ function RequestCard({
                 key={v.value}
                 onClick={() => submit("resolved", v.value)}
                 disabled={busy}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold text-white transition-colors disabled:opacity-50 cursor-pointer ${v.cls}`}
+                className={`inline-flex items-center gap-1.5 rounded-md px-3.5 py-2 text-xs font-bold text-white transition-colors duration-150 ease-out disabled:opacity-50 cursor-pointer ${v.cls}`}
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 {v.label}
@@ -283,7 +283,7 @@ export default function AdminRequestsPage() {
       ) : error ? (
         <ErrorBox message={error} onRetry={load} />
       ) : requests.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-sky/15 p-10 text-center">
+        <div className="bg-white rounded-lg border border-sky/15 p-10 text-center">
           <Inbox className="w-10 h-10 text-gray-faint mx-auto mb-3" />
           <p className="font-bold text-blue-ink">Nothing here</p>
           <p className="text-sm text-gray-soft mt-1">
