@@ -27,6 +27,13 @@ const TABLES: string[] = [
     is_verified BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`,
+  `CREATE TABLE IF NOT EXISTS email_verifications (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    code TEXT NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  )`,
   `CREATE TABLE IF NOT EXISTS scholarships (
     id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
@@ -252,7 +259,8 @@ const ADD_COLUMNS: Array<[string, string]> = [
   ['universities', 'archived_at TIMESTAMPTZ'],
   ['universities', 'archived_by INTEGER REFERENCES users(id) ON DELETE SET NULL'],
   ['universities', 'edited_at TIMESTAMPTZ'],
-  ['universities', 'edited_by INTEGER REFERENCES users(id) ON DELETE SET NULL']
+  ['universities', 'edited_by INTEGER REFERENCES users(id) ON DELETE SET NULL'],
+  ['users', 'is_verified BOOLEAN NOT NULL DEFAULT FALSE']
 ];
 
 /**
@@ -272,7 +280,23 @@ const ADD_CONSTRAINTS: string[] = [
   `CREATE INDEX IF NOT EXISTS careers_archived_idx ON careers (archived_at)`,
   `CREATE INDEX IF NOT EXISTS majors_archived_idx ON majors (archived_at)`,
   `CREATE INDEX IF NOT EXISTS universities_archived_idx ON universities (archived_at)`,
-  `CREATE INDEX IF NOT EXISTS content_audit_target_idx ON content_audit (entity, row_id, created_at DESC)`
+  `CREATE INDEX IF NOT EXISTS content_audit_target_idx ON content_audit (entity, row_id, created_at DESC)`,
+  /**
+   * Verification requests had no indexes at all, so every student inbox load,
+   * every unread badge and every admin queue view was a sequential scan.
+   *
+   * The first two match the ORDER BY as well as the WHERE, so Postgres can walk
+   * the index instead of sorting afterwards. The third is partial: unread rows
+   * are a tiny slice of the table, so the index stays small no matter how many
+   * requests accumulate — and that query runs on every inbox load.
+   */
+  `CREATE INDEX IF NOT EXISTS verification_requests_user_idx
+     ON verification_requests (user_id, created_at DESC)`,
+  `CREATE INDEX IF NOT EXISTS verification_requests_status_idx
+     ON verification_requests (status, created_at)`,
+  `CREATE INDEX IF NOT EXISTS verification_requests_unread_idx
+     ON verification_requests (user_id)
+     WHERE status = 'resolved' AND read_by_user = FALSE`
 ];
 
 /** Columns the source spreadsheets do not supply: relaxed rather than faked. */
@@ -292,6 +316,7 @@ const DROP_NOT_NULL: Array<[string, string]> = [
 
 /** Order matters: children are truncated before the rows they reference. */
 export const TABLE_NAMES = [
+  'email_verifications',
   'saved_items',
   'reports',
   'verification_requests',

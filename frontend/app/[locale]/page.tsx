@@ -5,6 +5,7 @@ import HeroSlider from "@/app/components/HeroSlider";
 import ScholarshipCard from "@/app/components/ScholarshipCard";
 import InformationCheckDemo from "@/app/components/InformationCheckDemo";
 import InteractiveCTA from "@/app/components/InteractiveCTA";
+import FeaturedWorkshops from "@/app/components/FeaturedWorkshops";
 import { Button, WaveDivider } from "@/app/components/ui";
 import { getScholarships } from "@/app/lib/api.server";
 import {
@@ -80,7 +81,7 @@ const EXPLORER_DESC_KEYS = [
   "workshopsMentorshipDesc",
 ] as const;
 
-const EXPLORER_HREFS = ["/careers", "/majors", "/universities", "/scholarships", "/workshops"] as const;
+const EXPLORER_HREFS = ["/careers", "/majors", "/universities", "/scholarships", "/opportunities"] as const;
 
 const EXPLORER_STYLES = [
   { chip: "bg-sitomo text-sky-deep", border: "border-sky/20" },
@@ -109,7 +110,7 @@ const TRUST_DESC_KEYS = [
 const TRUST_STYLES = [
   { border: "border-sky-deep", iconBg: "bg-sky-deep" },
   { border: "border-sky", iconBg: "bg-sky" },
-  { border: "border-sky-dark", iconBg: "bg-sky-dark" },
+  { border: "border-[#7AB3B7]", iconBg: "bg-[#7AB3B7]" },
   { border: "border-sky-deep", iconBg: "bg-sky-deep" },
 ] as const;
 
@@ -136,36 +137,6 @@ export default async function Home() {
       {/* ── Hero Slider ────────────────────────────────────── */}
       <HeroSlider />
 
-      {/* ── Closing soon ───────────────────────────────────── */}
-      {closingSoon.length > 0 && (
-        <section className="pt-16 lg:pt-20 bg-white">
-          <div className="max-w-6xl mx-auto px-6 lg:px-8">
-            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-8">
-              <div>
-                <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-blue-ink tracking-tight">
-                  {t("closingSoon")}
-                </h2>
-                <p className="mt-2 text-gray-body font-medium">
-                  {t("openScholarshipsNearest")}
-                </p>
-              </div>
-              <Link
-                href="/scholarships"
-                className="inline-flex items-center gap-1.5 text-sm font-bold text-sky-deep hover:text-blue-ink shrink-0"
-              >
-                {t("allScholarships")}
-                <ArrowRight className="w-4 h-4" aria-hidden="true" />
-              </Link>
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {closingSoon.map((scholarship) => (
-                <ScholarshipCard key={scholarship.id} scholarship={scholarship} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* ── How it works ───────────────────────────────────── */}
       <section id="how-it-works" className="py-20 lg:py-24 bg-white">
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
@@ -173,7 +144,7 @@ export default async function Home() {
             <h2 className="font-display text-3xl sm:text-4xl lg:text-[2.75rem] font-extrabold text-blue-ink tracking-tight">
               {t("howItWorksTitle")}
               <br />
-              <span className="text-sky-deep">{t("howItWorksHighlight")}</span>
+              <span className="text-[#5B9DA2]">{t("howItWorksHighlight")}</span>
             </h2>
           </div>
 
@@ -338,6 +309,11 @@ export default async function Home() {
         </div>
       </section>
 
+      <WaveDivider tone="powder" direction="bottom" />
+
+      {/* ── Featured Workshops ──────────────────────────────── */}
+      <FeaturedWorkshops />
+
       {/* ── Information Check ──────────────────────────────── */}
       <section className="py-20 lg:py-24 bg-white scroll-mt-20" id="verification">
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
@@ -351,7 +327,7 @@ export default async function Home() {
 
                 <h2 className="font-display text-3xl sm:text-4xl lg:text-[2.65rem] font-extrabold text-blue-ink tracking-tight mb-4 leading-tight">
                   {t("infoCheckTitle")} <br />
-                  <span className="text-sky-deep">{t("infoCheckHighlight")}</span>
+                  <span className="text-[#5B9DA2]">{t("infoCheckHighlight")}</span>
                 </h2>
 
                 <p className="text-gray-body leading-relaxed mb-6 font-medium text-sm sm:text-base">
@@ -454,7 +430,7 @@ export default async function Home() {
 
                     {/* Title & Description */}
                     <div className="pr-4">
-                      <h3 className="font-display text-sm sm:text-base font-extrabold uppercase tracking-wider text-sky-deep mb-2">
+                      <h3 className="font-display text-sm sm:text-base font-extrabold uppercase tracking-wider text-[#5B9DA2] mb-2">
                         {t(titleKey)}
                       </h3>
                       <p className="text-xs sm:text-[13px] text-gray-body leading-relaxed font-medium">

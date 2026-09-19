@@ -135,13 +135,14 @@ export const UNIVERSITIES_DATA: University[] = [
       title: "Undergraduate Degree (Bachelor)",
       description:
         "A 4-year intensive project-based curriculum preparing students to innovate and lead Cambodia's digital transformation.",
-      image: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=900&auto=format&fit=crop&q=80",
+      image: "https://cadt.edu.kh/wp-content/uploads/2025/05/DSC01711-copy-scaled.jpg",
     },
     graduate: {
       title: "Graduate Degree (Master of Science)",
       description:
         "Specialized 2-year postgraduate degrees in Artificial Intelligence, Big Data Analytics, and Advanced Network Security.",
-      image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&auto=format&fit=crop&q=80",
+
+      image: "https://cadt.edu.kh/wp-content/uploads/2025/09/IMG_4802-copy-scaled.webp",
     },
     programs: [
       {
@@ -191,7 +192,7 @@ export const UNIVERSITIES_DATA: University[] = [
       deadline: "30 Sep 2026",
       image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=600&auto=format&fit=crop&q=80",
     },
-    mapImage: "https://images.unsplash.com/photo-1524661135-423995f22d0b?w=900&auto=format&fit=crop&q=80",
+    mapImage: "/images/cadt-map.png",
     mapUrl: "https://maps.app.goo.gl/6qmMgHgVAiXm1wbA7",
   },
   {
@@ -201,7 +202,7 @@ export const UNIVERSITIES_DATA: University[] = [
     location: "Phnom Penh",
     type: "Public",
     image: "https://cambodiamcc.wordpress.com/wp-content/uploads/2012/02/frontcampus.jpg",
-    heroImage: "https://images.unsplash.com/photo-1519452635265-7b1fbfd1e4e0?w=1600&auto=format&fit=crop&q=80",
+    heroImage: "https://cjbar.rupp.edu.kh/public/journals/1/slider_image_jpgAcjzAM.jpg",
     description:
       "Cambodia's oldest and largest public university, established in 1960. Strong in science, technology, social sciences, humanities and languages.",
     popularMajors: [
@@ -357,8 +358,8 @@ export const UNIVERSITIES_DATA: University[] = [
     shortName: "ITC",
     location: "Phnom Penh",
     type: "Public",
-    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcxQ1ENA_HDTb8CevHH_xedT04l3el4XrY-WAhB-GBgdG1lCKuR1QuxUS1&s=10",
-    heroImage: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1600&auto=format&fit=crop&q=80",
+    image: "https://www.chain-cambodia.eu/sites/default/files/styles/wide/public/2024-03/ITC%20campus.jpg?itok=VctMWeKM",
+    heroImage: "https://www.chain-cambodia.eu/sites/default/files/styles/wide/public/2024-03/ITC%20campus.jpg?itok=VctMWeKM",
     description:
       "Cambodia's leading public engineering and technology institution, known particularly for engineering, science and technology.",
     popularMajors: [
@@ -474,7 +475,7 @@ export const UNIVERSITIES_DATA: University[] = [
     location: "Phnom Penh",
     type: "International",
     image: "https://academics-bucket-sj19asxm-prod.s3.ap-southeast-1.amazonaws.com/47268da4-7c59-4aa1-9d5d-1f94a31756af/feature-image.jpg",
-    heroImage: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1600&auto=format&fit=crop&q=80",
+    heroImage: "https://academics-bucket-sj19asxm-prod.s3.ap-southeast-1.amazonaws.com/47268da4-7c59-4aa1-9d5d-1f94a31756af/feature-image.jpg",
     description:
       "Private international university focused strongly on engineering, ICT, business, mathematics and international education.",
     popularMajors: [
@@ -592,7 +593,7 @@ export const UNIVERSITIES_DATA: University[] = [
     location: "Phnom Penh",
     type: "Private",
     image: "https://i.ytimg.com/vi/NeXuXqvOiAg/maxresdefault.jpg",
-    heroImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYaaoB-uTmbGQjFPYj_3zI-PME-y9nI5Ln_YKwxf2tuss2j0qEY1arig1x&s=10",
+    heroImage: "https://upload.wikimedia.org/wikipedia/commons/2/25/University_of_Cambodia_.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
     description:
       "Private university established in 2003 offering programs across business, law, education, media, technology, social sciences and international relations.",
     popularMajors: [
@@ -742,8 +743,8 @@ export const UNIVERSITIES_DATA: University[] = [
     shortName: "PUC",
     location: "Phnom Penh",
     type: "Private",
-    image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=600&auto=format&fit=crop&q=80",
-    heroImage: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1600&auto=format&fit=crop&q=80",
+    image: "https://www.puc.edu.kh/wp-content/uploads/2024/09/Pearyop.jpg",
+    heroImage: "https://www.puc.edu.kh/wp-content/uploads/2024/09/SENSOK.jpg",
     description:
       "Private university emphasizing English-language and international-style education, with programs in business, law, education, social sciences and technology.",
     popularMajors: [
@@ -868,8 +869,8 @@ export const UNIVERSITIES_DATA: University[] = [
     shortName: "RUA",
     location: "Phnom Penh",
     type: "Public",
-    image: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=600&auto=format&fit=crop&q=80",
-    heroImage: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=1600&auto=format&fit=crop&q=80",
+    image: "https://academics-bucket-sj19asxm-prod.s3.ap-southeast-1.amazonaws.com/0cfaaa3e-42ac-488e-817c-a55c755ef678/feature-image.jpg",
+    heroImage: "https://academics-bucket-sj19asxm-prod.s3.ap-southeast-1.amazonaws.com/0cfaaa3e-42ac-488e-817c-a55c755ef678/feature-image.jpg",
     description:
       "Cambodia's specialized public university for agriculture, food, natural resources, veterinary science and rural development.",
     popularMajors: [
@@ -989,8 +990,8 @@ export const UNIVERSITIES_DATA: University[] = [
     shortName: "AUPP",
     location: "Phnom Penh",
     type: "International",
-    image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80",
-    heroImage: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1600&auto=format&fit=crop&q=80",
+    image: "https://www.aupp.edu.kh/wp-content/uploads/AUPP-Building.jpg",
+    heroImage: "https://www.aupp.edu.kh/wp-content/uploads/AUPP-Building.jpg",
     description:
       "International private university offering American-style education and several dual-degree partnerships with U.S. universities.",
     popularMajors: [
@@ -1101,8 +1102,8 @@ export const UNIVERSITIES_DATA: University[] = [
     shortName: "RUFA",
     location: "Phnom Penh",
     type: "Public",
-    image: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=600&auto=format&fit=crop&q=80",
-    heroImage: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=1600&auto=format&fit=crop&q=80",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/2016_Phnom_Penh%2C_Muzeum_Narodowe_Kambod%C5%BCy_%2810%29.jpg/960px-2016_Phnom_Penh%2C_Muzeum_Narodowe_Kambod%C5%BCy_%2810%29.jpg.webp",
+    heroImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/2016_Phnom_Penh%2C_Muzeum_Narodowe_Kambod%C5%BCy_%2810%29.jpg/960px-2016_Phnom_Penh%2C_Muzeum_Narodowe_Kambod%C5%BCy_%2810%29.jpg.webp",
     description:
       "Cambodia's leading public institution specializing in arts, architecture, culture, fine arts and performing arts.",
     popularMajors: [
@@ -1219,8 +1220,8 @@ export const UNIVERSITIES_DATA: University[] = [
     shortName: "UP",
     location: "Phnom Penh",
     type: "Private",
-    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop&q=80",
-    heroImage: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=1600&auto=format&fit=crop&q=80",
+    image: "https://academics-bucket-sj19asxm-prod.s3.ap-southeast-1.amazonaws.com/f5f49706-809e-4c5e-a4c2-7b4a8cff08ad/feature-image.jpg",
+    heroImage: "https://www.puthisastra.edu.kh/wp-content/uploads/2018/09/Campus-Information-570-x-300_570x300.jpg",
     description:
       "Private university specializing strongly in health sciences, medicine, pharmacy, dentistry, nursing and technology.",
     popularMajors: [

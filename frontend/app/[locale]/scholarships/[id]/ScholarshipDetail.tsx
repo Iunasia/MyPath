@@ -190,6 +190,7 @@ export default function ScholarshipDetail({
                   <SaveItemButton
                     item={{
                       id: scholarship.id,
+                      apiId: scholarship.apiId,
                       type: "scholarship",
                       title: displayTitle,
                       subtitle: displayProvider,
@@ -600,6 +601,7 @@ export default function ScholarshipDetail({
                         variant="card-action"
                         item={{
                           id: item.id,
+                          apiId: item.apiId,
                           type: "scholarship",
                           title: item.title,
                           subtitle: item.provider,

@@ -7,6 +7,53 @@
  */
 
 const rateLimit = require('express-rate-limit');
+const { RedisStore } = require('rate-limit-redis');
+const Redis = require('ioredis');
+
+/**
+ * Where rate-limit counters live.
+ *
+ * express-rate-limit defaults to an in-process memory store, which silently
+ * stops working the moment the API runs as more than one process. On Vercel
+ * every cold start is a fresh process with an empty counter, so a memory-backed
+ * "10 per 15 minutes" is really "10 per instance" — effectively no limit at all,
+ * including on the auth endpoints guarding against password guessing.
+ *
+ * With REDIS_URL set, every instance shares one counter and the limits mean what
+ * they say. Without it we keep the memory store, which is correct for a single
+ * local process but NOT safe for production — hence the warning.
+ *
+ * Tests deliberately never use Redis: security.test.ts exercises the real
+ * limiters by defeating the NODE_ENV skip, and a shared counter surviving
+ * between runs would make those tests flake.
+ */
+const isTestEnv = () => String(process.env.NODE_ENV || '').includes('test');
+
+let redisClient = null;
+if (process.env.REDIS_URL && !isTestEnv()) {
+  redisClient = new Redis(process.env.REDIS_URL, {
+    maxRetriesPerRequest: null,
+    enableReadyCheck: false
+  });
+  redisClient.on('error', err => console.error('Redis rate-limit error:', err.message));
+} else if (process.env.NODE_ENV === 'production') {
+  console.warn(
+    '⚠️  REDIS_URL is not set. Rate limits are stored in memory and will NOT ' +
+    'hold across instances — set REDIS_URL to make them effective in production.'
+  );
+}
+
+/**
+ * A Redis-backed store for one limiter, or undefined to fall back to memory.
+ * Each limiter needs its own prefix so their counters never collide.
+ */
+const storeFor = prefix =>
+  redisClient
+    ? new RedisStore({
+        prefix: `mypath:rl:${prefix}:`,
+        sendCommand: (...args) => redisClient.call(...args)
+      })
+    : undefined;
 
 /**
  * Strict limiter for auth endpoints (login/register).
@@ -17,6 +64,7 @@ const rateLimit = require('express-rate-limit');
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 10,
+  store: storeFor('auth'),
   standardHeaders: true, // return rate limit info in RateLimit-* headers
   legacyHeaders: false,
   // A shared 10-request budget would make the API test suite fail as soon as
@@ -29,12 +77,13 @@ const authLimiter = rateLimit({
 });
 
 /**
- * Looser limiter for general API routes — protects against basic
+ * Looeral API rouser limiter for gentes — protects against basic
  * scraping/abuse without getting in the way of normal browsing.
  */
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 300,
+  store: storeFor('general'),
   standardHeaders: true,
   legacyHeaders: false,
   // Every test shares one loopback address, so the whole suite would draw on a
@@ -61,6 +110,7 @@ const generalLimiter = rateLimit({
 const verificationLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 10,
+  store: storeFor('verification'),
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => `user:${req.session.userId}`,
@@ -91,5 +141,8 @@ module.exports = {
   authLimiter,
   generalLimiter,
   verificationLimiter,
-  sessionCookieConfig
+  sessionCookieConfig,
+  // Exposed for graceful shutdown, and so the session store can share this
+  // connection rather than opening a second one (see src/app.ts).
+  rateLimitRedis: redisClient
 };

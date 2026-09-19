@@ -92,11 +92,12 @@ export async function loginUser(
 export async function registerUser(
   name: string,
   email: string,
-  password: string
+  password: string,
+  locale: string = 'en'
 ): Promise<AuthResponse> {
   return apiFetch<AuthResponse>("/auth/register", {
     method: "POST",
-    body: JSON.stringify({ name, email, password }),
+    body: JSON.stringify({ name, email, password, locale }),
   });
 }
 
@@ -125,6 +126,10 @@ export async function resendVerificationCode(
 
 export async function getCurrentUser(): Promise<{ user: User }> {
   return apiFetch<{ user: User }>("/auth/me");
+}
+
+export async function checkVerificationStatus(): Promise<{ verified: boolean }> {
+  return apiFetch<{ verified: boolean }>("/auth/check-verification");
 }
 
 export async function updateUserProfile(

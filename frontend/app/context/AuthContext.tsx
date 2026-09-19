@@ -24,7 +24,7 @@ interface AuthContextType {
   loading: boolean;
   isLoggingOut: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, locale?: string) => Promise<void>;
   logout: () => Promise<void>;
   loginWithGoogle: () => void;
   updateProfile: (fields: ProfileUpdateInput) => Promise<void>;
@@ -92,8 +92,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const register = useCallback(
-    async (name: string, email: string, password: string) => {
-      await registerUser(name, email, password);
+    async (name: string, email: string, password: string, locale?: string) => {
+      await registerUser(name, email, password, locale);
     },
     []
   );
@@ -213,7 +213,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             {/* Sleek Animated Progress Bar */}
             <div className="w-full h-1.5 bg-powder rounded-full overflow-hidden border border-sky/15">
-              <div className="h-full bg-gradient-to-r from-sky via-sky-deep to-sky-dark rounded-full w-full animate-[progress_1s_ease-in-out_forwards] origin-left" />
+              <div className="h-full bg-gradient-to-r from-sky via-sky-deep to-[#7AB3B7] rounded-full w-full animate-[progress_1s_ease-in-out_forwards] origin-left" />
             </div>
           </div>
         </div>

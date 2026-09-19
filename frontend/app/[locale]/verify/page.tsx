@@ -244,11 +244,8 @@ export default function VerifyPage() {
       <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
         <div className="w-full pb-16 flex flex-col gap-10 max-w-4xl mx-auto">
           <section className="text-center pt-4">
-            <span className="inline-block px-3 py-1 rounded-full bg-sitomo text-sky-deep text-[11px] font-extrabold uppercase tracking-wider mb-3">
-              {t("informationCheck")}
-            </span>
             <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.15] mb-4">
-              {t("heroTitle")} <span className="text-sky-deep">{t("heroTitleHighlight")}</span>
+              {t("heroTitle")} <span className="text-[#5B9DA2]">{t("heroTitleHighlight")}</span>
             </h1>
             <p className="text-sm sm:text-base text-gray-body font-medium max-w-2xl mx-auto">
               {t("heroSubtitle")}
@@ -563,34 +560,41 @@ export default function VerifyPage() {
           )}
 
           <section className="bg-white rounded-3xl rounded-br-[86px] p-6 sm:p-8 border border-sky/15 bubble-shadow-sm">
-            <h2 className="font-display text-xl sm:text-2xl font-bold mb-1">
+            <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink mb-1">
               {t("howToSpotFake")}
             </h2>
-            <p className="text-xs sm:text-sm text-gray-soft font-medium mb-5">
+            <p className="text-xs sm:text-sm text-gray-soft font-medium mb-6 leading-relaxed">
               {t("howToSpotFakeDesc")}
             </p>
 
-            <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
               {[
-                t("tip1"),
-                t("tip2"),
-                t("tip3"),
-                t("tip4"),
-                t("tip5"),
-                t("tip6"),
-                t("tip7"),
-                t("tip8"),
+                { title: t("tip1Title"), desc: t("tip1Desc") },
+                { title: t("tip2Title"), desc: t("tip2Desc") },
+                { title: t("tip3Title"), desc: t("tip3Desc") },
+                { title: t("tip4Title"), desc: t("tip4Desc") },
+                { title: t("tip5Title"), desc: t("tip5Desc") },
+                { title: t("tip6Title"), desc: t("tip6Desc") },
+                { title: t("tip7Title"), desc: t("tip7Desc") },
+                { title: t("tip8Title"), desc: t("tip8Desc") },
               ].map((tip, idx) => (
                 <li key={idx} className="flex items-start gap-2.5">
-                  <AlertTriangle className="w-4 h-4 text-sky-deep shrink-0 mt-0.5" aria-hidden="true" />
-                  <p className="text-xs sm:text-sm text-gray-body font-medium">{tip}</p>
+                  <AlertTriangle className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-amber-500 dark:text-amber-400 shrink-0 mt-0.5" aria-hidden="true" />
+                  <div className="min-w-0">
+                    <h3 className="text-xs sm:text-sm font-bold text-blue-ink leading-snug">
+                      {tip.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-gray-soft font-medium mt-1 leading-relaxed">
+                      {tip.desc}
+                    </p>
+                  </div>
                 </li>
               ))}
             </ul>
 
             <div className="mt-8 pt-6 border-t border-sky/15">
               <div className="bg-sitomo/40 border border-sky/20 rounded-2xl p-4 sm:p-5">
-                <span className="inline-block text-[11px] font-extrabold uppercase tracking-wider text-sky-deep mb-1">
+                <span className="inline-block text-[11px] font-extrabold uppercase tracking-wider text-[#5B9DA2] mb-1">
                   {t("bestHabit")}
                 </span>
                 <p className="text-xs sm:text-sm text-gray-body font-medium leading-relaxed">

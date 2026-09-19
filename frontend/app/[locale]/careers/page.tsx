@@ -93,7 +93,7 @@ function CareersInner() {
               <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-ink tracking-tight leading-[1.15]">
                 {t("heroTitle1")}
                 <br />
-                {t("heroTitle2")}
+                <span className="text-[#5B9DA2]">{t("heroTitle2")}</span>
               </h1>
               <p className="text-xs sm:text-sm lg:text-base text-gray-soft mt-3 leading-relaxed font-medium">
                 {t("heroSubtitle")}
@@ -144,8 +144,8 @@ function CareersInner() {
                   aria-pressed={isSelected}
                   className={`flex flex-col items-center justify-center p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-3xl border-2 text-center group cursor-pointer min-h-[120px] sm:min-h-[135px] transition-[transform,box-shadow,border-color,background-color] duration-300 ${
                     isSelected
-                      ? "border-sky ring-2 ring-sky/30 bg-sky/5 shadow-md"
-                      : "border-sky/40 bg-white hover:border-sky shadow-xs hover:shadow-md hover:-translate-y-1"
+                      ? "border-[#7AB3B7] ring-2 ring-[#7AB3B7]/30 bg-[#7AB3B7]/10 shadow-md"
+                      : "border-[#7AB3B7] bg-white hover:border-[#7AB3B7] hover:shadow-md hover:-translate-y-1 shadow-xs"
                   }`}
                 >
                   <div
@@ -170,7 +170,7 @@ function CareersInner() {
         <section className="flex-1 pb-16">
           <h2 className="font-display text-lg sm:text-xl font-bold text-blue-ink tracking-tight mb-5">
             {selectedCategory
-              ? t("categoryCareers", { category: selectedCategory })
+              ? t("categoryCareers", { category: categories.find((c) => c.id === selectedCategory)?.name ?? selectedCategory })
               : t("allCareers")}
           </h2>
 
@@ -223,7 +223,7 @@ function CareersInner() {
                     <div className="p-4 pt-3 pb-4 border-t border-sky/10 flex items-center justify-between gap-2">
                       <div className="space-y-1 min-w-0">
                         <p className="text-xs text-gray-soft font-medium line-clamp-1">
-                          {career.category}
+                          {career.categoryLabel ?? career.category}
                         </p>
                         <p className="text-xs font-semibold text-blue-ink line-clamp-1">
                           {t("marketDemand")} <span className="font-bold text-sky-deep">{career.jobMarketDemand}</span>
@@ -232,7 +232,7 @@ function CareersInner() {
 
                       <Link
                         href={`/careers/${career.id}`}
-                        className="inline-flex items-center justify-center px-3.5 py-1.5 rounded-lg border border-sky text-sky-deep hover:bg-sky hover:text-white text-xs font-bold transition-colors cursor-pointer shrink-0"
+                        className="inline-flex items-center justify-center px-3.5 py-1.5 rounded-lg border border-[#7AB3B7] text-[#7AB3B7] hover:bg-[#7AB3B7] hover:text-white text-xs font-bold transition-colors cursor-pointer shrink-0"
                       >
                         {tCommon("viewMore")}
                       </Link>

@@ -92,10 +92,10 @@ export default function HeroSlider() {
           );
         })}
 
-        {/* Directional gradient overlay: text contrast on left, vibrant photo on right */}
-        <div className="absolute inset-0 z-10 bg-gradient-to-r from-powder/95 via-powder/85 via-45% to-powder/25 to-90% dark:from-[#0A0D12]/95 dark:via-[#0A0D12]/85 dark:via-45% dark:to-[#0A0D12]/30 hidden sm:block" />
-        <div className="absolute inset-0 z-10 bg-powder/85 dark:bg-[#0A0D12]/85 sm:hidden" />
-        <div className="absolute bottom-0 inset-x-0 h-32 sm:h-44 z-10 bg-gradient-to-t from-powder dark:from-[#0A0D12] via-powder/60 dark:via-[#0A0D12]/60 to-transparent" />
+        {/* Directional gradient overlay: solid readable canvas under text on left, clear photo on right */}
+        <div className="absolute inset-0 z-10 bg-gradient-to-r from-powder via-powder via-45% via-powder/80 via-60% to-transparent to-88% dark:from-[#0A0D12] dark:via-[#0A0D12] dark:via-45% dark:via-[#0A0D12]/80 dark:via-60% dark:to-transparent dark:to-88% hidden sm:block" />
+        <div className="absolute inset-0 z-10 bg-powder/92 dark:bg-[#0A0D12]/92 sm:hidden" />
+        <div className="absolute bottom-0 inset-x-0 h-16 sm:h-24 z-10 bg-gradient-to-t from-powder dark:from-[#0A0D12] to-transparent" />
       </div>
 
       {/* ── MAIN CONTENT ── */}
@@ -104,10 +104,10 @@ export default function HeroSlider() {
           <h1 className="font-display text-[2rem] sm:text-5xl lg:text-[3.65rem] font-extrabold text-blue-ink leading-[1.18] sm:leading-[1.14] tracking-tight mb-4 sm:mb-6">
             {t("headline1")}
             <br />
-            <span className="text-sky-deep">{t("headline2")}</span>
+            <span className="text-[#5B9DA2] font-extrabold">{t("headline2")}</span>
           </h1>
 
-          <p className="text-sm sm:text-lg text-gray-body leading-relaxed max-w-xl mb-6 sm:mb-8 font-semibold sm:font-medium">
+          <p className="text-sm sm:text-lg text-blue-ink/90 dark:text-gray-200 leading-relaxed max-w-xl mb-6 sm:mb-8 font-semibold sm:font-medium">
             {t("subtitle")}
           </p>
 

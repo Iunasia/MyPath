@@ -5,6 +5,7 @@ import { getDataTranslations, getDataCategories } from "@/app/lib/dataTranslatio
 
 export interface Scholarship {
   id: string;
+  apiId?: number;
   title: string;
   provider: string;
   degreeLevel: string; // "Bachelor"

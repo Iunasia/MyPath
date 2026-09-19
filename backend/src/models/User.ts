@@ -102,7 +102,11 @@ const User = {
 
   linkGoogleId: async (userId: number, googleId: string): Promise<void> => {
     await pool.query(
-      'UPDATE users SET google_id = $1, auth_provider = CASE WHEN auth_provider = \'local\' THEN \'local\' ELSE auth_provider END WHERE id = $2',
+      `UPDATE users
+         SET google_id = $1,
+             is_verified = TRUE,
+             auth_provider = CASE WHEN auth_provider = 'local' THEN 'both' ELSE auth_provider END
+       WHERE id = $2`,
       [googleId, userId]
     );
   },
