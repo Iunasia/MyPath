@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
+import { Link } from "@/src/i18n";
 import {
   Plus,
   Pencil,
@@ -290,7 +291,21 @@ export default function AdminCampaignsPage() {
         </div>
       </div>
 
-      {error && <ErrorBox message={error} />}
+      {error && (
+        <div className="space-y-3 mb-6">
+          <ErrorBox message={error} onRetry={loadCampaigns} />
+          {error.toLowerCase().includes("unauthorized") && (
+            <div className="flex justify-center">
+              <Link
+                href="/auth/signin?next=/admin/campaigns"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white font-bold text-sm shadow-sm transition-all hover:scale-105 active:scale-95"
+              >
+                Sign In Again
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Table Container */}
       <div className="bg-white rounded-3xl border border-sky/15 shadow-sm overflow-hidden">

@@ -213,6 +213,11 @@ const TABLES: string[] = [
     impressions INTEGER NOT NULL DEFAULT 0,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  )`,
+  `CREATE TABLE IF NOT EXISTS session (
+    sid VARCHAR NOT NULL COLLATE "default" PRIMARY KEY,
+    sess JSON NOT NULL,
+    expire TIMESTAMP(6) NOT NULL
   )`
 ];
 
@@ -277,7 +282,8 @@ const ADD_COLUMNS: Array<[string, string]> = [
   ['universities', 'archived_by INTEGER REFERENCES users(id) ON DELETE SET NULL'],
   ['universities', 'edited_at TIMESTAMPTZ'],
   ['universities', 'edited_by INTEGER REFERENCES users(id) ON DELETE SET NULL'],
-  ['users', 'is_verified BOOLEAN NOT NULL DEFAULT FALSE']
+  ['users', 'is_verified BOOLEAN NOT NULL DEFAULT FALSE'],
+  ['campaigns', 'countdown_seconds INTEGER NOT NULL DEFAULT 3']
 ];
 
 /**
@@ -313,7 +319,8 @@ const ADD_CONSTRAINTS: string[] = [
      ON verification_requests (status, created_at)`,
   `CREATE INDEX IF NOT EXISTS verification_requests_unread_idx
      ON verification_requests (user_id)
-     WHERE status = 'resolved' AND read_by_user = FALSE`
+     WHERE status = 'resolved' AND read_by_user = FALSE`,
+  `CREATE INDEX IF NOT EXISTS IDX_session_expire ON session (expire)`
 ];
 
 /** Columns the source spreadsheets do not supply: relaxed rather than faked. */
@@ -328,8 +335,7 @@ const DROP_NOT_NULL: Array<[string, string]> = [
   ['majors', 'source_url'],
   // The university dataset has no ranking or acceptance rate.
   ['universities', 'tuition_range'],
-  ['universities', 'acceptance_rate'],
-  ['campaigns', 'countdown_seconds INTEGER NOT NULL DEFAULT 3']
+  ['universities', 'acceptance_rate']
 ];
 
 /** Order matters: children are truncated before the rows they reference. */
