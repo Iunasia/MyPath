@@ -4,26 +4,11 @@ import path from 'path';
 import fs from 'fs';
 import CampaignModel from '../models/Campaign';
 import { isAdmin } from '../middleware/admin';
-
-const uploadsDir = path.join(__dirname, '../../uploads/campaigns');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, uploadsDir);
-  },
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, `campaign-${uniqueSuffix}${ext}`);
-  },
-});
+import { uploadMediaFile, deleteMediaFile } from '../config/storage';
 
 const upload = multer({
-  storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 150 * 1024 * 1024 }, // 150MB limit
   fileFilter: (_req, file, cb) => {
     const allowedExts = /jpeg|jpg|png|webp|gif|svg|mp4|webm/;
     const ext = path.extname(file.originalname).toLowerCase().replace('.', '');
@@ -143,10 +128,17 @@ router.delete('/:id', isAdmin, async (req: Request, res: Response) => {
   }
 
   try {
-    const deleted = await CampaignModel.delete(id);
-    if (!deleted) {
+    const campaign = await CampaignModel.findById(id);
+    if (!campaign) {
       return res.status(404).json({ error: 'Campaign not found' });
     }
+
+    // Clean up uploaded media file from S3 or local disk
+    if (campaign.media_url) {
+      await deleteMediaFile(campaign.media_url);
+    }
+
+    await CampaignModel.delete(id);
     res.json({ message: 'Campaign deleted successfully' });
   } catch (error) {
     console.error('Error deleting campaign:', error);
@@ -201,7 +193,7 @@ router.post(
   (req: Request, res: Response, next: any) => {
     upload.single('file')(req, res, (err: any) => {
       if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
-        return res.status(400).json({ error: 'File exceeds 10MB limit. For larger videos, paste a YouTube or TikTok link.' });
+        return res.status(400).json({ error: 'File exceeds 150MB limit. For larger videos, paste a YouTube or TikTok link.' });
       }
       if (err) {
         return res.status(400).json({ error: err.message || 'File upload error' });
@@ -209,24 +201,34 @@ router.post(
       next();
     });
   },
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     const file = (req as any).file as Express.Multer.File | undefined;
     if (!file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
+    const ext = path.extname(file.originalname).toLowerCase();
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const filename = `campaign-${uniqueSuffix}${ext}`;
     const isVideo = file.mimetype.startsWith('video/');
+
     const host = req.get('host') || 'localhost:5000';
     const protocol =
       req.protocol === 'https' || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
     const baseUrl = process.env.BACKEND_URL || `${protocol}://${host}`;
-    const publicUrl = `${baseUrl}/uploads/campaigns/${file.filename}`;
 
-    res.json({
-      url: publicUrl,
-      filename: file.filename,
-      type: isVideo ? 'video' : 'image',
-    });
+    try {
+      const result = await uploadMediaFile(file.buffer, filename, file.mimetype, baseUrl);
+      res.json({
+        url: result.url,
+        filename: result.filename,
+        type: isVideo ? 'video' : 'image',
+        storage: result.storage,
+      });
+    } catch (err: any) {
+      console.error('Failed to upload media file:', err);
+      res.status(500).json({ error: 'Failed to upload media file' });
+    }
   }
 );
 

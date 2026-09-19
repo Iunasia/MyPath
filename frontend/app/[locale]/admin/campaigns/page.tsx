@@ -93,8 +93,8 @@ export default function AdminCampaignsPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 10 * 1024 * 1024) {
-      setEditorError("File exceeds 10MB limit. For larger video ads, please paste a YouTube or TikTok link instead.");
+    if (file.size > 150 * 1024 * 1024) {
+      setEditorError("File exceeds 150MB limit. For larger videos, please paste a YouTube or TikTok link instead.");
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
@@ -717,7 +717,7 @@ export default function AdminCampaignsPage() {
                   className={inputClass}
                 />
                 <p className="text-[11px] text-gray-500 mt-1">
-                  Supports direct file uploads (up to 10MB), or paste YouTube, TikTok, Google Drive share links, MP4, or external image URLs.
+                  Supports direct file uploads (up to 150MB), or paste YouTube, TikTok, Google Drive share links, MP4, or external image URLs.
                 </p>
 
                 {/* Live Media Preview Box */}

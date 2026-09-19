@@ -522,7 +522,7 @@ export async function uploadCampaignMedia(file: File): Promise<UploadMediaRespon
   if (!res.ok) {
     let errorMsg = "Failed to upload file";
     if (res.status === 413) {
-      errorMsg = "File exceeds the 10MB limit. Please upload a file smaller than 10MB or use a YouTube / TikTok video link.";
+      errorMsg = "File exceeds the 150MB limit. Please upload a file smaller than 150MB or use a YouTube / TikTok video link.";
     } else {
       try {
         const err = await res.json();
