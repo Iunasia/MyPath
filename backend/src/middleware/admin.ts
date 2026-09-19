@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import User from '../models/User';
 
+import { getAuthUserId } from './auth';
+
 /**
  * Admin-only guard. Answers JSON like every other endpoint — the old version
  * redirected to `/login`, a page that does not exist in this API.
@@ -10,13 +12,16 @@ import User from '../models/User';
  * RequireAdmin is a convenience wrapper, not a substitute.
  */
 const isAdmin = async (req: Request, res: Response, next: NextFunction) => {
-  const session = req.session as any;
+  const userId = getAuthUserId(req);
 
-  if (!session?.userId) {
+  if (!userId) {
     return res.status(401).json({ error: 'Unauthorized: Please log in.' });
   }
 
-  const user = await User.findById(session.userId);
+  const session = req.session as any;
+  if (session && !session.userId) session.userId = userId;
+
+  const user = await User.findById(userId);
   if (user?.role === 'admin') return next();
 
   return res.status(403).json({ error: 'Forbidden: administrators only.' });

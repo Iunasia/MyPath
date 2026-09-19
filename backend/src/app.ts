@@ -30,8 +30,8 @@ const PgSession = connectPgSimple(session);
 
 const app = express();
 
-// Trust reverse proxy (UpCloud Load Balancer / Cloudflare / Vercel) for secure cookies & rate limiting
-app.set('trust proxy', 1);
+// Trust reverse proxy chain (UpCloud Load Balancer + VPS Nginx + Docker) for secure cookies
+app.set('trust proxy', true);
 
 // Never advertise the framework. (helmet also does this; belt and braces.)
 app.disable('x-powered-by');
@@ -98,14 +98,18 @@ if (process.env.REDIS_URL) {
   });
 }
 
+const cookieDomain =
+  process.env.COOKIE_DOMAIN ||
+  (FRONTEND_URL.includes('domner.app') ? '.domner.app' : undefined);
+
 app.use(session({
   store: sessionStore,
   secret: process.env.SESSION_SECRET || 'mypath-secret',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    domain: process.env.COOKIE_DOMAIN || undefined,
-    sameSite: isProduction ? (process.env.COOKIE_DOMAIN ? 'lax' : 'none') : 'lax',
+    domain: cookieDomain,
+    sameSite: isProduction ? (cookieDomain ? 'lax' : 'none') : 'lax',
     httpOnly: true,
     secure: isProduction,
     maxAge: 24 * 60 * 60 * 1000,

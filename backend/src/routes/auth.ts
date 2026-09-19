@@ -306,7 +306,13 @@ router.post('/login', authLimiter, async (req: Request, res: Response) => {
     session.userRole = user.role;
 
     const { password: _passwordHash, ...safeUser } = user;
-    res.status(200).json({ message: 'Login successful', user: safeUser });
+    req.session.save((saveErr) => {
+      if (saveErr) {
+        console.error('Session save error on login:', saveErr);
+        return res.status(500).json({ error: 'Server error saving session.' });
+      }
+      res.status(200).json({ message: 'Login successful', user: safeUser });
+    });
   } catch (err) {
     res.status(500).json({ error: 'Login error.' });
   }
