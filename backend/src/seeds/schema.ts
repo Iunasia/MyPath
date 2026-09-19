@@ -196,6 +196,23 @@ const TABLES: string[] = [
     code TEXT NOT NULL,
     expires_at TIMESTAMPTZ NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  )`,
+  `CREATE TABLE IF NOT EXISTS campaigns (
+    id SERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
+    tagline TEXT,
+    trigger_param TEXT,
+    type TEXT NOT NULL DEFAULT 'image' CHECK (type IN ('image', 'video')),
+    media_url TEXT NOT NULL,
+    link_url TEXT NOT NULL,
+    cta_text TEXT NOT NULL DEFAULT 'Learn More',
+    countdown_seconds INTEGER NOT NULL DEFAULT 3,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    priority INTEGER NOT NULL DEFAULT 0,
+    clicks INTEGER NOT NULL DEFAULT 0,
+    impressions INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`
 ];
 
@@ -311,11 +328,13 @@ const DROP_NOT_NULL: Array<[string, string]> = [
   ['majors', 'source_url'],
   // The university dataset has no ranking or acceptance rate.
   ['universities', 'tuition_range'],
-  ['universities', 'acceptance_rate']
+  ['universities', 'acceptance_rate'],
+  ['campaigns', 'countdown_seconds INTEGER NOT NULL DEFAULT 3']
 ];
 
 /** Order matters: children are truncated before the rows they reference. */
 export const TABLE_NAMES = [
+  'campaigns',
   'email_verifications',
   'saved_items',
   'reports',
@@ -344,6 +363,26 @@ export const createTables = async (pool: Pool): Promise<void> => {
 };
 
 export const applyMigrations = async (pool: Pool): Promise<void> => {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS campaigns (
+      id SERIAL PRIMARY KEY,
+      title TEXT NOT NULL,
+      tagline TEXT,
+      trigger_param TEXT,
+      type TEXT NOT NULL DEFAULT 'image' CHECK (type IN ('image', 'video')),
+      media_url TEXT NOT NULL,
+      link_url TEXT NOT NULL,
+      cta_text TEXT NOT NULL DEFAULT 'Learn More',
+      countdown_seconds INTEGER NOT NULL DEFAULT 3,
+      is_active BOOLEAN NOT NULL DEFAULT TRUE,
+      priority INTEGER NOT NULL DEFAULT 0,
+      clicks INTEGER NOT NULL DEFAULT 0,
+      impressions INTEGER NOT NULL DEFAULT 0,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `);
+
   for (const [table, definition] of ADD_COLUMNS) {
     await pool.query(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS ${definition}`);
   }

@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import express, { NextFunction, Request, Response } from 'express';
+import path from 'path';
 import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
 import { RedisStore } from 'connect-redis';
@@ -20,6 +21,7 @@ const majorsRoutes = require('./routes/majors');
 const universitiesRoutes = require('./routes/universities');
 const savedRoutes = require('./routes/saved');
 const verificationRoutes = require('./routes/verificationRequests');
+import campaignRoutes from './routes/campaigns';
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
@@ -134,6 +136,10 @@ app.use('/majors', majorsRoutes);
 app.use('/universities', universitiesRoutes);
 app.use('/saved', savedRoutes);
 app.use('/verification-requests', verificationRoutes);
+// Public uploads directory (campaign banners, media assets)
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+app.use('/campaigns', campaignRoutes);
 
 /** Unknown route — JSON, so clients never have to parse an HTML error page. */
 app.use((req: Request, res: Response) => {

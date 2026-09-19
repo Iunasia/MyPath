@@ -18,3 +18,7 @@ skills-lock.json
 
 # Accidental root package-lock (frontend and backend have their own lockfiles)
 /package-lock.json
+
+# Uploaded campaign media
+uploads/
+backend/uploads/

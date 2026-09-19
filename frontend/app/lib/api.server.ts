@@ -15,6 +15,7 @@ import type {
   ApiScholarship,
   ApiUniversity,
   ApiInfoCheck,
+  ApiCampaign,
 } from "./api";
 
 const SERVER_BASE =
@@ -59,8 +60,9 @@ export const getUniversity = (idOrSlug: string) =>
   getOrNull<ApiUniversity>(`/universities/${encodeURIComponent(idOrSlug)}`);
 
 export const getScholarships = () => getList<ApiScholarship>("/scholarships");
-export const getScholarship = (id: string) =>
+export const getScholarship = (id: string | number) =>
   getOrNull<{ title: string; scholarship: ApiScholarship; infoCheck: ApiInfoCheck }>(
     `/scholarships/${id}`
   );
 
+export const getCampaigns = () => getList<ApiCampaign>("/campaigns");
