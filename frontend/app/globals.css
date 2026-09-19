@@ -11,8 +11,8 @@
   --sky-bright: #8DC4C8;     /* Lighter soft teal for hover states */
   /* Deep teal — solid buttons and accent text. White on it is 5.6:1, and it
      reads at 4.8:1 on the powder canvas; --sky is too light for either (2.3:1). */
-  --sky-deep: #7AB3B7;
-  --sky-dark: #7AB3B7;
+  --sky-deep: #3F7377;
+  --sky-dark: #326063;
   --powder: #E2F1F1;         /* Background Light Teal (Overall Canvas) */
   --powder-deep: #D5ECEC;    /* Slightly deeper canvas tint */
 
@@ -45,8 +45,8 @@
   /* Clean Minimalist Obsidian Brand Palette */
   --sky: #7AB3B7;            /* Soft teal */
   --sky-bright: #8DC4C8;     /* Lighter soft teal for hover states */
-  --sky-deep: #7AB3B7;       /* Clean solid accent teal */
-  --sky-dark: #7AB3B7;       /* Hover state */
+  --sky-deep: #8DC4C8;       /* Accent text/borders — lighter tint reads clearly on dark canvas */
+  --sky-dark: #9ED0D3;       /* Hover state */
   --powder: #0A0D12;         /* Deep obsidian black canvas */
   --powder-deep: #0E1318;    /* Slightly raised dark canvas */
 
@@ -175,19 +175,6 @@ button {
   border-color: rgba(255, 255, 255, 0.08);
 }
 
-/* Dark mode bubble shadows */
-.dark .bubble-shadow {
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 1px rgba(255, 255, 255, 0.08);
-}
-
-.dark .bubble-shadow-sm {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45), 0 0 1px rgba(255, 255, 255, 0.06);
-}
-
-.dark .bubble-shadow-hover:hover {
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 16px rgba(45, 212, 191, 0.12);
-}
-
 /* ── Dark status colors ─────────────────────────────────── */
 .dark .bg-rose-50 {
   background-color: rgb(69 33 40 / 0.65);
@@ -275,25 +262,6 @@ html[lang="km"] h6 {
   color: #FFFFFF;
 }
 
-/* ── Bubble primitives ─────────────────────────────────── */
-
-.bubble-shadow {
-  box-shadow: 0 8px 30px rgba(122, 179, 183, 0.25);
-}
-
-.bubble-shadow-sm {
-  box-shadow: 0 4px 14px rgba(122, 179, 183, 0.18);
-}
-
-.bubble-shadow-hover {
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
-}
-
-.bubble-shadow-hover:hover {
-  box-shadow: 0 12px 36px rgba(122, 179, 183, 0.35);
-  transform: translateY(-4px);
-}
-
 /* Sticker badge — dashed border */
 .sticker {
   display: inline-flex;
@@ -303,16 +271,15 @@ html[lang="km"] h6 {
   border: 2px dashed var(--sky);
   background: var(--panel);
   padding: 0.375rem 1rem;
-  box-shadow: 0 3px 10px rgba(122, 179, 183, 0.2);
   font-weight: 700;
   font-size: 0.75rem;
   color: var(--sky-deep);
   cursor: pointer;
+  transition: border-color 0.15s ease-out, color 0.15s ease-out;
 }
 
 .sticker:hover {
-  border: 2px solid var(--sky-deep);
-  box-shadow: 0 6px 18px rgba(122, 179, 183, 0.3);
+  border-color: var(--sky-deep);
 }
 
 /* Stroked dot inside sticker */
@@ -431,11 +398,6 @@ html[lang="km"] h6 {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
-  }
-
-  .blob,
-  .bubble-sway {
-    animation: none;
   }
 
   .sr-hidden,
