@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { ArrowRight, BookOpen } from "lucide-react";
 import { Link, usePathname, useRouter } from "@/src/i18n";
-import { Button, EmptyState, SearchInput } from "@/app/components/ui";
+import { Button, EmptyState, Pagination, SearchInput } from "@/app/components/ui";
 import {
   CATEGORIES,
   applyMajorTranslations,
@@ -15,6 +15,8 @@ import {
 import enMajors from "@/app/data-translations/en/majors.json";
 import kmMajors from "@/app/data-translations/km/majors.json";
 import Footer from "@/app/components/Footer";
+
+const ITEMS_PER_PAGE = 8;
 
 function MajorsInner() {
   const t = useTranslations("majors");
@@ -46,12 +48,16 @@ function MajorsInner() {
 
   const searchQuery = searchParams.get("q") ?? "";
   const selectedCategory = searchParams.get("category");
+  const currentPage = Math.max(1, Number(searchParams.get("page") ?? 1) || 1);
 
-  const updateUrl = (patch: { q?: string | null; category?: string | null }) => {
+  const updateUrl = (patch: { q?: string | null; category?: string | null; page?: number }) => {
     const params = new URLSearchParams(searchParams.toString());
     for (const [key, value] of Object.entries(patch)) {
-      if (value) {
-        params.set(key, value);
+      if (key === "page") {
+        if (value === 1) params.delete(key);
+        else params.set(key, String(value));
+      } else if (value) {
+        params.set(key, value as string);
       } else {
         params.delete(key);
       }
@@ -59,6 +65,9 @@ function MajorsInner() {
     const qs = params.toString();
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   };
+
+  const onFilterChange = (patch: { q?: string | null; category?: string | null }) =>
+    updateUrl({ ...patch, page: 1 });
 
   const filteredMajors = useMemo(() => {
     return majors.filter((major) => {
@@ -74,6 +83,13 @@ function MajorsInner() {
       return matchesCategory && matchesSearch;
     });
   }, [searchQuery, selectedCategory, majors]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredMajors.length / ITEMS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedMajors = useMemo(() => {
+    const start = (safePage - 1) * ITEMS_PER_PAGE;
+    return filteredMajors.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredMajors, safePage]);
 
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
@@ -98,7 +114,7 @@ function MajorsInner() {
                 name="q"
                 size="sm"
                 value={searchQuery}
-                onChange={(value) => updateUrl({ q: value || null, category: selectedCategory })}
+                onChange={(value) => onFilterChange({ q: value || null, category: selectedCategory })}
                 placeholder={t("searchPlaceholder")}
                 ariaLabel={t("searchPlaceholder")}
               />
@@ -113,7 +129,7 @@ function MajorsInner() {
               {t("browseByInterest")}
             </h2>
             {selectedCategory && (
-              <Button variant="ghost" size="xs" onClick={() => updateUrl({ q: searchQuery, category: null })}>
+              <Button variant="ghost" size="xs" onClick={() => onFilterChange({ q: searchQuery, category: null })}>
                 {tCommon("resetFilter")}
               </Button>
             )}
@@ -129,20 +145,20 @@ function MajorsInner() {
                   key={cat.id}
                   type="button"
                   onClick={() =>
-                    updateUrl({
+                    onFilterChange({
                       q: searchQuery,
                       category: isSelected ? null : cat.id,
                     })
                   }
                   aria-pressed={isSelected}
-                  className={`flex flex-col items-center justify-center p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-3xl rounded-br-[36px] sm:rounded-br-[48px] border-2 text-center group cursor-pointer min-h-[120px] sm:min-h-[135px] transition-[transform,box-shadow,border-color,background-color] duration-300 ${
+                  className={`flex flex-col items-center justify-center p-4 sm:p-5 lg:p-6 rounded-lg border-2 text-center group cursor-pointer min-h-[120px] sm:min-h-[135px] transition-colors duration-150 ease-out ${
                     isSelected
-                      ? "border-[#7AB3B7] ring-2 ring-[#7AB3B7]/30 bg-[#7AB3B7]/10 bubble-shadow"
-                      : "border-[#7AB3B7] bg-white hover:border-[#7AB3B7] bubble-shadow-sm hover:scale-[1.03] hover:shadow-md"
+                      ? "border-[#7AB3B7] ring-2 ring-[#7AB3B7]/30 bg-[#7AB3B7]/10"
+                      : "border-[#7AB3B7] bg-white hover:border-[#7AB3B7]"
                   }`}
                 >
                   <div
-                    className={`w-12 h-12 sm:w-13 sm:h-13 rounded-full ${cat.bg} flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform shadow-2xs`}
+                    className={`w-12 h-12 sm:w-13 sm:h-13 rounded-full ${cat.bg} flex items-center justify-center mb-2.5`}
                   >
                     <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-sky-deep" strokeWidth={2.2} aria-hidden="true" />
                   </div>
@@ -181,7 +197,7 @@ function MajorsInner() {
                 <Button
                   variant="primary"
                   size="md"
-                  onClick={() => updateUrl({ q: null, category: null })}
+                  onClick={() => onFilterChange({ q: null, category: null })}
                 >
                   {tCommon("clearAllFilters")}
                 </Button>
@@ -189,10 +205,10 @@ function MajorsInner() {
             />
           ) : (
             <>
-              <ul className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
-                {filteredMajors.slice(0, 8).map((major) => (
+              <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+                {paginatedMajors.map((major) => (
                   <li key={major.id} className="h-full">
-                    <article className="bg-white rounded-2xl border border-sky/20 overflow-hidden shadow-xs hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-[transform,box-shadow,border-color] duration-300 flex flex-col justify-between group cursor-pointer h-full">
+                    <article className="bg-white rounded-lg border border-sky/20 overflow-hidden hover:border-sky transition-colors duration-150 ease-out flex flex-col justify-between group cursor-pointer h-full">
                       <div>
                         {/* Top Image */}
                         <Link href={`/majors/${major.id}`} className="block w-full h-[165px] overflow-hidden bg-sky/5">
@@ -211,14 +227,14 @@ function MajorsInner() {
                         {/* Card Content: Title */}
                         <div className="p-4 pb-3">
                           <Link href={`/majors/${major.id}`}>
-                            <h3 className="font-display text-base font-bold text-blue-ink hover:text-sky-deep transition-colors leading-snug line-clamp-2 min-h-[44px]">
+                            <h3 className="font-display text-base font-bold text-blue-ink group-hover:text-sky-deep transition-colors leading-snug line-clamp-2 min-h-[44px]">
                               {major.name}
                             </h3>
                           </Link>
                         </div>
                       </div>
 
-                      {/* Bottom: 2 text lines on left aligned with View more button on right */}
+                      {/* Bottom: 2 text lines on left aligned with View more label on right */}
                       <div className="p-4 pt-3 pb-4 border-t border-sky/10 flex items-center justify-between gap-2">
                         <div className="space-y-1 min-w-0">
                           <p className="text-xs text-gray-soft font-medium line-clamp-1">
@@ -231,7 +247,7 @@ function MajorsInner() {
 
                         <Link
                           href={`/majors/${major.id}`}
-                          className="inline-flex items-center justify-center px-3.5 py-1.5 rounded-lg border border-[#7AB3B7] text-[#7AB3B7] hover:bg-[#7AB3B7] hover:text-white text-xs font-bold transition-colors cursor-pointer shrink-0"
+                          className="inline-flex items-center justify-center text-[#7AB3B7] group-hover:text-blue-ink text-xs font-bold transition-colors cursor-pointer shrink-0"
                         >
                           {tCommon("viewMore")}
                         </Link>
@@ -241,13 +257,21 @@ function MajorsInner() {
                 ))}
               </ul>
 
-              {filteredMajors.length > 8 && (
-                <div className="mt-10 text-center">
-                  <Button href="/majors/all" variant="secondary" size="lg">
-                    <span>{t("viewAllMajorsButton")}</span>
-                    <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                  </Button>
-                </div>
+              {totalPages > 1 && (
+                <Pagination
+                  currentPage={safePage}
+                  totalPages={totalPages}
+                  onPageChange={(page) => {
+                    updateUrl({ page });
+                    window.scrollTo({ top: 350, behavior: "smooth" });
+                  }}
+                  labels={{
+                    prev: tCommon("prev"),
+                    next: tCommon("next"),
+                    page: tCommon("pageLabel"),
+                    pageOf: tCommon("pageOf", { current: safePage, total: totalPages }),
+                  }}
+                />
               )}
             </>
           )}

@@ -44,7 +44,7 @@ export async function generateMetadata({
       ? 'Domner — ដឹកនាំអនាគតរបស់អ្នកដោយទំនុកចិត្ត'
       : 'Domner — Navigate Your Future with Confidence',
     description: isKm
-      ? 'Domner ជួយសិស្សរកឃើញ វាយតម្លៃ ផ្ទៀងផ្ទាត់ និងប្រៀបធៀបព័ត៌មានឌីជីថលអំពីអាជីព មុខជំនាញ សាកលវិទ្យាល័យ និងអាហារូបត្ថម្ភ ដើម្បីឱ្យពួកគេអាចសម្រេចចិត្តបានត្រឹមត្រូវ។'
+      ? 'Domner ជួយសិស្សរកឃើញ វាយតម្លៃ ផ្ទៀងផ្ទាត់ និងប្រៀបធៀបព័ត៌មានឌីជីថលអំពីអាជីព មុខជំនាញ សាកលវិទ្យាល័យ និងអាហារូបករណ៍ ដើម្បីឱ្យពួកគេអាចសម្រេចចិត្តបានត្រឹមត្រូវ។'
       : 'Domner helps students discover, evaluate, verify, and compare digital information about careers, majors, universities, and scholarships so they can make informed decisions.',
   };
 }
@@ -67,7 +67,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} suppressHydrationWarning className={`${nunito.variable} ${kantumruyPro.variable} antialiased`}>
       <head />
-      <body className="min-h-screen flex flex-col">
+      <body suppressHydrationWarning className="min-h-screen flex flex-col">
         <Providers locale={locale} messages={messages}>
           <main id="main-content" className="flex-1">
             {children}

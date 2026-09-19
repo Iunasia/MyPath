@@ -17,12 +17,14 @@ import {
 } from "lucide-react";
 import Footer from "@/app/components/Footer";
 import { useSaved, SavedItem } from "@/app/context/SavedContext";
+import { useAuth } from "@/app/context/AuthContext";
 
 type FilterTab = "all" | "scholarship" | "major" | "career" | "university";
 
 export default function SavedPage() {
   const t = useTranslations("saved");
   const tCommon = useTranslations("common");
+  const { user, loading: authLoading } = useAuth();
   const { savedItems, unsaveItem, clearAll, isHydrated, isServerSynced } = useSaved();
   const [selectedTab, setSelectedTab] = useState<FilterTab>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -102,10 +104,10 @@ export default function SavedPage() {
                 </p>
               </div>
 
-              {isHydrated && savedItems.length > 0 && (
+              {isHydrated && user && savedItems.length > 0 && (
                 <div className="flex items-center gap-3">
                   {showClearConfirm ? (
-                    <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-red-200 bubble-shadow-sm animate-in fade-in">
+                    <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-red-200 animate-in fade-in">
                       <span className="text-xs text-red-600 font-bold">{t("clearAllSaved")}</span>
                       <button
                         onClick={() => {
@@ -126,7 +128,7 @@ export default function SavedPage() {
                   ) : (
                     <button
                       onClick={() => setShowClearConfirm(true)}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-sky/20 text-gray-soft hover:text-red-600 hover:border-red-200 text-xs font-bold transition-colors bubble-shadow-sm cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-sky/20 text-gray-soft hover:text-red-600 hover:border-red-200 text-xs font-bold transition-colors duration-150 ease-out cursor-pointer"
                       title={t("clearAllSaved")}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -137,6 +139,37 @@ export default function SavedPage() {
               )}
             </div>
           </section>
+
+          {!authLoading && !user ? (
+            <div className="bg-white dark:bg-card-dark rounded-lg p-8 sm:p-14 border border-sky/15 dark:border-white/10 text-center flex flex-col items-center justify-center my-6 max-w-xl mx-auto shadow-xs">
+              <div className="w-20 h-20 rounded-full bg-sitomo/50 border border-sky/25 flex items-center justify-center text-sky-deep mb-5">
+                <Bookmark className="w-10 h-10 text-sky-deep stroke-[1.5]" />
+              </div>
+              <h2 className="font-display text-2xl sm:text-3xl font-bold text-blue-ink dark:text-white mb-2">
+                {t("signInToViewSaved")}
+              </h2>
+              <p className="text-sm sm:text-base text-gray-body dark:text-gray-300 max-w-md mb-8 leading-relaxed">
+                {t("signInToViewSavedDesc")}
+              </p>
+
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full max-w-xs sm:max-w-md">
+                <Link
+                  href="/auth/signin?next=/saved"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-[#7AB3B7] text-white text-sm font-bold hover:bg-[#68A1A5] transition-colors duration-150 ease-out cursor-pointer"
+                >
+                  <span>{tCommon("signIn")}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+                <Link
+                  href="/auth/signup?next=/saved"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-white dark:bg-transparent border border-sky/25 text-blue-ink dark:text-white text-sm font-bold hover:border-sky hover:bg-sitomo/40 transition-colors duration-150 ease-out cursor-pointer"
+                >
+                  <span>{tCommon("createAccount")}</span>
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <>
 
           <section className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
@@ -155,10 +188,10 @@ export default function SavedPage() {
                   <button
                     key={tab.id}
                     onClick={() => setSelectedTab(tab.id)}
-                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-colors duration-150 ease-out cursor-pointer ${
                       isActive
-                        ? "bg-[#7AB3B7] text-white bubble-shadow-sm"
-                        : "bg-white text-blue-ink border border-sky/20 hover:border-sky bubble-shadow-sm"
+                        ? "bg-[#7AB3B7] text-white"
+                        : "bg-white text-blue-ink border border-sky/20 hover:border-sky"
                     }`}
                   >
                     <span>{tab.label}</span>
@@ -182,7 +215,7 @@ export default function SavedPage() {
                   placeholder={t("searchPlaceholder")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-white border border-sky/25 text-blue-ink placeholder:text-gray-soft text-xs font-semibold pl-9 pr-8 py-2.5 rounded-full focus:outline-none focus:ring-2 focus:ring-sky/30 hover:border-sky transition-colors bubble-shadow-sm"
+                  className="w-full bg-white border border-sky/25 text-blue-ink placeholder:text-gray-soft text-xs font-semibold pl-9 pr-8 py-2.5 rounded-full focus:outline-none focus:ring-2 focus:ring-sky/30 hover:border-sky transition-colors duration-150 ease-out"
                 />
                 {searchQuery && (
                   <button
@@ -201,12 +234,12 @@ export default function SavedPage() {
               {[1, 2, 3].map((n) => (
                 <div
                   key={n}
-                  className="h-64 rounded-3xl bg-sitomo/30 border border-sky/15 animate-pulse"
+                  className="h-64 rounded-lg bg-sitomo/30 border border-sky/15 animate-pulse"
                 />
               ))}
             </div>
           ) : savedItems.length === 0 ? (
-            <div className="bg-white rounded-3xl rounded-br-[86px] p-8 sm:p-14 border border-sky/15 bubble-shadow-sm text-center flex flex-col items-center justify-center my-6">
+            <div className="bg-white rounded-lg p-8 sm:p-14 border border-sky/15 text-center flex flex-col items-center justify-center my-6">
               <div className="w-20 h-20 rounded-full bg-sitomo/50 border border-sky/25 flex items-center justify-center text-sky-deep mb-5">
                 <Bookmark className="w-10 h-10 text-sky-deep stroke-[1.5]" />
               </div>
@@ -220,28 +253,28 @@ export default function SavedPage() {
               <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
                 <Link
                   href="/scholarships"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#7AB3B7] text-white text-xs sm:text-sm font-bold hover:bg-[#68A1A5] transition-all bubble-shadow-sm cursor-pointer"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#7AB3B7] text-white text-xs sm:text-sm font-bold hover:bg-[#68A1A5] transition-colors duration-150 ease-out cursor-pointer"
                 >
                   <Award className="w-4 h-4" />
                   <span>{t("exploreScholarships")}</span>
                 </Link>
                 <Link
                   href="/majors"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white border border-sky/25 text-blue-ink text-xs sm:text-sm font-bold hover:border-sky hover:bg-sitomo/40 transition-all bubble-shadow-sm cursor-pointer"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white border border-sky/25 text-blue-ink text-xs sm:text-sm font-bold hover:border-sky hover:bg-sitomo/40 transition-colors duration-150 ease-out cursor-pointer"
                 >
                   <GraduationCap className="w-4 h-4 text-sky-deep" />
                   <span>{t("exploreMajors")}</span>
                 </Link>
                 <Link
                   href="/careers"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white border border-sky/25 text-blue-ink text-xs sm:text-sm font-bold hover:border-sky hover:bg-sitomo/40 transition-all bubble-shadow-sm cursor-pointer"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white border border-sky/25 text-blue-ink text-xs sm:text-sm font-bold hover:border-sky hover:bg-sitomo/40 transition-colors duration-150 ease-out cursor-pointer"
                 >
                   <Briefcase className="w-4 h-4 text-sky-deep" />
                   <span>{t("exploreCareers")}</span>
                 </Link>
                 <Link
                   href="/universities"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white border border-sky/25 text-blue-ink text-xs sm:text-sm font-bold hover:border-sky hover:bg-sitomo/40 transition-all bubble-shadow-sm cursor-pointer"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white border border-sky/25 text-blue-ink text-xs sm:text-sm font-bold hover:border-sky hover:bg-sitomo/40 transition-colors duration-150 ease-out cursor-pointer"
                 >
                   <Building2 className="w-4 h-4 text-sky-deep" />
                   <span>{t("exploreUniversities")}</span>
@@ -249,7 +282,7 @@ export default function SavedPage() {
               </div>
             </div>
           ) : filteredItems.length === 0 ? (
-            <div className="bg-white rounded-3xl p-8 sm:p-12 border border-sky/15 bubble-shadow-sm text-center flex flex-col items-center justify-center my-6">
+            <div className="bg-white rounded-lg p-8 sm:p-12 border border-sky/15 text-center flex flex-col items-center justify-center my-6">
               <Search className="w-12 h-12 text-sky-deep/50 mb-4" />
               <h3 className="font-display text-xl sm:text-2xl font-bold text-blue-ink mb-2">
                 {t("noResultsFound")}
@@ -264,7 +297,7 @@ export default function SavedPage() {
                   setSelectedTab("all");
                   setSearchQuery("");
                 }}
-                className="px-5 py-2 rounded-full bg-[#7AB3B7] text-white text-xs font-bold hover:bg-[#68A1A5] transition-colors cursor-pointer bubble-shadow-sm"
+                className="px-5 py-2 rounded-full bg-[#7AB3B7] text-white text-xs font-bold hover:bg-[#68A1A5] transition-colors duration-150 ease-out cursor-pointer"
               >
                 {tCommon("resetFilters")}
               </button>
@@ -278,7 +311,7 @@ export default function SavedPage() {
                 return (
                   <div
                     key={item.id}
-                    className="bg-white rounded-3xl rounded-br-[86px] border border-sky/15 bubble-shadow-sm overflow-hidden flex flex-col justify-between hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 group"
+                    className="bg-white rounded-lg border border-sky/15 overflow-hidden flex flex-col justify-between hover:border-sky transition-colors duration-150 ease-out group"
                   >
                     <div>
                       {item.image ? (
@@ -305,7 +338,7 @@ export default function SavedPage() {
                             onClick={() => unsaveItem(item.id)}
                             aria-label={`Remove ${item.title} from saved`}
                             title={t("removeFromSaved")}
-                            className="absolute top-3.5 right-3.5 z-10 p-2 rounded-full bg-white/90 text-sky-deep hover:bg-red-50 hover:text-red-600 transition-colors shadow-sm cursor-pointer"
+                            className="absolute top-3.5 right-3.5 z-10 p-2 rounded-full bg-white/90 text-sky-deep hover:bg-red-50 hover:text-red-600 transition-colors cursor-pointer"
                           >
                             <Bookmark className="w-4 h-4 fill-sky-deep hover:fill-red-600 transition-colors" />
                           </button>
@@ -372,6 +405,8 @@ export default function SavedPage() {
                 );
               })}
             </div>
+          )}
+          </>
           )}
         </main>
       </div>

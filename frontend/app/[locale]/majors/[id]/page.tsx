@@ -370,7 +370,7 @@ export default async function MajorDetailPage({ params }: PageProps) {
             </div>
 
             {/* Full Width Hero Image Banner */}
-            <div className="relative w-full h-64 sm:h-80 md:h-96 lg:h-[420px] rounded-3xl overflow-hidden mb-6 border border-sky/20 bubble-shadow-sm bg-sitomo/50">
+            <div className="relative w-full h-64 sm:h-80 md:h-96 lg:h-[420px] rounded-lg overflow-hidden mb-6 border border-sky/20 bg-sitomo/50">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={major.heroImage}
@@ -390,7 +390,7 @@ export default async function MajorDetailPage({ params }: PageProps) {
                 {/* "Not stated" is the adapter's placeholder, not a level —
                     it read as "Not stated Demand". */}
                 {hasDemand && (
-                  <span className="bg-sky-deep/90 backdrop-blur-xs px-3.5 py-1.5 rounded-full border border-white/25 text-white font-extrabold shadow-sm">
+                  <span className="bg-sky-deep/90 backdrop-blur-xs px-3.5 py-1.5 rounded-full border border-white/25 text-white font-extrabold">
                     {t("demandValue", { value: major.jobMarketDemand })}
                   </span>
                 )}
@@ -418,7 +418,7 @@ export default async function MajorDetailPage({ params }: PageProps) {
           </section>
 
           {/* 2. What you'll learn (Full Width Card, 2-column grid on desktop) */}
-          <section className="bg-white rounded-3xl p-6 sm:p-8 lg:p-10 border border-sky/15 bubble-shadow-sm w-full rounded-br-[86px]">
+          <section className="bg-white rounded-lg p-6 sm:p-8 lg:p-10 border border-sky/15 w-full">
             <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink mb-8">
               {t("whatYouLearn")}
             </h2>
@@ -429,9 +429,9 @@ export default async function MajorDetailPage({ params }: PageProps) {
                 return (
                   <div
                     key={item.title}
-                    className="flex items-start gap-4 p-4 rounded-2xl bg-sitomo/20 border border-sky/10"
+                    className="flex items-start gap-4 p-4"
                   >
-                    <div className="w-12 h-12 rounded-2xl bg-sitomo flex items-center justify-center shrink-0 border border-sky/15">
+                    <div className="w-12 h-12 rounded-full bg-sitomo flex items-center justify-center shrink-0 border border-sky/15">
                       <Icon className="w-6 h-6 text-sky-deep" strokeWidth={2.2} />
                     </div>
                     <div>
@@ -449,7 +449,7 @@ export default async function MajorDetailPage({ params }: PageProps) {
           </section>
 
           {/* 3. Skills Developed (Full Width Card with spacious pills) */}
-          <section className="bg-white rounded-3xl p-6 sm:p-8 lg:p-10 border border-sky/15 bubble-shadow-sm w-full">
+          <section className="bg-white rounded-lg p-6 sm:p-8 lg:p-10 border border-sky/15 w-full">
             <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink mb-6">
               {t("skillsDeveloped")}
             </h2>
@@ -505,7 +505,7 @@ export default async function MajorDetailPage({ params }: PageProps) {
 
             {/* Career Opportunities Sector Card */}
             {major.careerOpportunities && (
-              <div className="mt-8 p-6 sm:p-7 rounded-3xl bg-white border border-sky/15 bubble-shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 max-w-5xl mx-auto">
+              <div className="mt-8 p-6 sm:p-7 rounded-lg bg-white border border-sky/15 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 max-w-5xl mx-auto">
                 <div>
                   <span className="text-xs font-bold text-gray-soft uppercase tracking-wider block mb-1">
                     {t("industryHiringSectors")}
@@ -540,9 +540,9 @@ export default async function MajorDetailPage({ params }: PageProps) {
                   <Link
                     key={rel.id}
                     href={`/majors/${rel.id}`}
-                    className="flex flex-col items-center justify-center p-7 sm:p-8 bg-white border-2 border-sky/50 rounded-3xl rounded-br-[56px] bubble-shadow-sm hover:border-sky hover:shadow-md hover:scale-[1.02] transition-all text-center group cursor-pointer min-h-[160px]"
+                    className="flex flex-col items-center justify-center p-7 sm:p-8 bg-white border-2 border-sky/50 rounded-lg hover:border-sky transition-colors duration-150 ease-out text-center group cursor-pointer min-h-[160px]"
                   >
-                    <div className="w-14 h-14 rounded-full bg-momo flex items-center justify-center mb-3.5 group-hover:scale-110 transition-transform">
+                    <div className="w-14 h-14 rounded-full bg-momo flex items-center justify-center mb-3.5">
                       <Icon className="w-7 h-7 text-blue-ink" strokeWidth={2} />
                     </div>
                     <span className="font-display text-base font-bold text-blue-ink group-hover:text-sky-deep transition-colors leading-snug">
@@ -566,9 +566,9 @@ export default async function MajorDetailPage({ params }: PageProps) {
                 {relatedOpportunities.map((opp) => (
                   <div
                     key={opp.title}
-                    className="flex flex-col sm:flex-row items-center gap-5 bg-white rounded-3xl p-5 border border-sky/15 bubble-shadow-sm hover:border-sky/35 transition-all"
+                    className="flex flex-col sm:flex-row items-center gap-5 bg-white rounded-lg p-5 border border-sky/15 hover:border-sky transition-colors duration-150 ease-out"
                   >
-                    <div className="w-full sm:w-36 h-36 rounded-2xl overflow-hidden shrink-0 border border-sky/10 bg-sitomo/40">
+                    <div className="w-full sm:w-36 h-36 rounded-lg overflow-hidden shrink-0 border border-sky/10 bg-sitomo/40">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={opp.image}
@@ -611,14 +611,14 @@ export default async function MajorDetailPage({ params }: PageProps) {
                   <Link
                     key={uni.id}
                     href={`/universities/${uni.id}`}
-                    className="group relative aspect-[3/4] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer bubble-shadow-sm border border-sky/15 hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-all duration-300 block"
+                    className="group relative aspect-[3/4] rounded-lg overflow-hidden cursor-pointer border border-sky/15 hover:border-sky transition-colors duration-150 ease-out block"
                   >
                     {/* University Campus Image */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={uni.image}
                       alt={uni.name}
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="absolute inset-0 w-full h-full object-cover"
                     />
 
                     {/* Gradient Overlay for Text Readability */}

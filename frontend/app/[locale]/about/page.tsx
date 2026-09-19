@@ -22,7 +22,7 @@ export default function AboutPage() {
       <div className="w-full flex-1 px-4 sm:px-8 md:px-12 lg:px-[80px] py-6 sm:py-10 lg:py-14 flex flex-col justify-center">
         <main className="w-full max-w-4xl lg:max-w-5xl mx-auto flex flex-col">
           {/* ── Top Hero: Photo with organic notch cutout ── */}
-          <div className="relative w-full rounded-3xl sm:rounded-[36px] overflow-hidden">
+          <div className="relative w-full rounded-lg overflow-hidden">
             <Image
               src={HERO_IMAGE_URL}
               alt="Students celebrating graduation"
@@ -34,7 +34,7 @@ export default function AboutPage() {
             />
 
             {/* Icon + title nestled in the bottom-left notch */}
-            <div className="absolute left-0 bottom-0 bg-[#E2F1F1] rounded-tr-3xl sm:rounded-tr-[36px] pt-2.5 sm:pt-3.5 md:pt-4 pr-5 sm:pr-7 md:pr-8 pb-1.5 sm:pb-2.5 md:pb-3 pl-2 sm:pl-4 md:pl-5 flex items-center gap-1.5 sm:gap-2 md:gap-2.5">
+            <div className="absolute left-0 bottom-0 bg-[#E2F1F1] rounded-tr-lg pt-2.5 sm:pt-3.5 md:pt-4 pr-5 sm:pr-7 md:pr-8 pb-1.5 sm:pb-2.5 md:pb-3 pl-2 sm:pl-4 md:pl-5 flex items-center gap-1.5 sm:gap-2 md:gap-2.5">
               <div className="relative h-14 sm:h-18 md:h-24 lg:h-28 aspect-[207/268] shrink-0 flex items-center justify-center -mb-1">
                 <Image
                   src="/images/logo.png"

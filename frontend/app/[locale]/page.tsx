@@ -107,11 +107,11 @@ const TRUST_DESC_KEYS = [
   "alwaysFreeDesc",
 ] as const;
 
-const TRUST_STYLES = [
-  { border: "border-sky-deep", iconBg: "bg-sky-deep" },
-  { border: "border-sky", iconBg: "bg-sky" },
-  { border: "border-[#7AB3B7]", iconBg: "bg-[#7AB3B7]" },
-  { border: "border-sky-deep", iconBg: "bg-sky-deep" },
+const TRUST_ICON_BG = [
+  "bg-sky-deep",
+  "bg-sky",
+  "bg-[#7AB3B7]",
+  "bg-sky-deep",
 ] as const;
 
 /* ── Page ──────────────────────────────────────────────── */
@@ -188,7 +188,7 @@ export default async function Home() {
                     key={`desktop-${titleKey}`}
                     className={`group flex flex-col items-center text-center flex-1 relative z-10 transition-transform ${offsetClass}`}
                   >
-                    <div className="relative flex items-center justify-center w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-full bg-white border-2 border-sky/30 shadow-md shadow-slate-200/60 group-hover:border-sky-deep group-hover:scale-110 transition-[transform,border-color,box-shadow] duration-300">
+                    <div className="relative flex items-center justify-center w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-full bg-white border-2 border-sky/30 group-hover:border-sky-deep transition-colors duration-150 ease-out">
                       <span className="font-display font-extrabold text-sm md:text-base lg:text-xl text-blue-ink group-hover:text-sky-deep transition-colors">
                         {i + 1}
                       </span>
@@ -246,7 +246,7 @@ export default async function Home() {
                     pos.isLeft ? "left-0.5" : "right-0.5"
                   } w-[132px] flex flex-col items-center text-center z-10 group`}
                 >
-                  <div className="relative flex items-center justify-center w-14 h-14 rounded-full bg-white border-2 border-sky/35 shadow-md shadow-slate-200/60 group-hover:border-sky-deep group-hover:scale-105 transition-[transform,border-color,box-shadow] duration-300 shrink-0">
+                  <div className="relative flex items-center justify-center w-14 h-14 rounded-full bg-white border-2 border-sky/35 group-hover:border-sky-deep transition-colors duration-150 ease-out shrink-0">
                     <span className="font-display font-extrabold text-lg text-blue-ink group-hover:text-sky-deep transition-colors">
                       {i + 1}
                     </span>
@@ -287,10 +287,10 @@ export default async function Home() {
                 <Link
                   key={titleKey}
                   href={EXPLORER_HREFS[i]}
-                  className="group flex flex-col items-center text-center rounded-2xl md:rounded-[24px] lg:rounded-[28px] bg-white p-5 sm:p-4.5 md:p-5 lg:p-6 border border-sky/20 hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-[transform,box-shadow,border-color] duration-300 cursor-pointer h-full"
+                  className="group flex flex-col items-center text-center rounded-lg bg-white p-5 sm:p-4.5 md:p-5 lg:p-6 border border-sky/20 hover:border-sky transition-colors duration-150 ease-out cursor-pointer h-full"
                 >
                   <div
-                    className={`w-13 h-13 sm:w-12 sm:h-12 md:w-13 md:h-13 lg:w-15 lg:h-15 rounded-full ${EXPLORER_STYLES[i].chip} border-2 border-sky/15 flex items-center justify-center mb-3 sm:mb-3.5 md:mb-4 lg:mb-5 group-hover:scale-105 transition-transform duration-300 shrink-0`}
+                    className={`w-13 h-13 sm:w-12 sm:h-12 md:w-13 md:h-13 lg:w-15 lg:h-15 rounded-full ${EXPLORER_STYLES[i].chip} border-2 border-sky/15 flex items-center justify-center mb-3 sm:mb-3.5 md:mb-4 lg:mb-5 shrink-0`}
                   >
                     <Icon className="w-6 h-6 sm:w-6 sm:h-6 md:w-6.5 md:h-6.5 lg:w-7.5 lg:h-7.5" strokeWidth={2} aria-hidden="true" />
                   </div>
@@ -335,7 +335,7 @@ export default async function Home() {
                 </p>
 
                 <div className="space-y-3 mb-6">
-                  <div className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-powder/40 dark:bg-panel-raised/40 border border-sky/15 dark:border-white/5 transition-colors hover:border-sky/30">
+                  <div className="flex items-start gap-3.5 p-3.5 rounded-lg bg-powder/40 dark:bg-panel-raised/40 border border-sky/15 dark:border-white/5 transition-colors hover:border-sky/30">
                     <div className="w-9 h-9 rounded-xl bg-sitomo dark:bg-sitomo/30 flex items-center justify-center text-sky-deep shrink-0 mt-0.5 border border-sky/20 dark:border-white/10">
                       <Building2 className="w-4.5 h-4.5" aria-hidden="true" />
                     </div>
@@ -349,7 +349,7 @@ export default async function Home() {
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-powder/40 dark:bg-panel-raised/40 border border-sky/15 dark:border-white/5 transition-colors hover:border-sky/30">
+                  <div className="flex items-start gap-3.5 p-3.5 rounded-lg bg-powder/40 dark:bg-panel-raised/40 border border-sky/15 dark:border-white/5 transition-colors hover:border-sky/30">
                     <div className="w-9 h-9 rounded-xl bg-sitomo dark:bg-sitomo/30 flex items-center justify-center text-sky-deep shrink-0 mt-0.5 border border-sky/20 dark:border-white/10">
                       <CalendarCheck className="w-4.5 h-4.5" aria-hidden="true" />
                     </div>
@@ -363,7 +363,7 @@ export default async function Home() {
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-powder/40 dark:bg-panel-raised/40 border border-sky/15 dark:border-white/5 transition-colors hover:border-sky/30">
+                  <div className="flex items-start gap-3.5 p-3.5 rounded-lg bg-powder/40 dark:bg-panel-raised/40 border border-sky/15 dark:border-white/5 transition-colors hover:border-sky/30">
                     <div className="w-9 h-9 rounded-xl bg-momo dark:bg-momo/30 flex items-center justify-center text-sky-deep shrink-0 mt-0.5 border border-momo/40 dark:border-white/10">
                       <ShieldAlert className="w-4.5 h-4.5 text-sky-deep" aria-hidden="true" />
                     </div>
@@ -407,40 +407,29 @@ export default async function Home() {
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-2">
-            {TRUST_TITLE_KEYS.map((titleKey, i) => {
-              const Icon = TRUST_ICONS[i];
-              const descKey = TRUST_DESC_KEYS[i];
-              const style = TRUST_STYLES[i];
-              return (
-                <div key={titleKey} className="relative group pt-3 pl-3 pr-2">
-                  {/* Offset colored outline behind the card */}
-                  <div
-                    className={`absolute top-0 left-0 right-3 bottom-3 rounded-3xl border-2 ${style.border} pointer-events-none transition-transform duration-300 group-hover:-translate-x-1 group-hover:-translate-y-1`}
-                  />
-
-                  {/* Foreground white card */}
-                  <div className="relative z-10 bg-white rounded-3xl p-6 shadow-sm border border-sky/15 flex flex-col justify-center min-h-[160px] transition-shadow duration-300 group-hover:shadow-md">
-                    {/* Floating circular icon badge at top right */}
+          <div className="mt-2 rounded-lg border border-sky/15 bg-white">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 divide-y divide-sky/15 sm:divide-y-0 sm:divide-x sm:divide-sky/15">
+              {TRUST_TITLE_KEYS.map((titleKey, i) => {
+                const Icon = TRUST_ICONS[i];
+                const descKey = TRUST_DESC_KEYS[i];
+                return (
+                  <div key={titleKey} className="flex flex-col p-6">
                     <div
-                      className={`absolute -top-3 -right-2 sm:-top-3.5 sm:-right-2.5 w-11 h-11 sm:w-12 sm:h-12 rounded-full ${style.iconBg} text-white flex items-center justify-center shadow-md`}
+                      className={`w-11 h-11 rounded-full ${TRUST_ICON_BG[i]} text-white flex items-center justify-center mb-4 shrink-0`}
                     >
-                      <Icon className="w-5 h-5 sm:w-5.5 sm:h-5.5" strokeWidth={2.2} />
+                      <Icon className="w-5 h-5" strokeWidth={2.2} aria-hidden="true" />
                     </div>
 
-                    {/* Title & Description */}
-                    <div className="pr-4">
-                      <h3 className="font-display text-sm sm:text-base font-extrabold uppercase tracking-wider text-[#5B9DA2] mb-2">
-                        {t(titleKey)}
-                      </h3>
-                      <p className="text-xs sm:text-[13px] text-gray-body leading-relaxed font-medium">
-                        {t(descKey)}
-                      </p>
-                    </div>
+                    <h3 className="font-display text-sm sm:text-base font-extrabold uppercase tracking-wider text-[#5B9DA2] mb-2">
+                      {t(titleKey)}
+                    </h3>
+                    <p className="text-xs sm:text-[13px] text-gray-body leading-relaxed font-medium">
+                      {t(descKey)}
+                    </p>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>

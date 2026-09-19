@@ -24,7 +24,7 @@ import {
 import enUniversities from "@/app/data-translations/en/universities.json";
 import kmUniversities from "@/app/data-translations/km/universities.json";
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 8;
 
 function UniversitiesInner() {
   const t = useTranslations("universities");
@@ -125,7 +125,7 @@ function UniversitiesInner() {
   return (
     <div className="min-h-screen bg-powder text-blue-ink flex flex-col">
       <div className="w-full flex-1 px-[25px] py-6 sm:px-10 lg:px-[80px] flex flex-col">
-        <section className="relative rounded-3xl overflow-hidden mb-10 border border-sky/20 bubble-shadow-sm min-h-[260px] sm:min-h-[300px] md:min-h-[340px] flex items-center">
+        <section className="relative rounded-lg overflow-hidden mb-10 border border-sky/20 min-h-[260px] sm:min-h-[300px] md:min-h-[340px] flex items-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="https://www.waca.or.jp/en/wp-content/uploads/2021/03/vasily-koloda-8CqDvPuo_kI-unsplash-860x573.jpg"
@@ -166,7 +166,7 @@ function UniversitiesInner() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-              <div role="group" aria-label={t("filterTypeLabel")} className="flex items-center gap-1.5 bg-white/80 p-1 rounded-full border border-sky/20 bubble-shadow-2xs">
+              <div role="group" aria-label={t("filterTypeLabel")} className="flex items-center gap-1.5 bg-white/80 p-1 rounded-full border border-sky/20">
                 {[t("public"), t("private")].map((type) => {
                   const rawType = type === t("public") ? "Public" : "Private";
                   const isSelected = selectedType === rawType;
@@ -229,12 +229,12 @@ function UniversitiesInner() {
               }
             />
           ) : (
-            <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4 lg:gap-5">
+            <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
               {paginatedUniversities.map((uni) => (
                 <li key={uni.id} className="h-full">
                   <Link
                     href={`/universities/${uni.id}`}
-                    className="group relative aspect-[3/4] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer bubble-shadow-sm border border-sky/15 hover:border-sky hover:shadow-xl hover:shadow-slate-300/60 hover:-translate-y-1.5 transition-[transform,box-shadow,border-color] duration-300 block h-full"
+                    className="group relative aspect-[3/4] rounded-lg overflow-hidden cursor-pointer border border-sky/15 hover:border-sky transition-colors duration-150 ease-out block h-full"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -244,7 +244,7 @@ function UniversitiesInner() {
                       height={800}
                       decoding="async"
                       loading="lazy"
-                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-cover object-center"
                     />
 
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
@@ -282,7 +282,7 @@ function UniversitiesInner() {
                           <span className="truncate">{uni.location}</span>
                         </span>
 
-                        <span className="bg-white/20 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-full border border-white/20 shrink-0 shadow-2xs">
+                        <span className="bg-white/20 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-full border border-white/20 shrink-0">
                           {uni.shortName}
                         </span>
                       </div>

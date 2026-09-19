@@ -33,7 +33,7 @@ function AutoCheckPanel({ check }: { check: ApiLinkCheck }) {
   const risk = RISK[check.level];
 
   return (
-    <div className={`rounded-3xl border p-5 sm:p-6 ${risk.cls}`} aria-live="polite">
+    <div className={`rounded-lg border p-5 sm:p-6 ${risk.cls}`} aria-live="polite">
       <div className="flex items-center gap-2 mb-3">
         {check.level === "low" ? (
           <ShieldCheck className="w-5 h-5 shrink-0" aria-hidden="true" />
@@ -94,7 +94,7 @@ const STATUS: Record<string, { label: string; icon: typeof Clock }> = {
 };
 
 const INPUT_CLS =
-  "w-full px-4 py-3 rounded-2xl border border-sky/25 text-sm bg-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-sky/40 focus:border-sky transition-[border-color,box-shadow] font-medium";
+  "w-full px-4 py-3 rounded-md border border-sky/25 text-sm bg-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-sky/40 focus:border-sky transition-[border-color,box-shadow] font-medium";
 
 const formatDate = (iso: string) =>
   new Intl.DateTimeFormat("en-GB", {
@@ -252,7 +252,7 @@ export default function VerifyPage() {
             </p>
           </section>
 
-          <section className="bg-white rounded-3xl rounded-br-[86px] p-6 sm:p-8 border border-sky/15 bubble-shadow-sm">
+          <section className="bg-white rounded-lg p-6 sm:p-8 border border-sky/15">
             {authLoading ? (
               <div className="flex items-center justify-center gap-3 py-8 text-gray-soft">
                 <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
@@ -270,9 +270,9 @@ export default function VerifyPage() {
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
-                  className={`border-2 border-dashed rounded-3xl py-8 px-4 sm:py-10 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
+                  className={`border-2 border-dashed rounded-lg py-8 px-4 sm:py-10 flex flex-col items-center justify-center text-center cursor-pointer transition-colors duration-150 ease-out ${
                     isDragging
-                      ? "border-sky-deep bg-sitomo scale-[1.01]"
+                      ? "border-sky-deep bg-sitomo"
                       : "border-sky/40 hover:border-sky-deep hover:bg-sitomo/50 bg-sitomo/25"
                   }`}
                 >
@@ -384,7 +384,7 @@ export default function VerifyPage() {
                   <button
                     type="button"
                     onClick={handleUploadClick}
-                    className="w-full sm:w-auto min-w-[260px] py-3.5 px-10 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white font-bold text-sm tracking-wider uppercase transition-all shadow-md hover:shadow-lg cursor-pointer text-center"
+                    className="w-full sm:w-auto min-w-[260px] py-3.5 px-10 rounded-md bg-[#7AB3B7] hover:bg-[#68A1A5] text-white font-bold text-sm tracking-wider uppercase transition-colors duration-150 ease-out cursor-pointer text-center"
                   >
                     Upload
                   </button>
@@ -444,7 +444,7 @@ export default function VerifyPage() {
                 </div>
 
                 {error && (
-                  <div className="rounded-2xl bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700 font-medium" role="alert">
+                  <div className="rounded-md bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700 font-medium" role="alert">
                     {error}
                   </div>
                 )}
@@ -453,7 +453,7 @@ export default function VerifyPage() {
                   type="submit"
                   loading={submitting}
                   disabled={submitting || (!url.trim() && !title.trim())}
-                  className="inline-flex items-center gap-2 rounded-full bg-[#7AB3B7] px-6 py-3 text-sm font-bold text-white hover:bg-[#68A1A5] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  className="inline-flex items-center gap-2 rounded-md bg-[#7AB3B7] px-6 py-3 text-sm font-bold text-white hover:bg-[#68A1A5] transition-colors duration-150 ease-out disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   <Send className="w-4 h-4" aria-hidden="true" />
                   {submitting ? t("checking") : t("checkThisScholarship")}
@@ -498,7 +498,7 @@ export default function VerifyPage() {
                     return (
                       <article
                         key={request.id}
-                        className="bg-white rounded-3xl p-5 sm:p-6 border border-sky/15 bubble-shadow-sm"
+                        className="bg-white rounded-lg p-5 sm:p-6 border border-sky/15"
                       >
                         <div className="flex flex-wrap items-start justify-between gap-3 mb-2">
                           <h3 className="font-display text-base sm:text-lg font-bold leading-snug min-w-0">
@@ -527,7 +527,7 @@ export default function VerifyPage() {
                         )}
 
                         {verdict && (
-                          <div className={`rounded-2xl border px-4 py-3 mb-3 ${verdict.cls}`}>
+                          <div className={`rounded-lg border px-4 py-3 mb-3 ${verdict.cls}`}>
                             <div className="flex items-center gap-2 mb-1">
                               {request.verdict === "legitimate" ? (
                                 <CheckCircle2 className="w-4 h-4 shrink-0" aria-hidden="true" />
@@ -559,7 +559,7 @@ export default function VerifyPage() {
             </section>
           )}
 
-          <section className="bg-white rounded-3xl rounded-br-[86px] p-6 sm:p-8 border border-sky/15 bubble-shadow-sm">
+          <section className="bg-white rounded-lg p-6 sm:p-8 border border-sky/15">
             <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink mb-1">
               {t("howToSpotFake")}
             </h2>
@@ -593,7 +593,7 @@ export default function VerifyPage() {
             </ul>
 
             <div className="mt-8 pt-6 border-t border-sky/15">
-              <div className="bg-sitomo/40 border border-sky/20 rounded-2xl p-4 sm:p-5">
+              <div className="bg-sitomo/40 border border-sky/20 rounded-lg p-4 sm:p-5">
                 <span className="inline-block text-[11px] font-extrabold uppercase tracking-wider text-[#5B9DA2] mb-1">
                   {t("bestHabit")}
                 </span>
@@ -613,7 +613,7 @@ export default function VerifyPage() {
           onClick={() => setShowAuthModal(false)}
         >
           <div
-            className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-sky/20 text-center relative animate-in zoom-in-95 duration-200"
+            className="bg-white rounded-lg p-6 sm:p-8 max-w-md w-full border border-sky/15 text-center relative animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -639,13 +639,13 @@ export default function VerifyPage() {
             <div className="flex flex-col gap-3">
               <Link
                 href="/auth/signin?next=/verify"
-                className="w-full py-3 rounded-full bg-[#7AB3B7] text-white font-bold text-sm hover:bg-[#68A1A5] transition-all shadow-md text-center block"
+                className="w-full py-3 rounded-md bg-[#7AB3B7] text-white font-bold text-sm hover:bg-[#68A1A5] transition-colors duration-150 ease-out text-center block"
               >
                 Sign in
               </Link>
               <Link
                 href="/auth/signup?next=/verify"
-                className="w-full py-2.5 rounded-full border border-sky/30 text-blue-ink font-bold text-sm hover:bg-sky/10 transition-all text-center block"
+                className="w-full py-2.5 rounded-md border border-sky/30 text-blue-ink font-bold text-sm hover:bg-sky/10 transition-colors duration-150 ease-out text-center block"
               >
                 Create an account
               </Link>

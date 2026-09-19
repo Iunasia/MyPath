@@ -136,7 +136,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
           {/* 1. Hero Campus Image Banner & Title Below */}
           <section className="w-full">
             {/* Hero campus image banner */}
-            <div className="group relative w-full h-64 sm:h-80 md:h-96 lg:h-[450px] xl:h-[500px] rounded-3xl overflow-hidden mb-6 border border-sky/20 bubble-shadow-sm bg-sitomo/50">
+            <div className="group relative w-full h-64 sm:h-80 md:h-96 lg:h-[450px] xl:h-[500px] rounded-lg overflow-hidden mb-6 border border-sky/20 bg-sitomo/50">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={university.heroImage || university.image}
@@ -203,7 +203,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                 {university.phone && (
                   <a
                     href={`tel:${university.phone.replace(/\s+/g, "")}`}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-sky/25 text-xs font-bold text-blue-ink hover:border-sky hover:text-sky-deep bubble-shadow-sm transition-all"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-sky/25 text-xs font-bold text-blue-ink hover:border-sky hover:text-sky-deep transition-colors duration-150 ease-out"
                   >
                     <Phone className="w-3.5 h-3.5 text-sky-deep" />
                     <span>{university.phone}</span>
@@ -215,7 +215,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                     href={university.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-sky/25 text-xs font-bold text-blue-ink hover:border-sky hover:text-sky-deep bubble-shadow-sm transition-all"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-sky/25 text-xs font-bold text-blue-ink hover:border-sky hover:text-sky-deep transition-colors duration-150 ease-out"
                   >
                     <Globe className="w-3.5 h-3.5 text-sky-deep" />
                     <span>{t("officialWebsite")}</span>
@@ -228,7 +228,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                     href={university.mapUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-sitomo/60 border border-sky/20 text-xs font-bold text-blue-ink hover:bg-sitomo bubble-shadow-sm transition-all"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-sitomo/60 border border-sky/20 text-xs font-bold text-blue-ink hover:bg-sitomo transition-colors duration-150 ease-out"
                   >
                     <MapPin className="w-3.5 h-3.5 text-sky-deep" />
                     <span>{t("googleMapsDirections")}</span>
@@ -241,7 +241,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
 
           {/* 2. Key Statistics Bar */}
           <section className="w-full">
-            <div className="bg-white rounded-3xl p-5 sm:p-7 border border-sky/20 bubble-shadow-sm">
+            <div className="bg-white rounded-lg p-5 sm:p-7 border border-sky/20">
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-6 gap-x-3 sm:gap-x-6 lg:gap-0 lg:divide-x lg:divide-sky/15">
                 {/* Stat 1: Established */}
                 <div className="flex flex-col items-center text-center px-1 sm:px-4">
@@ -320,7 +320,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full items-stretch">
                 {/* Tuition & Fees Column */}
                 {university.tuitionFee && (
-                  <div className="bg-white rounded-3xl p-6 sm:p-8 border border-sky/20 bubble-shadow-sm flex flex-col justify-between">
+                  <div className="bg-white rounded-lg p-6 sm:p-8 border border-sky/20 flex flex-col justify-between">
                     <div>
                       <div className="mb-5">
                         <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink">
@@ -332,7 +332,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                       </div>
 
                       {/* Summary Rate Banner */}
-                      <div className="bg-sitomo/50 rounded-2xl p-4 sm:p-5 border border-sky/20 mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="bg-sitomo/50 rounded-md p-4 sm:p-5 mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div>
                           <span className="text-[11px] font-extrabold uppercase tracking-wider text-gray-soft block">
                             {t("standardTuitionFee")}
@@ -348,15 +348,15 @@ export default async function UniversityDetailPage({ params }: PageProps) {
 
                       {/* Detailed Breakdown List */}
                       {university.tuitionDetails && university.tuitionDetails.length > 0 && (
-                        <div className="space-y-2">
+                        <div>
                           <h3 className="text-[11px] font-bold uppercase tracking-wider text-gray-soft mb-2">
                             {t("feeBreakdown")}
                           </h3>
-                          <div className="space-y-2">
+                          <div className="divide-y divide-sky/10">
                             {university.tuitionDetails.map((item, idx) => (
                               <div
                                 key={idx}
-                                className="flex items-center justify-between p-2.5 sm:p-3 rounded-xl bg-powder border border-sky/15 hover:border-sky/40 transition-colors"
+                                className="flex items-center justify-between py-2.5 sm:py-3"
                               >
                                 <span className="text-xs font-semibold text-blue-ink pr-2">
                                   {item.facultyOrCategory}
@@ -375,7 +375,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
 
                 {/* Admission Requirements Column */}
                 {university.admissionRequirements && (
-                  <div className="bg-white rounded-3xl p-6 sm:p-8 border border-sky/20 bubble-shadow-sm flex flex-col justify-between">
+                  <div className="bg-white rounded-lg p-6 sm:p-8 border border-sky/20 flex flex-col justify-between">
                     <div>
                       <div className="mb-5">
                         <h2 className="font-display text-xl sm:text-2xl font-bold text-blue-ink">
@@ -387,9 +387,9 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                       </div>
 
                       {/* Checklist Requirements */}
-                      <div className="space-y-3 mb-6">
+                      <div className="divide-y divide-sky/10 mb-6">
                         {university.admissionRequirements.map((req) => (
-                          <div key={req} className="flex items-start gap-3 p-2.5 rounded-xl bg-powder/60 border border-sky/15">
+                          <div key={req} className="flex items-start gap-3 py-2.5">
                             <CheckCircle2 className="w-4 h-4 text-sky-deep shrink-0 mt-0.5" />
                             <span className="text-xs sm:text-sm font-semibold text-blue-ink">
                               {req}
@@ -401,7 +401,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
 
                     {/* Application Deadline Box */}
                     {university.applicationDeadline && (
-                      <div className="bg-sitomo/60 rounded-2xl p-4 sm:p-5 flex items-center justify-between border border-sky/20 mt-auto">
+                      <div className="bg-sitomo/60 rounded-md p-4 sm:p-5 flex items-center justify-between mt-auto">
                         <div>
                           <span className="text-[11px] font-bold uppercase tracking-wider text-gray-soft block">
                             {t("applicationDeadline")}
@@ -410,7 +410,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                             {university.applicationDeadline}
                           </span>
                         </div>
-                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-sky/20 shadow-2xs shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-sky/20 shrink-0">
                           <Calendar className="w-5 h-5 text-sky-deep" />
                         </div>
                       </div>
@@ -437,7 +437,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 {/* Undergraduate Card */}
                 {university.undergraduate && (
-                  <div className="bg-white rounded-3xl overflow-hidden border border-sky/20 bubble-shadow-sm flex flex-col">
+                  <div className="bg-white rounded-lg overflow-hidden border border-sky/20 flex flex-col">
                     <div className="relative w-full h-44 sm:h-52 overflow-hidden bg-sitomo/40">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
@@ -465,7 +465,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
 
                 {/* Graduate Card */}
                 {university.graduate && (
-                  <div className="bg-white rounded-3xl overflow-hidden border border-sky/20 bubble-shadow-sm flex flex-col">
+                  <div className="bg-white rounded-lg overflow-hidden border border-sky/20 flex flex-col">
                     <div className="relative w-full h-44 sm:h-52 overflow-hidden bg-sitomo/40">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
@@ -504,9 +504,9 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                       return (
                         <div
                           key={program.title}
-                          className="rounded-3xl border border-sky/25 bg-white p-5 sm:p-6 bubble-shadow-sm hover:border-sky hover:shadow-md transition-all flex flex-col items-center text-center rounded-br-[48px]"
+                          className="rounded-lg border border-sky/25 bg-white p-5 sm:p-6 hover:border-sky transition-colors duration-150 ease-out flex flex-col items-center text-center"
                         >
-                          <div className="w-12 h-12 rounded-2xl bg-sitomo/80 flex items-center justify-center border border-sky/20 shadow-2xs mb-3.5">
+                          <div className="w-12 h-12 rounded-full bg-sitomo/80 flex items-center justify-center border border-sky/20 mb-3.5">
                             <Icon className="w-5 h-5 text-blue-ink" strokeWidth={2.2} />
                           </div>
 
@@ -541,7 +541,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                 {university.facultiesList.map((faculty, fIdx) => (
                   <div
                     key={fIdx}
-                    className="bg-white rounded-3xl p-5 sm:p-6 border border-sky/20 bubble-shadow-sm flex flex-col justify-between hover:border-sky/50 transition-all"
+                    className="bg-white rounded-lg p-5 sm:p-6 border border-sky/20 flex flex-col justify-between hover:border-sky transition-colors duration-150 ease-out"
                   >
                     <div>
                       <div className="flex items-center justify-between gap-2 mb-3 pb-2.5 border-b border-sky/15">
@@ -589,7 +589,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                 {university.facilities.map((fac, idx) => (
                   <div
                     key={idx}
-                    className="group relative aspect-[4/3] w-full rounded-2xl overflow-hidden border border-sky/20 bubble-shadow-sm hover:border-sky/50 transition-all cursor-pointer bg-sitomo/40"
+                    className="group relative aspect-[4/3] w-full rounded-lg overflow-hidden border border-sky/20 hover:border-sky transition-colors duration-150 ease-out cursor-pointer bg-sitomo/40"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -639,7 +639,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                 ))}
               </div>
             ) : (
-              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-sky/15 bubble-shadow-sm text-center max-w-xl">
+              <div className="bg-white rounded-lg p-6 sm:p-8 border border-sky/15 text-center max-w-xl">
                 <Award className="w-10 h-10 text-sky-deep mx-auto mb-2 opacity-60" />
                 <h3 className="font-display text-base font-bold text-blue-ink mb-1">
                   No institutional scholarships currently listed
@@ -649,7 +649,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                 </p>
                 <Link
                   href="/scholarships"
-                  className="inline-flex items-center px-4 py-2 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white text-xs font-bold transition-colors bubble-shadow-sm"
+                  className="inline-flex items-center px-4 py-2 rounded-full bg-[#7AB3B7] hover:bg-[#68A1A5] text-white text-xs font-bold transition-colors"
                 >
                   Browse all scholarships
                 </Link>
@@ -668,8 +668,8 @@ export default async function UniversityDetailPage({ params }: PageProps) {
               </p>
             </div>
 
-            <div className="bg-white rounded-3xl p-5 sm:p-7 border border-sky/20 bubble-shadow-sm max-w-3xl">
-              <div className="relative w-full h-60 sm:h-72 lg:h-80 rounded-2xl overflow-hidden border border-sky/15 mb-5 bg-sitomo/30">
+            <div className="bg-white rounded-lg p-5 sm:p-7 border border-sky/20 max-w-3xl">
+              <div className="relative w-full h-60 sm:h-72 lg:h-80 rounded-lg overflow-hidden border border-sky/15 mb-5 bg-sitomo/30">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={
@@ -680,7 +680,7 @@ export default async function UniversityDetailPage({ params }: PageProps) {
                   alt={`${university.name} Location Map`}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-xs px-3.5 py-1.5 rounded-full text-xs font-bold text-blue-ink flex items-center gap-1.5 shadow-sm border border-sky/15">
+                <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-xs px-3.5 py-1.5 rounded-full text-xs font-bold text-blue-ink flex items-center gap-1.5 border border-sky/15">
                   <MapPin className="w-3.5 h-3.5 text-sky-deep" />
                   <span>{university.location}</span>
                 </div>
