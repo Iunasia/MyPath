@@ -27,6 +27,7 @@ import {
   UserCircle,
 } from "lucide-react";
 import { useTheme } from "@/app/context/ThemeContext";
+import { UKFlag, CambodiaFlag } from "./FlagIcons";
 
 type NavKey =
   | "careers"
@@ -133,26 +134,23 @@ export default function Header({ variant = "default", activeNav, className = "" 
   ];
 
   const desktopLink = (active: boolean) =>
-    `inline-flex items-center gap-1.5 transition-colors ${
+    `inline-flex items-center gap-1.5 transition-colors duration-150 ease-out ${
       active
-        ? "font-bold text-[#7AB3B7]"
-        : "text-gray-soft hover:text-[#7AB3B7] dark:text-gray-body dark:hover:text-[#7AB3B7]"
+        ? "font-bold text-sky-deep"
+        : "text-gray-soft hover:text-sky-deep dark:text-gray-body dark:hover:text-sky-deep"
     }`;
   const mobileLink = (active: boolean) =>
-    `group flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors ${
+    `group flex items-center gap-3 px-3.5 py-2.5 rounded-md transition-colors duration-150 ease-out ${
       active
-        ? "bg-[#7AB3B7]/15 text-[#7AB3B7] font-bold"
-        : "text-blue-ink hover:bg-powder hover:text-[#7AB3B7]"
+        ? "bg-sky/15 text-sky-deep font-bold"
+        : "text-blue-ink hover:bg-powder hover:text-sky-deep"
     }`;
 
-  const position =
-    variant === "home"
-      ? "fixed top-4 inset-x-[25px] sm:inset-x-10 lg:inset-x-[80px]"
-      : "sticky top-3.5 mt-6 mb-2 mx-[25px] sm:mx-10 lg:mx-[80px]";
+  const position = variant === "home" ? "fixed top-0 inset-x-0" : "sticky top-0";
 
   return (
     <div className={`${position} z-50 ${className}`}>
-      <header className="bg-white/90 backdrop-blur-md rounded-full bubble-shadow-sm border border-sky/15 pl-4 pr-3 sm:pl-5 sm:pr-4 py-2.5 flex items-center justify-between gap-4">
+      <header className="bg-white/90 backdrop-blur-md border-b border-sky/15 px-[25px] sm:px-10 lg:px-[80px] py-2.5 flex items-center justify-between gap-4">
         {/* The logo is the way home on every page. */}
         <Link href="/" className="flex items-center gap-1 shrink-0" aria-label={t("home")}>
           <div className="relative h-12 sm:h-12 aspect-[207/268] shrink-0 flex items-center justify-center">
@@ -214,24 +212,34 @@ export default function Header({ variant = "default", activeNav, className = "" 
           </button>
 
           {/* Language Switcher */}
-          <div className="hidden sm:flex items-center bg-white border border-sky/20 rounded-full text-xs font-bold overflow-hidden">
+          <div className="hidden sm:flex items-center bg-white dark:bg-card-dark border border-sky/20 rounded-md text-xs font-bold overflow-hidden">
             <button
               type="button"
               onClick={() => switchLocale("en")}
-              className={`px-2.5 py-1.5 transition-colors cursor-pointer ${
-                locale === "en" ? "bg-sky-deep text-white" : "text-gray-soft hover:text-[#7AB3B7]"
+              aria-label="English"
+              title="English"
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 transition-colors cursor-pointer ${
+                locale === "en"
+                  ? "bg-sky-deep text-white"
+                  : "text-gray-soft hover:text-[#7AB3B7] dark:text-gray-300 dark:hover:text-white"
               }`}
             >
-              EN
+              <UKFlag className="w-4 h-2.5 rounded-[1px] shrink-0" />
+              <span>EN</span>
             </button>
             <button
               type="button"
               onClick={() => switchLocale("km")}
-              className={`px-2.5 py-1.5 transition-colors cursor-pointer ${
-                locale === "km" ? "bg-sky-deep text-white" : "text-gray-soft hover:text-[#7AB3B7]"
+              aria-label="ខ្មែរ"
+              title="ខ្មែរ"
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 transition-colors cursor-pointer font-khmer ${
+                locale === "km"
+                  ? "bg-sky-deep text-white"
+                  : "text-gray-soft hover:text-[#7AB3B7] dark:text-gray-300 dark:hover:text-white"
               }`}
             >
-              KM
+              <CambodiaFlag className="w-4 h-2.5 rounded-[1px] shrink-0" />
+              <span>ខ្មែរ</span>
             </button>
           </div>
 
@@ -254,7 +262,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
               {accountOpen && (
                 <div
                   role="menu"
-                  className="absolute right-0 top-full mt-3 w-64 bg-white rounded-2xl border border-sky/15 bubble-shadow p-2 text-sm font-semibold"
+                  className="absolute right-0 top-full mt-3 w-64 bg-white rounded-lg border border-sky/15 p-2 text-sm font-semibold"
                 >
                   <div className="px-3 py-2.5 mb-1 border-b border-sky/10">
                     <p className="font-bold text-blue-ink truncate">{user.name}</p>
@@ -264,7 +272,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
                     href="/verify"
                     role="menuitem"
                     onClick={() => setAccountOpen(false)}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-blue-ink hover:bg-powder"
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-md text-blue-ink hover:bg-powder transition-colors duration-150 ease-out"
                   >
                     <ShieldCheck className="w-4 h-4 text-sky-deep" />
                     <span className="flex-1">{t("myCheckRequests")}</span>
@@ -274,7 +282,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
                     href="/saved"
                     role="menuitem"
                     onClick={() => setAccountOpen(false)}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-blue-ink hover:bg-powder"
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-md text-blue-ink hover:bg-powder transition-colors duration-150 ease-out"
                   >
                     <Bookmark className="w-4 h-4 text-sky-deep" />
                     {t("saved")}
@@ -283,7 +291,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
                     href="/profile"
                     role="menuitem"
                     onClick={() => setAccountOpen(false)}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-blue-ink hover:bg-powder"
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-md text-blue-ink hover:bg-powder transition-colors duration-150 ease-out"
                   >
                     <UserCircle className="w-4 h-4 text-sky-deep" />
                     {t("profile")}
@@ -293,7 +301,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
                       href="/admin"
                       role="menuitem"
                       onClick={() => setAccountOpen(false)}
-                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-blue-ink hover:bg-powder"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-md text-blue-ink hover:bg-powder transition-colors duration-150 ease-out"
                     >
                       <LayoutDashboard className="w-4 h-4 text-sky-deep" />
                       {t("adminDashboard")}
@@ -306,7 +314,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
           ) : (
             <Link
               href="/auth/signin"
-              className="hidden sm:inline-flex items-center rounded-full bg-[#7AB3B7] px-5 py-2 text-sm font-bold text-white hover:bg-[#68A1A5] transition-colors"
+              className="hidden sm:inline-flex items-center rounded-md bg-[#7AB3B7] px-5 py-2 text-sm font-bold text-white hover:bg-[#68A1A5] transition-colors duration-150 ease-out"
             >
               {tCommon("signIn")}
             </Link>
@@ -329,7 +337,7 @@ export default function Header({ variant = "default", activeNav, className = "" 
 
       {menuOpen && (
         <nav
-          className="lg:hidden bg-white/95 backdrop-blur-md rounded-3xl p-3 mt-3 bubble-shadow-sm border border-sky/15 text-sm font-semibold"
+          className="lg:hidden bg-white/95 backdrop-blur-md rounded-lg p-3 mx-[25px] sm:mx-10 lg:mx-[80px] mb-3 border border-sky/15 text-sm font-semibold"
           aria-label={t("main")}
         >
           <div className="flex flex-col gap-1">
@@ -362,20 +370,26 @@ export default function Header({ variant = "default", activeNav, className = "" 
               <button
                 type="button"
                 onClick={() => switchLocale("en")}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                  locale === "en" ? "bg-sky-deep text-white" : "text-gray-soft hover:text-[#7AB3B7] bg-powder"
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                  locale === "en"
+                    ? "bg-sky-deep text-white"
+                    : "text-gray-soft hover:text-[#7AB3B7] bg-powder dark:bg-white/5"
                 }`}
               >
-                English
+                <UKFlag className="w-4 h-2.5 rounded-[1px] shrink-0" />
+                <span>English</span>
               </button>
               <button
                 type="button"
                 onClick={() => switchLocale("km")}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                  locale === "km" ? "bg-sky-deep text-white" : "text-gray-soft hover:text-[#7AB3B7] bg-powder"
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold font-khmer transition-all cursor-pointer ${
+                  locale === "km"
+                    ? "bg-sky-deep text-white"
+                    : "text-gray-soft hover:text-[#7AB3B7] bg-powder dark:bg-white/5"
                 }`}
               >
-                ខ្មែរ
+                <CambodiaFlag className="w-4 h-2.5 rounded-[1px] shrink-0" />
+                <span>ខ្មែរ</span>
               </button>
             </div>
           </div>
@@ -405,14 +419,14 @@ export default function Header({ variant = "default", activeNav, className = "" 
                 <Link
                   href="/auth/signin"
                   onClick={() => setMenuOpen(false)}
-                  className="text-center rounded-full border border-sky/30 px-4 py-2.5 font-bold text-sky-deep hover:bg-sitomo transition-colors"
+                  className="text-center rounded-md border border-sky/30 px-4 py-2.5 font-bold text-sky-deep hover:bg-sitomo transition-colors duration-150 ease-out"
                 >
                   {tCommon("signIn")}
                 </Link>
                 <Link
                   href="/auth/signup"
                   onClick={() => setMenuOpen(false)}
-                  className="text-center rounded-full bg-[#7AB3B7] px-4 py-2.5 font-bold text-white hover:bg-[#68A1A5] transition-colors"
+                  className="text-center rounded-md bg-[#7AB3B7] px-4 py-2.5 font-bold text-white hover:bg-[#68A1A5] transition-colors duration-150 ease-out"
                 >
                   {tCommon("createAccount")}
                 </Link>

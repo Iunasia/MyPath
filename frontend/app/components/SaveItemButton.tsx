@@ -42,14 +42,14 @@ export default function SaveItemButton({
           onClick={handleClick}
           aria-label={isSaved ? `${t("unsave")} ${item.title}` : `${t("save")} ${item.title}`}
           title={isSaved ? t("savedClickToRemove") : `${t("save")} ${item.title}`}
-          className={`p-2 rounded-full backdrop-blur-md transition-all cursor-pointer shadow-sm ${
+          className={`p-2 rounded-full backdrop-blur-md transition-colors cursor-pointer border border-white/40 ${
             isSaved
               ? "bg-[#7AB3B7] text-white ring-2 ring-white/50"
               : "bg-white/80 text-blue-ink hover:bg-white hover:text-sky-deep"
           } ${className}`}
         >
           <Bookmark
-            className={`w-4 h-4 transition-transform active:scale-90 ${
+            className={`w-4 h-4 transition-colors duration-150 ease-out ${
               isSaved ? "fill-white text-white" : ""
             }`}
           />
@@ -62,14 +62,14 @@ export default function SaveItemButton({
           onClick={handleClick}
           aria-label={isSaved ? `${t("unsave")} ${item.title}` : `${t("save")} ${item.title}`}
           title={isSaved ? t("savedClickToRemove") : `${t("save")} ${item.title}`}
-          className={`p-2.5 rounded-2xl border transition-all focus:outline-none cursor-pointer bubble-shadow-sm ${
+          className={`p-2.5 rounded-md border transition-colors focus:outline-none cursor-pointer ${
             isSaved
               ? "bg-sitomo border-sky text-sky-deep"
               : "bg-white border-sky/15 text-blue-ink hover:border-sky/40 hover:bg-sitomo/50"
           } ${className}`}
         >
           <Bookmark
-            className={`w-5 h-5 transition-transform active:scale-90 ${
+            className={`w-5 h-5 transition-colors duration-150 ease-out ${
               isSaved ? "fill-sky-deep text-sky-deep" : "text-sky-deep"
             }`}
           />
@@ -80,14 +80,14 @@ export default function SaveItemButton({
         <button
           type="button"
           onClick={handleClick}
-          className={`inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full font-bold text-sm transition-all bubble-shadow-sm cursor-pointer border ${
+          className={`inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full font-bold text-sm transition-colors cursor-pointer border ${
             isSaved
               ? "bg-sitomo border-sky text-sky-deep"
               : "bg-[#7AB3B7] text-white border-transparent hover:bg-[#68A1A5]"
           } ${className}`}
         >
           <Bookmark
-            className={`w-4 h-4 transition-transform active:scale-90 ${
+            className={`w-4 h-4 transition-colors duration-150 ease-out ${
               isSaved ? "fill-sky-deep text-sky-deep" : "fill-white text-white"
             }`}
           />

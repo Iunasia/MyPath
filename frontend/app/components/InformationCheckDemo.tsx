@@ -21,7 +21,7 @@ export default function InformationCheckDemo({ className = "" }: { className?: s
   const [isScamView, setIsScamView] = useState(false);
 
   return (
-    <div className={`rounded-3xl bg-white dark:bg-panel border border-sky/20 dark:border-white/10 p-6 sm:p-7 bubble-shadow relative overflow-hidden flex flex-col justify-between ${className}`}>
+    <div className={`rounded-lg bg-white dark:bg-panel border border-sky/20 dark:border-white/10 p-6 sm:p-7 relative overflow-hidden flex flex-col justify-between ${className}`}>
       {/* Subtle Switcher */}
       <div className="flex items-center justify-between gap-2 pb-4 mb-5 border-b border-sky/15 dark:border-white/10 shrink-0">
         <div className="flex items-center gap-2">
@@ -41,7 +41,7 @@ export default function InformationCheckDemo({ className = "" }: { className?: s
             aria-pressed={!isScamView}
             className={`inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold transition-colors cursor-pointer ${
               !isScamView
-                ? "bg-white dark:bg-panel text-blue-ink shadow-xs"
+                ? "bg-white dark:bg-panel text-blue-ink"
                 : "text-gray-soft hover:text-blue-ink"
             }`}
           >
@@ -54,7 +54,7 @@ export default function InformationCheckDemo({ className = "" }: { className?: s
             aria-pressed={isScamView}
             className={`inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold transition-colors cursor-pointer ${
               isScamView
-                ? "bg-rose-500 text-white shadow-xs"
+                ? "bg-rose-500 text-white"
                 : "text-gray-soft hover:text-rose-600"
             }`}
           >
@@ -70,7 +70,7 @@ export default function InformationCheckDemo({ className = "" }: { className?: s
             {/* Header */}
             <div className="flex items-start justify-between gap-3 mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-sitomo dark:bg-sitomo/40 flex items-center justify-center text-sky-deep font-extrabold text-xs shrink-0 border border-sky/20 dark:border-white/10">
+                <div className="w-10 h-10 rounded-lg bg-sitomo dark:bg-sitomo/40 flex items-center justify-center text-sky-deep font-extrabold text-xs shrink-0 border border-sky/20 dark:border-white/10">
                   RUPP
                 </div>
                 <div>
@@ -82,14 +82,14 @@ export default function InformationCheckDemo({ className = "" }: { className?: s
                   </p>
                 </div>
               </div>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold shadow-xs shrink-0">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold shrink-0">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
                 {t("verifiedLabel")}
               </span>
             </div>
 
             {/* Clean 4-Grid Specs */}
-            <div className="rounded-2xl bg-powder/60 dark:bg-panel-raised/60 border border-sky/15 dark:border-white/10 p-4 mb-4">
+            <div className="rounded-lg bg-powder/60 dark:bg-panel-raised/60 border border-sky/15 dark:border-white/10 p-4 mb-4">
               <div className="flex items-center justify-between gap-2 mb-2.5 pb-2 border-b border-sky/15 dark:border-white/10 text-[11px] font-bold text-sky-deep">
                 <span className="flex items-center gap-1.5 uppercase tracking-wider">
                   <FileCheck2 className="w-3.5 h-3.5" aria-hidden="true" />
@@ -124,7 +124,7 @@ export default function InformationCheckDemo({ className = "" }: { className?: s
             </div>
 
             {/* Reassurance text */}
-            <div className="rounded-2xl bg-momo/80 dark:bg-sitomo/30 border border-momo dark:border-white/10 p-3.5 mb-5">
+            <div className="rounded-lg bg-momo/80 dark:bg-sitomo/30 border border-momo dark:border-white/10 p-3.5 mb-5">
               <p className="text-xs font-bold text-blue-ink flex items-center gap-1.5 mb-0.5">
                 <ShieldCheck className="w-4 h-4 text-sky-deep shrink-0" aria-hidden="true" />
                 {t("whyTrustListing")}
@@ -153,7 +153,7 @@ export default function InformationCheckDemo({ className = "" }: { className?: s
             {/* Scam Header */}
             <div className="flex items-start justify-between gap-3 mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-rose-100 flex items-center justify-center text-rose-600 font-extrabold text-base shrink-0 border border-rose-200">
+                <div className="w-10 h-10 rounded-lg bg-rose-100 flex items-center justify-center text-rose-600 font-extrabold text-base shrink-0 border border-rose-200">
                   <AlertTriangle className="w-4 h-4" aria-hidden="true" />
                 </div>
                 <div>
@@ -165,14 +165,14 @@ export default function InformationCheckDemo({ className = "" }: { className?: s
                   </p>
                 </div>
               </div>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold shadow-xs shrink-0">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold shrink-0">
                 <XCircle className="w-3.5 h-3.5 text-rose-600" aria-hidden="true" />
                 {t("scamFlagged")}
               </span>
             </div>
 
             {/* Scam Warnings List */}
-            <div className="rounded-2xl bg-rose-50 border border-rose-200 p-4 mb-4">
+            <div className="rounded-lg bg-rose-50 border border-rose-200 p-4 mb-4">
               <div className="flex items-center gap-2 text-rose-800 font-bold text-xs mb-2">
                 <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0" aria-hidden="true" />
                 <span>{t("dmilScamWarnings")}</span>
@@ -194,7 +194,7 @@ export default function InformationCheckDemo({ className = "" }: { className?: s
             </div>
 
             {/* Protection tip */}
-            <div className="rounded-2xl bg-momo/80 border border-momo p-3.5 mb-5">
+            <div className="rounded-lg bg-momo/80 border border-momo p-3.5 mb-5">
               <p className="text-xs font-bold text-blue-ink mb-0.5">
                 {t("howDomnerProtects")}
               </p>
@@ -207,7 +207,7 @@ export default function InformationCheckDemo({ className = "" }: { className?: s
           {/* Single clean action button */}
           <Link
             href="/verify"
-            className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-rose-600 px-4 py-3 text-xs sm:text-sm font-bold text-white hover:bg-rose-700 transition-colors shadow-xs mt-2"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-rose-600 px-4 py-3 text-xs sm:text-sm font-bold text-white hover:bg-rose-700 transition-colors mt-2"
           >
             <span>{t("scanOnVerifier")}</span>
             <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />

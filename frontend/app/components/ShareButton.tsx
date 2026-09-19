@@ -16,7 +16,7 @@ interface ShareButtonProps {
  */
 /** A round button the same height as the Save pill beside it. */
 const DEFAULT_CLASS =
-  "size-11.5 shrink-0 inline-flex items-center justify-center rounded-full bg-white border border-sky/40 text-sky-deep hover:bg-sitomo/60 hover:border-sky transition-all bubble-shadow-sm cursor-pointer";
+  "size-11.5 shrink-0 inline-flex items-center justify-center rounded-full bg-white border border-sky/40 text-sky-deep hover:bg-sitomo/60 hover:border-sky transition-colors duration-150 ease-out cursor-pointer";
 
 export default function ShareButton({
   title,
