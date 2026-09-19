@@ -11,7 +11,7 @@ interface EmptyStateProps {
 export function EmptyState({ icon: Icon, title, description, action, className = "" }: EmptyStateProps) {
   return (
     <div
-      className={`bg-panel rounded-3xl p-10 text-center border border-sky/15 bubble-shadow-sm max-w-lg mx-auto mt-6 ${className}`}
+      className={`bg-panel rounded-lg p-10 text-center border border-sky/15 max-w-lg mx-auto mt-6 ${className}`}
     >
       {Icon ? (
         <Icon className="w-12 h-12 text-sky-deep mx-auto mb-3 opacity-60" aria-hidden="true" />

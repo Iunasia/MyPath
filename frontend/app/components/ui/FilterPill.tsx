@@ -16,9 +16,9 @@ export function FilterPill({ label, selected, onClick, className = "", count, ti
       onClick={onClick}
       aria-pressed={selected}
       title={title}
-      className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-colors duration-200 cursor-pointer ${
+      className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-colors duration-150 ease-out cursor-pointer ${
         selected
-          ? "bg-sky-deep text-white bubble-shadow-sm"
+          ? "bg-sky-deep text-white"
           : "bg-panel text-blue-ink border border-sky/25 hover:border-sky"
       } ${className}`}
     >

@@ -33,7 +33,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
     ref
   ) {
     const inputId = id ?? name;
-    const rounded = size === "lg" ? "rounded-full" : "rounded-2xl";
+    const rounded = "rounded-md";
 
     return (
       <div className={`relative w-full ${className}`}>
@@ -60,7 +60,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
             aria-label={ariaLabel ?? label}
             spellCheck={false}
             autoComplete={autoComplete}
-            className={`w-full ${size === "lg" ? "pl-12 pr-10 py-3.5" : "pl-11 pr-9 py-3"} ${rounded} bg-panel border border-sky/25 text-sm text-blue-ink placeholder:text-gray-faint focus:outline-none focus:ring-2 focus:ring-sky/40 focus:border-sky transition-colors bubble-shadow-sm font-medium [&::-webkit-search-cancel-button]:hidden`}
+            className={`w-full ${size === "lg" ? "pl-12 pr-10 py-3.5" : "pl-11 pr-9 py-3"} ${rounded} bg-panel border border-sky/25 text-sm text-blue-ink placeholder:text-gray-faint focus:outline-none focus:ring-2 focus:ring-sky/40 focus:border-sky transition-colors duration-150 ease-out font-medium [&::-webkit-search-cancel-button]:hidden`}
           />
           {value ? (
             <button

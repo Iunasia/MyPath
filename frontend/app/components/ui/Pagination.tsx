@@ -24,9 +24,9 @@ function pagesAround(current: number, total: number): (number | "ellipsis")[] {
 
 export function Pagination({ currentPage, totalPages, onPageChange, labels, className = "" }: PaginationProps) {
   const pageBtn = (page: number, active: boolean) =>
-    `w-8 h-8 rounded-full text-xs font-bold transition-colors cursor-pointer ${
+    `w-8 h-8 rounded-full text-xs font-bold transition-colors duration-150 ease-out cursor-pointer ${
       active
-        ? "bg-sky-deep text-white bubble-shadow-sm"
+        ? "bg-sky-deep text-white"
         : "bg-panel border border-sky/20 text-blue-ink hover:bg-sitomo/60"
     }`;
 
@@ -46,7 +46,7 @@ export function Pagination({ currentPage, totalPages, onPageChange, labels, clas
           type="button"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage <= 1}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-sky/30 bg-panel text-blue-ink text-xs font-bold hover:bg-sitomo/60 disabled:opacity-40 disabled:cursor-not-allowed transition-colors bubble-shadow-sm cursor-pointer"
+          className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-sky/30 bg-panel text-blue-ink text-xs font-bold hover:bg-sitomo/60 disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-150 ease-out cursor-pointer"
         >
           <ChevronLeft className="w-4 h-4" aria-hidden="true" />
           <span>{labels.prev}</span>
@@ -77,7 +77,7 @@ export function Pagination({ currentPage, totalPages, onPageChange, labels, clas
           type="button"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage >= totalPages}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-sky/30 bg-panel text-blue-ink text-xs font-bold hover:bg-sitomo/60 disabled:opacity-40 disabled:cursor-not-allowed transition-colors bubble-shadow-sm cursor-pointer"
+          className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-sky/30 bg-panel text-blue-ink text-xs font-bold hover:bg-sitomo/60 disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-150 ease-out cursor-pointer"
         >
           <span>{labels.next}</span>
           <ChevronRight className="w-4 h-4" aria-hidden="true" />
