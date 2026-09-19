@@ -58,8 +58,9 @@ const getStorageKey = (userId?: number | null) => {
 const SavedContext = createContext<SavedContextType | undefined>(undefined);
 
 /** The API accepts either a numeric id or a slug (for universities/majors/careers). */
-const apiIdOf = (item: { apiId?: number; id: string; slug?: string }): number | string => {
+const apiIdOf = (item: { apiId?: number; id: string; slug?: string; type: SavedItemType }): number | string | null => {
   if (typeof item.apiId === "number" && item.apiId > 0) return item.apiId;
+  if (item.type === "scholarship") return null; // Static scholarships without a DB id cannot be sent to the backend
   if (item.slug && item.slug.trim()) return item.slug.trim();
   return item.id;
 };

@@ -39,7 +39,12 @@ if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
           // Check if user exists with same email (link Google to existing account)
           user = await User.findByEmail(email);
           if (user) {
+            // Google proves ownership of this email → link and auto-verify
             await User.linkGoogleId(user.id, googleId);
+            if (!user.is_verified) {
+              await User.markAsVerified(user.id);
+            }
+            user.is_verified = true;
             return done(null, user as any);
           }
 

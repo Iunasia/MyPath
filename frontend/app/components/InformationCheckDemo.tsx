@@ -12,6 +12,7 @@ import {
   FileCheck2,
   ArrowRight,
   AlertTriangle,
+  X,
 } from "lucide-react";
 import { Button } from "./ui";
 
@@ -38,24 +39,26 @@ export default function InformationCheckDemo({ className = "" }: { className?: s
             type="button"
             onClick={() => setIsScamView(false)}
             aria-pressed={!isScamView}
-            className={`px-3.5 py-1 rounded-full text-xs font-bold transition-colors cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold transition-colors cursor-pointer ${
               !isScamView
                 ? "bg-white dark:bg-panel text-blue-ink shadow-xs"
                 : "text-gray-soft hover:text-blue-ink"
             }`}
           >
+            <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
             {t("verified")}
           </button>
           <button
             type="button"
             onClick={() => setIsScamView(true)}
             aria-pressed={isScamView}
-            className={`px-3.5 py-1 rounded-full text-xs font-bold transition-colors cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold transition-colors cursor-pointer ${
               isScamView
                 ? "bg-rose-500 text-white shadow-xs"
                 : "text-gray-soft hover:text-rose-600"
             }`}
           >
+            <AlertTriangle className="w-3.5 h-3.5" aria-hidden="true" />
             {t("scamAlert")}
           </button>
         </div>
@@ -176,15 +179,15 @@ export default function InformationCheckDemo({ className = "" }: { className?: s
               </div>
               <ul className="space-y-1.5 text-xs text-rose-700">
                 <li className="flex items-start gap-1.5">
-                  <span className="text-rose-500 font-bold" aria-hidden="true">✕</span>
+                  <X className="w-3.5 h-3.5 text-rose-500 shrink-0 mt-px" aria-hidden="true" />
                   <span>{t("scamWarning1")}</span>
                 </li>
                 <li className="flex items-start gap-1.5">
-                  <span className="text-rose-500 font-bold" aria-hidden="true">✕</span>
+                  <X className="w-3.5 h-3.5 text-rose-500 shrink-0 mt-px" aria-hidden="true" />
                   <span>{t("scamWarning2")}</span>
                 </li>
                 <li className="flex items-start gap-1.5">
-                  <span className="text-rose-500 font-bold" aria-hidden="true">✕</span>
+                  <X className="w-3.5 h-3.5 text-rose-500 shrink-0 mt-px" aria-hidden="true" />
                   <span>{t("scamWarning3")}</span>
                 </li>
               </ul>

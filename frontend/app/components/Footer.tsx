@@ -17,7 +17,7 @@ export default function Footer({ className = "" }: FooterProps) {
         { label: t("majors"), href: "/majors" },
         { label: t("universities"), href: "/universities" },
         { label: t("scholarships"), href: "/scholarships" },
-        { label: "Workshops", href: "/workshops" },
+        { label: t("opportunity"), href: "/opportunities" },
         { label: "Verify", href: "/verify" },
       ],
     },
@@ -49,7 +49,7 @@ export default function Footer({ className = "" }: FooterProps) {
             <Link href="/" className="flex items-center gap-2 mb-4">
               <div className="relative w-7 h-7 shrink-0 flex items-center justify-center">
                 <Image
-                  src="/images/domner-logo.png"
+                  src="/images/logo.png"
                   alt="Domner Logo"
                   width={28}
                   height={28}

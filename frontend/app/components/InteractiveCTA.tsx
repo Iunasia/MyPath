@@ -12,7 +12,7 @@ export default function InteractiveCTA() {
       <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
         <h2 className="font-display text-3xl sm:text-4xl lg:text-[2.75rem] font-extrabold text-blue-ink tracking-tight mb-4 leading-tight">
           {t("title1")} <br />
-          <span className="text-sky-deep">
+          <span className="text-[#5B9DA2]">
             {t("titleHighlight")}
           </span>
         </h2>

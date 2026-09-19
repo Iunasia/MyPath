@@ -9,7 +9,7 @@ const VARIANTS: Record<ButtonVariant, string> = {
   primary: "bg-[#7AB3B7] text-white hover:bg-[#68A1A5] border border-transparent",
   secondary:
     "bg-panel text-blue-ink border border-sky/30 hover:border-sky hover:bg-sitomo",
-  outline: "border border-sky text-sky-deep hover:bg-sky hover:text-white bg-transparent",
+  outline: "border border-[#7AB3B7] text-[#7AB3B7] hover:bg-[#7AB3B7] hover:text-white bg-transparent",
   ghost: "text-sky-deep hover:bg-sitomo bg-transparent",
   danger: "bg-rose-600 text-white hover:bg-rose-700 border border-transparent",
 };

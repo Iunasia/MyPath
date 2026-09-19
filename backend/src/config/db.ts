@@ -10,9 +10,8 @@ dotenv.config();
 // it as the plain "YYYY-MM-DD" string Postgres already returns.
 types.setTypeParser(1082, (value: string) => value);
 
-const isProduction = process.env.NODE_ENV === 'production';
-const requiresSsl =
-  isProduction ||
+const useSSL =
+  process.env.DATABASE_SSL === 'true' ||
   Boolean(
     process.env.DATABASE_URL &&
       (process.env.DATABASE_URL.includes('neon.tech') ||
@@ -21,7 +20,7 @@ const requiresSsl =
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: requiresSsl ? { rejectUnauthorized: false } : false,
+  ssl: useSSL ? { rejectUnauthorized: false } : false,
 });
 
 pool.on('connect', () => {

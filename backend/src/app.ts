@@ -4,6 +4,8 @@ dotenv.config();
 import express, { NextFunction, Request, Response } from 'express';
 import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
+import { RedisStore } from 'connect-redis';
+import Redis from 'ioredis';
 import cors from 'cors';
 import helmet from 'helmet';
 import passport from './config/passport';
@@ -26,7 +28,7 @@ const PgSession = connectPgSimple(session);
 
 const app = express();
 
-// Trust reverse proxy (Vercel / Cloudflare / Render) for secure cookies & rate limiting
+// Trust reverse proxy (UpCloud Load Balancer / Cloudflare / Vercel) for secure cookies & rate limiting
 app.set('trust proxy', 1);
 
 // Never advertise the framework. (helmet also does this; belt and braces.)
@@ -39,15 +41,16 @@ app.use(
     crossOriginResourcePolicy: { policy: 'cross-origin' }
   })
 );
-app.use(generalLimiter);
-
 // Strict CORS allowlist. Without this, any site could make authenticated requests
 // to our backend using the user's session cookie (CSRF account-takeover vector).
 // Never add wildcards or permissive fallbacks here — add specific origins only.
-const allowedOrigins = [
+const allowedOrigins = Array.from(new Set([
   'http://localhost:3000',
-  FRONTEND_URL, // production URL
-].filter(Boolean);
+  FRONTEND_URL,
+  FRONTEND_URL.includes('://www.')
+    ? FRONTEND_URL.replace('://www.', '://')
+    : FRONTEND_URL.replace('://', '://www.'),
+].filter(Boolean)));
 
 const corsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
@@ -64,24 +67,43 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use(generalLimiter);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use(session({
-  store: new PgSession({
+// Session store: Redis (preferred for multi-instance load balancing) -> PostgreSQL -> MemoryStore fallback
+let sessionStore: session.Store | undefined;
+if (process.env.REDIS_URL) {
+  const redisClient = new Redis(process.env.REDIS_URL, {
+    maxRetriesPerRequest: null,
+    enableReadyCheck: false,
+  });
+  redisClient.on('error', (err) => console.error('Redis session error:', err));
+  redisClient.on('connect', () => console.log('Connected to Redis session store'));
+  sessionStore = new RedisStore({
+    client: redisClient,
+    prefix: 'mypath:sess:',
+  });
+} else if (pool) {
+  sessionStore = new PgSession({
     pool: pool,
     tableName: 'session',
     createTableIfMissing: true,
     errorLog: (err: any) => {
       console.warn('⚠️ [Session Store Warning]:', err?.message || err);
     },
-  }),
+  });
+}
+
+app.use(session({
+  store: sessionStore,
   secret: process.env.SESSION_SECRET || 'mypath-secret',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    sameSite: isProduction ? 'none' : 'lax',
+    domain: process.env.COOKIE_DOMAIN || undefined,
+    sameSite: isProduction ? (process.env.COOKIE_DOMAIN ? 'lax' : 'none') : 'lax',
     httpOnly: true,
     secure: isProduction,
     maxAge: 24 * 60 * 60 * 1000,
@@ -90,6 +112,15 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Lightweight health check endpoint for UpCloud Load Balancer / monitoring
+app.get('/health', (_req: Request, res: Response) => {
+  res.status(200).json({
+    status: 'ok',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
+});
 
 app.use('/', pagesRoutes);
 // The brute-force limiter is applied inside the router, on POST /login and

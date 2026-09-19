@@ -11,7 +11,7 @@
   --sky-bright: #8DC4C8;     /* Lighter soft teal for hover states */
   /* Deep teal — solid buttons and accent text. White on it is 5.6:1, and it
      reads at 4.8:1 on the powder canvas; --sky is too light for either (2.3:1). */
-  --sky-deep: #3D7074;
+  --sky-deep: #7AB3B7;
   --sky-dark: #7AB3B7;
   --powder: #E2F1F1;         /* Background Light Teal (Overall Canvas) */
   --powder-deep: #D5ECEC;    /* Slightly deeper canvas tint */
@@ -43,10 +43,10 @@
   color-scheme: dark;
 
   /* Clean Minimalist Obsidian Brand Palette */
-  --sky: #2DD4BF;            /* Clean vibrant cyan-teal */
-  --sky-bright: #5EEAD4;     /* Luminous cyan-teal hover */
-  --sky-deep: #14B8A6;       /* Clean solid accent teal */
-  --sky-dark: #0D9488;       /* Hover state */
+  --sky: #7AB3B7;            /* Soft teal */
+  --sky-bright: #8DC4C8;     /* Lighter soft teal for hover states */
+  --sky-deep: #7AB3B7;       /* Clean solid accent teal */
+  --sky-dark: #7AB3B7;       /* Hover state */
   --powder: #0A0D12;         /* Deep obsidian black canvas */
   --powder-deep: #0E1318;    /* Slightly raised dark canvas */
 

@@ -35,6 +35,7 @@ export interface CareerItem {
   id: string;
   title: string;
   category: string;
+  categoryLabel?: string;
   shortOverview: string;
   description: string;
   whatYouDo: string;
@@ -592,7 +593,8 @@ export function mergeCareerTranslations(career: CareerItem, tr: CareerTranslatio
   return {
     ...career,
     title: tr.title,
-    category: tr.category,
+    category: career.category,
+    categoryLabel: tr.category,
     shortOverview: tr.shortOverview,
     description: tr.description,
     whatYouDo: tr.whatYouDo,
