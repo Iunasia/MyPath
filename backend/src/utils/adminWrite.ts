@@ -1,9 +1,10 @@
 import { Request } from 'express';
 import User from '../models/User';
+import { getAuthUserId } from '../middleware/auth';
 
 /** Shared helpers for the admin catalogue write endpoints. */
 
-export const actorOf = (req: Request): number | null => (req.session as any)?.userId ?? null;
+export const actorOf = (req: Request): number | null => getAuthUserId(req);
 
 export const isUniqueViolation = (err: unknown): boolean =>
   typeof err === 'object' && err !== null && (err as { code?: string }).code === '23505';
@@ -11,7 +12,7 @@ export const isUniqueViolation = (err: unknown): boolean =>
 /** Admins may ask for archived rows with `?includeArchived=1`; nobody else can. */
 export const wantsArchived = async (req: Request): Promise<boolean> => {
   if (req.query.includeArchived !== '1') return false;
-  const userId = (req.session as any)?.userId;
+  const userId = getAuthUserId(req);
   if (!userId) return false;
   const user = await User.findById(userId);
   return user?.role === 'admin';
