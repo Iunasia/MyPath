@@ -52,9 +52,6 @@ services:
       # The admin account `npm run seed` creates if that email isn't registered.
       - SEED_ADMIN_EMAIL=${SEED_ADMIN_EMAIL:-admin@domner.edu.kh}
       - SEED_ADMIN_PASSWORD=${SEED_ADMIN_PASSWORD:-admin123}
-      # Enables polling for fast refresh inside Docker across different OS file systems
-      - WATCHPACK_POLLING=true
-      - CHOKIDAR_USEPOLLING=true
     volumes:
       - ./backend:/app
       # Anonymous volume preserves container's installed node_modules from being overwritten by the host

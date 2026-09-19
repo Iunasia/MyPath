@@ -389,18 +389,17 @@ export default function ScholarshipDetail({
                 <div>
                   <div className="mb-6 pb-4 border-b border-sky/15">
                     <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-blue-ink">
-                      Eligibility & Required Documents
+                      {t("eligibilityTitle")}
                     </h2>
                     <p className="text-xs sm:text-sm text-gray-soft font-medium mt-1">
-                      Academic qualifications and application checklist for {scholarship.provider}
+                      {t("eligibilitySubtitle", { provider: displayProvider })}
                     </p>
                   </div>
-
                   {/* Eligibility Requirements */}
                   <div className="space-y-3.5 mb-8">
                     <div className="flex items-center gap-2 text-sm font-bold text-blue-ink">
                       <GraduationCap className="w-4 h-4 text-sky-deep" />
-                      <h3>Eligibility Requirements</h3>
+                      <h3>{t("eligibilityRequirements")}</h3>
                     </div>
                     <div className="space-y-3">
                       {scholarship.eligibility.map((req, i) => (
@@ -439,7 +438,7 @@ export default function ScholarshipDetail({
                 {scholarship.targetMajors && scholarship.targetMajors.length > 0 && (
                   <div className="mt-6 pt-5 border-t border-sky/15 flex flex-col sm:flex-row sm:items-center gap-3">
                     <span className="text-xs font-bold text-gray-soft uppercase tracking-wider shrink-0">
-                      Eligible Majors:
+                      {t("eligibleMajors")}:
                     </span>
                     <div className="flex flex-wrap gap-1.5">
                       {scholarship.targetMajors.map((m) => (
@@ -455,15 +454,15 @@ export default function ScholarshipDetail({
                 )}
               </div>
 
-              {/* Right Column: Benefits & Complete Award Coverage */}
+             {/* Right Column: Benefits & Complete Award Coverage */}
               <div className="flex flex-col justify-between">
                 <div>
                   <div className="mb-6 pb-4 border-b border-sky/15">
                     <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-blue-ink">
-                      Benefits & Complete Award Coverage
+                      {t("benefitsTitle")}
                     </h2>
                     <p className="text-xs sm:text-sm text-gray-soft font-medium mt-1">
-                      Tuition waiver allowances and academic advantages provided by {scholarship.provider}
+                      {t("benefitsSubtitle", { provider: displayProvider })}
                     </p>
                   </div>
 
